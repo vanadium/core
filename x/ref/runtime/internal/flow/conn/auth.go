@@ -7,7 +7,6 @@ package conn
 import (
 	"crypto/rand"
 	"reflect"
-	"sync"
 	"time"
 
 	"golang.org/x/crypto/nacl/box"
@@ -19,8 +18,6 @@ import (
 	"v.io/v23/rpc/version"
 	"v.io/v23/security"
 	"v.io/v23/verror"
-	"v.io/v23/vom"
-	"v.io/x/lib/vlog"
 	iflow "v.io/x/ref/runtime/internal/flow"
 )
 
@@ -54,11 +51,19 @@ func (c *Conn) dialHandshake(
 	bflow.releaseLocked(DefaultBytesBufferedPerFlow)
 	c.blessingsFlow = newBlessingsFlow(bflow)
 
-	rBlessings, rDischarges, rttend, err := c.readRemoteAuth(ctx, binding, true)
+	rttend, err := c.readRemoteAuth(ctx, binding, true)
 	if err != nil {
 		return nil, nil, 0, err
 	}
 	rtt = rttend.Sub(rttstart)
+
+	c.mu.Lock()
+	// Note that the remoteBlessings and discharges are stored in data
+	// structures in the blessingsFlow implementation.
+	rBlessings := c.remoteBlessings
+	rDischarges := c.remoteDischarges
+	c.mu.Unlock()
+
 	if rBlessings.IsZero() {
 		err = ErrAcceptorBlessingsMissing.Errorf(ctx, "dial: acceptor did not send blessings")
 		return nil, nil, rtt, err
@@ -107,7 +112,7 @@ func (c *Conn) acceptHandshake(
 		return rtt, err
 	}
 	c.remote = remoteEndpoint
-	bflw := c.newFlowLocked(
+	bflow := c.newFlowLocked(
 		ctx,
 		blessingsFlowID,
 		security.Blessings{},
@@ -119,7 +124,7 @@ func (c *Conn) acceptHandshake(
 		true,
 		0,
 		true)
-	c.blessingsFlow = newBlessingsFlow(bflw)
+	c.blessingsFlow = newBlessingsFlow(bflow)
 	signedBinding, err := v23.GetPrincipal(ctx).Sign(append(authAcceptorTag, binding...))
 	if err != nil {
 		return rtt, err
@@ -141,7 +146,7 @@ func (c *Conn) acceptHandshake(
 	if err != nil {
 		return rtt, err
 	}
-	_, _, rttend, err := c.readRemoteAuth(ctx, binding, false)
+	rttend, err := c.readRemoteAuth(ctx, binding, false)
 	rtt = rttend.Sub(rttstart)
 	return rtt, err
 }
@@ -180,11 +185,7 @@ func (c *Conn) setup(ctx *context.T, versions version.RPCVersionRange, dialer bo
 		return nil, naming.Endpoint{}, rttstart, ErrUnexpectedMsg.Errorf(ctx, "conn.setup: unexpected message type: %T", msg)
 	}
 	if err := <-ch; err != nil {
-		remoteStr := ""
-		if !c.remote.IsZero() {
-			remoteStr = c.remote.String()
-		}
-		return nil, naming.Endpoint{}, rttstart, ErrSend.Errorf(ctx, "conn.setup: remote %v: %v", remoteStr, err)
+		return nil, naming.Endpoint{}, rttstart, ErrSend.Errorf(ctx, "conn.setup: remote %v: %v", c.remoteEndpointForError(), err)
 	}
 	if c.version, err = version.CommonVersion(ctx, lSetup.Versions, rSetup.Versions); err != nil {
 		return nil, naming.Endpoint{}, rttstart, err
@@ -239,66 +240,30 @@ func (c *Conn) setup(ctx *context.T, versions version.RPCVersionRange, dialer bo
 	return binding, rSetup.PeerLocalEndpoint, rttstart, nil
 }
 
-func (c *Conn) readRemoteAuth(ctx *context.T, binding []byte, dialer bool) (security.Blessings, map[string]security.Discharge, time.Time, error) {
+// readRemoteAuth is used to read the auth handshake messages from the remote
+// endpoint. This is a sequence of Data messages followed by an Auth message.
+// readRemoteAuth runs asynchronously on the both the dialer and acceptor.
+// On successful completion, the connection has accepted the remote's
+// blessings and discharges and verified the channel binding. The remote's
+// public key is non-nil and recorded in the connection and will never be
+// changed from hereonin.
+func (c *Conn) readRemoteAuth(ctx *context.T, binding []byte, dialer bool) (time.Time, error) {
+	rauth, err := c.readRemoteAuthLoop(ctx)
+	if err != nil {
+		return time.Time{}, err
+	}
+	rttend := time.Now()
+
 	tag := authDialerTag
 	if dialer {
 		tag = authAcceptorTag
 	}
-	var (
-		rauth       *message.Auth
-		err         error
-		rttend      time.Time
-		rBlessings  security.Blessings
-		rDischarges map[string]security.Discharge
-	)
 
-	for {
-		msg, err := c.mp.readMsg(ctx, nil)
-		if err != nil {
-			remote := ""
-			if !c.remote.IsZero() {
-				remote = c.remote.String()
-			}
-			return security.Blessings{}, nil, time.Time{}, ErrRecv.Errorf(ctx, "conn.readRemoteAuth: error reading from %v: %v", remote, err)
-		}
-		if rauth, _ = msg.(*message.Auth); rauth != nil {
-			rttend = time.Now()
-			break
-		}
-		switch m := msg.(type) {
-		case *message.TearDown:
-			// A teardown message may be sent by the client if it decides
-			// that it doesn't trust the server. We handle it here and return
-			// a connection closed error rather than waiting for the readMsg
-			// above to fail when it tries to read from the closed connection.
-			if err := c.handleTearDown(ctx, m); err != nil {
-				vlog.Infof("conn.readRemoteAuth: handleMessage teardown: failed: %v", err)
-			}
-			return security.Blessings{}, nil, rttend, ErrConnectionClosed.Errorf(ctx, "conn.readRemoteAuth: connection closed")
-		case *message.OpenFlow:
-			// If we get an OpenFlow message here it needs to be handled
-			// asynchronously since it will call the flow handler
-			// which will block until NewAccepted (which calls
-			// this method) returns. OpenFlow is generally expected
-			// to be handled by readLoop.
-			go func() {
-				if err := c.handleOpenFlow(ctx, m); err != nil {
-					vlog.Infof("conn.readRemoteAuth: handleMessage for openFlow for flow %v: failed: %v", m.ID, err)
-				}
-			}()
-			continue
-		}
-		if err = c.handleAnyMessage(ctx, msg); err != nil {
-			return security.Blessings{}, nil, time.Time{}, err
-		}
-	}
-	// Only read the blessings if we were the dialer. Any blessings from the dialer
-	// will be sent later.
 	if rauth.BlessingsKey != 0 {
-		rBlessings, rDischarges, err = c.blessingsFlow.getRemote(
+		rBlessings, rDischarges, err := c.blessingsFlow.getRemote(
 			ctx, rauth.BlessingsKey, rauth.DischargeKey)
 		if err != nil {
-			return security.Blessings{}, nil, rttend, err
+			return rttend, err
 		}
 		c.mu.Lock()
 		c.rPublicKey = rBlessings.PublicKey()
@@ -307,261 +272,25 @@ func (c *Conn) readRemoteAuth(ctx *context.T, binding []byte, dialer bool) (secu
 		c.remoteValid = make(chan struct{})
 		c.mu.Unlock()
 	}
+
+	c.mu.Lock()
+	defer c.mu.Unlock()
+
 	if c.rPublicKey == nil {
-		return security.Blessings{}, nil, rttend, ErrNoPublicKey.Errorf(ctx, "conn.readRemoteAuth: no public key received")
+		return rttend, ErrNoPublicKey.Errorf(ctx, "conn.readRemoteAuth: no public key received")
 	}
 
 	if !rauth.ChannelBinding.Verify(c.rPublicKey, append(tag, binding...)) {
-		return security.Blessings{}, nil, rttend, ErrInvalidChannelBinding.Errorf(ctx, "conn.readRemoteAuth: the channel binding was invalid")
+		return rttend, ErrInvalidChannelBinding.Errorf(ctx, "conn.readRemoteAuth: the channel binding was invalid")
 	}
-	return rBlessings, rDischarges, rttend, nil
+	return rttend, nil
 }
 
-type blessingsFlow struct {
-	enc *vom.Encoder
-	dec *vom.Decoder
-	f   *flw
-
-	mu       sync.Mutex
-	nextKey  uint64
-	incoming *inCache
-	outgoing *outCache
-}
-
-// inCache keeps track of incoming blessings, discharges, and keys.
-type inCache struct {
-	dkeys      map[uint64]uint64               // bkey -> dkey of the latest discharges.
-	blessings  map[uint64]security.Blessings   // keyed by bkey
-	discharges map[uint64][]security.Discharge // keyed by dkey
-}
-
-// outCache keeps track of outgoing blessings, discharges, and keys.
-type outCache struct {
-	bkeys map[string]uint64 // blessings uid -> bkey
-
-	dkeys      map[uint64]uint64               // blessings bkey -> dkey of latest discharges
-	blessings  map[uint64]security.Blessings   // keyed by bkey
-	discharges map[uint64][]security.Discharge // keyed by dkey
-}
-
-func newBlessingsFlow(f *flw) *blessingsFlow {
-	b := &blessingsFlow{
-		f:       f,
-		enc:     vom.NewEncoder(f),
-		dec:     vom.NewDecoder(f),
-		nextKey: 1,
-		incoming: &inCache{
-			blessings:  make(map[uint64]security.Blessings),
-			dkeys:      make(map[uint64]uint64),
-			discharges: make(map[uint64][]security.Discharge),
-		},
-		outgoing: &outCache{
-			bkeys:      make(map[string]uint64),
-			dkeys:      make(map[uint64]uint64),
-			blessings:  make(map[uint64]security.Blessings),
-			discharges: make(map[uint64][]security.Discharge),
-		},
-	}
-	return b
-}
-
-func (b *blessingsFlow) receiveBlessingsLocked(ctx *context.T, bkey uint64, blessings security.Blessings) error {
-	b.f.useCurrentContext(ctx)
-	// When accepting, make sure the blessings received are bound to the conn's
-	// remote public key.
-	b.f.conn.mu.Lock()
-	if pk := b.f.conn.rPublicKey; pk != nil && !reflect.DeepEqual(blessings.PublicKey(), pk) {
-		b.f.conn.mu.Unlock()
+func (c *Conn) validateReceivedBlessings(ctx *context.T, blessings security.Blessings) error {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+	if pk := c.rPublicKey; pk != nil && !reflect.DeepEqual(blessings.PublicKey(), pk) {
 		return ErrBlessingsNotBound.Errorf(ctx, "blessings not bound to connection remote public key")
 	}
-	b.f.conn.mu.Unlock()
-	b.incoming.blessings[bkey] = blessings
 	return nil
-}
-
-func (b *blessingsFlow) receiveDischargesLocked(ctx *context.T, bkey, dkey uint64, discharges []security.Discharge) {
-	b.incoming.discharges[dkey] = discharges
-	b.incoming.dkeys[bkey] = dkey
-}
-
-func (b *blessingsFlow) receiveLocked(ctx *context.T, bd BlessingsFlowMessage) error {
-	b.f.useCurrentContext(ctx)
-	switch bd := bd.(type) {
-	case BlessingsFlowMessageBlessings:
-		bkey, blessings := bd.Value.BKey, bd.Value.Blessings
-		if err := b.receiveBlessingsLocked(ctx, bkey, blessings); err != nil {
-			return err
-		}
-	case BlessingsFlowMessageEncryptedBlessings:
-		bkey, ciphertexts := bd.Value.BKey, bd.Value.Ciphertexts
-		var blessings security.Blessings
-		if err := decrypt(ctx, ciphertexts, &blessings); err != nil {
-			// TODO(ataly): This error should not be returned if the
-			// client has explicitly set the peer authorizer to nil.
-			// In that case, the client does not care whether the server's
-			// blessings can be decrypted or not. Ideally we should just
-			// pass this error to the peer authorizer and handle it there.
-			return iflow.MaybeWrapError(verror.ErrNotTrusted, ctx, ErrCannotDecryptBlessings.Errorf(ctx, "cannot decrypt the encrypted blessings sent by peer: %v", err))
-		}
-		if err := b.receiveBlessingsLocked(ctx, bkey, blessings); err != nil {
-			return err
-		}
-	case BlessingsFlowMessageDischarges:
-		bkey, dkey, discharges := bd.Value.BKey, bd.Value.DKey, bd.Value.Discharges
-		b.receiveDischargesLocked(ctx, bkey, dkey, discharges)
-	case BlessingsFlowMessageEncryptedDischarges:
-		bkey, dkey, ciphertexts := bd.Value.BKey, bd.Value.DKey, bd.Value.Ciphertexts
-		var discharges []security.Discharge
-		if err := decrypt(ctx, ciphertexts, &discharges); err != nil {
-			return iflow.MaybeWrapError(verror.ErrNotTrusted, ctx, ErrCannotDecryptDischarges.Errorf(ctx, "cannot decrypt the encrypted discharges sent by peer: %v", err))
-		}
-		b.receiveDischargesLocked(ctx, bkey, dkey, discharges)
-	}
-	return nil
-}
-
-// getRemote gets the remote blessings and discharges associated with the given
-// bkey and dkey. We will read messages from the wire until we receive the
-// looked for blessings. This method is normally called from the read loop of
-// the conn, so all the packets for the desired blessing must have been received
-// and buffered before calling this function.  This property is guaranteed since
-// we always send blessings and discharges before sending their bkey/dkey
-// references in a control message.
-func (b *blessingsFlow) getRemote(ctx *context.T, bkey, dkey uint64) (security.Blessings, map[string]security.Discharge, error) {
-	defer b.mu.Unlock()
-	b.mu.Lock()
-	b.f.useCurrentContext(ctx)
-	for {
-		blessings, hasB := b.incoming.blessings[bkey]
-		if hasB {
-			if dkey == 0 {
-				return blessings, nil, nil
-			}
-			discharges, hasD := b.incoming.discharges[dkey]
-			if hasD {
-				return blessings, dischargeMap(discharges), nil
-			}
-		}
-
-		var received BlessingsFlowMessage
-		err := b.dec.Decode(&received)
-		if err != nil {
-			return security.Blessings{}, nil, err
-		}
-		if err := b.receiveLocked(ctx, received); err != nil {
-			b.f.conn.internalClose(ctx, false, false, err)
-			return security.Blessings{}, nil, err
-		}
-	}
-}
-
-func (b *blessingsFlow) encodeBlessingsLocked(ctx *context.T, blessings security.Blessings, bkey uint64, peers []security.BlessingPattern) error {
-	b.f.useCurrentContext(ctx)
-	if len(peers) == 0 {
-		// blessings can be encoded in plaintext
-		return b.enc.Encode(BlessingsFlowMessageBlessings{Blessings{
-			BKey:      bkey,
-			Blessings: blessings,
-		}})
-	}
-	ciphertexts, err := encrypt(ctx, peers, blessings)
-	if err != nil {
-		return ErrCannotEncryptBlessings.Errorf(ctx, "cannot encrypt blessings for peer: %v: %v", peers, err)
-	}
-	return b.enc.Encode(BlessingsFlowMessageEncryptedBlessings{EncryptedBlessings{
-		BKey:        bkey,
-		Ciphertexts: ciphertexts,
-	}})
-}
-
-func (b *blessingsFlow) encodeDischargesLocked(ctx *context.T, discharges []security.Discharge, bkey, dkey uint64, peers []security.BlessingPattern) error {
-	b.f.useCurrentContext(ctx)
-	if len(peers) == 0 {
-		// discharges can be encoded in plaintext
-		return b.enc.Encode(BlessingsFlowMessageDischarges{Discharges{
-			Discharges: discharges,
-			DKey:       dkey,
-			BKey:       bkey,
-		}})
-	}
-	ciphertexts, err := encrypt(ctx, peers, discharges)
-	if err != nil {
-		return ErrCannotEncryptDischarges.Errorf(ctx, "cannot encrypt discharges for peers: %v: %v", peers, err)
-	}
-	return b.enc.Encode(BlessingsFlowMessageEncryptedDischarges{EncryptedDischarges{
-		DKey:        dkey,
-		BKey:        bkey,
-		Ciphertexts: ciphertexts,
-	}})
-}
-
-func (b *blessingsFlow) send(
-	ctx *context.T,
-	blessings security.Blessings,
-	discharges map[string]security.Discharge,
-	peers []security.BlessingPattern) (bkey, dkey uint64, err error) {
-	if blessings.IsZero() {
-		return 0, 0, nil
-	}
-	defer b.mu.Unlock()
-	b.mu.Lock()
-	b.f.useCurrentContext(ctx)
-
-	buid := string(blessings.UniqueID())
-	bkey, hasB := b.outgoing.bkeys[buid]
-	if !hasB {
-		bkey = b.nextKey
-		b.nextKey++
-		b.outgoing.bkeys[buid] = bkey
-		b.outgoing.blessings[bkey] = blessings
-		if err := b.encodeBlessingsLocked(ctx, blessings, bkey, peers); err != nil {
-			return 0, 0, err
-		}
-	}
-	if len(discharges) == 0 {
-		return bkey, 0, nil
-	}
-	dkey, hasD := b.outgoing.dkeys[bkey]
-	if hasD && equalDischarges(discharges, b.outgoing.discharges[dkey]) {
-		return bkey, dkey, nil
-	}
-	dlist := dischargeList(discharges)
-	dkey = b.nextKey
-	b.nextKey++
-	b.outgoing.dkeys[bkey] = dkey
-	b.outgoing.discharges[dkey] = dlist
-	return bkey, dkey, b.encodeDischargesLocked(ctx, dlist, bkey, dkey, peers)
-}
-
-func (b *blessingsFlow) close(ctx *context.T, err error) {
-	b.f.useCurrentContext(ctx)
-	b.f.close(ctx, false, err)
-}
-
-func dischargeList(in map[string]security.Discharge) []security.Discharge {
-	out := make([]security.Discharge, 0, len(in))
-	for _, d := range in {
-		out = append(out, d)
-	}
-	return out
-}
-func dischargeMap(in []security.Discharge) map[string]security.Discharge {
-	out := make(map[string]security.Discharge, len(in))
-	for _, d := range in {
-		out[d.ID()] = d
-	}
-	return out
-}
-
-func equalDischarges(m map[string]security.Discharge, s []security.Discharge) bool {
-	if len(m) != len(s) {
-		return false
-	}
-	for _, d := range s {
-		inm, ok := m[d.ID()]
-		if !ok || !d.Equivalent(inm) {
-			return false
-		}
-	}
-	return true
 }
