@@ -15,6 +15,14 @@ import (
 )
 
 func (c *Conn) newFlowForBlessingsLocked(ctx *context.T) *flw {
+	// TODO(cnicolaou): create a simplified flow implementation for
+	// blessings as follows:
+	//   - flow control is essentially disabled for these flows, so
+	//     there's no need for a readq
+	//   - there is only ever one writer so there's no need for the
+	//     writerq/writech.
+	//   - the flow's are always pre-opened and never closed so no
+	//     need for state to track that.
 	f := &flw{
 		id:          blessingsFlowID,
 		conn:        c,
