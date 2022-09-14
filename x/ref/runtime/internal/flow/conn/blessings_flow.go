@@ -14,6 +14,40 @@ import (
 	iflow "v.io/x/ref/runtime/internal/flow"
 )
 
+//b.f.useCurrentContext
+//b.f.validateReceivedBlessings
+//b.f.internalClose(ctx, false, false, err)
+//b.f.close(ctx, false, err)
+//io.ReadWriter
+/*
+type flowForBlessings struct {
+	ctx       *context.T
+	conn      *Conn
+	id        uint64
+	q         readq
+	borrowing bool
+}
+*/
+
+// create simplified flow for blessings.
+
+func (c *Conn) newFlowForBlessingsLocked(ctx *context.T) *flw {
+	f := &flw{
+		id:          blessingsFlowID,
+		conn:        c,
+		opened:      true,
+		borrowing:   true,
+		sideChannel: true,
+		writeCh:     make(chan struct{}, 1),
+	}
+	f.q = newReadQ(f.release)
+	f.next, f.prev = f, f
+	f.ctx, f.cancel = context.WithCancel(ctx)
+	c.flows[f.id] = f
+	f.releaseLocked(DefaultBytesBufferedPerFlow)
+	return f
+}
+
 type blessingsFlow struct {
 	enc *vom.Encoder
 	dec *vom.Decoder
@@ -21,24 +55,8 @@ type blessingsFlow struct {
 
 	mu       sync.Mutex
 	nextKey  uint64
-	incoming *inCache
+	incoming inCache
 	outgoing *outCache
-}
-
-// inCache keeps track of incoming blessings, discharges, and keys.
-type inCache struct {
-	dkeys      map[uint64]uint64               // bkey -> dkey of the latest discharges.
-	blessings  map[uint64]security.Blessings   // keyed by bkey
-	discharges map[uint64][]security.Discharge // keyed by dkey
-}
-
-// outCache keeps track of outgoing blessings, discharges, and keys.
-type outCache struct {
-	bkeys map[string]uint64 // blessings uid -> bkey
-
-	dkeys      map[uint64]uint64               // blessings bkey -> dkey of latest discharges
-	blessings  map[uint64]security.Blessings   // keyed by bkey
-	discharges map[uint64][]security.Discharge // keyed by dkey
 }
 
 func newBlessingsFlow(f *flw) *blessingsFlow {
@@ -47,17 +65,6 @@ func newBlessingsFlow(f *flw) *blessingsFlow {
 		enc:     vom.NewEncoder(f),
 		dec:     vom.NewDecoder(f),
 		nextKey: 1,
-		incoming: &inCache{
-			blessings:  make(map[uint64]security.Blessings),
-			dkeys:      make(map[uint64]uint64),
-			discharges: make(map[uint64][]security.Discharge),
-		},
-		outgoing: &outCache{
-			bkeys:      make(map[string]uint64),
-			dkeys:      make(map[uint64]uint64),
-			blessings:  make(map[uint64]security.Blessings),
-			discharges: make(map[uint64][]security.Discharge),
-		},
 	}
 	return b
 }
@@ -69,13 +76,12 @@ func (b *blessingsFlow) receiveBlessingsLocked(ctx *context.T, bkey uint64, bles
 	if err := b.f.validateReceivedBlessings(ctx, blessings); err != nil {
 		return err
 	}
-	b.incoming.blessings[bkey] = blessings
+	b.incoming.addBlessings(bkey, blessings)
 	return nil
 }
 
 func (b *blessingsFlow) receiveDischargesLocked(ctx *context.T, bkey, dkey uint64, discharges []security.Discharge) {
-	b.incoming.discharges[dkey] = discharges
-	b.incoming.dkeys[bkey] = dkey
+	b.incoming.addDischarges(bkey, discharges)
 }
 
 func (b *blessingsFlow) receiveLocked(ctx *context.T, bd BlessingsFlowMessage) error {
@@ -126,12 +132,12 @@ func (b *blessingsFlow) getRemote(ctx *context.T, bkey, dkey uint64) (security.B
 	b.mu.Lock()
 	b.f.useCurrentContext(ctx)
 	for {
-		blessings, hasB := b.incoming.blessings[bkey]
+		blessings, hasB := b.incoming.hasBlessings(bkey)
 		if hasB {
 			if dkey == 0 {
 				return blessings, nil, nil
 			}
-			discharges, hasD := b.incoming.discharges[dkey]
+			discharges, hasD := b.incoming.hasDischarges(dkey)
 			if hasD {
 				return blessings, dischargeMap(discharges), nil
 			}
