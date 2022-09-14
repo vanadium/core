@@ -66,7 +66,7 @@ func (b *blessingsFlow) receiveBlessingsLocked(ctx *context.T, bkey uint64, bles
 	b.f.useCurrentContext(ctx)
 	// When accepting, make sure the blessings received are bound to the conn's
 	// remote public key.
-	if err := b.f.conn.validReceivedBlessings(ctx, blessings); err != nil {
+	if err := b.f.conn.validateReceivedBlessings(ctx, blessings); err != nil {
 		return err
 	}
 	b.incoming.blessings[bkey] = blessings

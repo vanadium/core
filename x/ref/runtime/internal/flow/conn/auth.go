@@ -286,11 +286,10 @@ func (c *Conn) readRemoteAuth(ctx *context.T, binding []byte, dialer bool) (time
 	return rttend, nil
 }
 
-func (c *Conn) validReceivedBlessings(ctx *context.T, blessings security.Blessings) error {
+func (c *Conn) validateReceivedBlessings(ctx *context.T, blessings security.Blessings) error {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 	if pk := c.rPublicKey; pk != nil && !reflect.DeepEqual(blessings.PublicKey(), pk) {
-		c.mu.Unlock()
 		return ErrBlessingsNotBound.Errorf(ctx, "blessings not bound to connection remote public key")
 	}
 	return nil
