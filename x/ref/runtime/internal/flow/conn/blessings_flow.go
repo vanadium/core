@@ -39,12 +39,38 @@ func (c *Conn) newFlowForBlessingsLocked(ctx *context.T) *flw {
 	return f
 }
 
-type blessingsFlow struct {
-	enc *vom.Encoder
-	dec *vom.Decoder
-	f   *flw
+// writeBuffer is used to coalesce the many small writes issued by the vom
+// encoder into a single larger one to reduce the number of system calls
+// and network packets sent.
+type writeBuffer struct {
+	*flw
+	buf []byte
+}
 
-	mu       sync.Mutex
+func (w *writeBuffer) Write(buf []byte) (int, error) {
+	w.buf = append(w.buf, buf...)
+	return len(buf), nil
+}
+
+func (w *writeBuffer) Flush() (int, error) {
+	if len(w.buf) == 0 {
+		return 0, nil
+	}
+	n, err := w.flw.Write(w.buf)
+	// can free the buffer since it's unlikely that a second set of
+	// blessings or discharges will be sent.
+	w.buf = nil
+	return n, err
+}
+
+type blessingsFlow struct {
+	mu sync.Mutex
+
+	f      *flw
+	dec    *vom.Decoder
+	enc    *vom.Encoder
+	encBuf writeBuffer
+
 	nextKey  uint64
 	incoming inCache
 	outgoing outCache
@@ -53,10 +79,11 @@ type blessingsFlow struct {
 func newBlessingsFlow(f *flw) *blessingsFlow {
 	b := &blessingsFlow{
 		f:       f,
-		enc:     vom.NewEncoder(f),
-		dec:     vom.NewDecoder(f),
 		nextKey: 1,
+		dec:     vom.NewDecoder(f),
+		encBuf:  writeBuffer{flw: f, buf: make([]byte, 0, 4096)},
 	}
+	b.enc = vom.NewEncoder(&b.encBuf)
 	return b
 }
 
@@ -133,10 +160,8 @@ func (b *blessingsFlow) getRemote(ctx *context.T, bkey, dkey uint64) (security.B
 				return blessings, dischargeMap(discharges), nil
 			}
 		}
-
 		var received BlessingsFlowMessage
-		err := b.dec.Decode(&received)
-		if err != nil {
+		if err := b.dec.Decode(&received); err != nil {
 			return security.Blessings{}, nil, err
 		}
 		if err := b.receiveLocked(ctx, received); err != nil {
@@ -194,22 +219,23 @@ func (b *blessingsFlow) send(
 	if blessings.IsZero() {
 		return 0, 0, nil
 	}
-	defer b.mu.Unlock()
 	b.mu.Lock()
+	defer b.mu.Unlock()
 	b.f.useCurrentContext(ctx)
 
 	buid := string(blessings.UniqueID())
 	bkey, hasB := b.outgoing.hasBlessings(buid)
 	if !hasB {
 		bkey = b.nextKey
-		b.outgoing.addBlessings(buid, b.nextKey, blessings)
 		b.nextKey++
+		b.outgoing.addBlessings(buid, bkey, blessings)
 		if err := b.encodeBlessingsLocked(ctx, blessings, bkey, peers); err != nil {
 			return 0, 0, err
 		}
 	}
 	if len(discharges) == 0 {
-		return bkey, 0, nil
+		_, err = b.encBuf.Flush()
+		return bkey, 0, err
 	}
 	dlist, dkey, hasD := b.outgoing.hasDischarges(bkey)
 	if hasD && equalDischarges(discharges, dlist) {
@@ -217,9 +243,13 @@ func (b *blessingsFlow) send(
 	}
 	dlist = dischargeList(discharges)
 	dkey = b.nextKey
-	b.outgoing.addDischarges(bkey, dkey, dlist)
 	b.nextKey++
-	return bkey, dkey, b.encodeDischargesLocked(ctx, dlist, bkey, dkey, peers)
+	b.outgoing.addDischarges(bkey, dkey, dlist)
+	if err := b.encodeDischargesLocked(ctx, dlist, bkey, dkey, peers); err != nil {
+		return 0, 0, err
+	}
+	_, err = b.encBuf.Flush()
+	return bkey, dkey, err
 }
 
 func (b *blessingsFlow) close(ctx *context.T, err error) {
