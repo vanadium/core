@@ -10,6 +10,7 @@ import (
 
 	"v.io/v23/context"
 	"v.io/v23/flow/message"
+	"v.io/x/lib/vlog"
 )
 
 func (c *Conn) handleAnyMessage(ctx *context.T, m message.Message) error {
@@ -197,6 +198,7 @@ func (c *Conn) handleRelease(ctx *context.T, msg *message.Release) error {
 }
 
 func (c *Conn) handleAuth(ctx *context.T, msg *message.Auth) error {
+	// handles a blessings refresh, as sent by blessingsLoop.
 	blessings, discharges, err := c.blessingsFlow.getRemote(
 		ctx, msg.BlessingsKey, msg.DischargeKey)
 	if err != nil {
@@ -211,4 +213,57 @@ func (c *Conn) handleAuth(ctx *context.T, msg *message.Auth) error {
 		c.remoteValid = make(chan struct{})
 	}
 	return nil
+}
+
+func (c *Conn) remoteEndpointForError() string {
+	if c.remote.IsZero() {
+		return ""
+	}
+	return c.remote.String()
+}
+
+// handleRemoteAuth reads Data messages (containing blessings) until it sees
+// an Auth message that indicates the end of the blessings and hence the
+// auth handshake. It may encounter a TearDown message if the remote end
+// does trust the new diealer. It is called from accepthHandshake and
+// dialHandshake and therefore runs aysnchronously to the other message
+// loops and hence must be prepared to handle all message types, although
+// in practice this happens extremely very rarely. Note that the Data
+// messages will be addressed to the blessings flow, ie. flow ID 1.
+func (c *Conn) readRemoteAuthLoop(ctx *context.T) (*message.Auth, error) {
+	for {
+		msg, err := c.mp.readMsg(ctx, nil)
+		if err != nil {
+			return nil, ErrRecv.Errorf(ctx, "conn.readRemoteAuth: error reading from %v: %v", c.remoteEndpointForError(), err)
+		}
+		if rauth, ok := msg.(*message.Auth); ok && rauth != nil {
+			return rauth, nil
+		}
+		switch m := msg.(type) {
+		case *message.TearDown:
+			// A teardown message may be sent by the client if it decides
+			// that it doesn't trust the server. We handle it here and return
+			// a connection closed error rather than waiting for the readMsg
+			// above to fail when it tries to read from the closed connection.
+			if err := c.handleTearDown(ctx, m); err != nil {
+				vlog.Infof("conn.readRemoteAuth: handleMessage teardown: failed: %v", err)
+			}
+			return nil, ErrConnectionClosed.Errorf(ctx, "conn.readRemoteAuth: connection closed")
+		case *message.OpenFlow:
+			// If we get an OpenFlow message here it needs to be handled
+			// asynchronously since it will call the flow handler
+			// which will block until NewAccepted (which calls
+			// this method) returns. OpenFlow is generally expected
+			// to be handled by readLoop.
+			go func() {
+				if err := c.handleOpenFlow(ctx, m); err != nil {
+					vlog.Infof("conn.readRemoteAuth: handleMessage for openFlow for flow %v: failed: %v", m.ID, err)
+				}
+			}()
+			continue
+		}
+		if err = c.handleAnyMessage(ctx, msg); err != nil {
+			return nil, err
+		}
+	}
 }

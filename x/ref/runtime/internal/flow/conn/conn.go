@@ -555,9 +555,9 @@ func (c *Conn) Dial(ctx *context.T, blessings security.Blessings, discharges map
 	// It may happen that in the case of bidirectional RPC the dialer of the connection
 	// has sent blessings,  but not yet discharges.  In this case we will wait for them
 	// to send the discharges before allowing a bidirectional flow dial.
-	if valid := c.remoteValid; valid != nil && len(c.remoteDischarges) == 0 && len(c.remoteBlessings.ThirdPartyCaveats()) > 0 {
+	if c.remoteValid != nil && len(c.remoteDischarges) == 0 && len(c.remoteBlessings.ThirdPartyCaveats()) > 0 {
 		c.mu.Unlock()
-		<-valid
+		<-c.remoteValid
 		c.mu.Lock()
 	}
 
@@ -622,9 +622,9 @@ func (c *Conn) RemoteDischarges() map[string]security.Discharge {
 	// It may happen that in the case of bidirectional RPC the dialer of the connection
 	// has sent blessings,  but not yet discharges.  In this case we will wait for them
 	// to send the discharges instead of returning the initial nil discharges.
-	if valid := c.remoteValid; valid != nil && len(c.remoteDischarges) == 0 && len(c.remoteBlessings.ThirdPartyCaveats()) > 0 {
+	if c.remoteValid != nil && len(c.remoteDischarges) == 0 && len(c.remoteBlessings.ThirdPartyCaveats()) > 0 {
 		c.mu.Unlock()
-		<-valid
+		<-c.remoteValid
 		c.mu.Lock()
 	}
 	remoteDischarges := c.remoteDischarges

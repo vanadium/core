@@ -79,7 +79,6 @@ func Read(ctx *context.T, from []byte) (Message, error) { //nolint:gocyclo
 		m = &ProxyResponse{}
 	case proxyErrorReponseType:
 		m = &ProxyErrorResponse{}
-
 	default:
 		return nil, ErrUnknownMsg.Errorf(ctx, "unknown message type: %02x", msgType)
 	}
@@ -414,7 +413,7 @@ func (m *AckLameDuck) read(ctx *context.T, data []byte) error {
 
 func (m *AckLameDuck) copyBuffers() {}
 
-// auth is used to complete the auth handshake.
+// Auth is used to complete the auth handshake.
 type Auth struct {
 	signatureType              byte
 	BlessingsKey, DischargeKey uint64
