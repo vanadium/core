@@ -36,19 +36,7 @@ func (c *Conn) dialHandshake(
 	}
 	dialedEP := c.remote
 	c.remote.RoutingID = remoteEndpoint.RoutingID
-	bflow := c.newFlowLocked(
-		ctx,
-		blessingsFlowID,
-		security.Blessings{},
-		security.Blessings{},
-		nil,
-		nil,
-		naming.Endpoint{},
-		true,
-		true,
-		0,
-		true)
-	bflow.releaseLocked(DefaultBytesBufferedPerFlow)
+	bflow := c.newFlowForBlessingsLocked(ctx)
 	c.blessingsFlow = newBlessingsFlow(bflow)
 
 	rttend, err := c.readRemoteAuth(ctx, binding, true)
@@ -112,18 +100,7 @@ func (c *Conn) acceptHandshake(
 		return rtt, err
 	}
 	c.remote = remoteEndpoint
-	bflow := c.newFlowLocked(
-		ctx,
-		blessingsFlowID,
-		security.Blessings{},
-		security.Blessings{},
-		nil,
-		nil,
-		naming.Endpoint{},
-		true,
-		true,
-		0,
-		true)
+	bflow := c.newFlowForBlessingsLocked(ctx)
 	c.blessingsFlow = newBlessingsFlow(bflow)
 	signedBinding, err := v23.GetPrincipal(ctx).Sign(append(authAcceptorTag, binding...))
 	if err != nil {
