@@ -231,10 +231,17 @@ func (c *Conn) remoteEndpointForError() string {
 // in practice this happens extremely very rarely. Note that the Data
 // messages will be addressed to the blessings flow, ie. flow ID 1.
 func (c *Conn) readRemoteAuthLoop(ctx *context.T) (*message.Auth, error) {
+	var dataMsg message.Data
 	for {
-		msg, err := c.mp.readMsg(ctx, nil)
+		msg, err := c.mp.readDataMsg(ctx, nil, &dataMsg)
 		if err != nil {
 			return nil, ErrRecv.Errorf(ctx, "conn.readRemoteAuth: error reading from %v: %v", c.remoteEndpointForError(), err)
+		}
+		if msg == nil {
+			if err := c.handleData(ctx, &dataMsg); err != nil {
+				return nil, err
+			}
+			continue
 		}
 		if rauth, ok := msg.(*message.Auth); ok && rauth != nil {
 			return rauth, nil
