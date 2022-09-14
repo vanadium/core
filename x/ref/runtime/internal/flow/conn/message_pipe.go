@@ -193,10 +193,6 @@ func (p *messagePipe) readMsg(ctx *context.T, plaintextBuf []byte) (message.Mess
 	if err != nil {
 		return nil, err
 	}
-	return p.readAnyMessage(ctx, plaintext)
-}
-
-func (p *messagePipe) readAnyMessage(ctx *context.T, plaintext []byte) (message.Message, error) {
 	m, err := message.Read(ctx, plaintext)
 	if err != nil {
 		return nil, err
