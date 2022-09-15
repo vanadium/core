@@ -417,6 +417,7 @@ type simpleNamedType struct {
 // vdl.TypeOf, i.e. skipping the initial vdl.Type of that builds
 // the type.
 func BenchmarkRepeatedVdlTypeOf(b *testing.B) {
+	b.ReportAllocs()
 	val := &simpleNamedType{}
 	TypeOf(val)
 
@@ -428,6 +429,7 @@ func BenchmarkRepeatedVdlTypeOf(b *testing.B) {
 // BenchmarkRepeatedReflectTypeOf is the reflect analog of
 // BenchmarkRepeatedVdlTypeOf, for comparison purposes.
 func BenchmarkRepeatedReflectTypeOf(b *testing.B) {
+	b.ReportAllocs()
 	reflect.TypeOf(&simpleNamedType{})
 
 	for i := 0; i < b.N; i++ {

@@ -16,7 +16,8 @@ type perfReflectCacheT struct {
 }
 
 type perfReflectInfo struct {
-	keyType         reflect.Type
+	keyType reflect.Type
+	//	noFastpath      bool
 	fieldIndexMap   map[string]int
 	implementsIfc   implementsBitMasks
 	implementsIsSet implementsBitMasks
@@ -154,6 +155,21 @@ func (prc *perfReflectCacheT) cacheImplementsBuiltinInterface(rt reflect.Type, m
 	return result
 }
 
+/*
+func (prc *perfReflectCacheT) cacheHasNoFastpath(rt reflect.Type) {
+	prc.Lock()
+	defer prc.Unlock()
+	pri := prc.rtmap[rt]
+	pri.noFastpath = true
+	prc.rtmap[rt] = pri
+}
+
+func (prc *perfReflectCacheT) hasNoFastpath(rt reflect.Type) bool {
+	prc.RLock()
+	defer prc.RUnlock()
+	return prc.rtmap[rt].noFastpath
+}*/
+
 func (prc *perfReflectCacheT) nativeInfo(pri perfReflectInfo, rt reflect.Type) *nativeInfo {
 	if pri.nativeInfoIsSet {
 		return pri.nativeInfo
@@ -165,6 +181,7 @@ func (prc *perfReflectCacheT) nativeInfo(pri perfReflectInfo, rt reflect.Type) *
 func (prc *perfReflectCacheT) cacheNativeInfo(rt reflect.Type) *nativeInfo {
 	prc.Lock()
 	defer prc.Unlock()
+
 	// benign race between read and write locks.
 	pri := prc.rtmap[rt]
 	if pri.nativeInfoIsSet {

@@ -573,8 +573,8 @@ func enforceUniqueNames(t *Type, names map[string]*Type) error {
 // needs the hash-consed name of the type. The depth test can be disabled by
 // specifying -1 and hence if the test fails, the full validation can proceed
 // and if it is successful arbitrary depth types are supported.
-func uniqueTypeStr(out []byte, t *Type, inCycle map[*Type]bool, shortCycleName bool, depth int) []byte {
-	if c, ok := inCycle[t]; ok {
+func uniqueTypeStr(out []byte, t *Type, inCycle map[*Type]struct{}, shortCycleName bool, depth int) []byte {
+	if _, ok := inCycle[t]; ok {
 		if t.name != "" {
 			// If the type is named, and we've seen the type at all, regardless of
 			// whether it's in a cycle, always return the name for brevity.  If the
@@ -582,7 +582,7 @@ func uniqueTypeStr(out []byte, t *Type, inCycle map[*Type]bool, shortCycleName b
 			// infinite loop.
 			return append(out, t.name...)
 		}
-		if c && shortCycleName {
+		if ok && shortCycleName {
 			// If we're in a cycle and we want short cycle names, we're only dumping
 			// the type to help debug errors.  Note that the "..." means that the
 			// returned string is no longer unique, but breaks an infinite loop for
@@ -597,13 +597,13 @@ func uniqueTypeStr(out []byte, t *Type, inCycle map[*Type]bool, shortCycleName b
 	if t.name != "" {
 		out = append(out, ' ')
 	}
-	inCycle[t] = true
+	inCycle[t] = struct{}{}
 	switch t.kind {
 	case Optional:
 		out = append(out, '?')
 		out = uniqueTypeStr(out, t.elem, inCycle, shortCycleName, depth)
 	case Enum:
-		out = writeEnum(out, t, inCycle, shortCycleName, depth)
+		out = writeEnum(out, t, shortCycleName, depth)
 	case Array:
 		out = append(out, '[')
 		out = append(out, strconv.Itoa(t.len)...)
@@ -626,7 +626,7 @@ func uniqueTypeStr(out []byte, t *Type, inCycle map[*Type]bool, shortCycleName b
 	default:
 		out = append(out, t.kind.String()...)
 	}
-	inCycle[t] = false
+	delete(inCycle, t)
 	return out
 }
 
@@ -639,7 +639,7 @@ func checkDepth(depth int) int {
 	return depth
 }
 
-func writeStructOrUnion(out []byte, t *Type, inCycle map[*Type]bool, shortCycleName bool, depth int) []byte {
+func writeStructOrUnion(out []byte, t *Type, inCycle map[*Type]struct{}, shortCycleName bool, depth int) []byte {
 	if t.kind == Struct {
 		out = append(out, "struct{"...)
 	} else {
@@ -656,7 +656,7 @@ func writeStructOrUnion(out []byte, t *Type, inCycle map[*Type]bool, shortCycleN
 	return append(out, '}')
 }
 
-func writeEnum(out []byte, t *Type, inCycle map[*Type]bool, shortCycleName bool, depth int) []byte {
+func writeEnum(out []byte, t *Type, shortCycleName bool, depth int) []byte {
 	out = append(out, "enum{"...)
 	last := len(t.labels) - 1
 	for i, l := range t.labels {
@@ -746,37 +746,39 @@ func typeCons(t *Type) (*Type, error) {
 	return cons, nil
 }
 
+func typeConsLookup(t *Type) (*Type, bool) {
+	if len(t.unique) == 0 {
+		buf := [256]byte{}
+		// Look for the type in our registry, based on its unique string.
+		// Never use short cycle names; at this point the type is valid, and we need
+		// a fully unique string.
+		inCycle := map[*Type]struct{}{}
+		us := uniqueTypeStr(buf[:0], t, inCycle, false, -1)
+		t.unique = string(us)
+	}
+
+	typeRegMu.RLock()
+	found := typeReg[t.unique]
+	typeRegMu.RUnlock()
+	if found != nil {
+		return found, true
+	}
+	// Not found in the registry, add it and recursively cons subtypes.  We cons
+	// the outer type first to deal with recursive types; otherwise we'd have an
+	// infinite loop.
+	typeRegMu.Lock()
+	typeReg[t.unique] = t
+	typeRegMu.Unlock()
+	return nil, false
+}
+
 func typeConsRecursive(t *Type) *Type {
 	if t == nil {
 		return nil
 	}
-	var ub [256]byte
-	us := ub[:0]
-	unique := t.unique
-	// Look for the type in our registry, based on its unique string.
-	if unique == "" {
-		// Never use short cycle names; at this point the type is valid, and we need
-		// a fully unique string.
-		inCycle := map[*Type]bool{}
-		us = uniqueTypeStr(us, t, inCycle, false, -1)
-		// Avoid a string conversion/copy for the common case where the
-		// type is already cached.
-		unique = *(*string)(unsafe.Pointer(&us))
-	}
-	typeRegMu.Lock()
-	if found := typeReg[unique]; found != nil {
-		typeRegMu.Unlock()
+	if found, ok := typeConsLookup(t); ok {
 		return found
 	}
-	// This type is new, so convert the unique name to a string.
-	t.unique = string(us)
-
-	// Not found in the registry, add it and recursively cons subtypes.  We cons
-	// the outer type first to deal with recursive types; otherwise we'd have an
-	// infinite loop.
-	typeReg[t.unique] = t
-	typeRegMu.Unlock()
-
 	t.containsKind.Set(t.kind)
 	t.elem = typeConsRecursive(t.elem)
 	if t.elem != nil {
