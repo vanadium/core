@@ -222,7 +222,7 @@ func (t *Type) uniqueSlow() string {
 	// building the type, and we're printing the type for errors.  The type might
 	// have unnamed cycles, so we need to use short cycle names.
 	buf := make([]byte, 0, 256)
-	buf = uniqueTypeStr(buf, t, make(map[*Type]struct{}), true, -1)
+	buf = uniqueTypeStr(buf, t, make(map[*Type]bool), true, -1)
 	return string(buf)
 }
 
@@ -533,14 +533,14 @@ func typeWalk(mode WalkMode, t *Type, fn func(*Type) bool, seen map[*Type]bool) 
 // considered to be part of a cycle if it merely contains another type that is
 // part of a cycle; the type graph must cycle back through t to return true.
 func (t *Type) IsPartOfCycle() bool {
-	return partOfCycle(t, make(map[*Type]struct{}))
+	return partOfCycle(t, make(map[*Type]bool))
 }
 
-func partOfCycle(t *Type, inCycle map[*Type]struct{}) bool {
-	if _, ok := inCycle[t]; ok {
-		return true
+func partOfCycle(t *Type, inCycle map[*Type]bool) bool {
+	if c, ok := inCycle[t]; ok {
+		return c
 	}
-	inCycle[t] = struct{}{}
+	inCycle[t] = true
 	switch t.kind {
 	case Optional, Array, List:
 		if partOfCycle(t.elem, inCycle) {
@@ -564,6 +564,6 @@ func partOfCycle(t *Type, inCycle map[*Type]struct{}) bool {
 			}
 		}
 	}
-	delete(inCycle, t)
+	inCycle[t] = false
 	return false
 }

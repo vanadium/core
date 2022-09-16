@@ -149,10 +149,10 @@ func TypeFromReflect(rt reflect.Type) (*Type, error) {
 		// Special case to avoid panic for nil rt.
 		return AnyType, nil
 	}
-	// Fastpath - grab the reader lock and check if rt is already in the cache.
 	if t := basicType(rt); t != nil {
 		return t, nil
 	}
+	// Fastpath - grab the reader lock and check if rt is already in the cache.
 	rtCache.RLock()
 	t := rtCache.lookup(rt)
 	rtCache.RUnlock()

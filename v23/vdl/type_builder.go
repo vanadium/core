@@ -573,8 +573,14 @@ func enforceUniqueNames(t *Type, names map[string]*Type) error {
 // needs the hash-consed name of the type. The depth test can be disabled by
 // specifying -1 and hence if the test fails, the full validation can proceed
 // and if it is successful arbitrary depth types are supported.
-func uniqueTypeStr(out []byte, t *Type, inCycle map[*Type]struct{}, shortCycleName bool, depth int) []byte {
-	if _, ok := inCycle[t]; ok {
+//
+// NOTE: on no account should uniqueTypeStr call a sub-function that calls
+// uniqueTypeStr recursively since that will cause the stack allocated buffer
+// passed to it (ie. the out parameter) to escape to the heap. This is an
+// important memory allocation optimization.
+func uniqueTypeStr(out []byte, t *Type, inCycle map[*Type]bool, shortCycleName bool, depth int) []byte { //nolint:gocyclo
+	c, ok := inCycle[t]
+	if ok {
 		if t.name != "" {
 			// If the type is named, and we've seen the type at all, regardless of
 			// whether it's in a cycle, always return the name for brevity.  If the
@@ -582,7 +588,7 @@ func uniqueTypeStr(out []byte, t *Type, inCycle map[*Type]struct{}, shortCycleNa
 			// infinite loop.
 			return append(out, t.name...)
 		}
-		if ok && shortCycleName {
+		if c && shortCycleName {
 			// If we're in a cycle and we want short cycle names, we're only dumping
 			// the type to help debug errors.  Note that the "..." means that the
 			// returned string is no longer unique, but breaks an infinite loop for
@@ -597,7 +603,7 @@ func uniqueTypeStr(out []byte, t *Type, inCycle map[*Type]struct{}, shortCycleNa
 	if t.name != "" {
 		out = append(out, ' ')
 	}
-	inCycle[t] = struct{}{}
+	inCycle[t] = true
 	switch t.kind {
 	case Optional:
 		out = append(out, '?')
@@ -610,7 +616,7 @@ func uniqueTypeStr(out []byte, t *Type, inCycle map[*Type]struct{}, shortCycleNa
 		out = append(out, ']')
 		out = uniqueTypeStr(out, t.elem, inCycle, shortCycleName, depth)
 	case List:
-		out = append(out, '[', ']')
+		out = append(out, "[]"...)
 		out = uniqueTypeStr(out, t.elem, inCycle, shortCycleName, depth)
 	case Set:
 		out = append(out, "set["...)
@@ -622,12 +628,28 @@ func uniqueTypeStr(out []byte, t *Type, inCycle map[*Type]struct{}, shortCycleNa
 		out = append(out, ']')
 		out = uniqueTypeStr(out, t.elem, inCycle, shortCycleName, depth)
 	case Struct, Union:
-		out = writeStructOrUnion(out, t, inCycle, shortCycleName, depth)
+		out = append(out, structOrUnion(t.kind)...)
+		for index, f := range t.fields {
+			if index > 0 {
+				out = append(out, ';')
+			}
+			out = append(out, f.Name...)
+			out = append(out, ' ')
+			out = uniqueTypeStr(out, f.Type, inCycle, shortCycleName, depth)
+		}
+		out = append(out, '}')
 	default:
 		out = append(out, t.kind.String()...)
 	}
-	delete(inCycle, t)
+	inCycle[t] = false
 	return out
+}
+
+func structOrUnion(k Kind) string {
+	if k == Struct {
+		return "struct{"
+	}
+	return "union{"
 }
 
 func checkDepth(depth int) int {
@@ -637,23 +659,6 @@ func checkDepth(depth int) int {
 		panic(fmt.Sprintf("recursive type has too many levels: %v > %v", depth, maxDepth))
 	}
 	return depth
-}
-
-func writeStructOrUnion(out []byte, t *Type, inCycle map[*Type]struct{}, shortCycleName bool, depth int) []byte {
-	if t.kind == Struct {
-		out = append(out, "struct{"...)
-	} else {
-		out = append(out, "union{"...)
-	}
-	for index, f := range t.fields {
-		if index > 0 {
-			out = append(out, ';')
-		}
-		out = append(out, f.Name...)
-		out = append(out, ' ')
-		out = uniqueTypeStr(out, f.Type, inCycle, shortCycleName, depth)
-	}
-	return append(out, '}')
 }
 
 func writeEnum(out []byte, t *Type, shortCycleName bool, depth int) []byte {
@@ -668,16 +673,16 @@ func writeEnum(out []byte, t *Type, shortCycleName bool, depth int) []byte {
 	return append(out, '}')
 }
 
-// reuseDerivedType checks to see if the type derived from the base
+// reuseDerivedType  checks to see if the type derived from the base
 // type's elem (ie. an optional, list or array) already exists. This is
 // an important optimisation since anything passed in as a pointer to
-// vom.Encode is treated as an optional and would otherwise resulting
+// vom.Encode is treated as an optional and would otherwise result
 // a new type being built on every use of that optional.
 func reuseDerivedType(elem *Type, kind Kind, arrayLen int) *Type {
 	if elem == nil || len(elem.unique) == 0 {
 		return nil
 	}
-	buf := [256]byte{}
+	var buf [1024]byte
 	cons := buf[:0]
 	switch kind {
 	case Optional:
@@ -697,11 +702,12 @@ func reuseDerivedType(elem *Type, kind Kind, arrayLen int) *Type {
 	return lookupType(*(*string)(unsafe.Pointer(&cons)))
 }
 
+// reuseKeyedType is like  reuseDerivedType.
 func reuseKeyedType(key, elem *Type, kind Kind, arrayLen int) *Type {
 	if key == nil || len(key.unique) == 0 {
 		return nil
 	}
-	buf := [256]byte{}
+	var buf [1024]byte
 	cons := buf[:0]
 	switch kind {
 	case Set:
@@ -742,26 +748,55 @@ func typeCons(t *Type) (*Type, error) {
 	if err := validType(t); err != nil {
 		return nil, err
 	}
-	cons := typeConsRecursive(t)
-	return cons, nil
+	return typeConsRecursive(t), nil
 }
 
-func typeConsLookup(t *Type) (*Type, bool) {
-	if len(t.unique) == 0 {
-		buf := [256]byte{}
-		// Look for the type in our registry, based on its unique string.
-		// Never use short cycle names; at this point the type is valid, and we need
-		// a fully unique string.
-		inCycle := map[*Type]struct{}{}
-		us := uniqueTypeStr(buf[:0], t, inCycle, false, -1)
-		t.unique = string(us)
+func cloneString(s string) string {
+	if len(s) == 0 {
+		return ""
 	}
+	b := make([]byte, len(s))
+	copy(b, s)
+	return *(*string)(unsafe.Pointer(&b))
+}
 
+// attempt to lookup t by its t.unique value, which, if not already
+// specified will be computed and set here.
+func typeConsLookup(t *Type) *Type {
+	// buf is allocated on the stack so long as uniqueTypeStr does
+	// 'call up the stack', that is, it's ok for uniqueTypeStr to call itself
+	// recursively, but not for it to call a sub-function when then calls itself.
+	// This is a very large impact on the # of memory allocations and overall
+	// performance of typeConsLookup and consequently all vom decoding.
+	var buf [2048]byte
+	unique := t.unique
+	if len(unique) == 0 {
+		// Look for the type in our registry, based on its unique string.
+		// Never use short cycle names; at this point the type is valid, and
+		// we need a fully unique string.
+		inCycle := map[*Type]bool{}
+		us := uniqueTypeStr(buf[:0], t, inCycle, false, -1)
+		unique = *(*string)(unsafe.Pointer(&us))
+	}
 	typeRegMu.RLock()
-	found := typeReg[t.unique]
+	found := typeReg[unique]
 	typeRegMu.RUnlock()
 	if found != nil {
-		return found, true
+		return found
+	}
+	// Take a copy of the final unique string since it will likely be smaller
+	// than the size of buf above and we don't want buf to escape to the
+	// heap.
+	t.unique = cloneString(unique)
+	return nil
+}
+
+func typeConsRecursive(t *Type) *Type {
+	if t == nil {
+		return nil
+	}
+	if found := typeConsLookup(t); found != nil {
+		return found
 	}
 	// Not found in the registry, add it and recursively cons subtypes.  We cons
 	// the outer type first to deal with recursive types; otherwise we'd have an
@@ -769,16 +804,6 @@ func typeConsLookup(t *Type) (*Type, bool) {
 	typeRegMu.Lock()
 	typeReg[t.unique] = t
 	typeRegMu.Unlock()
-	return nil, false
-}
-
-func typeConsRecursive(t *Type) *Type {
-	if t == nil {
-		return nil
-	}
-	if found, ok := typeConsLookup(t); ok {
-		return found
-	}
 	t.containsKind.Set(t.kind)
 	t.elem = typeConsRecursive(t.elem)
 	if t.elem != nil {

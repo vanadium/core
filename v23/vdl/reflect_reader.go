@@ -26,7 +26,6 @@ func Read(dec Decoder, v interface{}) error {
 		return errReadIntoNilValue
 	}
 	rv := reflect.ValueOf(v)
-
 	if rv.Kind() == reflect.Ptr && !rv.IsNil() {
 		// Fastpath check for non-reflect support.  Unfortunately we must use
 		// reflection to detect the case where v is a nil pointer, which returns an
@@ -42,10 +41,6 @@ func Read(dec Decoder, v interface{}) error {
 }
 
 func readNonReflect(dec Decoder, calledStart bool, v interface{}) error {
-	/*	rt := reflect.TypeOf(v)
-		if perfReflectCache.hasNoFastpath(rt) {
-			return errReadMustReflect
-		}*/
 	switch x := v.(type) {
 	case Reader:
 		// Reader handles code-generated VDLRead methods, and special-cases such as
@@ -66,8 +61,6 @@ func readNonReflect(dec Decoder, calledStart bool, v interface{}) error {
 
 		// TODO(toddw): Consider adding common-cases as performance optimizations.
 	}
-	/*perfReflectCache.cacheHasNoFastpath(rt)*/
-	//fmt.Printf("readNoReflect: %v\n", reflect.TypeOf(v))
 	return errReadMustReflect
 }
 
@@ -83,7 +76,6 @@ func ReadReflect(dec Decoder, rv reflect.Value) error {
 	if !rv.CanSet() {
 		return errReadReflectCantSet
 	}
-
 	tt, err := TypeFromReflect(rv.Type())
 	if err != nil {
 		return err
@@ -141,7 +133,6 @@ func readReflect(dec Decoder, calledStart bool, rv reflect.Value, tt *Type) erro
 		return ni.ToNative(rvWire, rv.Addr())
 		// NOTE: readReflect guarantees that FinishValue has already been called.
 	}
-
 	tt = tt.NonOptional()
 	// Handle scalar wire values.
 	if ttReadIntoScalar(tt) {

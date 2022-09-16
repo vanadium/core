@@ -33,7 +33,6 @@ func Write(enc Encoder, v interface{}) error {
 			return err
 		}
 	}
-	//fmt.Printf("vdl.Write: slow %T\n", v)
 	tt, err := TypeFromReflect(rv.Type())
 	if err != nil {
 		return err
@@ -42,7 +41,6 @@ func Write(enc Encoder, v interface{}) error {
 }
 
 func writeNonReflect(enc Encoder, v interface{}) error {
-	//fmt.Printf("vdl.writeNonReflect: %T\n", v)
 	switch x := v.(type) {
 	case Writer:
 		// Writer handles code-generated VDLWrite methods, and special-cases such as
