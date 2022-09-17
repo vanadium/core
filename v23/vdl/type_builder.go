@@ -62,11 +62,7 @@ var ErrorType = OptionalType(NamedType("v.io/v23/vdl.WireError", StructType(
 // The ErrorType above must be kept in-sync with WireError.
 
 func primitiveType(k Kind) *Type {
-	prim, err := typeCons(&Type{kind: k})
-	if err != nil {
-		panic(err)
-	}
-	return prim
+	return &Type{kind: k, unique: k.String(), containsKind: (1 << uint(k))}
 }
 
 // TypeOrPending only allows *Type or Pending values; other values cause a
@@ -578,9 +574,8 @@ func enforceUniqueNames(t *Type, names map[string]*Type) error {
 // uniqueTypeStr recursively since that will cause the stack allocated buffer
 // passed to it (ie. the out parameter) to escape to the heap. This is an
 // important memory allocation optimization.
-func uniqueTypeStr(out []byte, t *Type, inCycle map[*Type]bool, shortCycleName bool, depth int) []byte { //nolint:gocyclo
-	c, ok := inCycle[t]
-	if ok {
+func uniqueTypeStr(out []byte, t *Type, inCycle []*Type, shortCycleName bool, depth int) []byte { //nolint:gocyclo
+	if hasType(inCycle, t) {
 		if t.name != "" {
 			// If the type is named, and we've seen the type at all, regardless of
 			// whether it's in a cycle, always return the name for brevity.  If the
@@ -588,7 +583,7 @@ func uniqueTypeStr(out []byte, t *Type, inCycle map[*Type]bool, shortCycleName b
 			// infinite loop.
 			return append(out, t.name...)
 		}
-		if c && shortCycleName {
+		if shortCycleName {
 			// If we're in a cycle and we want short cycle names, we're only dumping
 			// the type to help debug errors.  Note that the "..." means that the
 			// returned string is no longer unique, but breaks an infinite loop for
@@ -603,7 +598,7 @@ func uniqueTypeStr(out []byte, t *Type, inCycle map[*Type]bool, shortCycleName b
 	if t.name != "" {
 		out = append(out, ' ')
 	}
-	inCycle[t] = true
+	inCycle = append(inCycle, t)
 	switch t.kind {
 	case Optional:
 		out = append(out, '?')
@@ -641,7 +636,6 @@ func uniqueTypeStr(out []byte, t *Type, inCycle map[*Type]bool, shortCycleName b
 	default:
 		out = append(out, t.kind.String()...)
 	}
-	inCycle[t] = false
 	return out
 }
 
@@ -774,8 +768,8 @@ func typeConsLookup(t *Type) *Type {
 		// Look for the type in our registry, based on its unique string.
 		// Never use short cycle names; at this point the type is valid, and
 		// we need a fully unique string.
-		inCycle := map[*Type]bool{}
-		us := uniqueTypeStr(buf[:0], t, inCycle, false, -1)
+		inCycle := [32]*Type{}
+		us := uniqueTypeStr(buf[:0], t, inCycle[:0], false, -1)
 		unique = *(*string)(unsafe.Pointer(&us))
 	}
 	typeRegMu.RLock()
@@ -840,18 +834,14 @@ func validType(t *Type) error {
 		// cycles; a cycle where no type is named.  E.g. a PendingList with itself as
 		// the elem type.  This can't occur in the VDL language, but can occur with
 		// invalid VOM encodings.
-		inCycle := map[*Type]bool{}
-		if typeInCycle := typeInUnnamedCycle(t, inCycle); typeInCycle != nil {
+		inCycle := [64]*Type{}
+		if typeInCycle := typeInUnnamedCycle(t, inCycle[:0]); typeInCycle != nil {
 			return fmt.Errorf("type %q is inside of an unnamed cycle", typeInCycle)
 		}
-		// The compiler will optimise this to zero out the buckets but
-		// keep the storage.
-		for k := range inCycle {
-			delete(inCycle, k)
-		}
+		inCycle = [64]*Type{}
 		// existsStrictCycle returns a nil error iff the given type set has no strict
 		// cycles (e.g. type A struct{Elem: A})
-		if typeInCycle := typeInStrictCycle(t, inCycle); typeInCycle != nil {
+		if typeInCycle := typeInStrictCycle(t, inCycle[:0]); typeInCycle != nil {
 			return fmt.Errorf("type %q is inside of a strict cycle", typeInCycle)
 		}
 	}
@@ -860,14 +850,11 @@ func validType(t *Type) error {
 
 // typeInStrictCycle returns a subtype that belongs to a strict cycle or nil if
 // there are no strict cycles
-func typeInStrictCycle(t *Type, inCycle map[*Type]bool) *Type {
-	if c, ok := inCycle[t]; ok {
-		if c {
-			return t
-		}
-		return nil
+func typeInStrictCycle(t *Type, inCycle []*Type) *Type {
+	if hasType(inCycle, t) {
+		return t
 	}
-	inCycle[t] = true
+	inCycle = append(inCycle, t)
 	switch t.kind {
 	case Array:
 		if typeInCycle := typeInStrictCycle(t.elem, inCycle); typeInCycle != nil {
@@ -880,21 +867,17 @@ func typeInStrictCycle(t *Type, inCycle map[*Type]bool) *Type {
 			}
 		}
 	}
-	inCycle[t] = false
 	return nil
 }
 
-func typeInUnnamedCycle(t *Type, inCycle map[*Type]bool) *Type {
+func typeInUnnamedCycle(t *Type, inCycle []*Type) *Type {
 	if t == nil || t.name != "" {
 		return nil
 	}
-	if c, ok := inCycle[t]; ok {
-		if c {
-			return t
-		}
-		return nil
+	if hasType(inCycle, t) {
+		return t
 	}
-	inCycle[t] = true
+	inCycle = append(inCycle, t)
 	if typeInCycle := typeInUnnamedCycle(t.key, inCycle); typeInCycle != nil {
 		return typeInCycle
 	}
@@ -906,7 +889,6 @@ func typeInUnnamedCycle(t *Type, inCycle map[*Type]bool) *Type {
 			return typeInCycle
 		}
 	}
-	inCycle[t] = false
 	return nil
 }
 
@@ -1030,4 +1012,13 @@ func verifyAndCollectAllTypes(t *Type, allTypes map[*Type]bool) error { //nolint
 		}
 	}
 	return nil
+}
+
+func hasType(m []*Type, t *Type) bool {
+	for i := 0; i < len(m); i++ {
+		if m[i] == t {
+			return true
+		}
+	}
+	return false
 }

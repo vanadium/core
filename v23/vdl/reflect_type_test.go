@@ -420,7 +420,7 @@ func BenchmarkRepeatedVdlTypeOf(b *testing.B) {
 	b.ReportAllocs()
 	val := &simpleNamedType{}
 	TypeOf(val)
-
+	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		TypeOf(val)
 	}
@@ -431,8 +431,65 @@ func BenchmarkRepeatedVdlTypeOf(b *testing.B) {
 func BenchmarkRepeatedReflectTypeOf(b *testing.B) {
 	b.ReportAllocs()
 	reflect.TypeOf(&simpleNamedType{})
-
+	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		reflect.TypeOf(&simpleNamedType{})
+	}
+}
+
+func createTypes(n int) []*Type {
+	r := []*Type{}
+	for i := 0; i < n; i++ {
+		r = append(r, new(Type))
+	}
+	return r
+}
+
+func BenchmarkBoolMap(b *testing.B) {
+	b.ReportAllocs()
+	ntypes := 32
+	typs := createTypes(ntypes)
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		m := make(map[*Type]bool, ntypes)
+		for j := 0; j < ntypes; j++ {
+			m[typs[j]] = true
+		}
+	}
+}
+
+func BenchmarkStructMap(b *testing.B) {
+	b.ReportAllocs()
+	ntypes := 32
+	typs := createTypes(ntypes)
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		m := make(map[*Type]struct{}, ntypes)
+		for j := 0; j < ntypes; j++ {
+			m[typs[j]] = struct{}{}
+		}
+	}
+}
+
+func BenchmarkSlice(b *testing.B) {
+	has := func(s []*Type, t *Type) bool {
+		for i := 0; i < len(s); i++ {
+			if s[i] == t {
+				return true
+			}
+		}
+		return false
+	}
+	b.ReportAllocs()
+	ntypes := 24
+	typs := createTypes(ntypes)
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		ss := [64]*Type{}
+		m := ss[:0]
+		for j := 0; j < ntypes; j++ {
+			m = append(m, typs[j])
+			has(m, typs[j])
+		}
 	}
 }

@@ -222,7 +222,8 @@ func (t *Type) uniqueSlow() string {
 	// building the type, and we're printing the type for errors.  The type might
 	// have unnamed cycles, so we need to use short cycle names.
 	buf := make([]byte, 0, 256)
-	buf = uniqueTypeStr(buf, t, make(map[*Type]bool), true, -1)
+	inCycle := [32]*Type{}
+	buf = uniqueTypeStr(buf, t, inCycle[:0], true, -1)
 	return string(buf)
 }
 

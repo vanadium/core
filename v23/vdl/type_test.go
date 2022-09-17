@@ -957,6 +957,17 @@ func TestStrictCycleType(t *testing.T) {
 	}
 }
 
+func TestUnnamedCycleType(t *testing.T) {
+	var builder TypeBuilder
+	lstA := builder.List()
+	lstA.AssignElem(lstA)
+	builder.Build()
+	a, aerr := lstA.Built()
+	if a != nil || aerr == nil || aerr.Error() != `type "[]..." is inside of an unnamed cycle` {
+		t.Errorf("missing or wrong error: (%v %v)", a, aerr)
+	}
+}
+
 func TestMutuallyRecursiveType(t *testing.T) { //nolint:gocyclo
 	build := func() (*Type, error, *Type, error, *Type, error, *Type, error) {
 		// type D A
