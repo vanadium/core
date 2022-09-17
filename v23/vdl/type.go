@@ -223,31 +223,9 @@ func (t *Type) uniqueSlow() string {
 	// have unnamed cycles, so we need to use short cycle names.
 	buf := make([]byte, 0, 256)
 	allTypes := [cycleArraySize]*Type{}
-	all := allTypesForUniqueSlow(t, allTypes[:0])
 	inCycle := [cycleArraySize]*Type{}
-	buf = uniqueTypeStr(buf, t, all, inCycle[:0], true, -1)
+	_, buf = uniqueTypeStr(buf, t, allTypes[:0], inCycle[:0], true, -1)
 	return string(buf)
-}
-
-func allTypesForUniqueSlow(t *Type, all []*Type) []*Type {
-	if hasType(all, t) {
-		return all
-	}
-	all = append(all, t)
-	switch t.kind {
-	case Optional, Array, List:
-		all = allTypesForUniqueSlow(t.elem, all)
-	case Set:
-		all = allTypesForUniqueSlow(t.key, all)
-	case Map:
-		all = allTypesForUniqueSlow(t.key, all)
-		all = allTypesForUniqueSlow(t.elem, all)
-	case Struct, Union:
-		for _, f := range t.fields {
-			all = allTypesForUniqueSlow(f.Type, all)
-		}
-	}
-	return all
 }
 
 // CanBeNil returns true iff values of t can be nil.

@@ -738,15 +738,10 @@ func lookupType(cons string) *Type {
 
 // typeCons returns the hash-consed Type for a given Type t
 func typeCons(t *Type) (*Type, error) {
-	allTypes := [cycleArraySize]*Type{}
-	all, err := verifyAndCollectAllTypes(t, allTypes[:0])
-	if err != nil {
+	if err := validType(t); err != nil {
 		return nil, err
 	}
-	if err := validType(t, all); err != nil {
-		return nil, err
-	}
-	return typeConsRecursive(t, all), nil
+	return typeConsRecursive(t), nil
 }
 
 func cloneString(s string) string {
@@ -762,7 +757,7 @@ const cycleArraySize = 64
 
 // attempt to lookup t by its t.unique value, which, if not already
 // specified will be computed and set here.
-func typeConsLookup(t *Type, all []*Type) *Type {
+func typeConsLookup(t *Type) *Type {
 	// buf is allocated on the stack so long as uniqueTypeStr does
 	// 'call up the stack', that is, it's ok for uniqueTypeStr to call itself
 	// recursively, but not for it to call a sub-function when then calls itself.
@@ -775,8 +770,8 @@ func typeConsLookup(t *Type, all []*Type) *Type {
 		// Never use short cycle names; at this point the type is valid, and
 		// we need a fully unique string.
 		inCycle := [cycleArraySize]*Type{}
-		allt := [64]*Type{}
-		_, us := uniqueTypeStr(buf[:0], t, allt[:0], inCycle[:0], false, -1)
+		allTypes := [64]*Type{}
+		_, us := uniqueTypeStr(buf[:0], t, allTypes[:0], inCycle[:0], false, -1)
 		unique = *(*string)(unsafe.Pointer(&us))
 	}
 	typeRegMu.RLock()
@@ -792,11 +787,11 @@ func typeConsLookup(t *Type, all []*Type) *Type {
 	return nil
 }
 
-func typeConsRecursive(t *Type, all []*Type) *Type {
+func typeConsRecursive(t *Type) *Type {
 	if t == nil {
 		return nil
 	}
-	if found := typeConsLookup(t, all); found != nil {
+	if found := typeConsLookup(t); found != nil {
 		return found
 	}
 	// Not found in the registry, add it and recursively cons subtypes.  We cons
@@ -806,18 +801,18 @@ func typeConsRecursive(t *Type, all []*Type) *Type {
 	typeReg[t.unique] = t
 	typeRegMu.Unlock()
 	t.containsKind.Set(t.kind)
-	t.elem = typeConsRecursive(t.elem, all)
+	t.elem = typeConsRecursive(t.elem)
 	if t.elem != nil {
 		t.containsKind |= t.elem.containsKind
 	}
-	t.key = typeConsRecursive(t.key, all)
+	t.key = typeConsRecursive(t.key)
 	if t.key != nil {
 		t.containsKind |= t.key.containsKind
 	}
 	if len := len(t.fields); len > 0 {
 		t.fieldIndices = make(map[string]int, len)
 		for index, field := range t.fields {
-			field.Type = typeConsRecursive(field.Type, all)
+			field.Type = typeConsRecursive(field.Type)
 			t.fieldIndices[field.Name] = index
 			t.containsKind |= field.Type.containsKind
 			t.fields[index] = field
@@ -827,7 +822,12 @@ func typeConsRecursive(t *Type, all []*Type) *Type {
 }
 
 // validType returns a nil error iff t and all subtypes are valid.
-func validType(t *Type, all []*Type) error {
+func validType(t *Type) error {
+	allTypes := [cycleArraySize]*Type{}
+	all, err := verifyAndCollectAllTypes(t, allTypes[:0])
+	if err != nil {
+		return err
+	}
 	for _, t := range all {
 		// existsInvalid Key.
 		if (t.kind == Map || t.kind == Set) && !t.key.CanBeKey() {
