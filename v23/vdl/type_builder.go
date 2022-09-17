@@ -574,20 +574,20 @@ func enforceUniqueNames(t *Type, names map[string]*Type) error {
 // uniqueTypeStr recursively since that will cause the stack allocated buffer
 // passed to it (ie. the out parameter) to escape to the heap. This is an
 // important memory allocation optimization.
-func uniqueTypeStr(out []byte, t *Type, allTypes, inCycle []*Type, shortCycleName bool, depth int) []byte { //nolint:gocyclo
-	if hasType(allTypes, t) && !hasType(inCycle, t) && t.name != "" {
+func uniqueTypeStr(out []byte, t *Type, allTypes, inCycle []*Type, shortCycleName bool, depth int) ([]*Type, []byte) { //nolint:gocyclo
+	if hasType(allTypes, t) && t.name != "" {
 		// If the type is named, and we've seen the type at all, regardless of
 		// whether it's in a cycle, always return the name for brevity.  If the
 		// type happens to be in a cycle, this is also necessary to break an
 		// infinite loop.
-		return append(out, t.name...)
+		return allTypes, append(out, t.name...)
 	}
 	if hasType(inCycle, t) && shortCycleName {
 		// If we're in a cycle and we want short cycle names, we're only dumping
 		// the type to help debug errors.  Note that the "..." means that the
 		// returned string is no longer unique, but breaks an infinite loop for
 		// unnamed cyclic types.
-		return append(out, "..."...)
+		return allTypes, append(out, "..."...)
 	}
 	if depth >= 0 {
 		depth = checkDepth(depth)
@@ -597,29 +597,30 @@ func uniqueTypeStr(out []byte, t *Type, allTypes, inCycle []*Type, shortCycleNam
 		out = append(out, ' ')
 	}
 	inCycle = append(inCycle, t)
+	allTypes = append(allTypes, t)
 	switch t.kind {
 	case Optional:
 		out = append(out, '?')
-		out = uniqueTypeStr(out, t.elem, allTypes, inCycle, shortCycleName, depth)
+		allTypes, out = uniqueTypeStr(out, t.elem, allTypes, inCycle, shortCycleName, depth)
 	case Enum:
 		out = writeEnum(out, t, shortCycleName, depth)
 	case Array:
 		out = append(out, '[')
 		out = append(out, strconv.Itoa(t.len)...)
 		out = append(out, ']')
-		out = uniqueTypeStr(out, t.elem, allTypes, inCycle, shortCycleName, depth)
+		allTypes, out = uniqueTypeStr(out, t.elem, allTypes, inCycle, shortCycleName, depth)
 	case List:
 		out = append(out, "[]"...)
-		out = uniqueTypeStr(out, t.elem, allTypes, inCycle, shortCycleName, depth)
+		allTypes, out = uniqueTypeStr(out, t.elem, allTypes, inCycle, shortCycleName, depth)
 	case Set:
 		out = append(out, "set["...)
-		out = uniqueTypeStr(out, t.key, allTypes, inCycle, shortCycleName, depth)
+		allTypes, out = uniqueTypeStr(out, t.key, allTypes, inCycle, shortCycleName, depth)
 		out = append(out, ']')
 	case Map:
 		out = append(out, "map["...)
-		out = uniqueTypeStr(out, t.key, allTypes, inCycle, shortCycleName, depth)
+		allTypes, out = uniqueTypeStr(out, t.key, allTypes, inCycle, shortCycleName, depth)
 		out = append(out, ']')
-		out = uniqueTypeStr(out, t.elem, allTypes, inCycle, shortCycleName, depth)
+		allTypes, out = uniqueTypeStr(out, t.elem, allTypes, inCycle, shortCycleName, depth)
 	case Struct, Union:
 		out = append(out, structOrUnion(t.kind)...)
 		for index, f := range t.fields {
@@ -628,13 +629,13 @@ func uniqueTypeStr(out []byte, t *Type, allTypes, inCycle []*Type, shortCycleNam
 			}
 			out = append(out, f.Name...)
 			out = append(out, ' ')
-			out = uniqueTypeStr(out, f.Type, allTypes, inCycle, shortCycleName, depth)
+			allTypes, out = uniqueTypeStr(out, f.Type, allTypes, inCycle, shortCycleName, depth)
 		}
 		out = append(out, '}')
 	default:
 		out = append(out, t.kind.String()...)
 	}
-	return out
+	return allTypes, out
 }
 
 func structOrUnion(k Kind) string {
@@ -774,7 +775,8 @@ func typeConsLookup(t *Type, all []*Type) *Type {
 		// Never use short cycle names; at this point the type is valid, and
 		// we need a fully unique string.
 		inCycle := [cycleArraySize]*Type{}
-		us := uniqueTypeStr(buf[:0], t, all, inCycle[:0], false, -1)
+		allt := [64]*Type{}
+		_, us := uniqueTypeStr(buf[:0], t, allt[:0], inCycle[:0], false, -1)
 		unique = *(*string)(unsafe.Pointer(&us))
 	}
 	typeRegMu.RLock()
