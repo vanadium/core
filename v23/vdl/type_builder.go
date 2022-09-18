@@ -62,11 +62,7 @@ var ErrorType = OptionalType(NamedType("v.io/v23/vdl.WireError", StructType(
 // The ErrorType above must be kept in-sync with WireError.
 
 func primitiveType(k Kind) *Type {
-	prim, err := typeCons(&Type{kind: k})
-	if err != nil {
-		panic(err)
-	}
-	return prim
+	return &Type{kind: k, unique: k.String(), containsKind: (1 << uint(k))}
 }
 
 // TypeOrPending only allows *Type or Pending values; other values cause a
@@ -573,22 +569,25 @@ func enforceUniqueNames(t *Type, names map[string]*Type) error {
 // needs the hash-consed name of the type. The depth test can be disabled by
 // specifying -1 and hence if the test fails, the full validation can proceed
 // and if it is successful arbitrary depth types are supported.
-func uniqueTypeStr(out []byte, t *Type, inCycle map[*Type]bool, shortCycleName bool, depth int) []byte {
-	if c, ok := inCycle[t]; ok {
-		if t.name != "" {
-			// If the type is named, and we've seen the type at all, regardless of
-			// whether it's in a cycle, always return the name for brevity.  If the
-			// type happens to be in a cycle, this is also necessary to break an
-			// infinite loop.
-			return append(out, t.name...)
-		}
-		if c && shortCycleName {
-			// If we're in a cycle and we want short cycle names, we're only dumping
-			// the type to help debug errors.  Note that the "..." means that the
-			// returned string is no longer unique, but breaks an infinite loop for
-			// unnamed cyclic types.
-			return append(out, "..."...)
-		}
+//
+// NOTE: on no account should uniqueTypeStr call a sub-function that calls
+// uniqueTypeStr recursively since that will cause the stack allocated buffer
+// passed to it (ie. the out parameter) to escape to the heap. This is an
+// important memory allocation optimization.
+func uniqueTypeStr(out []byte, t *Type, allTypes, inCycle []*Type, shortCycleName bool, depth int) ([]*Type, []byte) { //nolint:gocyclo
+	if hasType(allTypes, t) && t.name != "" {
+		// If the type is named, and we've seen the type at all, regardless of
+		// whether it's in a cycle, always return the name for brevity.  If the
+		// type happens to be in a cycle, this is also necessary to break an
+		// infinite loop.
+		return allTypes, append(out, t.name...)
+	}
+	if hasType(inCycle, t) && shortCycleName {
+		// If we're in a cycle and we want short cycle names, we're only dumping
+		// the type to help debug errors.  Note that the "..." means that the
+		// returned string is no longer unique, but breaks an infinite loop for
+		// unnamed cyclic types.
+		return allTypes, append(out, "..."...)
 	}
 	if depth >= 0 {
 		depth = checkDepth(depth)
@@ -597,37 +596,53 @@ func uniqueTypeStr(out []byte, t *Type, inCycle map[*Type]bool, shortCycleName b
 	if t.name != "" {
 		out = append(out, ' ')
 	}
-	inCycle[t] = true
+	inCycle = append(inCycle, t)
+	allTypes = append(allTypes, t)
 	switch t.kind {
 	case Optional:
 		out = append(out, '?')
-		out = uniqueTypeStr(out, t.elem, inCycle, shortCycleName, depth)
+		allTypes, out = uniqueTypeStr(out, t.elem, allTypes, inCycle, shortCycleName, depth)
 	case Enum:
-		out = writeEnum(out, t, inCycle, shortCycleName, depth)
+		out = writeEnum(out, t, shortCycleName, depth)
 	case Array:
 		out = append(out, '[')
 		out = append(out, strconv.Itoa(t.len)...)
 		out = append(out, ']')
-		out = uniqueTypeStr(out, t.elem, inCycle, shortCycleName, depth)
+		allTypes, out = uniqueTypeStr(out, t.elem, allTypes, inCycle, shortCycleName, depth)
 	case List:
-		out = append(out, '[', ']')
-		out = uniqueTypeStr(out, t.elem, inCycle, shortCycleName, depth)
+		out = append(out, "[]"...)
+		allTypes, out = uniqueTypeStr(out, t.elem, allTypes, inCycle, shortCycleName, depth)
 	case Set:
 		out = append(out, "set["...)
-		out = uniqueTypeStr(out, t.key, inCycle, shortCycleName, depth)
+		allTypes, out = uniqueTypeStr(out, t.key, allTypes, inCycle, shortCycleName, depth)
 		out = append(out, ']')
 	case Map:
 		out = append(out, "map["...)
-		out = uniqueTypeStr(out, t.key, inCycle, shortCycleName, depth)
+		allTypes, out = uniqueTypeStr(out, t.key, allTypes, inCycle, shortCycleName, depth)
 		out = append(out, ']')
-		out = uniqueTypeStr(out, t.elem, inCycle, shortCycleName, depth)
+		allTypes, out = uniqueTypeStr(out, t.elem, allTypes, inCycle, shortCycleName, depth)
 	case Struct, Union:
-		out = writeStructOrUnion(out, t, inCycle, shortCycleName, depth)
+		out = append(out, structOrUnion(t.kind)...)
+		for index, f := range t.fields {
+			if index > 0 {
+				out = append(out, ';')
+			}
+			out = append(out, f.Name...)
+			out = append(out, ' ')
+			allTypes, out = uniqueTypeStr(out, f.Type, allTypes, inCycle, shortCycleName, depth)
+		}
+		out = append(out, '}')
 	default:
 		out = append(out, t.kind.String()...)
 	}
-	inCycle[t] = false
-	return out
+	return allTypes, out
+}
+
+func structOrUnion(k Kind) string {
+	if k == Struct {
+		return "struct{"
+	}
+	return "union{"
 }
 
 func checkDepth(depth int) int {
@@ -639,24 +654,7 @@ func checkDepth(depth int) int {
 	return depth
 }
 
-func writeStructOrUnion(out []byte, t *Type, inCycle map[*Type]bool, shortCycleName bool, depth int) []byte {
-	if t.kind == Struct {
-		out = append(out, "struct{"...)
-	} else {
-		out = append(out, "union{"...)
-	}
-	for index, f := range t.fields {
-		if index > 0 {
-			out = append(out, ';')
-		}
-		out = append(out, f.Name...)
-		out = append(out, ' ')
-		out = uniqueTypeStr(out, f.Type, inCycle, shortCycleName, depth)
-	}
-	return append(out, '}')
-}
-
-func writeEnum(out []byte, t *Type, inCycle map[*Type]bool, shortCycleName bool, depth int) []byte {
+func writeEnum(out []byte, t *Type, shortCycleName bool, depth int) []byte {
 	out = append(out, "enum{"...)
 	last := len(t.labels) - 1
 	for i, l := range t.labels {
@@ -668,16 +666,16 @@ func writeEnum(out []byte, t *Type, inCycle map[*Type]bool, shortCycleName bool,
 	return append(out, '}')
 }
 
-// reuseDerivedType checks to see if the type derived from the base
+// reuseDerivedType  checks to see if the type derived from the base
 // type's elem (ie. an optional, list or array) already exists. This is
 // an important optimisation since anything passed in as a pointer to
-// vom.Encode is treated as an optional and would otherwise resulting
+// vom.Encode is treated as an optional and would otherwise result
 // a new type being built on every use of that optional.
 func reuseDerivedType(elem *Type, kind Kind, arrayLen int) *Type {
 	if elem == nil || len(elem.unique) == 0 {
 		return nil
 	}
-	buf := [256]byte{}
+	var buf [1024]byte
 	cons := buf[:0]
 	switch kind {
 	case Optional:
@@ -697,11 +695,12 @@ func reuseDerivedType(elem *Type, kind Kind, arrayLen int) *Type {
 	return lookupType(*(*string)(unsafe.Pointer(&cons)))
 }
 
+// reuseKeyedType is like  reuseDerivedType.
 func reuseKeyedType(key, elem *Type, kind Kind, arrayLen int) *Type {
 	if key == nil || len(key.unique) == 0 {
 		return nil
 	}
-	buf := [256]byte{}
+	var buf [1024]byte
 	cons := buf[:0]
 	switch kind {
 	case Set:
@@ -742,41 +741,65 @@ func typeCons(t *Type) (*Type, error) {
 	if err := validType(t); err != nil {
 		return nil, err
 	}
-	cons := typeConsRecursive(t)
-	return cons, nil
+	return typeConsRecursive(t), nil
+}
+
+func cloneString(s string) string {
+	if len(s) == 0 {
+		return ""
+	}
+	b := make([]byte, len(s))
+	copy(b, s)
+	return *(*string)(unsafe.Pointer(&b))
+}
+
+const cycleArraySize = 64
+
+// attempt to lookup t by its t.unique value, which, if not already
+// specified will be computed and set here.
+func typeConsLookup(t *Type) *Type {
+	// buf is allocated on the stack so long as uniqueTypeStr does
+	// 'call up the stack', that is, it's ok for uniqueTypeStr to call itself
+	// recursively, but not for it to call a sub-function when then calls itself.
+	// This is a very large impact on the # of memory allocations and overall
+	// performance of typeConsLookup and consequently all vom decoding.
+	var buf [2048]byte
+	unique := t.unique
+	if len(unique) == 0 {
+		// Look for the type in our registry, based on its unique string.
+		// Never use short cycle names; at this point the type is valid, and
+		// we need a fully unique string.
+		inCycle := [cycleArraySize]*Type{}
+		allTypes := [64]*Type{}
+		_, us := uniqueTypeStr(buf[:0], t, allTypes[:0], inCycle[:0], false, -1)
+		unique = *(*string)(unsafe.Pointer(&us))
+	}
+	typeRegMu.RLock()
+	found := typeReg[unique]
+	typeRegMu.RUnlock()
+	if found != nil {
+		return found
+	}
+	// Take a copy of the final unique string since it will likely be smaller
+	// than the size of buf above and we don't want buf to escape to the
+	// heap.
+	t.unique = cloneString(unique)
+	return nil
 }
 
 func typeConsRecursive(t *Type) *Type {
 	if t == nil {
 		return nil
 	}
-	var ub [256]byte
-	us := ub[:0]
-	unique := t.unique
-	// Look for the type in our registry, based on its unique string.
-	if unique == "" {
-		// Never use short cycle names; at this point the type is valid, and we need
-		// a fully unique string.
-		inCycle := map[*Type]bool{}
-		us = uniqueTypeStr(us, t, inCycle, false, -1)
-		// Avoid a string conversion/copy for the common case where the
-		// type is already cached.
-		unique = *(*string)(unsafe.Pointer(&us))
-	}
-	typeRegMu.Lock()
-	if found := typeReg[unique]; found != nil {
-		typeRegMu.Unlock()
+	if found := typeConsLookup(t); found != nil {
 		return found
 	}
-	// This type is new, so convert the unique name to a string.
-	t.unique = string(us)
-
 	// Not found in the registry, add it and recursively cons subtypes.  We cons
 	// the outer type first to deal with recursive types; otherwise we'd have an
 	// infinite loop.
+	typeRegMu.Lock()
 	typeReg[t.unique] = t
 	typeRegMu.Unlock()
-
 	t.containsKind.Set(t.kind)
 	t.elem = typeConsRecursive(t.elem)
 	if t.elem != nil {
@@ -800,11 +823,12 @@ func typeConsRecursive(t *Type) *Type {
 
 // validType returns a nil error iff t and all subtypes are valid.
 func validType(t *Type) error {
-	allTypes := make(map[*Type]bool)
-	if err := verifyAndCollectAllTypes(t, allTypes); err != nil {
+	allTypes := [cycleArraySize]*Type{}
+	all, err := verifyAndCollectAllTypes(t, allTypes[:0])
+	if err != nil {
 		return err
 	}
-	for t := range allTypes {
+	for _, t := range all {
 		// existsInvalid Key.
 		if (t.kind == Map || t.kind == Set) && !t.key.CanBeKey() {
 			return fmt.Errorf("invalid key %q in %q", t.key, t)
@@ -813,18 +837,14 @@ func validType(t *Type) error {
 		// cycles; a cycle where no type is named.  E.g. a PendingList with itself as
 		// the elem type.  This can't occur in the VDL language, but can occur with
 		// invalid VOM encodings.
-		inCycle := map[*Type]bool{}
-		if typeInCycle := typeInUnnamedCycle(t, inCycle); typeInCycle != nil {
+		inCycle := [cycleArraySize]*Type{}
+		if typeInCycle := typeInUnnamedCycle(t, inCycle[:0]); typeInCycle != nil {
 			return fmt.Errorf("type %q is inside of an unnamed cycle", typeInCycle)
 		}
-		// The compiler will optimise this to zero out the buckets but
-		// keep the storage.
-		for k := range inCycle {
-			delete(inCycle, k)
-		}
+		inCycle = [cycleArraySize]*Type{}
 		// existsStrictCycle returns a nil error iff the given type set has no strict
 		// cycles (e.g. type A struct{Elem: A})
-		if typeInCycle := typeInStrictCycle(t, inCycle); typeInCycle != nil {
+		if typeInCycle := typeInStrictCycle(t, inCycle[:0]); typeInCycle != nil {
 			return fmt.Errorf("type %q is inside of a strict cycle", typeInCycle)
 		}
 	}
@@ -833,14 +853,11 @@ func validType(t *Type) error {
 
 // typeInStrictCycle returns a subtype that belongs to a strict cycle or nil if
 // there are no strict cycles
-func typeInStrictCycle(t *Type, inCycle map[*Type]bool) *Type {
-	if c, ok := inCycle[t]; ok {
-		if c {
-			return t
-		}
-		return nil
+func typeInStrictCycle(t *Type, inCycle []*Type) *Type {
+	if hasType(inCycle, t) {
+		return t
 	}
-	inCycle[t] = true
+	inCycle = append(inCycle, t)
 	switch t.kind {
 	case Array:
 		if typeInCycle := typeInStrictCycle(t.elem, inCycle); typeInCycle != nil {
@@ -853,21 +870,17 @@ func typeInStrictCycle(t *Type, inCycle map[*Type]bool) *Type {
 			}
 		}
 	}
-	inCycle[t] = false
 	return nil
 }
 
-func typeInUnnamedCycle(t *Type, inCycle map[*Type]bool) *Type {
+func typeInUnnamedCycle(t *Type, inCycle []*Type) *Type {
 	if t == nil || t.name != "" {
 		return nil
 	}
-	if c, ok := inCycle[t]; ok {
-		if c {
-			return t
-		}
-		return nil
+	if hasType(inCycle, t) {
+		return t
 	}
-	inCycle[t] = true
+	inCycle = append(inCycle, t)
 	if typeInCycle := typeInUnnamedCycle(t.key, inCycle); typeInCycle != nil {
 		return typeInCycle
 	}
@@ -879,84 +892,83 @@ func typeInUnnamedCycle(t *Type, inCycle map[*Type]bool) *Type {
 			return typeInCycle
 		}
 	}
-	inCycle[t] = false
 	return nil
 }
 
 // verifyAndCollectAllTypes returns a nil error iff t and all subtypes are
 // correctly defined. If all subtypes are correctly defined allTypes will be
 // filled with all subtypes of the given Type t.
-func verifyAndCollectAllTypes(t *Type, allTypes map[*Type]bool) error { //nolint:gocyclo
-	if t == nil || allTypes[t] {
-		return nil
+func verifyAndCollectAllTypes(t *Type, allTypes []*Type) ([]*Type, error) { //nolint:gocyclo
+	if t == nil || hasType(allTypes, t) {
+		return allTypes, nil
 	}
-	allTypes[t] = true
+	allTypes = append(allTypes, t)
 	// Check kind
 	if t.kind == internalNamed {
-		return fmt.Errorf("internal kind %d used in verifyAndCollectAllTypes", t.kind)
+		return nil, fmt.Errorf("internal kind %d used in verifyAndCollectAllTypes", t.kind)
 	}
 	// Check name
 	// TODO(toddw): Disallow Optional from being named.
 	switch t.kind {
 	case Any, TypeObject:
 		if t.name != "" {
-			return errNameNonEmpty
+			return nil, errNameNonEmpty
 		}
 	}
 	// Check len
 	switch t.kind {
 	case Array:
 		if t.len <= 0 {
-			return errLenZero
+			return nil, errLenZero
 		}
 	default:
 		if t.len != 0 {
-			return errLenNonZero
+			return nil, errLenNonZero
 		}
 	}
 	// Check elem
 	switch t.kind {
 	case Array, List, Map:
 		if t.elem == nil {
-			return errElemNil
+			return nil, errElemNil
 		}
 	case Optional:
 		if t.elem == nil {
-			return errElemNil
+			return nil, errElemNil
 		}
 		if !t.elem.CanBeOptional() {
-			return fmt.Errorf("invalid optional type %q", t)
+			return nil, fmt.Errorf("invalid optional type %q", t)
 		}
 	default:
 		if t.elem != nil {
-			return errElemNonNil
+			return nil, errElemNonNil
 		}
 	}
 	// Check key
 	switch t.kind {
 	case Set, Map:
 		if t.key == nil {
-			return errKeyNil
+			return nil, errKeyNil
 		}
 	default:
 		if t.key != nil {
-			return errKeyNonNil
+			return nil, errKeyNonNil
 		}
 	}
 	// Check labels
 	switch t.kind {
 	case Enum:
 		if len(t.labels) == 0 {
-			return errNoLabels
+			return nil, errNoLabels
 		}
 		for _, l := range t.labels {
 			if l == "" {
-				return errLabelEmpty
+				return nil, errLabelEmpty
 			}
 		}
 	default:
 		if len(t.labels) > 0 {
-			return errHasLabels
+			return nil, errHasLabels
 		}
 	}
 	// Check fields
@@ -967,14 +979,14 @@ func verifyAndCollectAllTypes(t *Type, allTypes map[*Type]bool) error { //nolint
 		seenFields := alloc[:0]
 		for i, f := range t.fields {
 			if f.Type == nil {
-				return errFieldTypeNil
+				return nil, errFieldTypeNil
 			}
 			if f.Name == "" {
-				return errFieldNameEmpty
+				return nil, errFieldNameEmpty
 			}
 			for p := 0; p < i; p++ {
 				if seenFields[p] == f.Name {
-					return fmt.Errorf("%q has duplicate field name %q", t.name, f.Name)
+					return nil, fmt.Errorf("%q has duplicate field name %q", t.name, f.Name)
 				}
 			}
 			seenFields = append(seenFields, f.Name)
@@ -983,24 +995,36 @@ func verifyAndCollectAllTypes(t *Type, allTypes map[*Type]bool) error { //nolint
 		// field, and we special-case field 0.  E.g. the zero value of union is the
 		// zero value of the type of field 0.
 		if t.kind == Union && len(t.fields) == 0 {
-			return errNoFields
+			return nil, errNoFields
 		}
 	default:
 		if len(t.fields) > 0 {
-			return errHasFields
+			return nil, errHasFields
 		}
 	}
 	// Check subtypes recursively.
-	if err := verifyAndCollectAllTypes(t.elem, allTypes); err != nil {
-		return err
+	allTypes, err := verifyAndCollectAllTypes(t.elem, allTypes)
+	if err != nil {
+		return nil, err
 	}
-	if err := verifyAndCollectAllTypes(t.key, allTypes); err != nil {
-		return err
+	allTypes, err = verifyAndCollectAllTypes(t.key, allTypes)
+	if err != nil {
+		return nil, err
 	}
 	for _, x := range t.fields {
-		if err := verifyAndCollectAllTypes(x.Type, allTypes); err != nil {
-			return err
+		allTypes, err = verifyAndCollectAllTypes(x.Type, allTypes)
+		if err != nil {
+			return nil, err
 		}
 	}
-	return nil
+	return allTypes, nil
+}
+
+func hasType(m []*Type, t *Type) bool {
+	for i := 0; i < len(m); i++ {
+		if m[i] == t {
+			return true
+		}
+	}
+	return false
 }
