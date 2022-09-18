@@ -6,6 +6,7 @@ package vom
 
 import (
 	"bytes"
+	"fmt"
 	"io"
 	"sync"
 	"unsafe"
@@ -186,7 +187,7 @@ func computeTypeDecoderCacheKey(b *decbuf) ([]byte, error) {
 	// Walk through bytes until we get to a value message.
 	for {
 		if b.end < b.beg {
-			return nil, errIndexOutOfRange
+			return nil, fmt.Errorf("vom: failed to compute type decoder cache key: %v < %v", b.end, b.beg)
 		}
 		// Handle incomplete types.
 		switch ok, err := binaryDecodeControlOnly(b, WireCtrlTypeIncomplete); {

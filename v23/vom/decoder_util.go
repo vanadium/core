@@ -12,7 +12,6 @@ import (
 )
 
 var (
-	errIndexOutOfRange  = errors.New("vom: index out of range")
 	errDecodeZeroTypeID = errors.New("vom: zero type id")
 )
 
@@ -167,7 +166,7 @@ func (d *decoder81) skipValue(tt *vdl.Type) error { //nolint:gocyclo
 			case err != nil:
 				return err
 			case index >= uint64(tt.NumField()):
-				return errIndexOutOfRange
+				return fmt.Errorf("vom: skipValue: struct field index out of range: %v >= %v", index, tt.NumField())
 			default:
 				ttfield := tt.Field(int(index))
 				if err := d.skipValue(ttfield.Type); err != nil {
@@ -180,7 +179,7 @@ func (d *decoder81) skipValue(tt *vdl.Type) error { //nolint:gocyclo
 		case err != nil:
 			return err
 		case index >= uint64(tt.NumField()):
-			return errIndexOutOfRange
+			return fmt.Errorf("vom: skipValue: union field index out of range: %v >= %v", index, tt.NumField())
 		default:
 			ttfield := tt.Field(int(index))
 			return d.skipValue(ttfield.Type)
