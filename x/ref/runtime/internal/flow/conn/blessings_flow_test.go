@@ -99,7 +99,7 @@ func benchmarkDecodeOnly(b *testing.B) {
 	}
 }
 
-func benchmarkEncodeOnlyDirect(b *testing.B) {
+func benchmarkEncodeOnlyStruct(b *testing.B) {
 	ctx, shutdown := test.V23Init()
 	defer shutdown()
 	blessings, discharges := setupCredentials(b, ctx)
@@ -124,7 +124,7 @@ func benchmarkEncodeOnlyDirect(b *testing.B) {
 	}
 }
 
-func benchmarkDecodeOnlyDirect(b *testing.B) {
+func benchmarkDecodeOnlyStruct(b *testing.B) {
 	ctx, shutdown := test.V23Init()
 	defer shutdown()
 	blessings, discharges := setupCredentials(b, ctx)
@@ -174,12 +174,12 @@ func Benchmark_BlessingsFlow__Decode____Union(b *testing.B) {
 
 func Benchmark_BlessingsFlow__Encode__Structs(b *testing.B) {
 	b.ReportAllocs()
-	benchmarkEncodeOnly(b)
+	benchmarkEncodeOnlyStruct(b)
 }
 
 func Benchmark_BlessingsFlow__Decode__Structs(b *testing.B) {
 	b.ReportAllocs()
-	benchmarkDecodeOnly(b)
+	benchmarkDecodeOnlyStruct(b)
 }
 
 func Benchmark_Map_Empty(b *testing.B) {
