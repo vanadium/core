@@ -21,8 +21,8 @@ type encbuf struct {
 	end        int // [0, end) is data that's already written
 }
 
-func newEncbuf() *encbuf {
-	eb := &encbuf{}
+func newEncbuf() encbuf {
+	eb := encbuf{}
 	eb.buf = eb.bufStorage[:]
 	return eb
 }

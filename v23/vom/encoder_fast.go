@@ -63,7 +63,7 @@ func (e *encoder81) writeValue(tt *vdl.Type, encode func(*encbuf)) error {
 		if err := e.startMessage(msgType); err != nil {
 			return err
 		}
-		encode(e.buf)
+		encode(&e.buf)
 		e.nextStartValueIsOptional = false
 		return e.finishMessage()
 	}
@@ -80,11 +80,11 @@ func (e *encoder81) writeValue(tt *vdl.Type, encode func(*encbuf)) error {
 		if err != nil {
 			return err
 		}
-		binaryEncodeUint(e.buf, e.tids.ReferenceTypeID(tid))
+		binaryEncodeUint(&e.buf, e.tids.ReferenceTypeID(tid))
 		anyRef = e.anyLens.StartAny(e.buf.Len())
-		binaryEncodeUint(e.buf, uint64(anyRef.index))
+		binaryEncodeUint(&e.buf, uint64(anyRef.index))
 	}
-	encode(e.buf)
+	encode(&e.buf)
 	if isInsideAny {
 		e.anyLens.FinishAny(anyRef, e.buf.Len())
 	}
@@ -104,9 +104,9 @@ func (e *encoder81) nextEntryValue(tt *vdl.Type, encode func(*encbuf)) error {
 	if top.Index == 0 {
 		switch {
 		case top.Type.Kind() == vdl.Array:
-			binaryEncodeUint(e.buf, 0)
+			binaryEncodeUint(&e.buf, 0)
 		case top.LenHint >= 0:
-			binaryEncodeUint(e.buf, uint64(top.LenHint))
+			binaryEncodeUint(&e.buf, uint64(top.LenHint))
 		}
 	}
 	// StartValue
@@ -122,11 +122,11 @@ func (e *encoder81) nextEntryValue(tt *vdl.Type, encode func(*encbuf)) error {
 		if err != nil {
 			return err
 		}
-		binaryEncodeUint(e.buf, e.tids.ReferenceTypeID(tid))
+		binaryEncodeUint(&e.buf, e.tids.ReferenceTypeID(tid))
 		anyRef = e.anyLens.StartAny(e.buf.Len())
-		binaryEncodeUint(e.buf, uint64(anyRef.index))
+		binaryEncodeUint(&e.buf, uint64(anyRef.index))
 	}
-	encode(e.buf)
+	encode(&e.buf)
 	// FinishValue
 	if isInsideAny {
 		e.anyLens.FinishAny(anyRef, e.buf.Len())
@@ -146,7 +146,7 @@ func (e *encoder81) nextFieldValue(index int, tt *vdl.Type, encode func(*encbuf)
 	if index < -1 || index >= top.Type.NumField() {
 		return fmt.Errorf("vom: NextField called with invalid index %d", index)
 	}
-	binaryEncodeUint(e.buf, uint64(index))
+	binaryEncodeUint(&e.buf, uint64(index))
 	top.Index = index
 	// StartValue
 	top.NumStarted++
@@ -161,11 +161,11 @@ func (e *encoder81) nextFieldValue(index int, tt *vdl.Type, encode func(*encbuf)
 		if err != nil {
 			return err
 		}
-		binaryEncodeUint(e.buf, e.tids.ReferenceTypeID(tid))
+		binaryEncodeUint(&e.buf, e.tids.ReferenceTypeID(tid))
 		anyRef = e.anyLens.StartAny(e.buf.Len())
-		binaryEncodeUint(e.buf, uint64(anyRef.index))
+		binaryEncodeUint(&e.buf, uint64(anyRef.index))
 	}
-	encode(e.buf)
+	encode(&e.buf)
 	// FinishValue
 	if isInsideAny {
 		e.anyLens.FinishAny(anyRef, e.buf.Len())

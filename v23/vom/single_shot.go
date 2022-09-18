@@ -39,7 +39,7 @@ func VersionedEncode(version Version, v interface{}) ([]byte, error) {
 }
 
 type reusableEncoderBuffers struct {
-	typeEncBuf, valueEncBuf *encbuf
+	typeEncBuf, valueEncBuf encbuf
 }
 
 var reusableEncoderBuffersPool = sync.Pool{

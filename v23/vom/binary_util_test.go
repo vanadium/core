@@ -80,21 +80,21 @@ func TestBinaryEncodeDecode(t *testing.T) { //nolint:gocyclo
 		var buf []byte
 		switch val := test.v.(type) {
 		case byte:
-			binaryEncodeControl(encbuf, val)
+			binaryEncodeControl(&encbuf, val)
 		case bool:
-			binaryEncodeBool(encbuf, val)
+			binaryEncodeBool(&encbuf, val)
 		case uint64:
-			binaryEncodeUint(encbuf, val)
+			binaryEncodeUint(&encbuf, val)
 			buf = make([]byte, maxEncodedUintBytes)
 			buf = buf[binaryEncodeUintEnd(buf, val):]
 		case int64:
-			binaryEncodeInt(encbuf, val)
+			binaryEncodeInt(&encbuf, val)
 			buf = make([]byte, maxEncodedUintBytes)
 			buf = buf[binaryEncodeIntEnd(buf, val):]
 		case float64:
-			binaryEncodeFloat(encbuf, val)
+			binaryEncodeFloat(&encbuf, val)
 		case string:
-			binaryEncodeString(encbuf, val)
+			binaryEncodeString(&encbuf, val)
 		}
 		if got, want := fmt.Sprintf("%x", encbuf.Bytes()), test.hex; got != want {
 			t.Errorf("binary encode %T(%v): GOT 0x%v WANT 0x%v", test.v, test.v, got, want)
