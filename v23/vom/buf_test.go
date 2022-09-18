@@ -23,17 +23,17 @@ func expectEncbufBytes(t *testing.T, b *encbuf, expect string) {
 
 func TestEncbuf(t *testing.T) {
 	b := newEncbuf()
-	expectEncbufBytes(t, &b, "")
+	expectEncbufBytes(t, b, "")
 	copy(b.Grow(5), "abcde*****")
-	expectEncbufBytes(t, &b, "abcde")
+	expectEncbufBytes(t, b, "abcde")
 	b.WriteOneByte('1')
-	expectEncbufBytes(t, &b, "abcde1")
+	expectEncbufBytes(t, b, "abcde1")
 	b.Write([]byte("def"))
-	expectEncbufBytes(t, &b, "abcde1def")
+	expectEncbufBytes(t, b, "abcde1def")
 	b.Reset()
-	expectEncbufBytes(t, &b, "")
+	expectEncbufBytes(t, b, "")
 	b.Write([]byte("123"))
-	expectEncbufBytes(t, &b, "123")
+	expectEncbufBytes(t, b, "123")
 }
 
 func testEncbufReserve(t *testing.T, base int) {
@@ -42,17 +42,17 @@ func testEncbufReserve(t *testing.T, base int) {
 		// Test starting empty and writing size.
 		b := newEncbuf()
 		b.Write([]byte(str))
-		expectEncbufBytes(t, &b, str)
+		expectEncbufBytes(t, b, str)
 		b.Write([]byte(str))
-		expectEncbufBytes(t, &b, str+str)
+		expectEncbufBytes(t, b, str+str)
 		// Test starting with one byte and writing size.
 		b = newEncbuf()
 		b.WriteOneByte('A')
-		expectEncbufBytes(t, &b, "A")
+		expectEncbufBytes(t, b, "A")
 		b.Write([]byte(str))
-		expectEncbufBytes(t, &b, "A"+str)
+		expectEncbufBytes(t, b, "A"+str)
 		b.Write([]byte(str))
-		expectEncbufBytes(t, &b, "A"+str+str)
+		expectEncbufBytes(t, b, "A"+str+str)
 	}
 }
 

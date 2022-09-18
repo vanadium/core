@@ -65,7 +65,7 @@ func NewVersionedEncoderWithTypeEncoder(version Version, w io.Writer, typeEnc *T
 	return newVersionedEncoderWithTypeEncoder(version, w, typeEnc, newEncbuf())
 }
 
-func newVersionedEncoderWithTypeEncoder(version Version, w io.Writer, typeEnc *TypeEncoder, buf encbuf) *Encoder {
+func newVersionedEncoderWithTypeEncoder(version Version, w io.Writer, typeEnc *TypeEncoder, buf *encbuf) *Encoder {
 	if !isAllowedVersion(version) {
 		panic(fmt.Sprintf("unsupported VOM version: %x", version))
 	}
@@ -78,7 +78,7 @@ func newVersionedEncoderWithTypeEncoder(version Version, w io.Writer, typeEnc *T
 	}}
 }
 
-func newEncoderForTypes(version Version, w io.Writer, buf encbuf) *encoder81 {
+func newEncoderForTypes(version Version, w io.Writer, buf *encbuf) *encoder81 {
 	if !isAllowedVersion(version) {
 		panic(fmt.Sprintf("unsupported VOM version: %x", version))
 	}
@@ -135,9 +135,9 @@ type encoder81 struct {
 	stack        []encoderStackEntry
 	// We use buf to buffer up the encoded value. The buffering is necessary so
 	// that we can compute the total message length.
-	buf encbuf
+	buf *encbuf
 	// Buffer for the header of messages with any or typeobject.
-	bufHeader encbuf
+	bufHeader *encbuf
 	// Underlying writer.
 	writer io.Writer
 	// All types are sent through typeEnc.
@@ -250,12 +250,12 @@ func (e *encoder81) NilValue(tt *vdl.Type) error {
 		if err != nil {
 			return err
 		}
-		binaryEncodeUint(&e.buf, e.tids.ReferenceTypeID(tid))
+		binaryEncodeUint(e.buf, e.tids.ReferenceTypeID(tid))
 		anyRef = e.anyLens.StartAny(e.buf.Len())
-		binaryEncodeUint(&e.buf, uint64(anyRef.index))
+		binaryEncodeUint(e.buf, uint64(anyRef.index))
 	}
 	// Encode the nil control byte.
-	binaryEncodeControl(&e.buf, WireCtrlNil)
+	binaryEncodeControl(e.buf, WireCtrlNil)
 	// Handle FinishValue logic.
 	if isOptionalInsideAny {
 		e.anyLens.FinishAny(anyRef, e.buf.Len())
@@ -298,9 +298,9 @@ func (e *encoder81) StartValue(tt *vdl.Type) error {
 			if err != nil {
 				return err
 			}
-			binaryEncodeUint(&e.buf, e.tids.ReferenceTypeID(tid))
+			binaryEncodeUint(e.buf, e.tids.ReferenceTypeID(tid))
 			anyRef = e.anyLens.StartAny(e.buf.Len())
-			binaryEncodeUint(&e.buf, uint64(anyRef.index))
+			binaryEncodeUint(e.buf, uint64(anyRef.index))
 		}
 	}
 	// Add entry to the stack.
@@ -392,21 +392,25 @@ func (e *encoder81) finishMessage() error {
 		if e.hasAny {
 			anyLens = e.anyLens.NewAnyLens()
 		}
-		e.bufHeader.Reset()
-		binaryEncodeInt(&e.bufHeader, e.mid)
-		binaryEncodeUint(&e.bufHeader, uint64(len(ids)))
+		if e.bufHeader == nil {
+			e.bufHeader = newEncbuf()
+		} else {
+			e.bufHeader.Reset()
+		}
+		binaryEncodeInt(e.bufHeader, e.mid)
+		binaryEncodeUint(e.bufHeader, uint64(len(ids)))
 		for _, id := range ids {
-			binaryEncodeUint(&e.bufHeader, uint64(id))
+			binaryEncodeUint(e.bufHeader, uint64(id))
 		}
 		if e.hasAny {
-			binaryEncodeUint(&e.bufHeader, uint64(len(anyLens)))
+			binaryEncodeUint(e.bufHeader, uint64(len(anyLens)))
 			for _, anyLen := range anyLens {
-				binaryEncodeUint(&e.bufHeader, uint64(anyLen))
+				binaryEncodeUint(e.bufHeader, uint64(anyLen))
 			}
 		}
 		msg := e.buf.Bytes()
 		if e.hasLen {
-			binaryEncodeUint(&e.bufHeader, uint64(len(msg)-paddingLen))
+			binaryEncodeUint(e.bufHeader, uint64(len(msg)-paddingLen))
 		}
 		if _, err := e.writer.Write(e.bufHeader.Bytes()); err != nil {
 			return err
@@ -434,14 +438,14 @@ func (e *encoder81) NextEntry(done bool) error {
 	if top.Index == 0 {
 		switch {
 		case top.Type.Kind() == vdl.Array:
-			binaryEncodeUint(&e.buf, 0)
+			binaryEncodeUint(e.buf, 0)
 		case top.LenHint >= 0:
-			binaryEncodeUint(&e.buf, uint64(top.LenHint))
+			binaryEncodeUint(e.buf, uint64(top.LenHint))
 		}
 	}
 	if done && top.Type.Kind() != vdl.Array && top.LenHint == -1 {
 		// TODO(toddw): Emit collection terminator.
-		// binaryEncodeControl(&e.buf, WireCtrlCollectionTerminator)
+		// binaryEncodeControl(e.buf, WireCtrlCollectionTerminator)
 		return errEntriesMustSetLenHint
 	}
 	return nil
@@ -454,14 +458,14 @@ func (e *encoder81) NextField(index int) error {
 	}
 	if index == -1 {
 		if top.Type.Kind() == vdl.Struct {
-			binaryEncodeControl(&e.buf, WireCtrlEnd)
+			binaryEncodeControl(e.buf, WireCtrlEnd)
 		}
 		return nil
 	}
 	if index < -1 || index >= top.Type.NumField() {
 		return fmt.Errorf("vom: NextField called with invalid index %d", index)
 	}
-	binaryEncodeUint(&e.buf, uint64(index))
+	binaryEncodeUint(e.buf, uint64(index))
 	top.Index = index
 	return nil
 }
@@ -481,7 +485,7 @@ func (e *encoder81) SetLenHint(lenHint int) error {
 }
 
 func (e *encoder81) EncodeBool(value bool) error {
-	binaryEncodeBool(&e.buf, value)
+	binaryEncodeBool(e.buf, value)
 	return nil
 }
 
@@ -494,18 +498,18 @@ func (e *encoder81) EncodeUint(value uint64) error {
 	if e.isParentBytes {
 		e.buf.WriteOneByte(byte(value))
 	} else {
-		binaryEncodeUint(&e.buf, value)
+		binaryEncodeUint(e.buf, value)
 	}
 	return nil
 }
 
 func (e *encoder81) EncodeInt(value int64) error {
-	binaryEncodeInt(&e.buf, value)
+	binaryEncodeInt(e.buf, value)
 	return nil
 }
 
 func (e *encoder81) EncodeFloat(value float64) error {
-	binaryEncodeFloat(&e.buf, value)
+	binaryEncodeFloat(e.buf, value)
 	return nil
 }
 
@@ -515,9 +519,9 @@ func (e *encoder81) EncodeBytes(value []byte) error {
 		return errEmptyEncoderStack
 	}
 	if top.Type.Kind() == vdl.Array {
-		binaryEncodeUint(&e.buf, 0)
+		binaryEncodeUint(e.buf, 0)
 	} else {
-		binaryEncodeUint(&e.buf, uint64(len(value)))
+		binaryEncodeUint(e.buf, uint64(len(value)))
 	}
 	e.buf.Write(value)
 	return nil
@@ -533,9 +537,9 @@ func (e *encoder81) EncodeString(value string) error {
 		if index < 0 {
 			return errLabelNotInType(value, tt)
 		}
-		binaryEncodeUint(&e.buf, uint64(index))
+		binaryEncodeUint(e.buf, uint64(index))
 	} else {
-		binaryEncodeUint(&e.buf, uint64(len(value)))
+		binaryEncodeUint(e.buf, uint64(len(value)))
 		e.buf.WriteString(value)
 	}
 	return nil
@@ -546,7 +550,7 @@ func (e *encoder81) EncodeTypeObject(value *vdl.Type) error {
 	if err != nil {
 		return err
 	}
-	binaryEncodeUint(&e.buf, e.tids.ReferenceTypeID(tid))
+	binaryEncodeUint(e.buf, e.tids.ReferenceTypeID(tid))
 	return nil
 }
 
