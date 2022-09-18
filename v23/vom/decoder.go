@@ -453,7 +453,7 @@ func (d *decoder81) NextField() (int, error) { //nolint:gocyclo
 		case err != nil:
 			return -1, err
 		case index >= uint64(top.Type.NumField()):
-			return -1, errIndexOutOfRange
+			return -1, fmt.Errorf("vom: NextField: union field index out of range: %v >= %v", index, top.Type.NumField())
 		default:
 			// Set LenHint=Index+1 so that we'll know we're done next time around.
 			field = int(index)
@@ -475,7 +475,7 @@ func (d *decoder81) NextField() (int, error) { //nolint:gocyclo
 		case err != nil:
 			return -1, err
 		case index >= uint64(top.Type.NumField()):
-			return -1, errIndexOutOfRange
+			return -1, fmt.Errorf("vom: NextField: struct field index out of range: %v >= %v", index, top.Type.NumField())
 		default:
 			field = int(index)
 			top.Index = field
