@@ -653,7 +653,7 @@ func (d *dumpWorker) decodeValue(tt *vdl.Type) error { //nolint:gocyclo
 		}
 		if index >= uint64(tt.NumEnumLabel()) {
 			d.writeAtom(DumpKindIndex, PrimitivePUint{index}, "out of range for %v", tt)
-			return errIndexOutOfRange
+			return fmt.Errorf("vom: Dump: enum field index out of range: %v >= %v", index, tt.NumField())
 		}
 		label := tt.EnumLabel(int(index))
 		d.writeAtom(DumpKindIndex, PrimitivePUint{index}, "%v.%v", tt.Name(), label)
@@ -739,7 +739,7 @@ func (d *dumpWorker) decodeValue(tt *vdl.Type) error { //nolint:gocyclo
 				return err
 			case index >= uint64(tt.NumField()):
 				d.writeAtom(DumpKindIndex, PrimitivePUint{index}, "out of range for %v", tt)
-				return errIndexOutOfRange
+				return fmt.Errorf("vom: Dump: struct field index out of range: %v >= %v", index, tt.NumField())
 			}
 			ttfield := tt.Field(int(index))
 			d.writeAtom(DumpKindIndex, PrimitivePUint{index}, "%v.%v", tt.Name(), ttfield.Name)
@@ -755,7 +755,7 @@ func (d *dumpWorker) decodeValue(tt *vdl.Type) error { //nolint:gocyclo
 			return err
 		case index >= uint64(tt.NumField()):
 			d.writeAtom(DumpKindIndex, PrimitivePUint{index}, "out of range for %v", tt)
-			return errIndexOutOfRange
+			return fmt.Errorf("vom: Dump: union field index out of range: %v >= %v", index, tt.NumField())
 		}
 		ttfield := tt.Field(int(index))
 		if tt == wireTypeType {
