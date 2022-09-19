@@ -5,6 +5,8 @@
 package conn
 
 import (
+	"bytes"
+	"reflect"
 	"sync"
 
 	"v.io/v23/context"
@@ -14,37 +16,12 @@ import (
 	iflow "v.io/x/ref/runtime/internal/flow"
 )
 
-func (c *Conn) newFlowForBlessingsLocked(ctx *context.T) *flw {
-	// TODO(cnicolaou): create a simplified flow implementation for
-	// blessings as follows:
-	//   - flow control is essentially disabled for these flows, so
-	//     there's no need for a readq
-	//   - there is only ever one writer so there's no need for the
-	//     writerq/writech.
-	//   - the flow's are always pre-opened and never closed so no
-	//     need for state to track that.
-	f := &flw{
-		id:          blessingsFlowID,
-		conn:        c,
-		opened:      true,
-		borrowing:   true,
-		sideChannel: true,
-		writeCh:     make(chan struct{}, 1),
-	}
-	f.q = newReadQ(f.release)
-	f.next, f.prev = f, f
-	f.ctx, f.cancel = context.WithCancel(ctx)
-	c.flows[f.id] = f
-	f.releaseLocked(DefaultBytesBufferedPerFlow)
-	return f
-}
-
 // writeBuffer is used to coalesce the many small writes issued by the vom
 // encoder into a single larger one to reduce the number of system calls
 // and network packets sent.
 type writeBuffer struct {
-	*flw
-	buf []byte
+	conn blessingsCon
+	buf  []byte
 }
 
 func (w *writeBuffer) Write(buf []byte) (int, error) {
@@ -52,46 +29,75 @@ func (w *writeBuffer) Write(buf []byte) (int, error) {
 	return len(buf), nil
 }
 
-func (w *writeBuffer) Flush() (int, error) {
+func (w *writeBuffer) Flush(ctx *context.T) error {
 	if len(w.buf) == 0 {
-		return 0, nil
+		return nil
 	}
-	n, err := w.flw.Write(w.buf)
-	// can free the buffer since it's unlikely that a second set of
+	err := w.conn.writeEncodedBlessings(ctx, w.buf)
+	// Free the buffer since it's unlikely that a second set of
 	// blessings or discharges will be sent.
 	w.buf = nil
-	return n, err
+	return err
 }
 
 type blessingsFlow struct {
 	mu sync.Mutex
 
-	f      *flw
+	conn   blessingsCon
 	dec    *vom.Decoder
 	enc    *vom.Encoder
 	encBuf writeBuffer
+	decBuf bytes.Buffer
+
+	binding security.PublicKey
 
 	nextKey  uint64
 	incoming inCache
 	outgoing outCache
 }
 
-func newBlessingsFlow(f *flw) *blessingsFlow {
+type blessingsCon interface {
+	internalClose(ctx *context.T, closedRemotely, closedWhileAccepting bool, err error)
+	writeEncodedBlessings(ctx *context.T, encoded []byte) error
+}
+
+func newBlessingsFlow(conn blessingsCon) *blessingsFlow {
 	b := &blessingsFlow{
-		f:       f,
+		conn:    conn,
 		nextKey: 1,
-		dec:     vom.NewDecoder(f),
-		encBuf:  writeBuffer{flw: f, buf: make([]byte, 0, 4096)},
+		encBuf:  writeBuffer{conn: conn, buf: make([]byte, 0, 4096)},
 	}
+	b.dec = vom.NewDecoder(&b.decBuf)
 	b.enc = vom.NewEncoder(&b.encBuf)
 	return b
 }
 
+func (b *blessingsFlow) setPublicKeyBinding(pk security.PublicKey) {
+	b.mu.Lock()
+	defer b.mu.Unlock()
+	b.binding = pk
+}
+
+func (b *blessingsFlow) writeMsg(bufs [][]byte) error {
+	b.mu.Lock()
+	defer b.mu.Unlock()
+	for _, buf := range bufs {
+		b.decBuf.Write(buf)
+	}
+	return nil
+}
+
+func validateReceivedBlessings(ctx *context.T, pk security.PublicKey, blessings security.Blessings) error {
+	if pk != nil && !reflect.DeepEqual(blessings.PublicKey(), pk) {
+		return ErrBlessingsNotBound.Errorf(ctx, "blessings not bound to connection remote public key")
+	}
+	return nil
+}
+
 func (b *blessingsFlow) receiveBlessingsLocked(ctx *context.T, bkey uint64, blessings security.Blessings) error {
-	b.f.useCurrentContext(ctx)
 	// When accepting, make sure the blessings received are bound to the conn's
 	// remote public key.
-	if err := b.f.validateReceivedBlessings(ctx, blessings); err != nil {
+	if err := validateReceivedBlessings(ctx, b.binding, blessings); err != nil {
 		return err
 	}
 	b.incoming.addBlessings(bkey, blessings)
@@ -103,7 +109,6 @@ func (b *blessingsFlow) receiveDischargesLocked(ctx *context.T, bkey, dkey uint6
 }
 
 func (b *blessingsFlow) receiveLocked(ctx *context.T, bd BlessingsFlowMessage) error {
-	b.f.useCurrentContext(ctx)
 	switch bd := bd.(type) {
 	case BlessingsFlowMessageBlessings:
 		bkey, blessings := bd.Value.BKey, bd.Value.Blessings
@@ -148,7 +153,6 @@ func (b *blessingsFlow) receiveLocked(ctx *context.T, bd BlessingsFlowMessage) e
 func (b *blessingsFlow) getRemote(ctx *context.T, bkey, dkey uint64) (security.Blessings, map[string]security.Discharge, error) {
 	defer b.mu.Unlock()
 	b.mu.Lock()
-	b.f.useCurrentContext(ctx)
 	for {
 		blessings, hasB := b.incoming.hasBlessings(bkey)
 		if hasB {
@@ -165,14 +169,13 @@ func (b *blessingsFlow) getRemote(ctx *context.T, bkey, dkey uint64) (security.B
 			return security.Blessings{}, nil, err
 		}
 		if err := b.receiveLocked(ctx, received); err != nil {
-			b.f.internalClose(ctx, false, false, err)
+			b.conn.internalClose(ctx, false, false, err)
 			return security.Blessings{}, nil, err
 		}
 	}
 }
 
 func (b *blessingsFlow) encodeBlessingsLocked(ctx *context.T, blessings security.Blessings, bkey uint64, peers []security.BlessingPattern) error {
-	b.f.useCurrentContext(ctx)
 	if len(peers) == 0 {
 		// blessings can be encoded in plaintext
 		return b.enc.Encode(BlessingsFlowMessageBlessings{Blessings{
@@ -191,7 +194,6 @@ func (b *blessingsFlow) encodeBlessingsLocked(ctx *context.T, blessings security
 }
 
 func (b *blessingsFlow) encodeDischargesLocked(ctx *context.T, discharges []security.Discharge, bkey, dkey uint64, peers []security.BlessingPattern) error {
-	b.f.useCurrentContext(ctx)
 	if len(peers) == 0 {
 		// discharges can be encoded in plaintext
 		return b.enc.Encode(BlessingsFlowMessageDischarges{Discharges{
@@ -221,7 +223,6 @@ func (b *blessingsFlow) send(
 	}
 	b.mu.Lock()
 	defer b.mu.Unlock()
-	b.f.useCurrentContext(ctx)
 
 	buid := string(blessings.UniqueID())
 	bkey, hasB := b.outgoing.hasBlessings(buid)
@@ -234,7 +235,7 @@ func (b *blessingsFlow) send(
 		}
 	}
 	if len(discharges) == 0 {
-		_, err = b.encBuf.Flush()
+		err = b.encBuf.Flush(ctx)
 		return bkey, 0, err
 	}
 	dlist, dkey, hasD := b.outgoing.hasDischarges(bkey)
@@ -248,13 +249,8 @@ func (b *blessingsFlow) send(
 	if err := b.encodeDischargesLocked(ctx, dlist, bkey, dkey, peers); err != nil {
 		return 0, 0, err
 	}
-	_, err = b.encBuf.Flush()
+	err = b.encBuf.Flush(ctx)
 	return bkey, dkey, err
-}
-
-func (b *blessingsFlow) close(ctx *context.T, err error) {
-	b.f.useCurrentContext(ctx)
-	b.f.close(ctx, false, err)
 }
 
 func dischargeList(in map[string]security.Discharge) []security.Discharge {

@@ -53,6 +53,10 @@ func (c *Conn) handleData(ctx *context.T, msg *message.Data) error {
 		c.mu.Unlock()
 		return nil // Conn is already being shut down.
 	}
+	if msg.ID == blessingsFlowID {
+		c.mu.Unlock()
+		return c.blessingsFlow.writeMsg(msg.Payload)
+	}
 	f := c.flows[msg.ID]
 	if f == nil {
 		// If the flow is closing then we assume the remote side releases
