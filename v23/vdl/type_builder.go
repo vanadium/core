@@ -761,7 +761,7 @@ func typeConsLookup(t *Type) *Type {
 	// buf is allocated on the stack so long as uniqueTypeStr does
 	// 'call up the stack', that is, it's ok for uniqueTypeStr to call itself
 	// recursively, but not for it to call a sub-function when then calls itself.
-	// This is a very large impact on the # of memory allocations and overall
+	// This has a large impact on the # of memory allocations and overall
 	// performance of typeConsLookup and consequently all vom decoding.
 	var buf [2048]byte
 	unique := t.unique

@@ -478,7 +478,8 @@ func (t *Type) ContainsType(mode WalkMode, types ...*Type) bool {
 // terminated early, and false is returned by Walk.  The mode controls which
 // types in the type graph we will visit.
 func (t *Type) Walk(mode WalkMode, fn func(*Type) bool) bool {
-	return typeWalk(mode, t, fn, make(map[*Type]bool))
+	var seen [cycleArraySize]*Type
+	return typeWalk(mode, t, fn, seen[:0])
 }
 
 // WalkMode is the mode to perform a Walk through the type graph.
@@ -503,11 +504,11 @@ func (t *Type) subTypesInline() bool {
 	return false
 }
 
-func typeWalk(mode WalkMode, t *Type, fn func(*Type) bool, seen map[*Type]bool) bool {
-	if seen[t] {
+func typeWalk(mode WalkMode, t *Type, fn func(*Type) bool, seen []*Type) bool {
+	if hasType(seen, t) {
 		return true
 	}
-	seen[t] = true
+	seen = append(seen, t)
 	if !fn(t) {
 		return false
 	}

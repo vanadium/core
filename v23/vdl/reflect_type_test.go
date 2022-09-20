@@ -471,24 +471,45 @@ func BenchmarkStructMap(b *testing.B) {
 	}
 }
 
-func BenchmarkSlice(b *testing.B) {
-	has := func(s []*Type, t *Type) bool {
-		for i := 0; i < len(s); i++ {
-			if s[i] == t {
-				return true
-			}
+func has(s []*Type, t *Type) bool {
+	for i := 0; i < len(s); i++ {
+		if s[i] == t {
+			return true
 		}
-		return false
 	}
+	return false
+}
+
+func BenchmarkSlice___16(b *testing.B) {
+	benchmarkSlice(b, 16)
+}
+
+func BenchmarkSlice___32(b *testing.B) {
+	benchmarkSlice(b, 32)
+}
+
+func BenchmarkSlice___48(b *testing.B) {
+	benchmarkSlice(b, 48)
+}
+
+func BenchmarkSlice___64(b *testing.B) {
+	benchmarkSlice(b, 64)
+}
+
+func BenchmarkSlice__128(b *testing.B) {
+	benchmarkSlice(b, 128)
+}
+
+func benchmarkSlice(b *testing.B, ntypes int) {
 	b.ReportAllocs()
-	ntypes := 24
 	typs := createTypes(ntypes)
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		ss := [64]*Type{}
+		ss := [128]*Type{}
 		m := ss[:0]
 		for j := 0; j < ntypes; j++ {
 			m = append(m, typs[j])
+			// worst case when the desired type is the most recent one
 			has(m, typs[j])
 		}
 	}

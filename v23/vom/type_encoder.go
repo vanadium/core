@@ -85,11 +85,14 @@ func (e *TypeEncoder) encode(tt *vdl.Type) (TypeId, error) {
 		}
 		e.sentVersionByte = true
 	}
-	return e.encodeType(tt, map[*vdl.Type]bool{})
+	var pending [pendingArraySize]*vdl.Type
+	return e.encodeType(tt, pending[:0])
 }
 
+const pendingArraySize = 64
+
 // encodeType encodes the type
-func (e *TypeEncoder) encodeType(tt *vdl.Type, pending map[*vdl.Type]bool) (TypeId, error) { //nolint:gocyclo
+func (e *TypeEncoder) encodeType(tt *vdl.Type, pending []*vdl.Type) (TypeId, error) { //nolint:gocyclo
 	// Lookup a type Id for tt or assign a new one.
 	tid, isNew, err := e.lookupOrAssignTypeID(tt)
 	if err != nil {
@@ -98,7 +101,8 @@ func (e *TypeEncoder) encodeType(tt *vdl.Type, pending map[*vdl.Type]bool) (Type
 	if !isNew {
 		return tid, nil
 	}
-	pending[tt] = true
+	prevPending := pending
+	pending = append(pending, tt)
 
 	// Construct the wireType.
 	var wt wireType
@@ -170,9 +174,8 @@ func (e *TypeEncoder) encodeType(tt *vdl.Type, pending map[*vdl.Type]bool) (Type
 	}
 
 	// TODO(bprosnitz) Only perform the walk when there are cycles or otherwise optimize this
-	delete(pending, tt)
 	typeComplete := tt.Walk(vdl.WalkAll, func(t *vdl.Type) bool {
-		return !pending[t]
+		return !hasType(prevPending, t)
 	})
 
 	// Encode and write the wire type definition using the same
@@ -182,6 +185,15 @@ func (e *TypeEncoder) encodeType(tt *vdl.Type, pending map[*vdl.Type]bool) (Type
 	}
 
 	return tid, nil
+}
+
+func hasType(m []*vdl.Type, t *vdl.Type) bool {
+	for i := 0; i < len(m); i++ {
+		if m[i] == t {
+			return true
+		}
+	}
+	return false
 }
 
 // lookupTypeID returns the id for the type tt if it is already encoded;
