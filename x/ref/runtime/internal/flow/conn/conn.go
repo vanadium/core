@@ -382,6 +382,8 @@ func NewAccepted(
 	}
 	c.initializeHealthChecks(ctx, rtt)
 	c.loopWG.Add(2)
+	// NOTE: there is a race for refreshTime since it gets set above
+	// in a goroutine but read here without any synchronization.
 	go c.blessingsLoop(ctx, refreshTime, lAuthorizedPeers)
 	go c.readLoop(ctx)
 	c.mu.Lock()
@@ -413,10 +415,12 @@ func (c *Conn) blessingsLoop(
 			}
 			timer.Stop()
 		}
+
 		var dis map[string]security.Discharge
 		blessings, valid := v23.GetPrincipal(ctx).BlessingStore().Default()
 		dis, refreshTime = slib.PrepareDischarges(ctx, blessings, nil, "", nil)
 		bkey, dkey, err := c.blessingsFlow.send(ctx, blessings, dis, authorizedPeers)
+
 		if err != nil {
 			c.internalClose(ctx, false, false, err)
 			return

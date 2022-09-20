@@ -40,6 +40,23 @@ func (w *writeBuffer) Flush(ctx *context.T) error {
 	return err
 }
 
+// blessingsFlow is used to implement the 'special' flow (ID 1) used to
+// send/receive blessings from a remote peer. The connection that uses
+// this special flow is responsible for writing received blessings data to it
+// (via writeMsg). The flow implementation calls the connection via its
+// writeEncodedBlessings method to send blessings to the connection's
+// remote peer; this is the only method that the flow invokes on the
+// connection. Past implementations would close the connection on
+// encountering an error but it is preferable to defer this to higher
+// levels of the connection code and to avoid having to reason about all
+// possible interactions between the two.
+//
+// blessingsFlow will validate newly received blessings against a specified
+// public key (set via setPublicKeyBinding), however, this public key
+// is not known until after the first blessing's exchange and hence is specified
+// by the connection hosting this flow once that initial exchange has taken
+// place. This prevents the remote peer from sending additional blessings
+// with a different pubic key over the existing connection.
 type blessingsFlow struct {
 	mu sync.Mutex
 
@@ -56,8 +73,11 @@ type blessingsFlow struct {
 	outgoing outCache
 }
 
+// blessingsCon represents the methods that the blessings flow expects of its
+// underlying connection. The blessingsFlow needs to send the blessings via
+// the connection and the connection will call writeMsg on the blessings
+// flow when data is received for it.
 type blessingsCon interface {
-	internalClose(ctx *context.T, closedRemotely, closedWhileAccepting bool, err error)
 	writeEncodedBlessings(ctx *context.T, encoded []byte) error
 }
 
@@ -169,7 +189,6 @@ func (b *blessingsFlow) getRemote(ctx *context.T, bkey, dkey uint64) (security.B
 			return security.Blessings{}, nil, err
 		}
 		if err := b.receiveLocked(ctx, received); err != nil {
-			b.conn.internalClose(ctx, false, false, err)
 			return security.Blessings{}, nil, err
 		}
 	}
