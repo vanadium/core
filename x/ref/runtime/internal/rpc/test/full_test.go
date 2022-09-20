@@ -36,7 +36,7 @@ import (
 	"v.io/x/lib/netstate"
 	vsecurity "v.io/x/ref/lib/security"
 	"v.io/x/ref/lib/security/bcrypter"
-	"v.io/x/ref/runtime/internal/flow/crypto"
+	"v.io/x/ref/runtime/internal/flow/cipher/naclbox"
 	"v.io/x/ref/runtime/protocols/debug"
 	"v.io/x/ref/runtime/protocols/lib/tcputil"
 	"v.io/x/ref/test"
@@ -1009,10 +1009,10 @@ func TestReplayAttack(t *testing.T) { //nolint:gocyclo
 	}
 
 	// Setup encryption to the server.
-	cipher := crypto.NewControlCipherRPC11(
-		(*crypto.BoxKey)(pk),
-		(*crypto.BoxKey)(sk),
-		(*crypto.BoxKey)(rpk))
+	cipher, err := naclbox.NewCipher(pk, sk, rpk)
+	if err != nil {
+		t.Fatal(err)
+	}
 
 	// Read the auth message from the server.
 	for auth := false; !auth; {
@@ -1020,10 +1020,11 @@ func TestReplayAttack(t *testing.T) { //nolint:gocyclo
 		if err != nil {
 			t.Fatal(err)
 		}
-		if !cipher.Open(b) {
+		plaintext, ok := cipher.Open(nil, b)
+		if !ok {
 			t.Fatal("failed to decrypt message")
 		}
-		m, err = message.Read(ctx, b[:len(b)-cipher.MACSize()])
+		m, err = message.Read(ctx, plaintext)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -1037,13 +1038,11 @@ func TestReplayAttack(t *testing.T) { //nolint:gocyclo
 		if b, err = message.Append(ctx, m, nil); err != nil {
 			t.Fatal(err)
 		}
-		tmp := make([]byte, len(b)+cipher.MACSize())
-		copy(tmp, b)
-		b = tmp
-		if err = cipher.Seal(b); err != nil {
+		ciphertext, err := cipher.Seal(nil, b)
+		if err != nil {
 			t.Fatal(err)
 		}
-		if _, err = conn.WriteMsg(b); err != nil {
+		if _, err = conn.WriteMsg(ciphertext); err != nil {
 			t.Fatal(err)
 		}
 
@@ -1054,10 +1053,11 @@ func TestReplayAttack(t *testing.T) { //nolint:gocyclo
 	if err != nil {
 		t.Fatal(err)
 	}
-	if !cipher.Open(b) {
+	plaintext, ok := cipher.Open(nil, b)
+	if !ok {
 		t.Fatal("failed to decrypt message")
 	}
-	m, err = message.Read(ctx, b[:len(b)-cipher.MACSize()])
+	m, err = message.Read(ctx, plaintext)
 	if err != nil {
 		t.Fatal(err)
 	}
