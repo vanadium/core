@@ -682,6 +682,7 @@ func TestServerManInTheMiddleAttack(t *testing.T) {
 	// The legitimate server would have mounted the same endpoint on the
 	// namespace, but with different blessings.
 	ep := aserver.Status().Endpoints[0].WithBlessingNames([]string{"test-blessings/server"})
+	waitForNames(t, ctx, true, ep.Name())
 	if err := v23.GetNamespace(actx).Mount(ctx, name, ep.Name(), time.Hour); err != nil {
 		t.Fatal(err)
 	}
