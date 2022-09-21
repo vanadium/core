@@ -59,6 +59,11 @@ type messagePipe struct {
 	framer      framer.T
 	frameOffset int
 
+	// locks are required to serialize access to the cipher operations since
+	// the messagePipe may be called by different goroutines when connections
+	// are being created or because of the need to send changed blessings
+	// asynchronously. Other than these cases there will be no lock
+	// contention.
 	sealMu sync.Mutex
 	seal   sealFunc
 	openMu sync.Mutex
