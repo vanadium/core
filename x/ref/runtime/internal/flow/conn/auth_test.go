@@ -6,16 +6,19 @@ package conn
 
 import (
 	"errors"
+	"reflect"
 	"testing"
 	"time"
 
 	v23 "v.io/v23"
 	"v.io/v23/context"
 	"v.io/v23/flow"
+	"v.io/v23/flow/message"
 	"v.io/v23/naming"
 	"v.io/v23/rpc"
 	"v.io/v23/security"
 	"v.io/x/lib/ibe"
+	slib "v.io/x/ref/lib/security"
 	vsecurity "v.io/x/ref/lib/security"
 	"v.io/x/ref/lib/security/bcrypter"
 	"v.io/x/ref/runtime/factories/fake"
@@ -306,4 +309,88 @@ func TestPrivateMutualAuth(t *testing.T) {
 	if ac != nil {
 		ac.Close(actx, nil)
 	}
+}
+
+func TestChangedDefaultBlessings(t *testing.T) {
+	defer goroutines.NoLeaks(t, leakWaitTime)()
+
+	ctx, shutdown := test.V23Init()
+	defer shutdown()
+	ctx = fake.SetClientFactory(ctx, func(ctx *context.T, opts ...rpc.ClientOpt) rpc.Client {
+		return &fakeDischargeClient{v23.GetPrincipal(ctx)}
+	})
+	ctx, _, _ = v23.WithNewClient(ctx)
+
+	dctx, dd := NewPrincipalWithTPCaveat(t, ctx, nil, "dialer")
+	actx, _ := NewPrincipalWithTPCaveat(t, ctx, nil, "acceptor")
+	aflows := make(chan flow.Flow, 2)
+	dc, ac, derr, aerr := setupConns(t, "local", "", dctx, actx, nil, aflows, nil, nil)
+	if derr != nil || aerr != nil {
+		t.Fatal(derr, aerr)
+	}
+	defer dc.Close(dctx, nil)
+	defer ac.Close(actx, nil)
+
+	df1 := dialFlow(t, dctx, dc, defaultBlessings(dctx), dd)
+	af1 := <-aflows
+	checkFlowBlessings(t, df1, af1, defaultBlessings(dctx), defaultBlessings(actx))
+
+	// Change the default blessings on the acceptor and then test that they
+	// propagate to the dialer appropriately - ie. they are installed for the
+	// conn and new flows, but existing flows do not change.
+	changed, _ := BlessWithTPCaveat(t, ctx, v23.GetPrincipal(actx), "acceptor2")
+	if err := vsecurity.SetDefaultBlessings(v23.GetPrincipal(actx), changed); err != nil {
+		t.Fatal(err)
+	}
+
+	for i := 0; i < 5; i++ {
+		time.Sleep(time.Second)
+		if got, want := df1.Conn().RemoteBlessings(), changed; !reflect.DeepEqual(got, want) {
+			t.Logf("blessings have yet to update: %v != %v\n", got, want)
+			continue
+		}
+		break
+	}
+
+	if got, want := df1.RemoteBlessings(), changed; reflect.DeepEqual(got, want) {
+		t.Fatalf("blessings should not have changed on an existing flow: %v != %v\n", got, want)
+	}
+
+	df2 := dialFlow(t, dctx, dc, defaultBlessings(dctx), dd)
+	<-aflows
+	if got, want := df2.RemoteBlessings(), changed; !reflect.DeepEqual(got, want) {
+		t.Fatalf("blessings should have changed for a new flow: %v != %v\n", got, want)
+	}
+
+	// Use the dialer to create a new blessing to use for the acceptor, this
+	// blessing will be rejected since it's public key does not match the one
+	// originally used for the acceptor. The dialer will be closed as a result
+	// of the error.
+	// Unfortunately we need to step into the implementation to generate this
+	// error since the package APIs do not allow the blessing or principal
+	// to be changed once it has been set for a connection.
+	waitForClose := df1.Conn().Closed()
+	actx3, _ := NewPrincipalWithTPCaveat(t, ctx, nil, "acceptor3")
+	blessings, _ := v23.GetPrincipal(actx3).BlessingStore().Default()
+	dis, _ := slib.PrepareDischarges(ctx, blessings, nil, "", nil)
+	acceptorConn := af1.Conn().(*Conn)
+	bkey, dkey, err := acceptorConn.blessingsFlow.send(ctx, blessings, dis, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	_, _ = bkey, dkey
+	acceptorConn.mu.Lock()
+	if err := acceptorConn.sendMessageLocked(ctx, true, expressPriority, &message.Auth{
+		BlessingsKey: bkey,
+		DischargeKey: dkey,
+	}); err != nil {
+		t.Fatal(err)
+	}
+	acceptorConn.mu.Unlock()
+	<-waitForClose
+	dialerConn := df1.Conn().(*Conn)
+	if got, want := dialerConn.Status(), Closed; got != want {
+		t.Fatalf("got %v, want %v", got, want)
+	}
+
 }

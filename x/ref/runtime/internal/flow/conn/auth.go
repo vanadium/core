@@ -6,7 +6,6 @@ package conn
 
 import (
 	"crypto/rand"
-	"reflect"
 	"time"
 
 	"golang.org/x/crypto/nacl/box"
@@ -36,8 +35,7 @@ func (c *Conn) dialHandshake(
 	}
 	dialedEP := c.remote
 	c.remote.RoutingID = remoteEndpoint.RoutingID
-	bflow := c.newFlowForBlessingsLocked(ctx)
-	c.blessingsFlow = newBlessingsFlow(bflow)
+	c.blessingsFlow = newBlessingsFlow(c)
 
 	rttend, err := c.readRemoteAuth(ctx, binding, true)
 	if err != nil {
@@ -100,8 +98,7 @@ func (c *Conn) acceptHandshake(
 		return rtt, err
 	}
 	c.remote = remoteEndpoint
-	bflow := c.newFlowForBlessingsLocked(ctx)
-	c.blessingsFlow = newBlessingsFlow(bflow)
+	c.blessingsFlow = newBlessingsFlow(c)
 	signedBinding, err := v23.GetPrincipal(ctx).Sign(append(authAcceptorTag, binding...))
 	if err != nil {
 		return rtt, err
@@ -242,12 +239,17 @@ func (c *Conn) readRemoteAuth(ctx *context.T, binding []byte, dialer bool) (time
 		if err != nil {
 			return rttend, err
 		}
+		// The first blessing that's received is 'bound' to this conn. All
+		// subsequet blessings received must have the same public key.
+		rpk := rBlessings.PublicKey()
+
 		c.mu.Lock()
-		c.rPublicKey = rBlessings.PublicKey()
+		c.rPublicKey = rpk
 		c.remoteBlessings = rBlessings
 		c.remoteDischarges = rDischarges
 		c.remoteValid = make(chan struct{})
 		c.mu.Unlock()
+		c.blessingsFlow.setPublicKeyBinding(rpk)
 	}
 
 	c.mu.Lock()
@@ -261,13 +263,4 @@ func (c *Conn) readRemoteAuth(ctx *context.T, binding []byte, dialer bool) (time
 		return rttend, ErrInvalidChannelBinding.Errorf(ctx, "conn.readRemoteAuth: the channel binding was invalid")
 	}
 	return rttend, nil
-}
-
-func (c *Conn) validateReceivedBlessings(ctx *context.T, blessings security.Blessings) error {
-	c.mu.Lock()
-	defer c.mu.Unlock()
-	if pk := c.rPublicKey; pk != nil && !reflect.DeepEqual(blessings.PublicKey(), pk) {
-		return ErrBlessingsNotBound.Errorf(ctx, "blessings not bound to connection remote public key")
-	}
-	return nil
 }

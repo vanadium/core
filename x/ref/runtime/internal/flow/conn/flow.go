@@ -139,9 +139,10 @@ func (f *flw) DisableFragmentation() {
 // Read and ReadMsg should not be called concurrently with themselves
 // or each other.
 func (f *flw) Read(p []byte) (n int, err error) {
+	ctx := f.currentContext()
 	f.markUsed()
-	if n, err = f.q.read(f.currentContext(), p); err != nil {
-		f.close(f.currentContext(), false, err)
+	if n, err = f.q.read(ctx, p); err != nil {
+		f.close(ctx, false, err)
 	}
 	return
 }
@@ -151,12 +152,13 @@ func (f *flw) Read(p []byte) (n int, err error) {
 // Read and ReadMsg should not be called concurrently with themselves
 // or each other.
 func (f *flw) ReadMsg() (buf []byte, err error) {
+	ctx := f.currentContext()
 	f.markUsed()
 	// TODO(mattr): Currently we only ever release counters when some flow
 	// reads.  We may need to do it more or less often.  Currently
 	// we'll send counters whenever a new flow is opened.
-	if buf, err = f.q.get(f.currentContext()); err != nil {
-		f.close(f.currentContext(), false, err)
+	if buf, err = f.q.get(ctx); err != nil {
+		f.close(ctx, false, err)
 	}
 	return
 }
@@ -242,19 +244,9 @@ func (f *flw) releaseLocked(tokens uint64) {
 	}
 }
 
-func (f *flw) useCurrentContext(ctx *context.T) {
-	f.conn.mu.Lock()
-	defer f.conn.mu.Unlock()
-	f.ctx = ctx
-}
-
 func (f *flw) currentContext() *context.T {
 	f.conn.mu.Lock()
 	defer f.conn.mu.Unlock()
-	return f.ctx
-}
-
-func (f *flw) currentContextLocked() *context.T {
 	return f.ctx
 }
 
@@ -318,7 +310,7 @@ func (f *flw) writeMsg(alsoClose bool, parts ...[]byte) (sent int, err error) { 
 			// a partial write based on the available tokens. This is only required
 			// by proxies which need to pass on messages without refragmenting.
 			if debug {
-				f.currentContextLocked().Infof("Deactivating write on flow %d(%p) due to lack of tokens", f.id, f)
+				f.ctx.Infof("Deactivating write on flow %d(%p) due to lack of tokens", f.id, f)
 			}
 			f.conn.deactivateWriterLocked(f)
 			continue
@@ -365,7 +357,7 @@ func (f *flw) writeMsg(alsoClose bool, parts ...[]byte) (sent int, err error) { 
 	}
 	f.writing = false
 	if debug {
-		f.currentContextLocked().Infof("finishing write on %d(%p): %v", f.id, f, err)
+		f.ctx.Infof("finishing write on %d(%p): %v", f.id, f, err)
 	}
 	f.conn.deactivateWriterLocked(f)
 	f.conn.notifyNextWriterLocked(f)
@@ -578,12 +570,4 @@ func popFront(in, out [][]byte, num int) ([][]byte, [][]byte, int) {
 		in[i], out[i] = in[i][keep:], out[i][:keep]
 	}
 	return in[i:], out, sofar
-}
-
-func (f *flw) validateReceivedBlessings(ctx *context.T, blessings security.Blessings) error {
-	return f.conn.validateReceivedBlessings(ctx, blessings)
-}
-
-func (f *flw) internalClose(ctx *context.T, closedRemotely, closedWhileAccepting bool, err error) {
-	f.conn.internalClose(ctx, closedRemotely, closedWhileAccepting, err)
 }

@@ -382,6 +382,8 @@ func NewAccepted(
 	}
 	c.initializeHealthChecks(ctx, rtt)
 	c.loopWG.Add(2)
+	// NOTE: there is a race for refreshTime since it gets set above
+	// in a goroutine but read here without any synchronization.
 	go c.blessingsLoop(ctx, refreshTime, lAuthorizedPeers)
 	go c.readLoop(ctx)
 	c.mu.Lock()
@@ -413,9 +415,12 @@ func (c *Conn) blessingsLoop(
 			}
 			timer.Stop()
 		}
+
 		var dis map[string]security.Discharge
 		blessings, valid := v23.GetPrincipal(ctx).BlessingStore().Default()
 		dis, refreshTime = slib.PrepareDischarges(ctx, blessings, nil, "", nil)
+		// Need to access the underlying message pipe with the connections
+		// lock held.
 		bkey, dkey, err := c.blessingsFlow.send(ctx, blessings, dis, authorizedPeers)
 		if err != nil {
 			c.internalClose(ctx, false, false, err)
@@ -763,9 +768,6 @@ func (c *Conn) internalCloseLocked(ctx *context.T, closedRemotely, closedWhileAc
 		for _, f := range flows {
 			f.close(ctx, false, err)
 		}
-		if c.blessingsFlow != nil {
-			c.blessingsFlow.close(ctx, err)
-		}
 		if cerr := c.mp.Close(); cerr != nil {
 			debug.Infof("Error closing underlying connection for %s: %v", c.remote, cerr)
 		}
@@ -1064,4 +1066,10 @@ LastUsed:    %v
 		c.mtu,
 		c.lastUsedTime,
 		len(c.flows))
+}
+
+func (c *Conn) writeEncodedBlessings(ctx *context.T, data []byte) error {
+	return c.mp.writeMsg(ctx, &message.Data{
+		ID:      blessingsFlowID,
+		Payload: [][]byte{data}})
 }

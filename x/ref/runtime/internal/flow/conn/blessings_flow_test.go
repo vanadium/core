@@ -181,29 +181,3 @@ func Benchmark_BlessingsFlow__Decode__Structs(b *testing.B) {
 	b.ReportAllocs()
 	benchmarkDecodeOnlyStruct(b)
 }
-
-func Benchmark_Map_Empty(b *testing.B) {
-	type dummy struct{}
-
-	b.ReportAllocs()
-	for i := 0; i < b.N; i++ {
-		mp := map[*dummy]struct{}{}
-		for j := 0; j < 300; j++ {
-			n := &dummy{}
-			mp[n] = struct{}{}
-		}
-	}
-}
-
-func Benchmark_Map_Bool(b *testing.B) {
-	type dummy struct{}
-
-	b.ReportAllocs()
-	for i := 0; i < b.N; i++ {
-		mp := map[*dummy]bool{}
-		for j := 0; j < 300; j++ {
-			n := &dummy{}
-			mp[n] = true
-		}
-	}
-}
