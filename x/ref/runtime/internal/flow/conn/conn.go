@@ -419,13 +419,15 @@ func (c *Conn) blessingsLoop(
 		var dis map[string]security.Discharge
 		blessings, valid := v23.GetPrincipal(ctx).BlessingStore().Default()
 		dis, refreshTime = slib.PrepareDischarges(ctx, blessings, nil, "", nil)
+		c.mu.Lock()
+		// Need to access the underlying message pipe with the connections
+		// lock held.
 		bkey, dkey, err := c.blessingsFlow.send(ctx, blessings, dis, authorizedPeers)
-
 		if err != nil {
+			c.mu.Unlock()
 			c.internalClose(ctx, false, false, err)
 			return
 		}
-		c.mu.Lock()
 		c.localBlessings = blessings
 		c.localDischarges = dis
 		c.localValid = valid

@@ -24,7 +24,7 @@ type unsafeUnencrypted interface {
 }
 
 // newMessagePipe returns a new messagePipe instance that may create its
-// own frames on the writepath if the supplied MsgReadWriteCloser implements
+// own frames on the write path if the supplied MsgReadWriteCloser implements
 // framing.T. This offers a significant speedup (half the number of system calls)
 // and reduced memory usage and associated allocations.
 func newMessagePipe(rw flow.MsgReadWriteCloser) *messagePipe {
