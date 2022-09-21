@@ -239,8 +239,8 @@ func (f *flw) releaseLocked(tokens uint64) {
 		if debug {
 			f.ctx.Infof("Activating writing flow %d(%p) now that we have tokens.", f.id, f)
 		}
-		f.conn.activateWriterLocked(f)
-		f.conn.notifyNextWriterLocked(nil)
+		f.conn.writers.activateWriterLocked(f)
+		f.conn.writers.notifyNextWriterLocked(nil)
 	}
 }
 
@@ -281,9 +281,9 @@ func (f *flw) writeMsg(alsoClose bool, parts ...[]byte) (sent int, err error) { 
 	f.conn.mu.Lock()
 	f.markUsedLocked()
 	f.writing = true
-	f.conn.activateWriterLocked(f)
+	f.conn.writers.activateWriterLocked(f)
 	for err == nil && len(parts) > 0 {
-		f.conn.notifyNextWriterLocked(f)
+		f.conn.writers.notifyNextWriterLocked(f)
 
 		// Wait for our turn.
 		f.conn.mu.Unlock()
@@ -312,7 +312,7 @@ func (f *flw) writeMsg(alsoClose bool, parts ...[]byte) (sent int, err error) { 
 			if debug {
 				f.ctx.Infof("Deactivating write on flow %d(%p) due to lack of tokens", f.id, f)
 			}
-			f.conn.deactivateWriterLocked(f)
+			f.conn.writers.deactivateWriterLocked(f)
 			continue
 		}
 		parts, tosend, size = popFront(parts, tosend[:0], tokens)
@@ -359,8 +359,8 @@ func (f *flw) writeMsg(alsoClose bool, parts ...[]byte) (sent int, err error) { 
 	if debug {
 		f.ctx.Infof("finishing write on %d(%p): %v", f.id, f, err)
 	}
-	f.conn.deactivateWriterLocked(f)
-	f.conn.notifyNextWriterLocked(f)
+	f.conn.writers.deactivateWriterLocked(f)
+	f.conn.writers.notifyNextWriterLocked(f)
 	f.conn.mu.Unlock()
 
 	if alsoClose || err != nil {
