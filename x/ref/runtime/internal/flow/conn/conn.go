@@ -769,6 +769,8 @@ func (c *Conn) internalCloseLocked(ctx *context.T, closedRemotely, closedWhileAc
 	}(c)
 }
 
+// fragmentReleaseMessage calls sendMessageLocked which means it should
+// only be called at the end of a c.mu critical section.
 func (c *Conn) fragmentReleaseMessage(ctx *context.T, toRelease map[uint64]uint64, limit int) error {
 	if len(toRelease) < limit {
 		return c.sendMessageLocked(ctx, false, expressPriority, &message.Release{

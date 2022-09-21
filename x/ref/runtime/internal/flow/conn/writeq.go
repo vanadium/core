@@ -41,16 +41,16 @@ type writer interface {
 // list of activeWriters because we will switch to that thread to allow it
 // to do work, and it will be wasteful if it turns out there is no work to do.
 // After calling this you should typically call notifyNextWriterLocked.
-func (c *writeq) activateWriterLocked(w writer) {
+func (q *writeq) activateWriterLocked(w writer) {
 	priority := w.priority()
 	_, wn := w.neighbors()
-	head := c.activeWriters[priority]
+	head := q.activeWriters[priority]
 	if head == w || wn != w {
 		// We're already active.
 		return
 	}
 	if head == nil { // We're the head of the list.
-		c.activeWriters[priority] = w
+		q.activeWriters[priority] = w
 	} else { // Insert us before head, which is the end of the list.
 		hp, _ := head.neighbors()
 		w.setNeighbors(hp, head)
@@ -64,14 +64,14 @@ func (c *writeq) activateWriterLocked(w writer) {
 // new turns.  If the writer is already in the middle of a turn, that turn is
 // not terminated, workers must end their turn explicitly by calling
 // notifyNextWriterLocked.
-func (c *writeq) deactivateWriterLocked(w writer) {
+func (q *writeq) deactivateWriterLocked(w writer) {
 	priority := w.priority()
 	p, n := w.neighbors()
-	if head := c.activeWriters[priority]; head == w {
+	if head := q.activeWriters[priority]; head == w {
 		if w == n { // We're the only one in the list.
-			c.activeWriters[priority] = nil
+			q.activeWriters[priority] = nil
 		} else {
-			c.activeWriters[priority] = n
+			q.activeWriters[priority] = n
 		}
 	}
 	n.setNeighbors(p, nil)
@@ -83,15 +83,15 @@ func (c *writeq) deactivateWriterLocked(w writer) {
 // a turn writing.  If w is the active writer give up w's claim and choose
 // the next writer.  If there is already an active writer != w, this function does
 // nothing.
-func (c *writeq) notifyNextWriterLocked(w writer) {
-	if c.writing == w {
-		c.writing = nil
+func (q *writeq) notifyNextWriterLocked(w writer) {
+	if q.writing == w {
+		q.writing = nil
 	}
-	if c.writing == nil {
-		for p, head := range c.activeWriters {
+	if q.writing == nil {
+		for p, head := range q.activeWriters {
 			if head != nil {
-				_, c.activeWriters[p] = head.neighbors()
-				c.writing = head
+				_, q.activeWriters[p] = head.neighbors()
+				q.writing = head
 				head.notify()
 				return
 			}
