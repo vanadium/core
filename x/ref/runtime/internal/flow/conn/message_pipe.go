@@ -5,6 +5,8 @@
 package conn
 
 import (
+	"sync"
+
 	"v.io/v23/context"
 	"v.io/v23/flow"
 	"v.io/v23/flow/message"
@@ -55,9 +57,12 @@ type openFunc func(out, data []byte) ([]byte, bool)
 type messagePipe struct {
 	rw          flow.MsgReadWriteCloser
 	framer      framer.T
-	seal        sealFunc
-	open        openFunc
 	frameOffset int
+
+	sealMu sync.Mutex
+	seal   sealFunc
+	openMu sync.Mutex
+	open   openFunc
 }
 
 func (p *messagePipe) isEncapsulated() bool {
@@ -118,7 +123,9 @@ func (p *messagePipe) writeCiphertext(ctx *context.T, m message.Message, plainte
 	if err != nil {
 		return
 	}
+	p.sealMu.Lock()
 	wire, err = p.seal(ciphertextBuf[p.frameOffset:p.frameOffset], plaintext)
+	p.sealMu.Unlock()
 	framed = ciphertextBuf
 	return
 }
@@ -181,7 +188,9 @@ func (p *messagePipe) readClearText(ctx *context.T, plaintextBuf []byte) ([]byte
 	if err != nil {
 		return nil, err
 	}
+	p.openMu.Lock()
 	plaintext, ok := p.open(plaintextBuf[:0], ciphertext)
+	p.openMu.Unlock()
 	if !ok {
 		return nil, message.NewErrInvalidMsg(ctx, 0, uint64(len(ciphertext)), 0, nil)
 	}
