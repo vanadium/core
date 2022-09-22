@@ -138,6 +138,8 @@ type Conn struct {
 	outstandingBorrowed map[uint64]uint64
 
 	writers writeq
+
+	writer // for use with writerq
 }
 
 // Ensure that *Conn implements flow.ManagedConn.
@@ -203,6 +205,10 @@ func NewDialed( //nolint:gocyclo
 		outstandingBorrowed:  make(map[uint64]uint64),
 		acceptChannelTimeout: channelTimeout,
 	}
+	// It's important that this channel has a non-zero buffer.  Sometimes this
+	// flow will be notifying itself, so if there's no buffer a deadlock will
+	// occur.
+	c.writer.notify = make(chan struct{}, 1)
 	done := make(chan struct{})
 	var rtt time.Duration
 	c.loopWG.Add(1)

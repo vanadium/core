@@ -5,6 +5,7 @@
 package conn
 
 import (
+	"fmt"
 	"sync"
 
 	"v.io/v23/context"
@@ -136,6 +137,7 @@ func (p *messagePipe) writeCiphertext(ctx *context.T, m message.Message, plainte
 }
 
 func (p *messagePipe) writeMsg(ctx *context.T, m message.Message) error {
+	fmt.Printf("writeMsg: %T\n", m)
 	plaintextBuf := messagePipePool.Get().(*[]byte)
 	defer messagePipePool.Put(plaintextBuf)
 

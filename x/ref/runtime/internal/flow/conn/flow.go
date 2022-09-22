@@ -54,7 +54,7 @@ type flw struct {
 
 	closed bool
 
-	writerList
+	writer // for use with writerq
 }
 
 // Ensure that *flw implements flow.Flow.
@@ -78,17 +78,15 @@ func (c *Conn) newFlowLocked(
 		remoteDischarges: remoteDischarges,
 		opened:           preopen,
 		borrowing:        dialed,
-		// It's important that this channel has a non-zero buffer.  Sometimes this
-		// flow will be notifying itself, so if there's no buffer a deadlock will
-		// occur.
-		writeCh:        make(chan struct{}, 1),
-		remote:         remote,
-		channelTimeout: channelTimeout,
-		sideChannel:    sideChannel,
+		remote:           remote,
+		channelTimeout:   channelTimeout,
+		sideChannel:      sideChannel,
 	}
+	// It's important that this channel has a non-zero buffer.  Sometimes this
+	// flow will be notifying itself, so if there's no buffer a deadlock will
+	// occur.
+	f.writer.notify = make(chan struct{}, 1)
 	f.q = newReadQ(f.release)
-
-	f.next, f.prev = f, f
 	f.ctx, f.cancel = context.WithCancel(ctx)
 	if !f.opened {
 		c.unopenedFlows.Add(1)
@@ -119,10 +117,6 @@ func (c *Conn) clearFlowCountersLocked(id uint64) {
 	// to use a 'special' flow ID (e.g use the invalidFlowID) to use
 	// for referring to all borrowed tokens for closed flows.
 }
-
-// Implement the writer interface.
-func (f *flw) notify()       { f.writeCh <- struct{}{} }
-func (f *flw) priority() int { return flowPriority }
 
 // disableEncrytion should not be called concurrently with Write* methods.
 func (f *flw) disableEncryption() {
@@ -239,7 +233,7 @@ func (f *flw) releaseLocked(tokens uint64) {
 		if debug {
 			f.ctx.Infof("Activating writing flow %d(%p) now that we have tokens.", f.id, f)
 		}
-		f.conn.writers.activateWriterLocked(f)
+		f.conn.writers.activateWriterLocked(&f.writer, flowPriority)
 		f.conn.writers.notifyNextWriterLocked(nil)
 	}
 }
@@ -281,9 +275,9 @@ func (f *flw) writeMsg(alsoClose bool, parts ...[]byte) (sent int, err error) { 
 	f.conn.mu.Lock()
 	f.markUsedLocked()
 	f.writing = true
-	f.conn.writers.activateWriterLocked(f)
+	f.conn.writers.activateWriterLocked(&f.writer, flowPriority)
 	for err == nil && len(parts) > 0 {
-		f.conn.writers.notifyNextWriterLocked(f)
+		f.conn.writers.notifyNextWriterLocked(&f.writer)
 
 		// Wait for our turn.
 		f.conn.mu.Unlock()
@@ -312,7 +306,7 @@ func (f *flw) writeMsg(alsoClose bool, parts ...[]byte) (sent int, err error) { 
 			if debug {
 				f.ctx.Infof("Deactivating write on flow %d(%p) due to lack of tokens", f.id, f)
 			}
-			f.conn.writers.deactivateWriterLocked(f)
+			f.conn.writers.deactivateWriterLocked(&f.writer, flowPriority)
 			continue
 		}
 		parts, tosend, size = popFront(parts, tosend[:0], tokens)
@@ -359,8 +353,8 @@ func (f *flw) writeMsg(alsoClose bool, parts ...[]byte) (sent int, err error) { 
 	if debug {
 		f.ctx.Infof("finishing write on %d(%p): %v", f.id, f, err)
 	}
-	f.conn.writers.deactivateWriterLocked(f)
-	f.conn.writers.notifyNextWriterLocked(f)
+	f.conn.writers.deactivateWriterLocked(&f.writer, flowPriority)
+	f.conn.writers.notifyNextWriterLocked(&f.writer)
 	f.conn.mu.Unlock()
 
 	if alsoClose || err != nil {

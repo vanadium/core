@@ -21,20 +21,20 @@ import (
 )
 
 func block(c *Conn, p int) chan struct{} {
-	w := &singleMessageWriter{writeCh: make(chan struct{}), p: p}
-	w.next, w.prev = w, w
+	w := writer{}
+	w.next, w.prev = &w, &w
 	ready, unblock := make(chan struct{}), make(chan struct{})
 	c.mu.Lock()
-	c.writers.activateWriterLocked(w)
-	c.writers.notifyNextWriterLocked(w)
+	c.writers.activateWriterLocked(&w, p)
+	c.writers.notifyNextWriterLocked(&w)
 	c.mu.Unlock()
 	go func() {
-		<-w.writeCh
+		<-w.notify
 		close(ready)
 		<-unblock
 		c.mu.Lock()
-		c.writers.deactivateWriterLocked(w)
-		c.writers.notifyNextWriterLocked(w)
+		c.writers.deactivateWriterLocked(&w, p)
+		c.writers.notifyNextWriterLocked(&w)
 		c.mu.Unlock()
 	}()
 	<-ready
@@ -58,7 +58,7 @@ func waitForWriters(ctx *context.T, conn *Conn, num int) {
 		for _, w := range conn.writers.activeWriters {
 			if w != nil {
 				count++
-				for _, n := w.neighbors(); n != w; _, n = n.neighbors() {
+				for n := w.next; n != w; n = n.next {
 					count++
 				}
 			}
