@@ -120,18 +120,17 @@ func (q *writeq) notifyNextWriterLocked(w *writer) {
 		// give up w's turn.
 		fmt.Printf("notify... %p - give up our turn\n", w)
 		q.writing = nil
-	} else {
-		fmt.Printf("notify... %p - maybe there's someone else?\n", w)
 	}
 	if q.writing != nil {
 		fmt.Printf("notify... %p - there's someone else: %p\n", w, q.writing)
 		return
 	}
+	fmt.Printf("notify... %p - maybe there's no-one else?\n", w)
 	for p, head := range q.activeWriters {
 		if head != nil {
 			q.activeWriters[p] = head.next
 			q.writing = head
-			fmt.Printf("notify... %p\n", w)
+			fmt.Printf("notify... --->> %p\n", w)
 			head.notify <- struct{}{}
 			return
 		}
