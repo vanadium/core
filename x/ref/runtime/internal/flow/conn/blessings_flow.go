@@ -20,6 +20,7 @@ import (
 // encoder into a single larger one to reduce the number of system calls
 // and network packets sent.
 type writeBuffer struct {
+	wr   *writer
 	conn blessingsCon
 	buf  []byte
 }
@@ -33,7 +34,7 @@ func (w *writeBuffer) Flush(ctx *context.T) error {
 	if len(w.buf) == 0 {
 		return nil
 	}
-	err := w.conn.writeEncodedBlessings(ctx, w.buf)
+	err := w.conn.writeEncodedBlessings(ctx, w.wr, w.buf)
 	// Free the buffer since it's unlikely that a second set of
 	// blessings or discharges will be sent.
 	w.buf = nil
@@ -58,6 +59,8 @@ func (w *writeBuffer) Flush(ctx *context.T) error {
 // place. This prevents the remote peer from sending additional blessings
 // with a different pubic key over the existing connection.
 type blessingsFlow struct {
+	writer
+
 	mu sync.Mutex
 
 	conn   blessingsCon
@@ -78,17 +81,19 @@ type blessingsFlow struct {
 // the connection and the connection will call writeMsg on the blessings
 // flow when data is received for it.
 type blessingsCon interface {
-	writeEncodedBlessings(ctx *context.T, encoded []byte) error
+	writeEncodedBlessings(ctx *context.T, writer *writer, encoded []byte) error
 }
 
 func newBlessingsFlow(conn blessingsCon) *blessingsFlow {
 	b := &blessingsFlow{
 		conn:    conn,
 		nextKey: 1,
-		encBuf:  writeBuffer{conn: conn, buf: make([]byte, 0, 4096)},
 	}
+	b.encBuf = writeBuffer{conn: conn, wr: &b.writer, buf: make([]byte, 0, 4096)}
+
 	b.dec = vom.NewDecoder(&b.decBuf)
 	b.enc = vom.NewEncoder(&b.encBuf)
+	b.writer.notify = make(chan struct{}, 1)
 	return b
 }
 

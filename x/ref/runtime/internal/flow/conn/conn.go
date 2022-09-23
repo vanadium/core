@@ -921,17 +921,17 @@ LastUsed:    %v
 		len(c.flows))
 }
 
-func (c *Conn) writeEncodedBlessings(ctx *context.T, data []byte) error {
-	c.writers.activateAndNotify(&c.writer, flowPriority)
+func (c *Conn) writeEncodedBlessings(ctx *context.T, w *writer, data []byte) error {
+	c.writers.activateAndNotify(w, flowPriority)
 	select {
 	case <-ctx.Done():
 		return ctx.Err()
-	case <-c.writer.notify:
+	case <-w.notify:
 	}
 	err := c.mp.writeMsg(ctx, &message.Data{
 		ID:      blessingsFlowID,
 		Payload: [][]byte{data}})
-	c.writers.deactivateAndNotify(&c.writer, flowPriority)
+	c.writers.deactivateAndNotify(w, flowPriority)
 	return err
 }
 

@@ -292,6 +292,7 @@ func (f *flw) writeMsg(alsoClose bool, parts ...[]byte) (sent int, err error) { 
 		f.conn.lock()
 		// It's our turn, we lock to learn the current state of our buffer tokens.
 		if err != nil {
+			f.conn.unlock()
 			break
 		}
 
@@ -486,15 +487,17 @@ func (f *flw) ID() uint64 {
 }
 
 func (f *flw) close(ctx *context.T, closedRemotely bool, err error) {
+
 	f.conn.lock()
 	cancel := f.cancel
 	closed := f.closed
 	f.closed = true
+	f.conn.unlock()
+
 	log := f.ctx.V(2)
 
 	// tidy up this mess of locks/unlocks
 
-	f.conn.unlock()
 	if !closed {
 		f.q.close(ctx)
 		if log {
@@ -530,6 +533,7 @@ func (f *flw) close(ctx *context.T, closedRemotely bool, err error) {
 		default:
 			f.conn.unlock()
 		}
+
 		f.conn.lock()
 		if closedRemotely {
 			// When the other side closes a flow, it implicitly releases all the
