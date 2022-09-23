@@ -289,12 +289,12 @@ func (f *flw) writeMsg(alsoClose bool, parts ...[]byte) (sent int, err error) { 
 		case <-f.writer.notify:
 		}
 
+		f.conn.mu.Lock()
 		// It's our turn, we lock to learn the current state of our buffer tokens.
 		if err != nil {
 			break
 		}
 
-		f.conn.mu.Lock()
 		opened := f.opened
 		tokens, deduct := f.tokensLocked()
 		if opened && (tokens == 0 || ((f.noEncrypt || f.noFragment) && (tokens < totalSize))) {

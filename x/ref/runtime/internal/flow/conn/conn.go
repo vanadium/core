@@ -817,7 +817,6 @@ func (c *Conn) release(ctx *context.T, fid, count uint64) {
 	var toRelease map[uint64]uint64
 	var release bool
 	c.mu.Lock()
-	defer c.mu.Unlock()
 	if _, ok := c.flows[fid]; ok {
 		// Handle the case where the flow is already closed but a message
 		// is received for it, hence only bump the toRelease value for
@@ -840,6 +839,7 @@ func (c *Conn) release(ctx *context.T, fid, count uint64) {
 		delete(toRelease, invalidFlowID)
 		err = c.fragmentReleaseMessage(ctx, toRelease, 8000)
 	}
+	c.mu.Unlock()
 	if err != nil {
 		c.Close(ctx, ErrSend.Errorf(ctx, "failure sending release message to %v: %v", c.remote.String(), err))
 	}
