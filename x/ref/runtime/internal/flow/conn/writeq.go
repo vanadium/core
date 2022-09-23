@@ -203,7 +203,8 @@ func (q *writeq) deactivateAndNotify(w *writer, p int) {
 	q.notifyNextWriterLocked(w)
 }
 
-// sendMessageLocked sends a single message on the conn with the given priority.
+// sendMessage sends a single message on the conn with the given priority.
+// It should never be called with the conn lock held since it may block.
 // if cancelWithContext is true, then this write attempt will fail when the context
 // is canceled.  Otherwise context cancellation will have no effect and this call
 // will block until the message is sent.
@@ -212,6 +213,7 @@ func (c *Conn) sendMessage(
 	cancelWithContext bool,
 	priority int,
 	m message.Message) (err error) {
+
 	c.writers.activateAndNotify(&c.writer, priority)
 	if cancelWithContext {
 		select {
@@ -228,4 +230,13 @@ func (c *Conn) sendMessage(
 	}
 	c.writers.deactivateAndNotify(&c.writer, priority)
 	return err
+}
+
+func (c *Conn) sendMessageLocked(ctx *context.T,
+	cancelWithContext bool,
+	priority int,
+	m message.Message) (err error) {
+	c.lock()
+	defer c.unlock()
+	return c.sendMessage(ctx, cancelWithContext, priority, m)
 }

@@ -48,13 +48,13 @@ func (c *Conn) handleAnyMessage(ctx *context.T, m message.Message) error {
 }
 
 func (c *Conn) handleData(ctx *context.T, msg *message.Data) error {
-	c.mu.Lock()
+	c.lock()
 	if c.status == Closing {
-		c.mu.Unlock()
+		c.unlock()
 		return nil // Conn is already being shut down.
 	}
 	if msg.ID == blessingsFlowID {
-		c.mu.Unlock()
+		c.unlock()
 		return c.blessingsFlow.writeMsg(msg.Payload)
 	}
 	f := c.flows[msg.ID]
@@ -62,10 +62,10 @@ func (c *Conn) handleData(ctx *context.T, msg *message.Data) error {
 		// If the flow is closing then we assume the remote side releases
 		// all borrowed counters for that flow.
 		c.releaseOutstandingBorrowedLocked(msg.ID, math.MaxUint64)
-		c.mu.Unlock()
+		c.unlock()
 		return nil
 	}
-	c.mu.Unlock()
+	c.unlock()
 	if err := f.q.put(ctx, msg.Payload); err != nil {
 		return err
 	}
@@ -81,16 +81,16 @@ func (c *Conn) handleOpenFlow(ctx *context.T, msg *message.OpenFlow) error {
 	if err != nil {
 		return err
 	}
-	c.mu.Lock()
+	c.lock()
 	if c.nextFid%2 == msg.ID%2 {
-		c.mu.Unlock()
+		c.unlock()
 		return ErrInvalidPeerFlow.Errorf(ctx, "peer has chosen flow id from local domain")
 	}
 	if c.handler == nil {
-		c.mu.Unlock()
+		c.unlock()
 		return ErrUnexpectedMsg.Errorf(ctx, "unexpected message type: %T", msg)
 	} else if c.status == Closing {
-		c.mu.Unlock()
+		c.unlock()
 		return nil // Conn is already being closed.
 	}
 	sideChannel := msg.Flags&message.SideChannelFlag != 0
@@ -108,7 +108,7 @@ func (c *Conn) handleOpenFlow(ctx *context.T, msg *message.OpenFlow) error {
 		sideChannel)
 	f.releaseLocked(msg.InitialCounters)
 	c.newFlowCountersLocked(msg.ID)
-	c.mu.Unlock()
+	c.unlock()
 
 	c.handler.HandleFlow(f) //nolint:errcheck
 
@@ -131,9 +131,9 @@ func (c *Conn) handleTearDown(ctx *context.T, msg *message.TearDown) error {
 }
 
 func (c *Conn) handleEnterLameDuck(ctx *context.T, msg *message.EnterLameDuck) error {
-	c.mu.Lock()
+	c.lock()
 	c.remoteLameDuck = true
-	c.mu.Unlock()
+	c.unlock()
 	go func() {
 		// We only want to send the lame duck acknowledgment after all outstanding
 		// OpenFlows are sent.
@@ -147,8 +147,8 @@ func (c *Conn) handleEnterLameDuck(ctx *context.T, msg *message.EnterLameDuck) e
 }
 
 func (c *Conn) handleAckLameDuck(ctx *context.T, msg *message.AckLameDuck) error {
-	c.mu.Lock()
-	defer c.mu.Unlock()
+	c.lock()
+	defer c.unlock()
 	if c.status < LameDuckAcknowledged {
 		c.status = LameDuckAcknowledged
 		close(c.lameDucked)
@@ -157,8 +157,8 @@ func (c *Conn) handleAckLameDuck(ctx *context.T, msg *message.AckLameDuck) error
 }
 
 func (c *Conn) handleHealthCheckResponse(ctx *context.T) error {
-	defer c.mu.Unlock()
-	c.mu.Lock()
+	defer c.unlock()
+	c.lock()
 	if c.status < Closing {
 		timeout := c.acceptChannelTimeout
 		for _, f := range c.flows {
@@ -185,8 +185,8 @@ func (c *Conn) handleHealthCheckRequest(ctx *context.T) error {
 }
 
 func (c *Conn) handleRelease(ctx *context.T, msg *message.Release) error {
-	c.mu.Lock()
-	defer c.mu.Unlock()
+	c.lock()
+	defer c.unlock()
 	for fid, val := range msg.Counters {
 		if f := c.flows[fid]; f != nil {
 			f.releaseLocked(val)
@@ -204,8 +204,8 @@ func (c *Conn) handleAuth(ctx *context.T, msg *message.Auth) error {
 	if err != nil {
 		return err
 	}
-	c.mu.Lock()
-	defer c.mu.Unlock()
+	c.lock()
+	defer c.unlock()
 	c.remoteBlessings = blessings
 	c.remoteDischarges = discharges
 	if c.remoteValid != nil {
