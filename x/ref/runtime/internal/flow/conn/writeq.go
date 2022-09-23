@@ -6,6 +6,7 @@ package conn
 
 import (
 	"fmt"
+	"strings"
 	"sync"
 
 	"v.io/v23/context"
@@ -21,6 +22,23 @@ const (
 	numPriorities
 )
 
+// writeq implements a set of LIFOs queues used to order and prioritize
+// writing to a connections underlying message pipe. The intention is for
+// writers to block until their turn to transmit comes up. This approach,
+// as opposed to adding buffers to a queue, can minimize data copying
+// simplify data management.
+//
+// Usage is as follows:
+//
+//	activateWriter(&writer, priority)
+//	notifyNextWriter(&writer)
+//	<- writer.notify
+//	// access the message pipe
+//	deactivateWriter(&writer)
+//	notifyNextWriter(&writer)
+//
+// TODO(cnicolaou): explore using buffer hand off rather than the blocking
+// model.
 type writeq struct {
 	mu sync.Mutex
 
@@ -53,8 +71,24 @@ type writer struct {
 	notify     chan struct{}
 }
 
-func (q *writeq) activateWriterLocked(w *writer, p int) {
-	q.activateWriter(w, p)
+func (q *writeq) String() string {
+	q.mu.Lock()
+	defer q.mu.Unlock()
+	out := strings.Builder{}
+	fmt.Fprintf(&out, "writeq(%p): active: %p\n", q, q.writing)
+	for p, h := range q.activeWriters {
+		if h != nil {
+			fmt.Fprintf(&out, "\t%v: ", p)
+			for w := h; w != nil; w = w.next {
+				fmt.Fprintf(&out, "%p ", w)
+				if w.next == h {
+					break
+				}
+			}
+			out.WriteByte('\n')
+		}
+	}
+	return out.String()
 }
 
 // activateWriter adds a given writer to the list of active writers.
@@ -71,6 +105,10 @@ func (q *writeq) activateWriter(w *writer, p int) {
 		// We're already active, ie. in a list.
 		return
 	}
+	q.addWriterLocked(head, w, p)
+}
+
+func (q *writeq) addWriterLocked(head *writer, w *writer, p int) {
 	if head == nil {
 		// Insert at the head of the list. w.next == w.prev since
 		// it's both the first and last item to be sent.
@@ -84,8 +122,46 @@ func (q *writeq) activateWriter(w *writer, p int) {
 	}
 }
 
-func (q *writeq) deactivateWriterLocked(w *writer, p int) {
-	q.deactivateWriter(w, p)
+// notifyNextWriter notifies the highest priority activeWriter to take
+// a turn writing.  If w is the active writer give up w's claim and choose
+// the next writer (which maybe w itself if there are no other writers ahead
+// of it in the queue).  If there is already an active
+// writer != w, this function does nothing.
+func (q *writeq) notifyNextWriter(w *writer) {
+	q.mu.Lock()
+	defer q.mu.Unlock()
+	q.notifyNextWriterLocked(w)
+}
+
+func (q *writeq) notifyNextWriterLocked(w *writer) {
+	if q.writing == w {
+		// give up w's turn.
+		q.writing = nil
+	}
+	if q.writing != nil {
+		return
+	}
+	for p, head := range q.activeWriters {
+		if head != nil {
+			q.activeWriters[p] = head.next
+			q.writing = head
+			head.notify <- struct{}{}
+			return
+		}
+	}
+}
+
+// deactivateAndNotify is equivalent to calling activateWriter followed
+// by notifyNextWriter.
+func (q *writeq) activateAndNotify(w *writer, p int) {
+	q.mu.Lock()
+	defer q.mu.Unlock()
+	head := q.activeWriters[p]
+	if head != w && w.prev == nil && w.next == nil {
+		// w is not in any queue, so add it.
+		q.addWriterLocked(head, w, p)
+	}
+	q.notifyNextWriterLocked(w)
 }
 
 // deactivateWriterLocked removes a writer from the active writer list.  After
@@ -96,6 +172,13 @@ func (q *writeq) deactivateWriterLocked(w *writer, p int) {
 func (q *writeq) deactivateWriter(w *writer, p int) {
 	q.mu.Lock()
 	defer q.mu.Unlock()
+	if w.next == nil && w.prev == nil {
+		return
+	}
+	q.rmWriter(w, p)
+}
+
+func (q *writeq) rmWriter(w *writer, p int) {
 	prv, nxt := w.prev, w.next
 	if head := q.activeWriters[p]; head == w {
 		if w == nxt { // We're the only one in the list.
@@ -109,50 +192,27 @@ func (q *writeq) deactivateWriter(w *writer, p int) {
 	w.prev, w.next = nil, nil
 }
 
-// notifyNextWriterLocked notifies the highest priority activeWriter to take
-// a turn writing.  If w is the active writer give up w's claim and choose
-// the next writer.  If there is already an active writer != w, this function does
-// nothing.
-func (q *writeq) notifyNextWriterLocked(w *writer) {
+// deactivateAndNotify is equivalent to calling deactivateWriter followed
+// by notifyNextWriter.
+func (q *writeq) deactivateAndNotify(w *writer, p int) {
 	q.mu.Lock()
 	defer q.mu.Unlock()
-	if q.writing == w {
-		// give up w's turn.
-		fmt.Printf("notify... %p - give up our turn\n", w)
-		q.writing = nil
+	if w.next != nil && w.prev != nil {
+		q.rmWriter(w, p)
 	}
-	if q.writing != nil {
-		fmt.Printf("notify... %p - there's someone else: %p\n", w, q.writing)
-		return
-	}
-	fmt.Printf("notify... %p - maybe there's no-one else?\n", w)
-	for p, head := range q.activeWriters {
-		if head != nil {
-			q.activeWriters[p] = head.next
-			q.writing = head
-			fmt.Printf("notify... --->> %p\n", w)
-			head.notify <- struct{}{}
-			return
-		}
-	}
+	q.notifyNextWriterLocked(w)
 }
 
 // sendMessageLocked sends a single message on the conn with the given priority.
 // if cancelWithContext is true, then this write attempt will fail when the context
 // is canceled.  Otherwise context cancellation will have no effect and this call
 // will block until the message is sent.
-// NOTE: The mutex is not held for the entirety of this call,
-// therefore this call will interrupt your critical section. This
-// should be called only at the end of a mutex protected region.
-func (c *Conn) sendMessageLocked(
+func (c *Conn) sendMessage(
 	ctx *context.T,
 	cancelWithContext bool,
 	priority int,
 	m message.Message) (err error) {
-	c.writers.activateWriterLocked(&c.writer, priority)
-	c.writers.notifyNextWriterLocked(&c.writer)
-	c.mu.Unlock()
-	// wait for my turn.
+	c.writers.activateAndNotify(&c.writer, priority)
 	if cancelWithContext {
 		select {
 		case <-ctx.Done():
@@ -166,8 +226,6 @@ func (c *Conn) sendMessageLocked(
 	if err == nil {
 		err = c.mp.writeMsg(ctx, m)
 	}
-	c.mu.Lock()
-	c.writers.deactivateWriterLocked(&c.writer, priority)
-	c.writers.notifyNextWriterLocked(&c.writer)
+	c.writers.deactivateAndNotify(&c.writer, priority)
 	return err
 }

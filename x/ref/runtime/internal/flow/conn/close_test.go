@@ -308,7 +308,7 @@ func testCounters(t *testing.T, ctx *context.T, count int, dialClose, acceptClos
 	for i := 0; i < count; i++ {
 		df, err := dc.Dial(ctx, dc.LocalBlessings(), nil, naming.Endpoint{}, 0, false)
 		if err != nil {
-			t.Fatal(err)
+		t.Fatal(err)
 		}
 		// WriteMsg wil fragment messages larger than its default buffer size.
 		if _, err := df.WriteMsg(writeBuf); err != nil {

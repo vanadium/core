@@ -332,6 +332,7 @@ func NewAccepted(
 		outstandingBorrowed:  make(map[uint64]uint64),
 		acceptChannelTimeout: channelTimeout,
 	}
+	c.writer.notify = make(chan struct{}, 1)
 	done := make(chan struct{}, 1)
 	var rtt time.Duration
 	var err error
@@ -419,11 +420,11 @@ func (c *Conn) blessingsLoop(
 		c.localBlessings = blessings
 		c.localDischarges = dis
 		c.localValid = valid
-		err = c.sendMessageLocked(ctx, true, expressPriority, &message.Auth{
+		c.mu.Unlock()
+		err = c.sendMessage(ctx, true, expressPriority, &message.Auth{
 			BlessingsKey: bkey,
 			DischargeKey: dkey,
 		})
-		c.mu.Unlock()
 		if err != nil {
 			c.internalClose(ctx, false, false, err)
 			return
@@ -465,11 +466,9 @@ func (c *Conn) newHealthChecksLocked(ctx *context.T, firstRTT time.Duration) *he
 		lastRTT:       firstRTT,
 	}
 	requestTimer := time.AfterFunc(c.acceptChannelTimeout/2, func() {
-		c.mu.Lock()
 		//nolint:errcheck
-		c.sendMessageLocked(ctx, true, expressPriority, &message.HealthCheckRequest{})
+		c.sendMessage(ctx, true, expressPriority, &message.HealthCheckRequest{})
 		h.requestSent = time.Now()
-		c.mu.Unlock()
 	})
 	h.requestTimer = requestTimer
 	return h
@@ -519,15 +518,19 @@ func (c *Conn) healthCheckCloseDeadline() time.Time {
 // EnterLameDuck enters lame duck mode, the returned channel will be closed when
 // the remote end has ack'd or the Conn is closed.
 func (c *Conn) EnterLameDuck(ctx *context.T) chan struct{} {
-	var err error
+	var enterLameDuck bool
+
 	c.mu.Lock()
 	if c.status < EnteringLameDuck {
 		c.status = EnteringLameDuck
-		err = c.sendMessageLocked(ctx, false, expressPriority, &message.EnterLameDuck{})
+		enterLameDuck = true
 	}
 	c.mu.Unlock()
-	if err != nil {
-		c.Close(ctx, ErrSend.Errorf(ctx, "failure sending release message to %v: %v", c.remote.String(), err))
+	if enterLameDuck {
+		err := c.sendMessage(ctx, false, expressPriority, &message.EnterLameDuck{})
+		if err != nil {
+			c.Close(ctx, ErrSend.Errorf(ctx, "failure sending release message to %v: %v", c.remote.String(), err))
+		}
 	}
 	return c.lameDucked
 }
@@ -742,11 +745,9 @@ func (c *Conn) internalCloseLocked(ctx *context.T, closedRemotely, closedWhileAc
 			if err != nil {
 				msg = err.Error()
 			}
-			c.mu.Lock()
-			cerr := c.sendMessageLocked(ctx, false, tearDownPriority, &message.TearDown{
+			cerr := c.sendMessage(ctx, false, tearDownPriority, &message.TearDown{
 				Message: msg,
 			})
-			c.mu.Unlock()
 			if cerr != nil {
 				ctx.VI(2).Infof("Error sending tearDown on connection to %s: %v", c.remote, cerr)
 			}
@@ -775,11 +776,9 @@ func (c *Conn) internalCloseLocked(ctx *context.T, closedRemotely, closedWhileAc
 	}(c)
 }
 
-// fragmentReleaseMessage calls sendMessageLocked which means it should
-// only be called at the end of a c.mu critical section.
 func (c *Conn) fragmentReleaseMessage(ctx *context.T, toRelease map[uint64]uint64, limit int) error {
 	if len(toRelease) < limit {
-		return c.sendMessageLocked(ctx, false, expressPriority, &message.Release{
+		return c.sendMessage(ctx, false, expressPriority, &message.Release{
 			Counters: toRelease,
 		})
 	}
@@ -801,7 +800,7 @@ func (c *Conn) fragmentReleaseMessage(ctx *context.T, toRelease map[uint64]uint6
 				i++
 			}
 		}
-		if err := c.sendMessageLocked(ctx, false, expressPriority, &message.Release{
+		if err := c.sendMessage(ctx, false, expressPriority, &message.Release{
 			Counters: send,
 		}); err != nil {
 			return err
@@ -818,6 +817,7 @@ func (c *Conn) release(ctx *context.T, fid, count uint64) {
 	var toRelease map[uint64]uint64
 	var release bool
 	c.mu.Lock()
+	defer c.mu.Unlock()
 	if _, ok := c.flows[fid]; ok {
 		// Handle the case where the flow is already closed but a message
 		// is received for it, hence only bump the toRelease value for
@@ -840,7 +840,6 @@ func (c *Conn) release(ctx *context.T, fid, count uint64) {
 		delete(toRelease, invalidFlowID)
 		err = c.fragmentReleaseMessage(ctx, toRelease, 8000)
 	}
-	c.mu.Unlock()
 	if err != nil {
 		c.Close(ctx, ErrSend.Errorf(ctx, "failure sending release message to %v: %v", c.remote.String(), err))
 	}
@@ -927,7 +926,15 @@ LastUsed:    %v
 }
 
 func (c *Conn) writeEncodedBlessings(ctx *context.T, data []byte) error {
-	return c.mp.writeMsg(ctx, &message.Data{
+	c.writers.activateAndNotify(&c.writer, flowPriority)
+	select {
+	case <-ctx.Done():
+		return ctx.Err()
+	case <-c.writer.notify:
+	}
+	err := c.mp.writeMsg(ctx, &message.Data{
 		ID:      blessingsFlowID,
 		Payload: [][]byte{data}})
+	c.writers.deactivateAndNotify(&c.writer, flowPriority)
+	return err
 }

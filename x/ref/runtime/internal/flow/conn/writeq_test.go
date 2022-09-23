@@ -5,7 +5,6 @@
 package conn
 
 import (
-	"fmt"
 	"reflect"
 	"runtime"
 	"testing"
@@ -33,19 +32,27 @@ func listWQEntries(wq *writeq, p int) []*writer {
 	return r
 }
 
-func addWriteq(wq *writeq, w ...*writeqEntry) {
+func addWriteq(wq *writeq, priority int, w ...*writeqEntry) {
 	for i := range w {
-		wq.activateWriterLocked(&w[i].writer, flowPriority)
+		wq.activateWriter(&w[i].writer, priority)
 	}
 }
 
-func rmWriteq(wq *writeq, w ...*writeqEntry) {
+func rmWriteq(wq *writeq, priority int, w ...*writeqEntry) {
 	for i := range w {
-		wq.deactivateWriterLocked(&w[i].writer, flowPriority)
+		wq.deactivateWriter(&w[i].writer, priority)
 	}
 }
 
-func cmpWriteqEntries(t *testing.T, wq *writeq, w ...*writeqEntry) {
+func cmpWriteqEntries(t *testing.T, wq *writeq, priority int, active *writeqEntry, w ...*writeqEntry) {
+	_, _, line, _ := runtime.Caller(2)
+	var writing *writer
+	if active != nil {
+		writing = &active.writer
+	}
+	if got, want := wq.writing, writing; got != want {
+		t.Errorf("line %v: active got %p, want %p", line, got, want)
+	}
 	var wl []*writer
 	if len(w) > 0 {
 		wl = make([]*writer, len(w))
@@ -53,10 +60,8 @@ func cmpWriteqEntries(t *testing.T, wq *writeq, w ...*writeqEntry) {
 			wl[i] = &w[i].writer
 		}
 	}
-
-	if got, want := listWQEntries(wq, flowPriority), wl; !reflect.DeepEqual(got, want) {
-		_, _, line, _ := runtime.Caller(2)
-		t.Errorf("line %v: got %#v, want %#v", line, got, want)
+	if got, want := listWQEntries(wq, priority), wl; !reflect.DeepEqual(got, want) {
+		t.Errorf("line %v: queue: got %v, want %v", line, got, want)
 	}
 }
 
@@ -64,15 +69,15 @@ func TestWriteqLists(t *testing.T) {
 	wq := &writeq{}
 
 	add := func(w ...*writeqEntry) {
-		addWriteq(wq, w...)
+		addWriteq(wq, flowPriority, w...)
 	}
 
 	rm := func(w ...*writeqEntry) {
-		rmWriteq(wq, w...)
+		rmWriteq(wq, flowPriority, w...)
 	}
 
 	cmp := func(w ...*writeqEntry) {
-		cmpWriteqEntries(t, wq, w...)
+		cmpWriteqEntries(t, wq, flowPriority, nil, w...)
 	}
 
 	fe1, fe2, fe3 := newEntry(), newEntry(), newEntry()
@@ -112,61 +117,128 @@ func TestWriteqNotification(t *testing.T) {
 	wq := &writeq{}
 
 	add := func(w ...*writeqEntry) {
-		addWriteq(wq, w...)
+		addWriteq(wq, flowPriority, w...)
 	}
 
 	rm := func(w ...*writeqEntry) {
-		rmWriteq(wq, w...)
+		rmWriteq(wq, flowPriority, w...)
 	}
 
-	cmp := func(w ...*writeqEntry) {
-		cmpWriteqEntries(t, wq, w...)
+	cmp := func(a *writeqEntry, w ...*writeqEntry) {
+		cmpWriteqEntries(t, wq, flowPriority, a, w...)
+	}
+
+	addP0 := func(w ...*writeqEntry) {
+		addWriteq(wq, expressPriority, w...)
+	}
+
+	rmP0 := func(w ...*writeqEntry) {
+		rmWriteq(wq, expressPriority, w...)
+	}
+
+	cmpP0 := func(a *writeqEntry, w ...*writeqEntry) {
+		cmpWriteqEntries(t, wq, expressPriority, a, w...)
 	}
 
 	notify := func(w *writeqEntry) {
-		wq.notifyNextWriterLocked(&w.writer)
-	}
-
-	active := func(w *writeqEntry) {
-		if got, want := wq.writing, &w.writer; got != want {
-			_, _, line, _ := runtime.Caller(1)
-			t.Errorf("line %v: got (%p)%v, want (%p)%v", line, got, got, want, want)
+		var wr *writer
+		if w != nil {
+			wr = &w.writer
 		}
+		wq.notifyNextWriter(wr)
 	}
 
 	fe1, fe2, fe3 := newEntry(), newEntry(), newEntry()
+
+	notified := func(w *writeqEntry) {
+		var got *writer
+		select {
+		case <-fe1.writer.notify:
+			got = &fe1.writer
+		case <-fe2.writer.notify:
+			got = &fe2.writer
+		case <-fe3.writer.notify:
+			got = &fe3.writer
+		}
+		if want := &w.writer; got != want {
+			_, _, line, _ := runtime.Caller(1)
+			t.Errorf("line %v: wrong writer notified: got %v, want %v", line, got, want)
+		}
+	}
+
 	add(fe1)
-	go notify(fe1)
+	notify(fe1)
 	<-fe1.notify
-	cmp(fe1)
+	cmp(fe1, fe1)
 	rm(fe1)
-	cmp()
-
-	add(fe1, fe2, fe3)
+	cmp(fe1)
 	notify(fe1)
-	notify(fe1)
-	notify(fe1)
+	cmp(nil)
 
-	<-fe1.notify
-	cmp(fe2, fe3, fe1)
-	active(fe1)
-	notify(fe1)
-	active(fe2)
-	cmp(fe3, fe1, fe2)
-	cmp()
+	// iterate a few times to ensure that the select statement in
+	// notified doesn't select from the expected channel by chance
+	// when there are multiple channels ready - i.e. make sure that
+	// there is exactly one writer ready to go.
+	for i := 0; i < 100; i++ {
+		add(fe1, fe2, fe3)
+		cmp(nil, fe1, fe2, fe3)
+		notify(fe1)
+		notified(fe1)
+		cmp(fe1, fe2, fe3, fe1)
+		notify(fe1)
+		notified(fe2)
+		cmp(fe2, fe3, fe1, fe2)
+		notify(fe2)
+		notified(fe3)
+		cmp(fe3, fe1, fe2, fe3)
+		notify(fe3)
+		notified(fe1)
+		cmp(fe1, fe2, fe3, fe1)
+		notify(fe1)
+		notified(fe2)
 
-	return
+		// reset to empty state.
+		rm(fe1, fe2, fe3)
+		notify(fe2)
+		cmp(nil)
+	}
 
-	notify(fe1)
-	cmp(fe2, fe3, fe1)
-	go notify(fe2)
-	<-fe2.notify
-	cmp(fe3, fe1, fe2)
+	// test priorities
+	for i := 0; i < 100; i++ {
+		add(fe2, fe3)
+		addP0(fe1)
+		cmp(nil, fe2, fe3)
+		cmpP0(nil, fe1)
+		notify(fe2)
+		notified(fe1) // the higher priority writer should get unblocked
 
-	fmt.Printf("-------------\n")
-	go notify(fe2)
-	<-fe2.notify
-	go notify(fe3)
-	<-fe3.notify
-	_, _, _ = rm, fe2, fe3
+		cmp(fe1, fe2, fe3)
+		cmpP0(fe1, fe1)
+		rmP0(fe1)
+		// fe1 is done so remove it as the active writer and unblock fe2
+		notify(fe1)
+		cmp(fe2, fe3, fe2)
+		notified(fe2)
+		notify(fe2)
+		notified(fe3)
+
+		// reset to empty state.
+		rm(fe2, fe3)
+		notify(fe3)
+		cmp(nil)
+	}
+
+	for i := 0; i < 100; i++ {
+		wq.activateAndNotify(&fe2.writer, flowPriority)
+		cmp(fe2, fe2)
+		notified(fe2)
+		cmp(fe2, fe2)
+		wq.activateAndNotify(&fe1.writer, flowPriority)
+		cmp(fe2, fe2, fe1)
+		wq.deactivateAndNotify(&fe2.writer, flowPriority)
+		cmp(fe1, fe1)
+		notified(fe1)
+		wq.deactivateAndNotify(&fe1.writer, flowPriority)
+		cmp(nil)
+	}
 }

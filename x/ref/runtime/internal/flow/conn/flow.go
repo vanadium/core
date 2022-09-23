@@ -25,10 +25,11 @@ type flw struct {
 	localDischarges, remoteDischarges map[string]security.Discharge
 	noEncrypt                         bool
 	noFragment                        bool
-	writeCh                           chan struct{}
 	remote                            naming.Endpoint
 	channelTimeout                    time.Duration
 	sideChannel                       bool
+
+	writer // for use with writerq, does not need to be protected by conn.mu
 
 	// NOTE: The remaining variables are actually protected by conn.mu.
 
@@ -53,8 +54,6 @@ type flw struct {
 	borrowing bool
 
 	closed bool
-
-	writer // for use with writerq
 }
 
 // Ensure that *flw implements flow.Flow.
@@ -233,8 +232,8 @@ func (f *flw) releaseLocked(tokens uint64) {
 		if debug {
 			f.ctx.Infof("Activating writing flow %d(%p) now that we have tokens.", f.id, f)
 		}
-		f.conn.writers.activateWriterLocked(&f.writer, flowPriority)
-		f.conn.writers.notifyNextWriterLocked(nil)
+		f.conn.writers.activateWriter(&f.writer, flowPriority)
+		f.conn.writers.notifyNextWriter(nil)
 	}
 }
 
@@ -272,26 +271,30 @@ func (f *flw) writeMsg(alsoClose bool, parts ...[]byte) (sent int, err error) { 
 		totalSize += len(p)
 	}
 	size, sent, tosend := 0, 0, make([][]byte, len(parts))
+
 	f.conn.mu.Lock()
 	f.markUsedLocked()
 	f.writing = true
-	f.conn.writers.activateWriterLocked(&f.writer, flowPriority)
+	f.conn.mu.Unlock()
+
+	f.conn.writers.activateWriter(&f.writer, flowPriority)
 	for err == nil && len(parts) > 0 {
-		f.conn.writers.notifyNextWriterLocked(&f.writer)
+		f.conn.writers.notifyNextWriter(&f.writer)
 
 		// Wait for our turn.
-		f.conn.mu.Unlock()
+
 		select {
 		case <-ctx.Done():
 			err = io.EOF
-		case <-f.writeCh:
+		case <-f.writer.notify:
 		}
 
 		// It's our turn, we lock to learn the current state of our buffer tokens.
-		f.conn.mu.Lock()
 		if err != nil {
 			break
 		}
+
+		f.conn.mu.Lock()
 		opened := f.opened
 		tokens, deduct := f.tokensLocked()
 		if opened && (tokens == 0 || ((f.noEncrypt || f.noFragment) && (tokens < totalSize))) {
@@ -306,7 +309,8 @@ func (f *flw) writeMsg(alsoClose bool, parts ...[]byte) (sent int, err error) { 
 			if debug {
 				f.ctx.Infof("Deactivating write on flow %d(%p) due to lack of tokens", f.id, f)
 			}
-			f.conn.writers.deactivateWriterLocked(&f.writer, flowPriority)
+			f.conn.writers.deactivateWriter(&f.writer, flowPriority)
+			f.conn.mu.Unlock()
 			continue
 		}
 		parts, tosend, size = popFront(parts, tosend[:0], tokens)
@@ -348,14 +352,19 @@ func (f *flw) writeMsg(alsoClose bool, parts ...[]byte) (sent int, err error) { 
 			f.conn.unopenedFlows.Done()
 		}
 		f.opened = true
+		f.conn.mu.Unlock()
 	}
-	f.writing = false
+
 	if debug {
 		f.ctx.Infof("finishing write on %d(%p): %v", f.id, f, err)
 	}
-	f.conn.writers.deactivateWriterLocked(&f.writer, flowPriority)
-	f.conn.writers.notifyNextWriterLocked(&f.writer)
+
+	f.conn.mu.Lock()
+	f.writing = false
 	f.conn.mu.Unlock()
+
+	f.conn.writers.deactivateWriter(&f.writer, flowPriority)
+	f.conn.writers.notifyNextWriter(&f.writer)
 
 	if alsoClose || err != nil {
 		f.close(ctx, false, err)
@@ -508,7 +517,7 @@ func (f *flw) close(ctx *context.T, closedRemotely bool, err error) {
 			// send the flow close message as it will fail.  This is racy
 			// with the connection closing, but there are no ill-effects
 			// other than spamming the logs a little so it's OK.
-			serr = f.conn.sendMessageLocked(ctx, false, expressPriority, &message.Data{
+			serr = f.conn.sendMessage(ctx, false, expressPriority, &message.Data{
 				ID:    f.id,
 				Flags: message.CloseFlag,
 			})

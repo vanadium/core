@@ -74,9 +74,7 @@ func (c *Conn) dialHandshake(
 	if lAuth.BlessingsKey, _, err = c.blessingsFlow.send(ctx, c.localBlessings, nil, nil); err != nil {
 		return names, rejected, rtt, err
 	}
-	c.mu.Lock()
-	err = c.sendMessageLocked(ctx, true, expressPriority, lAuth)
-	c.mu.Unlock()
+	err = c.sendMessage(ctx, true, expressPriority, lAuth)
 	return names, rejected, rtt, err
 }
 
@@ -113,10 +111,8 @@ func (c *Conn) acceptHandshake(
 		return rtt, err
 	}
 
-	c.mu.Lock()
 	rttstart := time.Now()
-	err = c.sendMessageLocked(ctx, true, expressPriority, lAuth)
-	c.mu.Unlock()
+	err = c.sendMessage(ctx, true, expressPriority, lAuth)
 	if err != nil {
 		return rtt, err
 	}
@@ -143,10 +139,8 @@ func (c *Conn) setup(ctx *context.T, versions version.RPCVersionRange, dialer bo
 	}
 	ch := make(chan error, 1)
 	go func() {
-		c.mu.Lock()
 		rttstart = time.Now()
-		ch <- c.sendMessageLocked(ctx, true, expressPriority, lSetup)
-		c.mu.Unlock()
+		ch <- c.sendMessage(ctx, true, expressPriority, lSetup)
 	}()
 	msg, err := c.mp.readMsg(ctx, nil)
 	if err != nil {

@@ -138,9 +138,7 @@ func (c *Conn) handleEnterLameDuck(ctx *context.T, msg *message.EnterLameDuck) e
 		// We only want to send the lame duck acknowledgment after all outstanding
 		// OpenFlows are sent.
 		c.unopenedFlows.Wait()
-		c.mu.Lock()
-		err := c.sendMessageLocked(ctx, true, expressPriority, &message.AckLameDuck{})
-		c.mu.Unlock()
+		err := c.sendMessage(ctx, true, expressPriority, &message.AckLameDuck{})
 		if err != nil {
 			c.Close(ctx, ErrSend.Errorf(ctx, "failure sending release message to %v: %v", c.remote.String(), err))
 		}
@@ -182,9 +180,7 @@ func (c *Conn) handleHealthCheckResponse(ctx *context.T) error {
 }
 
 func (c *Conn) handleHealthCheckRequest(ctx *context.T) error {
-	c.mu.Lock()
-	defer c.mu.Unlock()
-	c.sendMessageLocked(ctx, true, expressPriority, &message.HealthCheckResponse{})
+	c.sendMessage(ctx, true, expressPriority, &message.HealthCheckResponse{})
 	return nil
 }
 
