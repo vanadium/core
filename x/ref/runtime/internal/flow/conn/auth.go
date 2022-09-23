@@ -175,9 +175,7 @@ func (c *Conn) setup(ctx *context.T, versions version.RPCVersionRange, dialer bo
 	if rSetup.PeerNaClPublicKey == nil {
 		return nil, naming.Endpoint{}, rttstart, ErrMissingSetupOption.Errorf(ctx, "conn.setup: missing required setup option: peerNaClPublicKey")
 	}
-	//c.lock()
 	binding, err := c.mp.enableEncryption(ctx, pk, sk, rSetup.PeerNaClPublicKey, c.version)
-	//c.unlock()
 	if err != nil {
 		return nil, naming.Endpoint{}, rttstart, err
 	}

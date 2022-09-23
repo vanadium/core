@@ -231,12 +231,3 @@ func (c *Conn) sendMessage(
 	c.writers.deactivateAndNotify(&c.writer, priority)
 	return err
 }
-
-func (c *Conn) sendMessageLocked(ctx *context.T,
-	cancelWithContext bool,
-	priority int,
-	m message.Message) (err error) {
-	c.lock()
-	defer c.unlock()
-	return c.sendMessage(ctx, cancelWithContext, priority, m)
-}

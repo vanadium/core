@@ -491,6 +491,9 @@ func (f *flw) close(ctx *context.T, closedRemotely bool, err error) {
 	closed := f.closed
 	f.closed = true
 	log := f.ctx.V(2)
+
+	// tidy up this mess of locks/unlocks
+
 	f.conn.unlock()
 	if !closed {
 		f.q.close(ctx)
@@ -506,14 +509,15 @@ func (f *flw) close(ctx *context.T, closedRemotely bool, err error) {
 		f.conn.lock()
 		connClosing := f.conn.status == Closing
 		var serr error
-		if !f.opened {
+		switch {
+		case !f.opened:
 			// Closing a flow that was never opened.
 			f.conn.unopenedFlows.Done()
 			// We mark the flow as opened to prevent multiple calls to
 			// f.conn.unopenedFlows.Done().
 			f.opened = true
 			f.conn.unlock()
-		} else if !closedRemotely && !connClosing {
+		case !closedRemotely && !connClosing:
 			f.conn.unlock()
 			// Note: If the conn is closing there is no point in trying to
 			// send the flow close message as it will fail.  This is racy
@@ -523,7 +527,7 @@ func (f *flw) close(ctx *context.T, closedRemotely bool, err error) {
 				ID:    f.id,
 				Flags: message.CloseFlag,
 			})
-		} else {
+		default:
 			f.conn.unlock()
 		}
 		f.conn.lock()
