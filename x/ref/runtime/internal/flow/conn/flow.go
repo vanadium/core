@@ -7,6 +7,7 @@ package conn
 import (
 	"io"
 	"net"
+	"sync"
 	"time"
 
 	"v.io/v23/context"
@@ -29,7 +30,8 @@ type flw struct {
 	channelTimeout                    time.Duration
 	sideChannel                       bool
 
-	writer // for use with writerq, does not need to be protected by conn.mu
+	writerMu sync.Mutex
+	writer   // for use with writerq, does not need to be protected by conn.mu
 
 	// NOTE: The remaining variables are actually protected by conn.mu.
 
@@ -84,7 +86,7 @@ func (c *Conn) newFlowLocked(
 	// It's important that this channel has a non-zero buffer.  Sometimes this
 	// flow will be notifying itself, so if there's no buffer a deadlock will
 	// occur.
-	f.writer.notify = make(chan struct{}, 1)
+	initWriter(&f.writer, 1)
 	f.q = newReadQ(f.release)
 	f.ctx, f.cancel = context.WithCancel(ctx)
 	if !f.opened {
@@ -277,6 +279,7 @@ func (f *flw) writeMsg(alsoClose bool, parts ...[]byte) (sent int, err error) { 
 	f.writing = true
 	f.conn.unlock()
 
+	f.writerMu.Lock()
 	f.conn.writers.activateWriter(&f.writer, flowPriority)
 	for err == nil && len(parts) > 0 {
 		f.conn.writers.notifyNextWriter(&f.writer)
@@ -355,6 +358,8 @@ func (f *flw) writeMsg(alsoClose bool, parts ...[]byte) (sent int, err error) { 
 		f.opened = true
 		f.conn.unlock()
 	}
+
+	f.writerMu.Unlock()
 
 	if debug {
 		f.ctx.Infof("finishing write on %d(%p): %v", f.id, f, err)

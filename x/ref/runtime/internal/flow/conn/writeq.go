@@ -6,11 +6,11 @@ package conn
 
 import (
 	"fmt"
+	"os"
+	"path/filepath"
+	"runtime"
 	"strings"
 	"sync"
-
-	"v.io/v23/context"
-	"v.io/v23/flow/message"
 )
 
 const (
@@ -30,12 +30,10 @@ const (
 //
 // Usage is as follows:
 //
-//	activateWriter(&writer, priority)
-//	notifyNextWriter(&writer)
+//	activateAndNotifyWriter(&writer, priority)
 //	<- writer.notify
 //	// access the message pipe
-//	deactivateWriter(&writer)
-//	notifyNextWriter(&writer)
+//	deactivateAndNotifyWriter(&writer)
 //
 // TODO(cnicolaou): explore using buffer hand off rather than the blocking
 // model.
@@ -71,9 +69,21 @@ type writer struct {
 	notify     chan struct{}
 }
 
+func initWriter(w *writer, chanSize int) {
+	_, file, line, _ := runtime.Caller(1)
+	file = filepath.Base(file)
+	fmt.Fprintf(os.Stderr, "initWriter: %p @ %v:%v\n", w, file, line)
+	w.prev, w.next = nil, nil
+	w.notify = make(chan struct{}, chanSize)
+}
+
 func (q *writeq) String() string {
 	q.mu.Lock()
 	defer q.mu.Unlock()
+	return q.stringLocked()
+}
+
+func (q *writeq) stringLocked() string {
 	out := strings.Builder{}
 	fmt.Fprintf(&out, "writeq(%p): active: %p\n", q, q.writing)
 	for p, h := range q.activeWriters {
@@ -145,7 +155,16 @@ func (q *writeq) notifyNextWriterLocked(w *writer) {
 		if head != nil {
 			q.activeWriters[p] = head.next
 			q.writing = head
-			head.notify <- struct{}{}
+			select {
+			case head.notify <- struct{}{}:
+				fmt.Fprintf(os.Stderr, "%p: notify: %v\n", w, head.notify)
+			default:
+				fmt.Fprintf(os.Stderr, "would block: %p: (%v: %v) %s\n", w, len(head.notify), cap(head.notify), q.stringLocked())
+				buf := make([]byte, 1<<16)
+				n := runtime.Stack(buf, true)
+				fmt.Fprintf(os.Stderr, "%s\n\n", buf[:n])
+				panic("would block")
+			}
 			return
 		}
 	}
@@ -157,7 +176,7 @@ func (q *writeq) activateAndNotify(w *writer, p int) {
 	q.mu.Lock()
 	defer q.mu.Unlock()
 	head := q.activeWriters[p]
-	if head != w && w.prev == nil && w.next == nil {
+	if head != w && w != nil && w.prev == nil && w.next == nil {
 		// w is not in any queue, so add it.
 		q.addWriterLocked(head, w, p)
 	}
@@ -201,33 +220,4 @@ func (q *writeq) deactivateAndNotify(w *writer, p int) {
 		q.rmWriter(w, p)
 	}
 	q.notifyNextWriterLocked(w)
-}
-
-// sendMessage sends a single message on the conn with the given priority.
-// It should never be called with the conn lock held since it may block.
-// if cancelWithContext is true, then this write attempt will fail when the context
-// is canceled.  Otherwise context cancellation will have no effect and this call
-// will block until the message is sent.
-func (c *Conn) sendMessage(
-	ctx *context.T,
-	cancelWithContext bool,
-	priority int,
-	m message.Message) (err error) {
-
-	c.writers.activateAndNotify(&c.writer, priority)
-	if cancelWithContext {
-		select {
-		case <-ctx.Done():
-			err = ctx.Err()
-		case <-c.writer.notify:
-		}
-	} else {
-		<-c.writer.notify
-	}
-	// send the actual message.
-	if err == nil {
-		err = c.mp.writeMsg(ctx, m)
-	}
-	c.writers.deactivateAndNotify(&c.writer, priority)
-	return err
 }

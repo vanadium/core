@@ -208,7 +208,7 @@ func NewDialed( //nolint:gocyclo
 	// It's important that this channel has a non-zero buffer.  Sometimes this
 	// flow will be notifying itself, so if there's no buffer a deadlock will
 	// occur.
-	c.writer.notify = make(chan struct{}, 1)
+	initWriter(&c.writer, 1)
 	done := make(chan struct{})
 	var rtt time.Duration
 	c.loopWG.Add(1)
@@ -332,7 +332,7 @@ func NewAccepted(
 		outstandingBorrowed:  make(map[uint64]uint64),
 		acceptChannelTimeout: channelTimeout,
 	}
-	c.writer.notify = make(chan struct{}, 1)
+	initWriter(&c.writer, 1)
 	done := make(chan struct{}, 1)
 	var rtt time.Duration
 	var err error
@@ -932,6 +932,35 @@ func (c *Conn) writeEncodedBlessings(ctx *context.T, w *writer, data []byte) err
 		ID:      blessingsFlowID,
 		Payload: [][]byte{data}})
 	c.writers.deactivateAndNotify(w, flowPriority)
+	return err
+}
+
+// sendMessage sends a single message on the conn with the given priority.
+// It should never be called with the conn lock held since it may block.
+// if cancelWithContext is true, then this write attempt will fail when the context
+// is canceled.  Otherwise context cancellation will have no effect and this call
+// will block until the message is sent.
+func (c *Conn) sendMessage(
+	ctx *context.T,
+	cancelWithContext bool,
+	priority int,
+	m message.Message) error {
+	c.writers.activateAndNotify(&c.writer, priority)
+	if cancelWithContext {
+		select {
+		case <-ctx.Done():
+			c.writers.deactivateAndNotify(&c.writer, priority)
+			return ctx.Err()
+		case <-c.writer.notify:
+			//fmt.Printf("%p: sendMessage cancel notified: %v\n", &c.writer, &c.writer.notify)
+		}
+	} else {
+		<-c.writer.notify
+		//fmt.Printf("%p: sendMessage notified: %v\n", &c.writer, &c.writer.notify)
+	}
+	// send the actual message.
+	err := c.mp.writeMsg(ctx, m)
+	c.writers.deactivateAndNotify(&c.writer, priority)
 	return err
 }
 
