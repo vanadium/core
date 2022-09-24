@@ -66,7 +66,17 @@ type writer struct {
 	// The invariant is therefore that head.next points to the next item
 	// to be sent and head.prev points to the last item to be sent.
 	prev, next *writer
-	notify     chan struct{}
+
+	mu     sync.Mutex
+	notify chan struct{}
+}
+
+func (w *writer) lock() {
+	w.mu.Lock()
+}
+
+func (w *writer) unlock() {
+	w.mu.Unlock()
 }
 
 func initWriter(w *writer, chanSize int) {

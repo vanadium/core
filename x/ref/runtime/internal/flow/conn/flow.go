@@ -7,7 +7,6 @@ package conn
 import (
 	"io"
 	"net"
-	"sync"
 	"time"
 
 	"v.io/v23/context"
@@ -30,8 +29,7 @@ type flw struct {
 	channelTimeout                    time.Duration
 	sideChannel                       bool
 
-	writerMu sync.Mutex
-	writer   // for use with writerq, does not need to be protected by conn.mu
+	writer // for use with writerq, does not need to be protected by conn.mu
 
 	// NOTE: The remaining variables are actually protected by conn.mu.
 
@@ -234,8 +232,10 @@ func (f *flw) releaseLocked(tokens uint64) {
 		if debug {
 			f.ctx.Infof("Activating writing flow %d(%p) now that we have tokens.", f.id, f)
 		}
+		f.writer.lock()
 		f.conn.writers.activateWriter(&f.writer, flowPriority)
 		f.conn.writers.notifyNextWriter(nil)
+		f.writer.unlock()
 	}
 }
 
@@ -279,8 +279,8 @@ func (f *flw) writeMsg(alsoClose bool, parts ...[]byte) (sent int, err error) { 
 	f.writing = true
 	f.conn.unlock()
 
-	f.writerMu.Lock()
 	f.conn.writers.activateWriter(&f.writer, flowPriority)
+	f.writer.lock()
 	for err == nil && len(parts) > 0 {
 		f.conn.writers.notifyNextWriter(&f.writer)
 
@@ -359,8 +359,6 @@ func (f *flw) writeMsg(alsoClose bool, parts ...[]byte) (sent int, err error) { 
 		f.conn.unlock()
 	}
 
-	f.writerMu.Unlock()
-
 	if debug {
 		f.ctx.Infof("finishing write on %d(%p): %v", f.id, f, err)
 	}
@@ -371,6 +369,8 @@ func (f *flw) writeMsg(alsoClose bool, parts ...[]byte) (sent int, err error) { 
 
 	f.conn.writers.deactivateWriter(&f.writer, flowPriority)
 	f.conn.writers.notifyNextWriter(&f.writer)
+
+	f.writer.unlock()
 
 	if alsoClose || err != nil {
 		f.close(ctx, false, err)

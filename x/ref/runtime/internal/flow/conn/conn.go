@@ -922,6 +922,8 @@ LastUsed:    %v
 }
 
 func (c *Conn) writeEncodedBlessings(ctx *context.T, w *writer, data []byte) error {
+	w.lock()
+	defer w.unlock()
 	c.writers.activateAndNotify(w, flowPriority)
 	select {
 	case <-ctx.Done():
@@ -945,6 +947,8 @@ func (c *Conn) sendMessage(
 	cancelWithContext bool,
 	priority int,
 	m message.Message) error {
+	c.writer.lock()
+	defer c.writer.unlock()
 	c.writers.activateAndNotify(&c.writer, priority)
 	if cancelWithContext {
 		select {
