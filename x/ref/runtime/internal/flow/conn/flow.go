@@ -30,10 +30,7 @@ type flw struct {
 	channelTimeout                    time.Duration
 	sideChannel                       bool
 
-	// NOTE that lock in connFlowControl must be used to guard updates to
-	// flowControl also.
-	connFlowControl *flowControlConnStats
-	flowControl     flowControlFlowStats
+	flowControl flowControlFlowStats
 
 	// NOTE: The remaining variables are actually protected by conn.mu.
 
@@ -72,7 +69,6 @@ func (c *Conn) newFlowLocked(
 		remoteBlessings:  remoteBlessings,
 		remoteDischarges: remoteDischarges,
 		opened:           preopen,
-		connFlowControl:  &c.flowControl,
 		// It's important that this channel has a non-zero buffer.  Sometimes this
 		// flow will be notifying itself, so if there's no buffer a deadlock will
 		// occur.
@@ -82,6 +78,8 @@ func (c *Conn) newFlowLocked(
 		sideChannel:    sideChannel,
 	}
 	f.flowControl.borrowing = dialed
+	f.flowControl.flowControlConnStats = &c.flowControl
+
 	f.q = newReadQ(f.sendRelease)
 
 	f.next, f.prev = f, f
@@ -160,9 +158,9 @@ func (f *flw) Write(p []byte) (n int, err error) {
 // the number of shared counters for the conn if we are sending on a just
 // dialed flow.
 func (f *flw) tokens() (int, func(int)) {
-	f.connFlowControl.lock()
-	defer f.connFlowControl.unlock()
-	max := f.connFlowControl.mtu
+	f.flowControl.lock()
+	defer f.flowControl.unlock()
+	max := f.flowControl.mtu
 	// When	our flow is proxied (i.e. encapsulated), the proxy has added overhead
 	// when forwarding the message. This means we must reduce our mtu to ensure
 	// that dialer framing reaches the acceptor without being truncated by the
@@ -171,14 +169,14 @@ func (f *flw) tokens() (int, func(int)) {
 		max -= proxyOverhead
 	}
 	if f.flowControl.borrowing {
-		if f.connFlowControl.lshared < max {
-			max = f.connFlowControl.lshared
+		if f.flowControl.lshared < max {
+			max = f.flowControl.lshared
 		}
 		return int(max), func(used int) {
-			f.connFlowControl.lshared -= uint64(used)
+			f.flowControl.lshared -= uint64(used)
 			f.flowControl.borrowed += uint64(used)
 			if f.ctx.V(2) {
-				f.ctx.Infof("deducting %d borrowed tokens on flow %d(%p), total: %d left: %d", used, f.id, f, f.flowControl.borrowed, f.connFlowControl.lshared)
+				f.ctx.Infof("deducting %d borrowed tokens on flow %d(%p), total: %d left: %d", used, f.id, f, f.flowControl.borrowed, f.flowControl.lshared)
 			}
 		}
 	}
@@ -197,8 +195,8 @@ func (f *flw) tokens() (int, func(int)) {
 // writer.  This allows the writer to then write more data to the wire.
 func (f *flw) releaseCounters(tokens uint64) {
 	debug := f.ctx.V(2)
-	f.connFlowControl.lock()
-	defer f.connFlowControl.unlock()
+	f.flowControl.lock()
+	defer f.flowControl.unlock()
 	f.flowControl.borrowing = false
 	if f.flowControl.borrowed > 0 {
 		n := tokens
@@ -206,11 +204,11 @@ func (f *flw) releaseCounters(tokens uint64) {
 			n = f.flowControl.borrowed
 		}
 		if debug {
-			f.ctx.Infof("Returning %d/%d tokens borrowed by %d(%p) shared: %d", n, tokens, f.id, f, f.connFlowControl.lshared)
+			f.ctx.Infof("Returning %d/%d tokens borrowed by %d(%p) shared: %d", n, tokens, f.id, f, f.flowControl.lshared)
 		}
 		tokens -= n
 		f.flowControl.borrowed -= n
-		f.connFlowControl.lshared += n
+		f.flowControl.lshared += n
 	}
 	f.flowControl.released += tokens
 	if debug {
@@ -500,18 +498,18 @@ func (f *flw) close(ctx *context.T, closedRemotely bool, err error) {
 				Flags: message.CloseFlag,
 			})
 		}
-		f.connFlowControl.lock()
+		f.flowControl.lock()
 		if closedRemotely {
 			// When the other side closes a flow, it implicitly releases all the
 			// counters used by that flow.  That means we should release the shared
 			// counter to be used on other new flows.
-			f.connFlowControl.lshared += f.flowControl.borrowed
+			f.flowControl.lshared += f.flowControl.borrowed
 			f.flowControl.borrowed = 0
 		} else if f.flowControl.borrowed > 0 && f.conn.status < Closing {
-			f.connFlowControl.outstandingBorrowed[f.id] = f.flowControl.borrowed
+			f.flowControl.outstandingBorrowed[f.id] = f.flowControl.borrowed
 		}
-		f.connFlowControl.clearCountersLocked(f.id)
-		f.connFlowControl.unlock()
+		f.flowControl.clearCountersLocked(f.id)
+		f.flowControl.unlock()
 		delete(f.conn.flows, f.id)
 		f.conn.mu.Unlock()
 		if serr != nil {

@@ -6,6 +6,18 @@ package conn
 
 import "sync"
 
+// flowControlConnStats represents the flow control counters for all flows
+// supported by the Conn hosting it. The MTU and lshared are only known
+// after the initial connection 'setup' handshake is complete and must
+// be specified via the 'configure' method. In addition to these shared
+// counters, each flow maintains an instance of flowControlFlowStats which
+// contains the per-flow counters and supports the token calculations
+// required for that flow. Thus, the flow control state consists of
+// a single instance of flowControlConnStats, shared by all flows hosted
+// on that connection, and for each flow, an instance of flowControlFlowStats.
+// The locking strategy is simply to use the mutex in flowControlConnStats
+// to guard access to it and to all of the flowControlFlowStats instances
+// in each flow.
 type flowControlConnStats struct {
 	mu sync.Mutex
 
@@ -40,6 +52,23 @@ type flowControlConnStats struct {
 	// used these counters and return them to the shared pool when we get
 	// a close or release.
 	outstandingBorrowed map[uint64]uint64
+}
+
+// flowControlFlowStats represents per-flow flow control counters. Access to it
+// must be guarded by the mutex in connCounters.
+type flowControlFlowStats struct {
+	*flowControlConnStats
+
+	// released counts tokens already released by the remote end, that is, the number
+	// of tokens we are allowed to send.
+	released uint64
+	// borrowed indicates the number of tokens we have borrowed from the shared pool for
+	// sending on newly dialed flows.
+	borrowed uint64
+	// borrowing indicates whether this flow is using borrowed counters for a newly
+	// dialed flow.  This will be set to false after we first receive a
+	// release from the remote end.  This is always false for accepted flows.
+	borrowing bool
 }
 
 func (fs *flowControlConnStats) init() {
@@ -122,17 +151,4 @@ func (fs *flowControlConnStats) clearCountersLocked(fid uint64) {
 	// any/all short lived connections). A much better approach would be
 	// to use a 'special' flow ID (e.g use the invalidFlowID) to use
 	// for referring to all borrowed tokens for closed flows.
-}
-
-type flowControlFlowStats struct {
-	// released counts tokens already released by the remote end, that is, the number
-	// of tokens we are allowed to send.
-	released uint64
-	// borrowed indicates the number of tokens we have borrowed from the shared pool for
-	// sending on newly dialed flows.
-	borrowed uint64
-	// borrowing indicates whether this flow is using borrowed counters for a newly
-	// dialed flow.  This will be set to false after we first receive a
-	// release from the remote end.  This is always false for accepted flows.
-	borrowing bool
 }
