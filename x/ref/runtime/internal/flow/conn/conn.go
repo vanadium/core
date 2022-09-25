@@ -118,33 +118,7 @@ type Conn struct {
 	hcstate                           *healthCheckState
 	acceptChannelTimeout              time.Duration
 
-	// TODO(mattr): Integrate these maps back into the flows themselves as
-	// has been done with the sending counts.
-	// toRelease is a map from flowID to a number of tokens which are pending
-	// to be released.  We only send release messages when some flow has
-	// used up at least half it's buffer, and then we send the counters for
-	// every flow.  This reduces the number of release messages that are sent.
-	toRelease map[uint64]uint64
-	// borrowing is a map from flowID to a boolean indicating whether the remote
-	// dialer of the flow is using shared counters for his sends because we've not
-	// yet sent a release for this flow.
-	borrowing map[uint64]bool
-
-	// In our protocol new flows are opened by the dialer by immediately
-	// starting to write data for that flow (in an OpenFlow message).
-	// Since the other side doesn't yet know of the existence of this new
-	// flow, it couldn't have allocated us any counters via a Release message.
-	// In order to deal with this the conn maintains a pool of shared tokens
-	// which are used by dialers of new flows.
-	// lshared is the number of shared tokens available for new flows dialed
-	// locally.
-	lshared uint64
-	// outstandingBorrowed is a map from flowID to a number of borrowed tokens.
-	// This map is populated when a flow closes locally before it receives a remote close
-	// or a release message.  In this case we need to remember that we have already
-	// used these counters and return them to the shared pool when we get
-	// a close or release.
-	outstandingBorrowed map[uint64]uint64
+	flowControl flowControlConnStats
 
 	// activeWriters keeps track of all the flows that are currently
 	// trying to write, indexed by priority.  activeWriters[0] is a list
@@ -212,13 +186,11 @@ func NewDialed( //nolint:gocyclo
 		nextFid:              reservedFlows,
 		flows:                map[uint64]*flw{},
 		lastUsedTime:         time.Now(),
-		toRelease:            map[uint64]uint64{},
-		borrowing:            map[uint64]bool{},
 		cancel:               cancel,
-		outstandingBorrowed:  make(map[uint64]uint64),
 		activeWriters:        make([]writer, numPriorities),
 		acceptChannelTimeout: channelTimeout,
 	}
+	c.flowControl.init()
 	done := make(chan struct{})
 	var rtt time.Duration
 	c.loopWG.Add(1)
@@ -336,13 +308,11 @@ func NewAccepted(
 		nextFid:              reservedFlows + 1,
 		flows:                map[uint64]*flw{},
 		lastUsedTime:         time.Now(),
-		toRelease:            map[uint64]uint64{},
-		borrowing:            map[uint64]bool{},
 		cancel:               cancel,
-		outstandingBorrowed:  make(map[uint64]uint64),
 		activeWriters:        make([]writer, numPriorities),
 		acceptChannelTimeout: channelTimeout,
 	}
+	c.flowControl.init()
 	done := make(chan struct{}, 1)
 	var rtt time.Duration
 	var err error
@@ -823,27 +793,15 @@ func (c *Conn) fragmentReleaseMessage(ctx *context.T, toRelease map[uint64]uint6
 	return nil
 }
 
-func (c *Conn) release(ctx *context.T, fid, count uint64) {
-	var toRelease map[uint64]uint64
-	var release bool
+func (c *Conn) sendRelease(ctx *context.T, fid, count uint64) {
 	c.mu.Lock()
 	if _, ok := c.flows[fid]; ok {
 		// Handle the case where the flow is already closed but a message
 		// is received for it, hence only bump the toRelease value for
 		// that flow if it is still active.
-		c.toRelease[fid] += count
+		c.flowControl.incrementToRelease(fid, count)
 	}
-	if c.borrowing[fid] {
-		c.toRelease[invalidFlowID] += count
-		release = c.toRelease[invalidFlowID] > DefaultBytesBufferedPerFlow/2
-	} else {
-		release = c.toRelease[fid] > DefaultBytesBufferedPerFlow/2
-	}
-	if release {
-		toRelease = c.toRelease
-		c.toRelease = make(map[uint64]uint64, len(c.toRelease))
-		c.borrowing = make(map[uint64]bool, len(c.borrowing))
-	}
+	toRelease := c.flowControl.createReleaseMessageContents(fid, count)
 	var err error
 	if toRelease != nil {
 		delete(toRelease, invalidFlowID)
@@ -852,22 +810,6 @@ func (c *Conn) release(ctx *context.T, fid, count uint64) {
 	c.mu.Unlock()
 	if err != nil {
 		c.Close(ctx, ErrSend.Errorf(ctx, "failure sending release message to %v: %v", c.remote.String(), err))
-	}
-}
-
-func (c *Conn) releaseOutstandingBorrowedLocked(fid, val uint64) {
-	borrowed := c.outstandingBorrowed[fid]
-	released := val
-	if borrowed == 0 {
-		return
-	} else if borrowed < released {
-		released = borrowed
-	}
-	c.lshared += released
-	if released == borrowed {
-		delete(c.outstandingBorrowed, fid)
-	} else {
-		c.outstandingBorrowed[fid] = borrowed - released
 	}
 }
 
