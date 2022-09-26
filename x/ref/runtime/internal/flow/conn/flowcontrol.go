@@ -55,7 +55,7 @@ type flowControlConnStats struct {
 }
 
 // flowControlFlowStats represents per-flow flow control counters. Access to it
-// must be guarded by the mutex in connCounters.
+// must be guarded by the mutex in flowControlConnStats.
 type flowControlFlowStats struct {
 	*flowControlConnStats
 
@@ -78,6 +78,8 @@ func (fs *flowControlConnStats) init() {
 	fs.outstandingBorrowed = make(map[uint64]uint64)
 }
 
+// configure must be called after the connection setup handshake is complete
+// and the mtu and shared tokens are known.
 func (fs *flowControlConnStats) configure(mtu, shared uint64) {
 	fs.mtu, fs.lshared = mtu, shared
 }
@@ -90,6 +92,7 @@ func (fs *flowControlConnStats) unlock() {
 	fs.mu.Unlock()
 }
 
+// newCounters creates a new entry for the specific flow id.
 func (fs *flowControlConnStats) newCounters(fid uint64) {
 	fs.mu.Lock()
 	defer fs.mu.Unlock()
@@ -97,12 +100,15 @@ func (fs *flowControlConnStats) newCounters(fid uint64) {
 	fs.borrowing[fid] = true
 }
 
+// incrementToRelease increments the 'toRelease' count for the specified flow id.
 func (fs *flowControlConnStats) incrementToRelease(fid, count uint64) {
 	fs.mu.Lock()
 	defer fs.mu.Unlock()
 	fs.toRelease[fid] += count
 }
 
+// createReleaseMessageContents creates the data to be sent in a release
+// message to this connection's peer.
 func (fs *flowControlConnStats) createReleaseMessageContents(fid, count uint64) map[uint64]uint64 {
 	var release bool
 	fs.mu.Lock()
@@ -122,6 +128,10 @@ func (fs *flowControlConnStats) createReleaseMessageContents(fid, count uint64) 
 	return toRelease
 }
 
+// releaseOutstandingBorrowed is called for a flow that is no longer in
+// use locally (eg. closed) but which is included in a release message received
+// from the peer. This is required to ensure that borrowed tokens are returned
+// to the shared pool.
 func (fs *flowControlConnStats) releaseOutstandingBorrowed(fid, val uint64) {
 	fs.lock()
 	defer fs.unlock()
