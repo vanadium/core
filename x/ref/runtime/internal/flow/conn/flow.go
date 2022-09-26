@@ -75,13 +75,11 @@ func (c *Conn) newFlowLocked(
 	// flow will be notifying itself, so if there's no buffer a deadlock will
 	// occur.
 	initWriter(&f.writer, 1)
+
 	f.q = newReadQ(f.sendRelease)
 	f.flowControl.borrowing = dialed
 	f.flowControl.flowControlConnStats = &c.flowControl
 
-	f.q = newReadQ(f.sendRelease)
-
-	f.next, f.prev = f, f
 	f.ctx, f.cancel = context.WithCancel(ctx)
 	if !f.opened {
 		c.unopenedFlows.Add(1)
@@ -534,7 +532,6 @@ func (f *flw) close(ctx *context.T, closedRemotely bool, err error) {
 		f.flowControl.clearCountersLocked(f.id)
 		f.flowControl.unlock()
 		delete(f.conn.flows, f.id)
-		f.conn.clearFlowCountersLocked(f.id)
 		f.conn.unlock()
 		if serr != nil {
 			ctx.VI(2).Infof("Could not send close flow message: %v", err)

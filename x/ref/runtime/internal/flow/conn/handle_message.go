@@ -108,7 +108,7 @@ func (c *Conn) handleOpenFlow(ctx *context.T, msg *message.OpenFlow) error {
 		sideChannel)
 	f.releaseCounters(msg.InitialCounters)
 	c.flowControl.newCounters(msg.ID)
-	c.mu.unlock()
+	c.unlock()
 
 	c.handler.HandleFlow(f) //nolint:errcheck
 

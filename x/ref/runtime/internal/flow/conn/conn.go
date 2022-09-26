@@ -174,20 +174,13 @@ func NewDialed( //nolint:gocyclo
 		flows:                map[uint64]*flw{},
 		lastUsedTime:         time.Now(),
 		cancel:               cancel,
-<<<<<<< HEAD
-		outstandingBorrowed:  make(map[uint64]uint64),
 		acceptChannelTimeout: channelTimeout,
 	}
 	// It's important that this channel has a non-zero buffer.  Sometimes this
 	// flow will be notifying itself, so if there's no buffer a deadlock will
 	// occur.
 	initWriter(&c.writer, 1)
-=======
-		activeWriters:        make([]writer, numPriorities),
-		acceptChannelTimeout: channelTimeout,
-	}
 	c.flowControl.init()
->>>>>>> main
 	done := make(chan struct{})
 	var rtt time.Duration
 	c.loopWG.Add(1)
@@ -306,7 +299,6 @@ func NewAccepted(
 		flows:                map[uint64]*flw{},
 		lastUsedTime:         time.Now(),
 		cancel:               cancel,
-		outstandingBorrowed:  make(map[uint64]uint64),
 		acceptChannelTimeout: channelTimeout,
 	}
 	initWriter(&c.writer, 1)
@@ -788,7 +780,7 @@ func (c *Conn) fragmentReleaseMessage(ctx *context.T, toRelease map[uint64]uint6
 }
 
 func (c *Conn) sendRelease(ctx *context.T, fid, count uint64) {
-	c.ock()
+	c.lock()
 	if _, ok := c.flows[fid]; ok {
 		// Handle the case where the flow is already closed but a message
 		// is received for it, hence only bump the toRelease value for
