@@ -474,15 +474,15 @@ var childPing = gosh.RegisterFunc("childPing", func(name string) error {
 // since its possible, that with a short timeout, the context will get canceled
 // before the call is even fully initialized and hence before a timeout can
 // even occur,
-func timeoutTest(t *testing.T, runner func(time.Duration) error, delays ...time.Duration) {
+func timeoutTest(t *testing.T, ctx *context.T, runner func(*context.T, time.Duration) error, timeouts ...time.Duration) {
 	var errors []error
-	for _, delay := range delays {
+	for _, timeout := range timeouts {
 		start := time.Now()
-		err := runner(delay)
+		err := runner(ctx, timeout)
 		if err == nil {
 			continue
 		}
-		errors = append(errors, fmt.Errorf("timeout %s: runtime %s: %v", delay, time.Since(start), err))
+		errors = append(errors, fmt.Errorf("timeout %s: runtime %s: %v", timeout, time.Since(start), err))
 	}
 	for _, err := range errors {
 		t.Error(err)
@@ -494,7 +494,7 @@ func TestTimeoutResponse(t *testing.T) {
 	defer cleanup()
 	ctx.Infof("TestTimeoutResponse")
 
-	runner := func(delay time.Duration) error {
+	runner := func(ctx *context.T, timeout time.Duration) error {
 		// Establish a connection before attempting to set a short timeout
 		// for the response - ie. the call below to Sleep will use the cached
 		// connection rather than having the overhead of establishing a new one.
@@ -502,18 +502,18 @@ func TestTimeoutResponse(t *testing.T) {
 		if err := v23.GetClient(ctx).Call(ctx, name, "Echo", []interface{}{"dummy"}, []interface{}{&out}); err != nil {
 			return err
 		}
-		ctx, cancel := context.WithTimeout(ctx, delay)
+		ctx, cancel := context.WithTimeout(ctx, timeout)
 		defer cancel()
 		ctx, span := vtrace.WithNewTrace(ctx, "TestTimeoutResponse", nil)
 		vtrace.ForceCollect(ctx, 0)
 		err := v23.GetClient(ctx).Call(ctx, name, "Sleep", nil, nil)
 		if got, want := verror.ErrorID(err), verror.ErrTimeout.ID; got != want {
 			record := vtrace.GetStore(ctx).TraceRecord(span.Trace())
-			return fmt.Errorf("timeout: %v, got %v, want %v: debugString %v\n%v", delay, verror.ErrorID(err), want, verror.DebugString(err), record)
+			return fmt.Errorf("timeout: %v, got %v, want %v: debugString %v\n%v", timeout, verror.ErrorID(err), want, verror.DebugString(err), record)
 		}
 		return nil
 	}
-	timeoutTest(t, runner, time.Millisecond, 100*time.Millisecond, time.Second)
+	timeoutTest(t, ctx, runner, time.Millisecond, 100*time.Millisecond, time.Second)
 }
 
 func TestArgsAndResponses(t *testing.T) {
@@ -646,17 +646,19 @@ func TestStreamTimeout(t *testing.T) {
 	_, ctx, name, cleanup := testInit(t, true)
 	defer cleanup()
 
-	runner := func(delay time.Duration) error {
+	runner := func(ctx *context.T, timeout time.Duration) error {
 		// Establish a connection before attempting to set a short timeout
 		// for the response - ie. the call below to Sleep will use the cached
 		// connection rather than having the overhead of establishing a new one.
 		var out string
 		if err := v23.GetClient(ctx).Call(ctx, name, "Echo", []interface{}{"dummy"}, []interface{}{&out}); err != nil {
+			fmt.Printf("ERRR... %v\n", err)
 			return err
 		}
+
 		want := 10
 		var cancel context.CancelFunc
-		ctx, cancel = context.WithTimeout(ctx, delay)
+		ctx, cancel = context.WithTimeout(ctx, timeout)
 		defer cancel()
 		ctx, span := vtrace.WithNewTrace(ctx, "TestTimeoutResponse", nil)
 		vtrace.ForceCollect(ctx, 0)
@@ -664,8 +666,8 @@ func TestStreamTimeout(t *testing.T) {
 		if err != nil {
 			if !errors.Is(err, verror.ErrTimeout) {
 				record := vtrace.GetStore(ctx).TraceRecord(span.Trace())
-				return fmt.Errorf("verror should be a timeout not %s: stack %s, vtrace: %v",
-					err, verror.Stack(err), record)
+				return fmt.Errorf("timeout: %s: verror should be a timeout not %s: stack %s, vtrace: %v",
+					timeout, err, verror.Stack(err), record)
 			}
 			return nil
 		}
@@ -682,19 +684,19 @@ func TestStreamTimeout(t *testing.T) {
 			}
 			if got, want := verror.ErrorID(err), verror.ErrTimeout.ID; got != want {
 				record := vtrace.GetStore(ctx).TraceRecord(span.Trace())
-				return fmt.Errorf("got %v, want %v\n%v", got, want, record)
+				return fmt.Errorf("timeout %s: got %v, want %v\n%v", timeout, got, want, record)
 			}
 			break
 		}
 		err = call.Finish()
 		if got, want := verror.ErrorID(err), verror.ErrTimeout.ID; got != want {
 			record := vtrace.GetStore(ctx).TraceRecord(span.Trace())
-			return fmt.Errorf("got %v, want %v:\n%v", got, want, record)
+			return fmt.Errorf("timeout: %s, got %v, want %v:\n%v", timeout, got, want, record)
 		}
 		return nil
 	}
 
-	timeoutTest(t, runner, 300*time.Millisecond, time.Second)
+	timeoutTest(t, ctx, runner, 3*time.Millisecond, time.Second)
 
 }
 
