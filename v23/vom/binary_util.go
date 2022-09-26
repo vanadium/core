@@ -19,7 +19,7 @@ import (
 var errInvalid = errors.New("vom: invalid encoding")
 
 func errEndedBeforeVersionByte(err error) error {
-	return fmt.Errorf("ended before version byte received: %v", err)
+	return fmt.Errorf("ended before version byte received: %w", err)
 }
 
 func errBadVersionByte(v Version) error {

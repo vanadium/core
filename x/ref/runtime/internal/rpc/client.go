@@ -1069,6 +1069,9 @@ func decodingResponseError(ctx *context.T, err error, detail string) error {
 // as its retrun value. This allows for the stack trace of the original
 // error to be chained to that of any verror created with it as a first parameter.
 func decodeNetError(ctx *context.T, err error) (verror.IDAction, error) {
+	if errors.Unwrap(err) == context.DeadlineExceeded {
+		return verror.ErrTimeout, err
+	}
 	if neterr, ok := err.(net.Error); ok {
 		if neterr.Timeout() {
 			// If a read is canceled in the lower levels we see
