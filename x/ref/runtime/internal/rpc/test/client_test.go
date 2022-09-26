@@ -495,6 +495,13 @@ func TestTimeoutResponse(t *testing.T) {
 	ctx.Infof("TestTimeoutResponse")
 
 	runner := func(delay time.Duration) error {
+		// Establish a connection before attempting to set a short timeout
+		// for the response - ie. the call below to Sleep will use the cached
+		// connection rather than having the overhead of establishing a new one.
+		var out string
+		if err := v23.GetClient(ctx).Call(ctx, name, "Echo", []interface{}{"dummy"}, []interface{}{&out}); err != nil {
+			return err
+		}
 		ctx, cancel := context.WithTimeout(ctx, delay)
 		defer cancel()
 		ctx, span := vtrace.WithNewTrace(ctx, "TestTimeoutResponse", nil)
@@ -502,7 +509,7 @@ func TestTimeoutResponse(t *testing.T) {
 		err := v23.GetClient(ctx).Call(ctx, name, "Sleep", nil, nil)
 		if got, want := verror.ErrorID(err), verror.ErrTimeout.ID; got != want {
 			record := vtrace.GetStore(ctx).TraceRecord(span.Trace())
-			return fmt.Errorf("got %v, want %v: debugString %v\n%v", verror.ErrorID(err), want, verror.DebugString(err), record)
+			return fmt.Errorf("timeout: %v, got %v, want %v: debugString %v\n%v", delay, verror.ErrorID(err), want, verror.DebugString(err), record)
 		}
 		return nil
 	}
@@ -640,6 +647,13 @@ func TestStreamTimeout(t *testing.T) {
 	defer cleanup()
 
 	runner := func(delay time.Duration) error {
+		// Establish a connection before attempting to set a short timeout
+		// for the response - ie. the call below to Sleep will use the cached
+		// connection rather than having the overhead of establishing a new one.
+		var out string
+		if err := v23.GetClient(ctx).Call(ctx, name, "Echo", []interface{}{"dummy"}, []interface{}{&out}); err != nil {
+			return err
+		}
 		want := 10
 		var cancel context.CancelFunc
 		ctx, cancel = context.WithTimeout(ctx, delay)
