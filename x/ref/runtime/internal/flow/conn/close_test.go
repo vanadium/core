@@ -341,10 +341,10 @@ func testCounters(t *testing.T, ctx *context.T, count int, dialClose, acceptClos
 	}
 
 	dc.mu.Lock()
-	dialRelease, dialBorrowed = len(dc.toRelease), len(dc.borrowing)
+	dialRelease, dialBorrowed = len(dc.flowControl.toRelease), len(dc.flowControl.borrowing)
 	dc.mu.Unlock()
 	ac.mu.Lock()
-	acceptRelease, acceptBorrowed = len(ac.toRelease), len(ac.borrowing)
+	acceptRelease, acceptBorrowed = len(ac.flowControl.toRelease), len(ac.flowControl.borrowing)
 	ac.mu.Unlock()
 	ac.Close(ctx, nil)
 	dc.Close(ctx, nil)

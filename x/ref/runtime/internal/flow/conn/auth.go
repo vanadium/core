@@ -172,10 +172,12 @@ func (c *Conn) setup(ctx *context.T, versions version.RPCVersionRange, dialer bo
 	} else {
 		c.mtu = defaultMtu
 	}
-	c.lshared = lSetup.SharedTokens
-	if rSetup.SharedTokens != 0 && rSetup.SharedTokens < c.lshared {
-		c.lshared = rSetup.SharedTokens
+	lshared := lSetup.SharedTokens
+	if rSetup.SharedTokens != 0 && rSetup.SharedTokens < lshared {
+		lshared = rSetup.SharedTokens
 	}
+	c.flowControl.configure(c.mtu, lshared)
+
 	if rSetup.PeerNaClPublicKey == nil {
 		return nil, naming.Endpoint{}, rttstart, ErrMissingSetupOption.Errorf(ctx, "conn.setup: missing required setup option: peerNaClPublicKey")
 	}
