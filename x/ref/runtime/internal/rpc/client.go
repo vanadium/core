@@ -312,7 +312,7 @@ func (c *client) connectToName(ctx *context.T, name, method string, args []inter
 // connect to multiple servers (all that serve "name"), but will return a
 // serverStatus for at most one of them (the server running on the most
 // preferred protocol and network amongst all the servers that were successfully
-// connected to and authorized).
+// connected to and authorized).tryConnectToServer
 // If requireResolve is true on return, then we shouldn't bother retrying unless
 // you can re-resolve.
 //
@@ -781,9 +781,6 @@ func (fc *flowClient) Recv(itemptr interface{}) error {
 
 	// Decode the response header and handle errors and EOF.
 	if err := fc.dec.Decode(&fc.response); err != nil {
-		/*id, verr := decodeNetError(fc.ctx, err)
-		suberr := errResponseDecoding.Errorf(fc.ctx, "failed to decode response: %v", verr)
-		berr := id.Errorf(fc.ctx, "decode error: %v", suberr)*/
 		berr := decodingResponseError(fc.ctx, err, "streaming header")
 		return fc.close(berr)
 	}
@@ -798,9 +795,6 @@ func (fc *flowClient) Recv(itemptr interface{}) error {
 	}
 	// Decode the streaming result.
 	if err := fc.dec.Decode(itemptr); err != nil {
-		/*id, verr := decodeNetError(fc.ctx, err)
-		suberr := errResponseDecoding.Errorf(fc.ctx, "failed to decode response: %v", verr)
-		berr := id.Errorf(fc.ctx, "streaming decode error: %v", suberr)*/
 		berr := decodingResponseError(fc.ctx, err, "streaming item")
 		// TODO(cnicolaou): should we be caching this?
 		fc.response.Error = berr
