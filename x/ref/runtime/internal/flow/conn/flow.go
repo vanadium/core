@@ -29,7 +29,8 @@ type flw struct {
 	channelTimeout                    time.Duration
 	sideChannel                       bool
 
-	writer // for use with writerq, does not need to be protected by conn.mu
+	writer      // for use with writerq, does not need to be protected by conn.mu
+	flowControl flowControlFlowStats
 
 	// NOTE: The remaining variables are actually protected by conn.mu.
 
@@ -42,16 +43,6 @@ type flw struct {
 	opened bool
 	// writing is true if we're in the middle of a write to this flow.
 	writing bool
-	// released counts tokens already released by the remote end, that is, the number
-	// of tokens we are allowed to send.
-	released uint64
-	// borrowed indicates the number of tokens we have borrowed from the shared pool for
-	// sending on newly dialed flows.
-	borrowed uint64
-	// borrowing indicates whether this flow is using borrowed counters for a newly
-	// dialed flow.  This will be set to false after we first receive a
-	// release from the remote end.  This is always false for accepted flows.
-	borrowing bool
 
 	closed bool
 }
@@ -76,7 +67,6 @@ func (c *Conn) newFlowLocked(
 		remoteBlessings:  remoteBlessings,
 		remoteDischarges: remoteDischarges,
 		opened:           preopen,
-		borrowing:        dialed,
 		remote:           remote,
 		channelTimeout:   channelTimeout,
 		sideChannel:      sideChannel,
@@ -85,7 +75,13 @@ func (c *Conn) newFlowLocked(
 	// flow will be notifying itself, so if there's no buffer a deadlock will
 	// occur.
 	initWriter(&f.writer, 1)
-	f.q = newReadQ(f.release)
+	f.q = newReadQ(f.sendRelease)
+	f.flowControl.borrowing = dialed
+	f.flowControl.flowControlConnStats = &c.flowControl
+
+	f.q = newReadQ(f.sendRelease)
+
+	f.next, f.prev = f, f
 	f.ctx, f.cancel = context.WithCancel(ctx)
 	if !f.opened {
 		c.unopenedFlows.Add(1)
@@ -95,26 +91,8 @@ func (c *Conn) newFlowLocked(
 	return f
 }
 
-func (f *flw) release(ctx *context.T, n int) {
-	f.conn.release(ctx, f.id, uint64(n))
-}
-
-func (c *Conn) newFlowCountersLocked(id uint64) {
-	c.toRelease[id] = DefaultBytesBufferedPerFlow
-	c.borrowing[id] = true
-}
-
-func (c *Conn) clearFlowCountersLocked(id uint64) {
-	if !c.borrowing[id] {
-		delete(c.toRelease, id)
-		delete(c.borrowing, id)
-	}
-	// Need to keep borrowed counters around so that they can be sent
-	// to the dialer to allow for the shared counter to be incremented
-	// for all the past flows that borrowed counters (ie. pretty much
-	// any/all short lived connections). A much better approach would be
-	// to use a 'special' flow ID (e.g use the invalidFlowID) to use
-	// for referring to all borrowed tokens for closed flows.
+func (f *flw) sendRelease(ctx *context.T, n int) {
+	f.conn.sendRelease(ctx, f.id, uint64(n))
 }
 
 // disableEncrytion should not be called concurrently with Write* methods.
@@ -174,9 +152,10 @@ func (f *flw) Write(p []byte) (n int, err error) {
 // It is bounded by the channel mtu, the released counters, and possibly
 // the number of shared counters for the conn if we are sending on a just
 // dialed flow.
-func (f *flw) tokensLocked() (int, func(int)) {
-
-	max := f.conn.mtu
+func (f *flw) tokens() (int, func(int)) {
+	f.flowControl.lock()
+	defer f.flowControl.unlock()
+	max := f.flowControl.mtu
 	// When	our flow is proxied (i.e. encapsulated), the proxy has added overhead
 	// when forwarding the message. This means we must reduce our mtu to ensure
 	// that dialer framing reaches the acceptor without being truncated by the
@@ -184,49 +163,51 @@ func (f *flw) tokensLocked() (int, func(int)) {
 	if f.conn.IsEncapsulated() {
 		max -= proxyOverhead
 	}
-	if f.borrowing {
-		if f.conn.lshared < max {
-			max = f.conn.lshared
+	if f.flowControl.borrowing {
+		if f.flowControl.lshared < max {
+			max = f.flowControl.lshared
 		}
 		return int(max), func(used int) {
-			f.conn.lshared -= uint64(used)
-			f.borrowed += uint64(used)
+			f.flowControl.lshared -= uint64(used)
+			f.flowControl.borrowed += uint64(used)
 			if f.ctx.V(2) {
-				f.ctx.Infof("deducting %d borrowed tokens on flow %d(%p), total: %d left: %d", used, f.id, f, f.borrowed, f.conn.lshared)
+				f.ctx.Infof("deducting %d borrowed tokens on flow %d(%p), total: %d left: %d", used, f.id, f, f.flowControl.borrowed, f.flowControl.lshared)
 			}
 		}
 	}
-	if f.released < max {
-		max = f.released
+	if f.flowControl.released < max {
+		max = f.flowControl.released
 	}
 	return int(max), func(used int) {
-		f.released -= uint64(used)
+		f.flowControl.released -= uint64(used)
 		if f.ctx.V(2) {
-			f.ctx.Infof("flow %d(%p) deducting %d tokens, %d left", f.id, f, used, f.released)
+			f.ctx.Infof("flow %d(%p) deducting %d tokens, %d left", f.id, f, used, f.flowControl.released)
 		}
 	}
 }
 
-// releaseLocked releases some counters from a remote reader to the local
+// releaseCounters releases some counters from a remote reader to the local
 // writer.  This allows the writer to then write more data to the wire.
-func (f *flw) releaseLocked(tokens uint64) {
+func (f *flw) releaseCounters(tokens uint64) {
 	debug := f.ctx.V(2)
-	f.borrowing = false
-	if f.borrowed > 0 {
+	f.flowControl.lock()
+	defer f.flowControl.unlock()
+	f.flowControl.borrowing = false
+	if f.flowControl.borrowed > 0 {
 		n := tokens
-		if f.borrowed < tokens {
-			n = f.borrowed
+		if f.flowControl.borrowed < tokens {
+			n = f.flowControl.borrowed
 		}
 		if debug {
-			f.ctx.Infof("Returning %d/%d tokens borrowed by %d(%p) shared: %d", n, tokens, f.id, f, f.conn.lshared)
+			f.ctx.Infof("Returning %d/%d tokens borrowed by %d(%p) shared: %d", n, tokens, f.id, f, f.flowControl.lshared)
 		}
 		tokens -= n
-		f.borrowed -= n
-		f.conn.lshared += n
+		f.flowControl.borrowed -= n
+		f.flowControl.lshared += n
 	}
-	f.released += tokens
+	f.flowControl.released += tokens
 	if debug {
-		f.ctx.Infof("Tokens release to %d(%p): %d => %d", f.id, f, tokens, f.released)
+		f.ctx.Infof("Tokens release to %d(%p): %d => %d", f.id, f, tokens, f.flowControl.released)
 	}
 	if f.writing {
 		if debug {
@@ -300,7 +281,7 @@ func (f *flw) writeMsg(alsoClose bool, parts ...[]byte) (sent int, err error) { 
 		}
 
 		opened := f.opened
-		tokens, deduct := f.tokensLocked()
+		tokens, deduct := f.tokens()
 		if opened && (tokens == 0 || ((f.noEncrypt || f.noFragment) && (tokens < totalSize))) {
 			// Oops, we really don't have data to send, probably because we've exhausted
 			// the remote buffer.  deactivate ourselves but keep trying.
@@ -540,15 +521,18 @@ func (f *flw) close(ctx *context.T, closedRemotely bool, err error) {
 		}
 
 		f.conn.lock()
+		f.flowControl.lock()
 		if closedRemotely {
 			// When the other side closes a flow, it implicitly releases all the
 			// counters used by that flow.  That means we should release the shared
 			// counter to be used on other new flows.
-			f.conn.lshared += f.borrowed
-			f.borrowed = 0
-		} else if f.borrowed > 0 && f.conn.status < Closing {
-			f.conn.outstandingBorrowed[f.id] = f.borrowed
+			f.flowControl.lshared += f.flowControl.borrowed
+			f.flowControl.borrowed = 0
+		} else if f.flowControl.borrowed > 0 && f.conn.status < Closing {
+			f.flowControl.outstandingBorrowed[f.id] = f.flowControl.borrowed
 		}
+		f.flowControl.clearCountersLocked(f.id)
+		f.flowControl.unlock()
 		delete(f.conn.flows, f.id)
 		f.conn.clearFlowCountersLocked(f.id)
 		f.conn.unlock()

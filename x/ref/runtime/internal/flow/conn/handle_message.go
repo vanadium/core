@@ -61,7 +61,7 @@ func (c *Conn) handleData(ctx *context.T, msg *message.Data) error {
 	if f == nil {
 		// If the flow is closing then we assume the remote side releases
 		// all borrowed counters for that flow.
-		c.releaseOutstandingBorrowedLocked(msg.ID, math.MaxUint64)
+		c.flowControl.releaseOutstandingBorrowed(msg.ID, math.MaxUint64)
 		c.unlock()
 		return nil
 	}
@@ -106,9 +106,9 @@ func (c *Conn) handleOpenFlow(ctx *context.T, msg *message.OpenFlow) error {
 		true,
 		c.acceptChannelTimeout,
 		sideChannel)
-	f.releaseLocked(msg.InitialCounters)
-	c.newFlowCountersLocked(msg.ID)
-	c.unlock()
+	f.releaseCounters(msg.InitialCounters)
+	c.flowControl.newCounters(msg.ID)
+	c.mu.unlock()
 
 	c.handler.HandleFlow(f) //nolint:errcheck
 
@@ -189,9 +189,9 @@ func (c *Conn) handleRelease(ctx *context.T, msg *message.Release) error {
 	defer c.unlock()
 	for fid, val := range msg.Counters {
 		if f := c.flows[fid]; f != nil {
-			f.releaseLocked(val)
+			f.releaseCounters(val)
 		} else {
-			c.releaseOutstandingBorrowedLocked(fid, val)
+			c.flowControl.releaseOutstandingBorrowed(fid, val)
 		}
 	}
 	return nil
