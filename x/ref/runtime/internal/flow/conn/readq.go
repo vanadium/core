@@ -163,6 +163,9 @@ func (r *readq) waitLocked(ctx *context.T) (err error) {
 			}
 		case <-ctx.Done():
 			err = io.EOF
+			if ctx.Err() == context.DeadlineExceeded {
+				err = context.DeadlineExceeded
+			}
 		}
 		r.mu.Lock()
 	}

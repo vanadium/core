@@ -26,6 +26,7 @@ import (
 	"v.io/v23/security"
 	"v.io/v23/vdlroot/signature"
 	"v.io/v23/verror"
+	"v.io/v23/vtrace"
 	"v.io/x/lib/gosh"
 	"v.io/x/ref"
 	"v.io/x/ref/internal/logger"
@@ -468,17 +469,44 @@ var childPing = gosh.RegisterFunc("childPing", func(name string) error {
 	return nil
 })
 
+// timeoutTest will run the supplied runner for each of the specified
+// delays until it either succeeds or all attempts fail. This is required
+// since its possible, that with a short timeout, the context will get canceled
+// before the call is even fully initialized and hence before a timeout can
+// even occur,
+func timeoutTest(t *testing.T, runner func(time.Duration) error, delays ...time.Duration) {
+	var errors []error
+	for _, delay := range delays {
+		start := time.Now()
+		err := runner(delay)
+		if err == nil {
+			continue
+		}
+		errors = append(errors, fmt.Errorf("timeout %s: runtime %s: %v", delay, time.Since(start), err))
+	}
+	for _, err := range errors {
+		t.Error(err)
+	}
+}
+
 func TestTimeoutResponse(t *testing.T) {
 	_, ctx, name, cleanup := testInit(t, true)
 	defer cleanup()
 	ctx.Infof("TestTimeoutResponse")
 
-	ctx, cancel := context.WithTimeout(ctx, time.Millisecond)
-	err := v23.GetClient(ctx).Call(ctx, name, "Sleep", nil, nil)
-	if got, want := verror.ErrorID(err), verror.ErrTimeout.ID; got != want {
-		t.Fatalf("got %v, want %v", verror.DebugString(err), want)
+	runner := func(delay time.Duration) error {
+		ctx, cancel := context.WithTimeout(ctx, delay)
+		defer cancel()
+		ctx, span := vtrace.WithNewTrace(ctx, "TestTimeoutResponse", nil)
+		vtrace.ForceCollect(ctx, 0)
+		err := v23.GetClient(ctx).Call(ctx, name, "Sleep", nil, nil)
+		if got, want := verror.ErrorID(err), verror.ErrTimeout.ID; got != want {
+			record := vtrace.GetStore(ctx).TraceRecord(span.Trace())
+			return fmt.Errorf("got %v, want %v: debugString %v\n%v\n", verror.ErrorID(err), want, verror.DebugString(err), record)
+		}
+		return nil
 	}
-	cancel()
+	timeoutTest(t, runner, time.Millisecond, 100*time.Millisecond, time.Second)
 }
 
 func TestArgsAndResponses(t *testing.T) {
@@ -611,38 +639,49 @@ func TestStreamTimeout(t *testing.T) {
 	_, ctx, name, cleanup := testInit(t, true)
 	defer cleanup()
 
-	want := 10
-	var cancel context.CancelFunc
-	ctx, cancel = context.WithTimeout(ctx, 300*time.Millisecond)
-	defer cancel()
-	call, err := v23.GetClient(ctx).StartCall(ctx, name, "Source", []interface{}{want})
-	if err != nil {
-		if !errors.Is(err, verror.ErrTimeout) {
-			t.Fatalf("verror should be a timeout not %s: stack %s",
-				err, verror.Stack(err))
+	runner := func(delay time.Duration) error {
+		want := 10
+		var cancel context.CancelFunc
+		ctx, cancel = context.WithTimeout(ctx, delay)
+		defer cancel()
+		ctx, span := vtrace.WithNewTrace(ctx, "TestTimeoutResponse", nil)
+		vtrace.ForceCollect(ctx, 0)
+		call, err := v23.GetClient(ctx).StartCall(ctx, name, "Source", []interface{}{want})
+		if err != nil {
+			if !errors.Is(err, verror.ErrTimeout) {
+				record := vtrace.GetStore(ctx).TraceRecord(span.Trace())
+				return fmt.Errorf("verror should be a timeout not %s: stack %s, vtrace: %v",
+					err, verror.Stack(err), record)
+			}
+			return nil
 		}
-		return
+
+		for {
+			got := 0
+			err := call.Recv(&got)
+			if err == nil {
+				if got != want {
+					t.Fatalf("got %d, want %d", got, want)
+				}
+				want++
+				continue
+			}
+			if got, want := verror.ErrorID(err), verror.ErrTimeout.ID; got != want {
+				record := vtrace.GetStore(ctx).TraceRecord(span.Trace())
+				return fmt.Errorf("got %v, want %v\n%v\n", got, want, record)
+			}
+			break
+		}
+		err = call.Finish()
+		if got, want := verror.ErrorID(err), verror.ErrTimeout.ID; got != want {
+			record := vtrace.GetStore(ctx).TraceRecord(span.Trace())
+			return fmt.Errorf("got %v, want %v:\n%v\n", got, want, record)
+		}
+		return nil
 	}
 
-	for {
-		got := 0
-		err := call.Recv(&got)
-		if err == nil {
-			if got != want {
-				t.Fatalf("got %d, want %d", got, want)
-			}
-			want++
-			continue
-		}
-		if got, want := verror.ErrorID(err), verror.ErrTimeout.ID; got != want {
-			t.Fatalf("got %v, want %v", got, want)
-		}
-		break
-	}
-	err = call.Finish()
-	if got, want := verror.ErrorID(err), verror.ErrTimeout.ID; got != want {
-		t.Fatalf("got %v, want %v", got, want)
-	}
+	timeoutTest(t, runner, 300*time.Millisecond, time.Second)
+
 }
 
 func TestStreamAbort(t *testing.T) {
