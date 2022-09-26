@@ -502,7 +502,7 @@ func TestTimeoutResponse(t *testing.T) {
 		err := v23.GetClient(ctx).Call(ctx, name, "Sleep", nil, nil)
 		if got, want := verror.ErrorID(err), verror.ErrTimeout.ID; got != want {
 			record := vtrace.GetStore(ctx).TraceRecord(span.Trace())
-			return fmt.Errorf("got %v, want %v: debugString %v\n%v\n", verror.ErrorID(err), want, verror.DebugString(err), record)
+			return fmt.Errorf("got %v, want %v: debugString %v\n%v", verror.ErrorID(err), want, verror.DebugString(err), record)
 		}
 		return nil
 	}
@@ -668,14 +668,14 @@ func TestStreamTimeout(t *testing.T) {
 			}
 			if got, want := verror.ErrorID(err), verror.ErrTimeout.ID; got != want {
 				record := vtrace.GetStore(ctx).TraceRecord(span.Trace())
-				return fmt.Errorf("got %v, want %v\n%v\n", got, want, record)
+				return fmt.Errorf("got %v, want %v\n%v", got, want, record)
 			}
 			break
 		}
 		err = call.Finish()
 		if got, want := verror.ErrorID(err), verror.ErrTimeout.ID; got != want {
 			record := vtrace.GetStore(ctx).TraceRecord(span.Trace())
-			return fmt.Errorf("got %v, want %v:\n%v\n", got, want, record)
+			return fmt.Errorf("got %v, want %v:\n%v", got, want, record)
 		}
 		return nil
 	}

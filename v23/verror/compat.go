@@ -6,6 +6,7 @@ package verror
 
 import (
 	"errors"
+	"fmt"
 )
 
 // Error implements error.
@@ -72,6 +73,7 @@ func (se subErrChain) Unwrap() error {
 // verror.SubErrors followed by any error recorded with %w for Errorf or the
 // last argument to Message, New or ExplicitNew.
 func (e E) Unwrap() error {
+	fmt.Printf("unwrap...\n")
 	r := []error{}
 	for _, p := range e.ParamList {
 		switch se := p.(type) {
