@@ -94,6 +94,13 @@ type Conn struct {
 	handler       FlowHandler
 	mtu           uint64
 
+	// The following fields for managing flow control and the writeq
+	// are locked indepdently.
+	flowControl flowControlConnStats
+
+	writeq      writeq
+	writeqEntry writer
+
 	mux sync.Mutex // All the variables below here are protected by mu.
 
 	localBlessings, remoteBlessings   security.Blessings
@@ -108,12 +115,6 @@ type Conn struct {
 	flows                             map[uint64]*flw
 	hcstate                           *healthCheckState
 	acceptChannelTimeout              time.Duration
-
-	flowControl flowControlConnStats
-
-	writers writeq
-
-	writer // for use with writerq
 }
 
 // Ensure that *Conn implements flow.ManagedConn.
@@ -179,7 +180,7 @@ func NewDialed( //nolint:gocyclo
 	// It's important that this channel has a non-zero buffer.  Sometimes this
 	// flow will be notifying itself, so if there's no buffer a deadlock will
 	// occur.
-	initWriter(&c.writer, 1)
+	initWriter(&c.writeqEntry, 1)
 	c.flowControl.init()
 	done := make(chan struct{})
 	var rtt time.Duration
@@ -301,7 +302,7 @@ func NewAccepted(
 		cancel:               cancel,
 		acceptChannelTimeout: channelTimeout,
 	}
-	initWriter(&c.writer, 1)
+	initWriter(&c.writeqEntry, 1)
 	c.flowControl.init()
 	done := make(chan struct{}, 1)
 	var rtt time.Duration
@@ -742,6 +743,24 @@ func (c *Conn) internalCloseLocked(ctx *context.T, closedRemotely, closedWhileAc
 	}(c)
 }
 
+func (c *Conn) closing() bool {
+	c.lock()
+	defer c.unlock()
+	return c.status == Closing
+}
+
+func (c *Conn) notClosing() bool {
+	c.lock()
+	defer c.unlock()
+	return c.status < Closing
+}
+
+func (c *Conn) deleteFlow(fid uint64) {
+	c.lock()
+	defer c.unlock()
+	delete(c.flows, fid)
+}
+
 func (c *Conn) fragmentReleaseMessage(ctx *context.T, toRelease map[uint64]uint64, limit int) error {
 	if len(toRelease) < limit {
 		return c.sendMessage(ctx, false, expressPriority, &message.Release{
@@ -866,7 +885,7 @@ LastUsed:    %v
 func (c *Conn) writeEncodedBlessings(ctx *context.T, w *writer, data []byte) error {
 	w.lock()
 	defer w.unlock()
-	c.writers.activateAndNotify(w, flowPriority)
+	c.writeq.activateAndNotify(w, flowPriority)
 	select {
 	case <-ctx.Done():
 		return ctx.Err()
@@ -875,7 +894,7 @@ func (c *Conn) writeEncodedBlessings(ctx *context.T, w *writer, data []byte) err
 	err := c.mp.writeMsg(ctx, &message.Data{
 		ID:      blessingsFlowID,
 		Payload: [][]byte{data}})
-	c.writers.deactivateAndNotify(w, flowPriority)
+	c.writeq.deactivateAndNotify(w, flowPriority)
 	return err
 }
 
@@ -889,24 +908,26 @@ func (c *Conn) sendMessage(
 	cancelWithContext bool,
 	priority int,
 	m message.Message) error {
-	c.writer.lock()
-	defer c.writer.unlock()
-	c.writers.activateAndNotify(&c.writer, priority)
+	c.writeqEntry.lock()
+	defer c.writeqEntry.unlock()
+	c.writeq.activateAndNotify(&c.writeqEntry, priority)
 	if cancelWithContext {
 		select {
 		case <-ctx.Done():
-			c.writers.deactivateAndNotify(&c.writer, priority)
+			c.writeq.deactivateAndNotify(&c.writeqEntry, priority)
 			return ctx.Err()
-		case <-c.writer.notify:
-			//fmt.Printf("%p: sendMessage cancel notified: %v\n", &c.writer, &c.writer.notify)
+		case <-c.writeqEntry.notify:
+			//fmt.Printf("%p: sendMessage cancel notified: %v\n", &c.writeqEntry, &c.writeqEntry.notify)
 		}
 	} else {
-		<-c.writer.notify
-		//fmt.Printf("%p: sendMessage notified: %v\n", &c.writer, &c.writer.notify)
+		fmt.Printf("waiting our turn: %p .. %v\n", &c.writeqEntry, c.writeqEntry.notify)
+		<-c.writeqEntry.notify
+		fmt.Printf("got our turn: %p .. %v\n", &c.writeqEntry, c.writeqEntry.notify)
+		//fmt.Printf("%p: sendMessage notified: %v\n", &c.writeqEntry, &c.writeqEntry.notify)
 	}
 	// send the actual message.
 	err := c.mp.writeMsg(ctx, m)
-	c.writers.deactivateAndNotify(&c.writer, priority)
+	c.writeq.deactivateAndNotify(&c.writeqEntry, priority)
 	return err
 }
 

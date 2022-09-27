@@ -7,6 +7,7 @@ package conn
 import (
 	"io"
 	"net"
+	"sync"
 	"time"
 
 	"v.io/v23/context"
@@ -29,22 +30,33 @@ type flw struct {
 	channelTimeout                    time.Duration
 	sideChannel                       bool
 
-	writer      // for use with writerq, does not need to be protected by conn.mu
+	// The following fields for managing flow control and the writeq
+	// are locked indepdently.
 	flowControl flowControlFlowStats
 
-	// NOTE: The remaining variables are actually protected by conn.mu.
+	writeq      *writeq
+	writeqEntry writer
 
+	// my guards all of the following fields.
+	mu     sync.Mutex
 	ctx    *context.T
 	cancel context.CancelFunc
-
 	// opened indicates whether the flow has already been opened.  If false
 	// we need to send an open flow on the next write.  For accepted flows
 	// this will always be true.
 	opened bool
 	// writing is true if we're in the middle of a write to this flow.
 	writing bool
-
+	// closed is true as soon as f.close has been called.
 	closed bool
+}
+
+func (f *flw) lock() {
+	f.mu.Lock()
+}
+
+func (f *flw) unlock() {
+	f.mu.Unlock()
 }
 
 // Ensure that *flw implements flow.Flow.
@@ -70,15 +82,17 @@ func (c *Conn) newFlowLocked(
 		remote:           remote,
 		channelTimeout:   channelTimeout,
 		sideChannel:      sideChannel,
+		writeq:           &c.writeq,
 	}
 	// It's important that this channel has a non-zero buffer.  Sometimes this
 	// flow will be notifying itself, so if there's no buffer a deadlock will
 	// occur.
-	initWriter(&f.writer, 1)
+	initWriter(&f.writeqEntry, 1)
 
 	f.q = newReadQ(f.sendRelease)
 	f.flowControl.borrowing = dialed
 	f.flowControl.flowControlConnStats = &c.flowControl
+	f.flowControl.id = id
 
 	f.ctx, f.cancel = context.WithCancel(ctx)
 	if !f.opened {
@@ -146,44 +160,6 @@ func (f *flw) Write(p []byte) (n int, err error) {
 	return f.WriteMsg(p)
 }
 
-// tokensLocked returns the number of tokens this flow can send right now.
-// It is bounded by the channel mtu, the released counters, and possibly
-// the number of shared counters for the conn if we are sending on a just
-// dialed flow.
-func (f *flw) tokens() (int, func(int)) {
-	f.flowControl.lock()
-	defer f.flowControl.unlock()
-	max := f.flowControl.mtu
-	// When	our flow is proxied (i.e. encapsulated), the proxy has added overhead
-	// when forwarding the message. This means we must reduce our mtu to ensure
-	// that dialer framing reaches the acceptor without being truncated by the
-	// proxy.
-	if f.conn.IsEncapsulated() {
-		max -= proxyOverhead
-	}
-	if f.flowControl.borrowing {
-		if f.flowControl.lshared < max {
-			max = f.flowControl.lshared
-		}
-		return int(max), func(used int) {
-			f.flowControl.lshared -= uint64(used)
-			f.flowControl.borrowed += uint64(used)
-			if f.ctx.V(2) {
-				f.ctx.Infof("deducting %d borrowed tokens on flow %d(%p), total: %d left: %d", used, f.id, f, f.flowControl.borrowed, f.flowControl.lshared)
-			}
-		}
-	}
-	if f.flowControl.released < max {
-		max = f.flowControl.released
-	}
-	return int(max), func(used int) {
-		f.flowControl.released -= uint64(used)
-		if f.ctx.V(2) {
-			f.ctx.Infof("flow %d(%p) deducting %d tokens, %d left", f.id, f, used, f.flowControl.released)
-		}
-	}
-}
-
 // releaseCounters releases some counters from a remote reader to the local
 // writer.  This allows the writer to then write more data to the wire.
 func (f *flw) releaseCounters(tokens uint64) {
@@ -211,16 +187,16 @@ func (f *flw) releaseCounters(tokens uint64) {
 		if debug {
 			f.ctx.Infof("Activating writing flow %d(%p) now that we have tokens.", f.id, f)
 		}
-		f.writer.lock()
-		f.conn.writers.activateWriter(&f.writer, flowPriority)
-		f.conn.writers.notifyNextWriter(nil)
-		f.writer.unlock()
+		f.writeqEntry.lock()
+		f.writeq.activateWriter(&f.writeqEntry, flowPriority)
+		f.writeq.notifyNextWriter(nil)
+		f.writeqEntry.unlock()
 	}
 }
 
 func (f *flw) currentContext() *context.T {
-	f.conn.lock()
-	defer f.conn.unlock()
+	f.lock()
+	defer f.unlock()
 	return f.ctx
 }
 
@@ -228,7 +204,7 @@ func (f *flw) writeMsg(alsoClose bool, parts ...[]byte) (sent int, err error) { 
 	ctx := f.currentContext()
 	select {
 	// Catch cancellations early.  If we caught a cancel when waiting
-	// our turn below its possible that we were notified simultaneously.
+	// our turn below it's possible that we were notified simultaneously.
 	// Then the notify channel will be full and we would deadlock
 	// notifying ourselves.
 	case <-ctx.Done():
@@ -237,6 +213,7 @@ func (f *flw) writeMsg(alsoClose bool, parts ...[]byte) (sent int, err error) { 
 	default:
 	}
 
+	// TODO: don't send blessings more than once.
 	bkey, dkey, err := f.conn.blessingsFlow.send(ctx, f.localBlessings, f.localDischarges, nil)
 	if err != nil {
 		return 0, err
@@ -253,33 +230,29 @@ func (f *flw) writeMsg(alsoClose bool, parts ...[]byte) (sent int, err error) { 
 	}
 	size, sent, tosend := 0, 0, make([][]byte, len(parts))
 
-	f.conn.lock()
-	f.markUsedLocked()
+	f.lock()
+	f.markUsed()
 	f.writing = true
-	f.conn.unlock()
 
-	f.conn.writers.activateWriter(&f.writer, flowPriority)
-	f.writer.lock()
+	f.writeqEntry.lock()
+	f.writeq.activateWriter(&f.writeqEntry, flowPriority)
 	for err == nil && len(parts) > 0 {
-		f.conn.writers.notifyNextWriter(&f.writer)
+		f.writeq.notifyNextWriter(&f.writeqEntry)
 
 		// Wait for our turn.
-
 		select {
 		case <-ctx.Done():
 			err = io.EOF
-		case <-f.writer.notify:
+		case <-f.writeqEntry.notify:
 		}
 
-		f.conn.lock()
 		// It's our turn, we lock to learn the current state of our buffer tokens.
 		if err != nil {
-			f.conn.unlock()
 			break
 		}
 
 		opened := f.opened
-		tokens, deduct := f.tokens()
+		tokens, deduct := f.flowControl.tokens(ctx, f.conn.IsEncapsulated())
 		if opened && (tokens == 0 || ((f.noEncrypt || f.noFragment) && (tokens < totalSize))) {
 			// Oops, we really don't have data to send, probably because we've exhausted
 			// the remote buffer.  deactivate ourselves but keep trying.
@@ -292,13 +265,11 @@ func (f *flw) writeMsg(alsoClose bool, parts ...[]byte) (sent int, err error) { 
 			if debug {
 				f.ctx.Infof("Deactivating write on flow %d(%p) due to lack of tokens", f.id, f)
 			}
-			f.conn.writers.deactivateWriter(&f.writer, flowPriority)
-			f.conn.unlock()
+			f.writeq.deactivateWriter(&f.writeqEntry, flowPriority)
 			continue
 		}
 		parts, tosend, size = popFront(parts, tosend[:0], tokens)
 		deduct(size)
-		f.conn.unlock()
 
 		// Actually write to the wire.  This is also where encryption
 		// happens, so this part can be slow.
@@ -327,7 +298,6 @@ func (f *flw) writeMsg(alsoClose bool, parts ...[]byte) (sent int, err error) { 
 		// The top of the loop expects to be locked, so lock here and update
 		// opened.  Note that since we've definitely sent a message now opened is surely
 		// true.
-		f.conn.lock()
 		// We need to ensure that we only call Done() exactly once, so we need to
 		// recheck f.opened, to ensure that f.close didn't decrement the wait group
 		// while we were not holding the lock.
@@ -335,21 +305,19 @@ func (f *flw) writeMsg(alsoClose bool, parts ...[]byte) (sent int, err error) { 
 			f.conn.unopenedFlows.Done()
 		}
 		f.opened = true
-		f.conn.unlock()
 	}
+
+	f.writing = false
+	f.unlock()
+
+	f.writeq.deactivateWriter(&f.writeqEntry, flowPriority)
+	f.writeq.notifyNextWriter(&f.writeqEntry)
+
+	f.writeqEntry.unlock()
 
 	if debug {
 		f.ctx.Infof("finishing write on %d(%p): %v", f.id, f, err)
 	}
-
-	f.conn.lock()
-	f.writing = false
-	f.conn.unlock()
-
-	f.conn.writers.deactivateWriter(&f.writer, flowPriority)
-	f.conn.writers.notifyNextWriter(&f.writer)
-
-	f.writer.unlock()
 
 	if alsoClose || err != nil {
 		f.close(ctx, false, err)
@@ -386,8 +354,8 @@ func (f *flw) WriteMsgAndClose(parts ...[]byte) (int, error) {
 // TODO(mattr): update v23/flow documentation.
 // SetContext may not be called concurrently with other methods.
 func (f *flw) SetDeadlineContext(ctx *context.T, deadline time.Time) *context.T {
-	defer f.conn.unlock()
-	f.conn.lock()
+	f.lock()
+	defer f.unlock()
 
 	if f.closed {
 		// If the flow is already closed, don't allocate a new
@@ -471,30 +439,25 @@ func (f *flw) ID() uint64 {
 }
 
 func (f *flw) close(ctx *context.T, closedRemotely bool, err error) {
-
-	f.conn.lock()
-	cancel := f.cancel
-	closed := f.closed
-	f.closed = true
-	f.conn.unlock()
+	f.lock()
+	defer f.unlock()
 
 	log := f.ctx.V(2)
 
-	// tidy up this mess of locks/unlocks
-
-	if !closed {
+	if !f.closed {
+		f.closed = true
 		f.q.close(ctx)
 		if log {
 			ctx.Infof("closing %d(%p): %v", f.id, f, err)
 		}
-		cancel()
+		f.cancel()
 		// After cancel has been called no new writes will begin for this
 		// flow.  There may be a write in progress, but it must finish
 		// before another writer gets to use the channel.  Therefore we
 		// can simply use sendMessage to send the close flow
 		// message.
-		f.conn.lock()
-		connClosing := f.conn.status == Closing
+		connClosing := f.conn.closing()
+
 		var serr error
 		switch {
 		case !f.opened:
@@ -503,9 +466,7 @@ func (f *flw) close(ctx *context.T, closedRemotely bool, err error) {
 			// We mark the flow as opened to prevent multiple calls to
 			// f.conn.unopenedFlows.Done().
 			f.opened = true
-			f.conn.unlock()
 		case !closedRemotely && !connClosing:
-			f.conn.unlock()
 			// Note: If the conn is closing there is no point in trying to
 			// send the flow close message as it will fail.  This is racy
 			// with the connection closing, but there are no ill-effects
@@ -515,24 +476,9 @@ func (f *flw) close(ctx *context.T, closedRemotely bool, err error) {
 				Flags: message.CloseFlag,
 			})
 		default:
-			f.conn.unlock()
 		}
-
-		f.conn.lock()
-		f.flowControl.lock()
-		if closedRemotely {
-			// When the other side closes a flow, it implicitly releases all the
-			// counters used by that flow.  That means we should release the shared
-			// counter to be used on other new flows.
-			f.flowControl.lshared += f.flowControl.borrowed
-			f.flowControl.borrowed = 0
-		} else if f.flowControl.borrowed > 0 && f.conn.status < Closing {
-			f.flowControl.outstandingBorrowed[f.id] = f.flowControl.borrowed
-		}
-		f.flowControl.clearCountersLocked(f.id)
-		f.flowControl.unlock()
-		delete(f.conn.flows, f.id)
-		f.conn.unlock()
+		f.flowControl.handleFlowClose(closedRemotely, f.conn.notClosing())
+		f.conn.deleteFlow(f.id)
 		if serr != nil {
 			ctx.VI(2).Infof("Could not send close flow message: %v", err)
 		}
@@ -549,12 +495,6 @@ func (f *flw) Close() error {
 func (f *flw) markUsed() {
 	if !f.sideChannel && f.id >= reservedFlows {
 		f.conn.markUsed()
-	}
-}
-
-func (f *flw) markUsedLocked() {
-	if !f.sideChannel && f.id >= reservedFlows {
-		f.conn.markUsedLocked()
 	}
 }
 

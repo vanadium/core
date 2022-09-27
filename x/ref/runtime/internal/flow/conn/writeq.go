@@ -82,9 +82,9 @@ func (w *writer) unlock() {
 func initWriter(w *writer, chanSize int) {
 	_, file, line, _ := runtime.Caller(1)
 	file = filepath.Base(file)
-	fmt.Fprintf(os.Stderr, "initWriter: %p @ %v:%v\n", w, file, line)
 	w.prev, w.next = nil, nil
 	w.notify = make(chan struct{}, chanSize)
+	fmt.Fprintf(os.Stderr, "initWriter: %p ch: %v @ %v:%v\n", w, w.notify, file, line)
 }
 
 func (q *writeq) String() string {
@@ -167,7 +167,7 @@ func (q *writeq) notifyNextWriterLocked(w *writer) {
 			q.writing = head
 			select {
 			case head.notify <- struct{}{}:
-				fmt.Fprintf(os.Stderr, "%p: notify: %v\n", w, head.notify)
+				fmt.Fprintf(os.Stderr, "%p: notify: %p - %v\n", w, head, head.notify)
 			default:
 				fmt.Fprintf(os.Stderr, "would block: %p: (%v: %v) %s\n", w, len(head.notify), cap(head.notify), q.stringLocked())
 				buf := make([]byte, 1<<16)

@@ -23,12 +23,12 @@ import (
 func block(c *Conn, p int) chan struct{} {
 	w := writer{notify: make(chan struct{}, 1)}
 	ready, unblock := make(chan struct{}), make(chan struct{})
-	c.writers.activateAndNotify(&w, p)
+	c.writeq.activateAndNotify(&w, p)
 	go func() {
 		<-w.notify
 		close(ready)
 		<-unblock
-		c.writers.deactivateAndNotify(&w, p)
+		c.writeq.deactivateAndNotify(&w, p)
 	}()
 	<-ready
 	return unblock
@@ -46,9 +46,9 @@ func waitFor(f func() bool) {
 
 func waitForWriters(ctx *context.T, conn *Conn, num int) {
 	waitFor(func() bool {
-		conn.writers.mu.Lock()
+		conn.writeq.mu.Lock()
 		count := 0
-		for _, w := range conn.writers.activeWriters {
+		for _, w := range conn.writeq.activeWriters {
 			if w != nil {
 				count++
 				for n := w.next; n != w; n = n.next {
@@ -56,7 +56,7 @@ func waitForWriters(ctx *context.T, conn *Conn, num int) {
 				}
 			}
 		}
-		conn.writers.mu.Unlock()
+		conn.writeq.mu.Unlock()
 		return count >= num
 	})
 }
