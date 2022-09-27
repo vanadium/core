@@ -243,7 +243,6 @@ func TestWriteqNotification(t *testing.T) {
 		cmp(nil)
 	}
 
-	fmt.Printf("W: %p\n", &fe1.writer)
 	wq.activateAndNotify(&fe1.writer, flowPriority)
 	fmt.Println(wq)
 	wq.activateAndNotify(nil, flowPriority)

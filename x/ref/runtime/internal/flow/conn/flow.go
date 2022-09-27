@@ -183,14 +183,15 @@ func (f *flw) releaseCounters(tokens uint64) {
 	if debug {
 		f.ctx.Infof("Tokens release to %d(%p): %d => %d", f.id, f, tokens, f.flowControl.released)
 	}
-	if f.writing {
+	f.lock()
+	writing := f.writing
+	f.unlock()
+	if writing {
 		if debug {
 			f.ctx.Infof("Activating writing flow %d(%p) now that we have tokens.", f.id, f)
 		}
-		f.writeqEntry.lock()
 		f.writeq.activateWriter(&f.writeqEntry, flowPriority)
 		f.writeq.notifyNextWriter(nil)
-		f.writeqEntry.unlock()
 	}
 }
 
@@ -230,9 +231,10 @@ func (f *flw) writeMsg(alsoClose bool, parts ...[]byte) (sent int, err error) { 
 	}
 	size, sent, tosend := 0, 0, make([][]byte, len(parts))
 
-	f.lock()
 	f.markUsed()
+	f.lock()
 	f.writing = true
+	f.unlock()
 
 	f.writeqEntry.lock()
 	f.writeq.activateWriter(&f.writeqEntry, flowPriority)
@@ -251,7 +253,9 @@ func (f *flw) writeMsg(alsoClose bool, parts ...[]byte) (sent int, err error) { 
 			break
 		}
 
+		f.lock()
 		opened := f.opened
+		f.unlock()
 		tokens, deduct := f.flowControl.tokens(ctx, f.conn.IsEncapsulated())
 		if opened && (tokens == 0 || ((f.noEncrypt || f.noFragment) && (tokens < totalSize))) {
 			// Oops, we really don't have data to send, probably because we've exhausted
@@ -265,6 +269,7 @@ func (f *flw) writeMsg(alsoClose bool, parts ...[]byte) (sent int, err error) { 
 			if debug {
 				f.ctx.Infof("Deactivating write on flow %d(%p) due to lack of tokens", f.id, f)
 			}
+			// We'll get added back by releaseCounters.
 			f.writeq.deactivateWriter(&f.writeqEntry, flowPriority)
 			continue
 		}
@@ -301,12 +306,15 @@ func (f *flw) writeMsg(alsoClose bool, parts ...[]byte) (sent int, err error) { 
 		// We need to ensure that we only call Done() exactly once, so we need to
 		// recheck f.opened, to ensure that f.close didn't decrement the wait group
 		// while we were not holding the lock.
+		f.lock()
 		if !f.opened {
 			f.conn.unopenedFlows.Done()
 		}
 		f.opened = true
+		f.unlock()
 	}
 
+	f.lock()
 	f.writing = false
 	f.unlock()
 

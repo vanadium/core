@@ -920,9 +920,9 @@ func (c *Conn) sendMessage(
 			//fmt.Printf("%p: sendMessage cancel notified: %v\n", &c.writeqEntry, &c.writeqEntry.notify)
 		}
 	} else {
-		fmt.Printf("waiting our turn: %p .. %v\n", &c.writeqEntry, c.writeqEntry.notify)
+		//		fmt.Printf("waiting our turn: %p .. %v\n%s\n", &c.writeqEntry, c.writeqEntry.notify, &c.writeq)
 		<-c.writeqEntry.notify
-		fmt.Printf("got our turn: %p .. %v\n", &c.writeqEntry, c.writeqEntry.notify)
+		//		fmt.Printf("got our turn: %p .. %v\n", &c.writeqEntry, c.writeqEntry.notify)
 		//fmt.Printf("%p: sendMessage notified: %v\n", &c.writeqEntry, &c.writeqEntry.notify)
 	}
 	// send the actual message.
