@@ -189,6 +189,8 @@ func (fs *flowControlFlowStats) tokens(ctx *context.T, encapsulated bool) (int, 
 			max = fs.lshared
 		}
 		return int(max), func(used int) {
+			fs.lock()
+			defer fs.unlock()
 			fs.lshared -= uint64(used)
 			fs.borrowed += uint64(used)
 			if ctx.V(2) {
@@ -200,6 +202,8 @@ func (fs *flowControlFlowStats) tokens(ctx *context.T, encapsulated bool) (int, 
 		max = fs.released
 	}
 	return int(max), func(used int) {
+		fs.lock()
+		defer fs.unlock()
 		fs.released -= uint64(used)
 		if ctx.V(2) {
 			ctx.Infof("flow %d deducting %d tokens, %d left", fs.id, used, fs.released)
