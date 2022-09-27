@@ -177,9 +177,6 @@ func NewDialed( //nolint:gocyclo
 		cancel:               cancel,
 		acceptChannelTimeout: channelTimeout,
 	}
-	// It's important that this channel has a non-zero buffer.  Sometimes this
-	// flow will be notifying itself, so if there's no buffer a deadlock will
-	// occur.
 	initWriter(&c.writeqEntry, 1)
 	c.flowControl.init()
 	done := make(chan struct{})

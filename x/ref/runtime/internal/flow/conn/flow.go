@@ -38,7 +38,7 @@ type flw struct {
 	writeq      *writeq
 	writeqEntry writer
 
-	// my guards all of the following fields.
+	// mu guards all of the following fields.
 	mu     sync.Mutex
 	ctx    *context.T
 	cancel context.CancelFunc
@@ -86,9 +86,11 @@ func (c *Conn) newFlowLocked(
 		writeq:           &c.writeq,
 		encapsulated:     c.IsEncapsulated(),
 	}
-	// It's important that this channel has a non-zero buffer.  Sometimes this
-	// flow will be notifying itself, so if there's no buffer a deadlock will
-	// occur.
+	// It's important that this channel has a non-zero buffer since flows
+	// will be notifying themselve and if there's no buffer a deadlock will
+	// occur. The self notification is between the code that handles release
+	// messages to notify a flow-controlled writeMgs that it may potentially
+	// have tokens to spend on writes.
 	initWriter(&f.writeqEntry, 1)
 
 	f.q = newReadQ(f.sendRelease)
@@ -468,6 +470,7 @@ func (f *flw) close(ctx *context.T, closedRemotely bool, err error) {
 	f.lock()
 	closed := f.closed
 	f.closed = true
+	cancel := f.cancel
 	f.unlock()
 
 	if !closed {
@@ -475,14 +478,14 @@ func (f *flw) close(ctx *context.T, closedRemotely bool, err error) {
 		if log {
 			ctx.Infof("closing %d(%p): %v", f.id, f, err)
 		}
-		f.cancel()
+		cancel()
 		// After cancel has been called no new writes will begin for this
 		// flow.  There may be a write in progress, but it must finish
 		// before another writer gets to use the channel.  Therefore we
 		// can simply use sendMessage to send the close flow message.
 
 		wasopened := f.setOpened()
-		if !wasopened && !closedRemotely && f.conn.state() != Closing {
+		if !wasopened && !closedRemotely && (f.conn.state() != Closing) {
 			// Note: If the conn is closing there is no point in trying to
 			// send the flow close message as it will fail.  This is racy
 			// with the connection closing, but there are no ill-effects
@@ -491,14 +494,12 @@ func (f *flw) close(ctx *context.T, closedRemotely bool, err error) {
 				ID:    f.id,
 				Flags: message.CloseFlag,
 			})
-			if serr != nil {
-				ctx.VI(2).Infof("Could not send close flow message: %v", err)
+			if serr != nil && log {
+				ctx.Infof("could not send close flow message: %v: close error (if any): %v", serr, err)
 			}
 		}
-		f.flowControl.handleFlowClose(closedRemotely, f.conn.status < Closing)
-		f.conn.lock()
-		delete(f.conn.flows, f.id)
-		f.conn.unlock()
+		f.flowControl.handleFlowClose(closedRemotely, f.conn.state() < Closing)
+		f.conn.deleteFlow(f.id)
 	}
 }
 

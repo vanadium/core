@@ -78,6 +78,8 @@ func (w *writer) unlock() {
 	w.mu.Unlock()
 }
 
+// initWriter initializes the supplied writer, in particular creating a channel
+// for notificaions.
 func initWriter(w *writer, chanSize int) {
 	//	_, file, line, _ := runtime.Caller(1)
 	//	file = filepath.Base(file)
