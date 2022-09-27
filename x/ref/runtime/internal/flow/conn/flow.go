@@ -286,6 +286,8 @@ func (f *flw) writeMsg(alsoClose bool, parts ...[]byte) (sent int, err error) { 
 		parts, tosend, size = popFront(parts, tosend[:0], tokens)
 		deduct(size)
 
+		fmt.Printf("tokens: %v: %v\n", tokens, opened)
+
 		// Actually write to the wire.  This is also where encryption
 		// happens, so this part can be slow.
 		d := &message.Data{ID: f.id, Payload: tosend}
