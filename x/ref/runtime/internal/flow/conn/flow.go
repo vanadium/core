@@ -69,7 +69,7 @@ func (c *Conn) newFlowLocked(
 	localBlessings, remoteBlessings security.Blessings,
 	localDischarges, remoteDischarges map[string]security.Discharge,
 	remote naming.Endpoint,
-	dialed, preopen bool,
+	dialed bool,
 	channelTimeout time.Duration,
 	sideChannel bool) *flw {
 	f := &flw{
@@ -79,7 +79,7 @@ func (c *Conn) newFlowLocked(
 		localDischarges:  localDischarges,
 		remoteBlessings:  remoteBlessings,
 		remoteDischarges: remoteDischarges,
-		opened:           preopen,
+		opened:           !dialed,
 		remote:           remote,
 		channelTimeout:   channelTimeout,
 		sideChannel:      sideChannel,
@@ -260,10 +260,8 @@ func (f *flw) writeMsg(alsoClose bool, parts ...[]byte) (sent int, err error) { 
 			break
 		}
 
+		opened := f.isOpened()
 		tokens, deduct := f.flowControl.tokens(ctx, f.encapsulated)
-		f.lock()
-		opened := f.opened
-		f.unlock()
 		if opened && (tokens == 0 || ((f.noEncrypt || f.noFragment) && (tokens < totalSize))) {
 			// Oops, we really don't have data to send, probably because we've exhausted
 			// the remote buffer.  deactivate ourselves but keep trying.
@@ -305,21 +303,9 @@ func (f *flw) writeMsg(alsoClose bool, parts ...[]byte) (sent int, err error) { 
 				Flags:           d.Flags,
 				Payload:         d.Payload,
 			})
+			f.setOpened()
 		}
 		sent += size
-
-		// The top of the loop expects to be locked, so lock here and update
-		// opened.  Note that since we've definitely sent a message now opened is surely
-		// true.
-		// We need to ensure that we only call Done() exactly once, so we need to
-		// recheck f.opened, to ensure that f.close didn't decrement the wait group
-		// while we were not holding the lock.
-		f.lock()
-		if !f.opened {
-			f.conn.unopenedFlows.Done()
-		}
-		f.opened = true
-		f.unlock()
 	}
 
 	f.lock()
@@ -454,6 +440,27 @@ func (f *flw) ID() uint64 {
 	return f.id
 }
 
+// isOpened returns true if the flow has been opened.
+func (f *flw) isOpened() bool {
+	f.mu.Lock()
+	defer f.mu.Unlock()
+	return f.opened
+}
+
+// setOpened ensures that on exit f.opened is true and if necessary
+// (ie. f.opened was false on entry) it will call Done on the unopenedFlows
+// waitgroup.
+func (f *flw) setOpened() bool {
+	f.mu.Lock()
+	defer f.mu.Unlock()
+	if f.opened {
+		return true
+	}
+	f.conn.unopenedFlows.Done()
+	f.opened = true
+	return false
+}
+
 func (f *flw) close(ctx *context.T, closedRemotely bool, err error) {
 
 	log := f.ctx.V(2)
@@ -474,18 +481,8 @@ func (f *flw) close(ctx *context.T, closedRemotely bool, err error) {
 		// before another writer gets to use the channel.  Therefore we
 		// can simply use sendMessage to send the close flow message.
 
-		f.lock()
-		opened := f.opened
-		if !f.opened {
-			// Closing a flow that was never opened.
-			f.conn.unopenedFlows.Done()
-		}
-		// We mark the flow as opened to prevent multiple calls to
-		// f.conn.unopenedFlows.Done().
-		f.opened = true
-		f.unlock()
-
-		if opened && !closedRemotely && f.conn.state() != Closing {
+		wasopened := f.setOpened()
+		if !wasopened && !closedRemotely && f.conn.state() != Closing {
 			// Note: If the conn is closing there is no point in trying to
 			// send the flow close message as it will fail.  This is racy
 			// with the connection closing, but there are no ill-effects

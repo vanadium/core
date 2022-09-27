@@ -103,7 +103,6 @@ func (c *Conn) handleOpenFlow(ctx *context.T, msg *message.OpenFlow) error {
 		remoteDischarges,
 		c.remote,
 		false,
-		true,
 		c.acceptChannelTimeout,
 		sideChannel)
 	f.releaseCounters(msg.InitialCounters)
