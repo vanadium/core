@@ -62,7 +62,7 @@ func TestFramer(t *testing.T) {
 		if err != nil || !bytes.Equal(got, want) {
 			t.Errorf("got %v, %v, want %v, nil", got, err, want)
 		}
-		rbuf[0] = 0xff
+		rbuf[0] = ^rbuf[0]
 		if bytes.Equal(got, want) {
 			t.Errorf("looks like ReadMsg2 did not use the supplied buffer")
 		}
