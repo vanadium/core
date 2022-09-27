@@ -86,10 +86,16 @@ func (c *Conn) newFlowLocked(
 		writeq:           &c.writeq,
 		encapsulated:     c.IsEncapsulated(),
 	}
+<<<<<<< HEAD
 	// It's important that this channel has a non-zero buffer.  Sometimes this
 	// flow will be notifying itself, so if there's no buffer a deadlock will
 	// occur.
 	initWriter(&f.writeqEntry, 1)
+=======
+	f.flowControl.borrowing = dialed
+	f.flowControl.flowControlConnStats = &c.flowControl
+	f.flowControl.id = id
+>>>>>>> main
 
 	f.q = newReadQ(f.sendRelease)
 	f.flowControl.borrowing = dialed
@@ -260,8 +266,13 @@ func (f *flw) writeMsg(alsoClose bool, parts ...[]byte) (sent int, err error) { 
 		if err != nil {
 			break
 		}
+<<<<<<< HEAD
 
 		tokens, deduct := f.flowControl.tokens(ctx, f.encapsulated)
+=======
+		opened := f.opened
+		tokens, deduct := f.flowControl.tokens(ctx, f.conn.IsEncapsulated())
+>>>>>>> main
 		if opened && (tokens == 0 || ((f.noEncrypt || f.noFragment) && (tokens < totalSize))) {
 			// Oops, we really don't have data to send, probably because we've exhausted
 			// the remote buffer.  deactivate ourselves but keep trying.
@@ -496,8 +507,17 @@ func (f *flw) close(ctx *context.T, closedRemotely bool, err error) {
 				ctx.VI(2).Infof("Could not send close flow message: %v", err)
 			}
 		}
+<<<<<<< HEAD
 		f.flowControl.handleFlowClose(closedRemotely, f.conn.state() < Closing)
 		f.conn.deleteFlow(f.id)
+=======
+		f.flowControl.handleFlowClose(closedRemotely, f.conn.status < Closing)
+		delete(f.conn.flows, f.id)
+		f.conn.mu.Unlock()
+		if serr != nil {
+			ctx.VI(2).Infof("Could not send close flow message: %v", err)
+		}
+>>>>>>> main
 	}
 }
 
