@@ -109,8 +109,9 @@ func (c *Conn) newFlowLocked(
 }
 
 func (f *flw) sendRelease(ctx *context.T, n int) {
-	fmt.Printf("sendRelease: %v - %v\n", f.id, n)
+	fmt.Printf("sendRelease: start: %v - %v: %v", f.id, n, f.writeq)
 	f.conn.sendRelease(ctx, f.id, uint64(n))
+	fmt.Printf("sendRelease: done : %v - %v: %v", f.id, n, f.writeq)
 }
 
 // disableEncrytion should not be called concurrently with Write* methods.

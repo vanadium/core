@@ -94,7 +94,7 @@ func (q *writeq) String() string {
 
 func (q *writeq) stringLocked() string {
 	out := strings.Builder{}
-	//	fmt.Fprintf(&out, "writeq(%p): active: %p\n", q, q.writing)
+	fmt.Fprintf(&out, "writeq(%p): active: %p\n", q, q.writing)
 	for p, h := range q.activeWriters {
 		if h != nil {
 			fmt.Fprintf(&out, "\t%v: ", p)

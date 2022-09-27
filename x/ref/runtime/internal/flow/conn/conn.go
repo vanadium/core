@@ -803,6 +803,7 @@ func (c *Conn) sendRelease(ctx *context.T, fid, count uint64) {
 		c.flowControl.incrementToRelease(fid, count)
 	}
 	toRelease := c.flowControl.createReleaseMessageContents(fid, count)
+	fmt.Printf("toRelease: %v\n", toRelease)
 	var err error
 	if toRelease != nil {
 		delete(toRelease, invalidFlowID)
