@@ -86,16 +86,10 @@ func (c *Conn) newFlowLocked(
 		writeq:           &c.writeq,
 		encapsulated:     c.IsEncapsulated(),
 	}
-<<<<<<< HEAD
 	// It's important that this channel has a non-zero buffer.  Sometimes this
 	// flow will be notifying itself, so if there's no buffer a deadlock will
 	// occur.
 	initWriter(&f.writeqEntry, 1)
-=======
-	f.flowControl.borrowing = dialed
-	f.flowControl.flowControlConnStats = &c.flowControl
-	f.flowControl.id = id
->>>>>>> main
 
 	f.q = newReadQ(f.sendRelease)
 	f.flowControl.borrowing = dialed
@@ -505,11 +499,9 @@ func (f *flw) close(ctx *context.T, closedRemotely bool, err error) {
 			}
 		}
 		f.flowControl.handleFlowClose(closedRemotely, f.conn.status < Closing)
+		f.conn.lock()
 		delete(f.conn.flows, f.id)
-		f.conn.mu.Unlock()
-		if serr != nil {
-			ctx.VI(2).Infof("Could not send close flow message: %v", err)
-		}
+		f.conn.unlock()
 	}
 }
 
