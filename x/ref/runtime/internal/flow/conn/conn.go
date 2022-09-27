@@ -551,7 +551,6 @@ func (c *Conn) Dial(ctx *context.T, blessings security.Blessings, discharges map
 		c.remoteDischarges,
 		remote,
 		true,
-		false,
 		channelTimeout,
 		sideChannel)
 	return flw, nil
