@@ -743,16 +743,10 @@ func (c *Conn) internalCloseLocked(ctx *context.T, closedRemotely, closedWhileAc
 	}(c)
 }
 
-func (c *Conn) closing() bool {
+func (c *Conn) state() Status {
 	c.lock()
 	defer c.unlock()
-	return c.status == Closing
-}
-
-func (c *Conn) notClosing() bool {
-	c.lock()
-	defer c.unlock()
-	return c.status < Closing
+	return c.status
 }
 
 func (c *Conn) deleteFlow(fid uint64) {
@@ -800,17 +794,19 @@ func (c *Conn) fragmentReleaseMessage(ctx *context.T, toRelease map[uint64]uint6
 
 func (c *Conn) sendRelease(ctx *context.T, fid, count uint64) {
 	c.lock()
-	if _, ok := c.flows[fid]; ok {
+	_, ok := c.flows[fid]
+	c.unlock()
+	if ok {
 		// Handle the case where the flow is already closed but a message
 		// is received for it, hence only bump the toRelease value for
 		// that flow if it is still active.
 		c.flowControl.incrementToRelease(fid, count)
 	}
-	c.unlock()
 	toRelease := c.flowControl.createReleaseMessageContents(fid, count)
 	var err error
 	if toRelease != nil {
 		delete(toRelease, invalidFlowID)
+		fmt.Printf("toRelease: message: %v\n", len(toRelease))
 		err = c.fragmentReleaseMessage(ctx, toRelease, 8000)
 	}
 	if err != nil {

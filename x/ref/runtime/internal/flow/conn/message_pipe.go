@@ -5,6 +5,7 @@
 package conn
 
 import (
+	"fmt"
 	"sync"
 
 	"v.io/v23/context"
@@ -136,6 +137,7 @@ func (p *messagePipe) writeCiphertext(ctx *context.T, m message.Message, plainte
 }
 
 func (p *messagePipe) writeMsg(ctx *context.T, m message.Message) error {
+	fmt.Printf("writeMsg: %T\n", m)
 	plaintextBuf := messagePipePool.Get().(*[]byte)
 	defer messagePipePool.Put(plaintextBuf)
 
@@ -226,6 +228,7 @@ func (p *messagePipe) readAnyMessage(ctx *context.T, plaintext []byte) (message.
 	if ctx.V(2) {
 		ctx.Infof("Read low-level message: %T: %v", m, m)
 	}
+	fmt.Printf("readAny: %T\n", m)
 	return m, err
 }
 
@@ -250,5 +253,6 @@ func (p *messagePipe) readDataMsg(ctx *context.T, plaintextBuf []byte, m *messag
 	if ctx.V(2) {
 		ctx.Infof("Read low-level message: %T: %v", m, m)
 	}
+	fmt.Printf("readData: %T\n", m)
 	return nil, nil
 }

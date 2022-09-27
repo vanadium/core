@@ -5,7 +5,6 @@
 package conn
 
 import (
-	"fmt"
 	"reflect"
 	"runtime"
 	"testing"
@@ -244,6 +243,5 @@ func TestWriteqNotification(t *testing.T) {
 	}
 
 	wq.activateAndNotify(&fe1.writer, flowPriority)
-	fmt.Println(wq)
 	wq.activateAndNotify(nil, flowPriority)
 }
