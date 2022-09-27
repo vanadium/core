@@ -457,7 +457,7 @@ func (f *flw) close(ctx *context.T, closedRemotely bool, err error) {
 		connClosing := f.conn.status == Closing
 		var serr error
 		wasOpened := f.setOpened()
-		if !wasOpened && !closedRemotely && !connClosing {
+		if wasOpened && !closedRemotely && !connClosing {
 			// Note: If the conn is closing there is no point in trying to
 			// send the flow close message as it will fail.  This is racy
 			// with the connection closing, but there are no ill-effects
