@@ -5,7 +5,6 @@
 package conn
 
 import (
-	"fmt"
 	"math"
 	"time"
 
@@ -111,7 +110,6 @@ func (c *Conn) handleOpenFlow(ctx *context.T, msg *message.OpenFlow) error {
 	c.flowControl.newCounters(msg.ID)
 	c.unlock()
 
-	fmt.Printf("OPEN FLOW: %v: %v\n", msg.ID, len(msg.Payload[0]))
 	c.handler.HandleFlow(f) //nolint:errcheck
 
 	if err := f.q.put(ctx, msg.Payload); err != nil {
@@ -187,7 +185,6 @@ func (c *Conn) handleHealthCheckRequest(ctx *context.T) error {
 }
 
 func (c *Conn) handleRelease(ctx *context.T, msg *message.Release) error {
-	fmt.Printf("handleRelease: %v\n", len(msg.Counters))
 	for fid, val := range msg.Counters {
 		c.lock()
 		f := c.flows[fid]

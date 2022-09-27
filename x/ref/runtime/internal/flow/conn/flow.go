@@ -5,7 +5,6 @@
 package conn
 
 import (
-	"fmt"
 	"io"
 	"net"
 	"sync"
@@ -103,15 +102,11 @@ func (c *Conn) newFlowLocked(
 	}
 	c.flows[id] = f
 	c.healthCheckNewFlowLocked(ctx, channelTimeout)
-
-	fmt.Printf("newFlowLocked: %v\n", id)
 	return f
 }
 
 func (f *flw) sendRelease(ctx *context.T, n int) {
-	fmt.Printf("sendRelease: start: %v - %v: %v", f.id, n, f.writeq)
 	f.conn.sendRelease(ctx, f.id, uint64(n))
-	fmt.Printf("sendRelease: done : %v - %v: %v", f.id, n, f.writeq)
 }
 
 // disableEncrytion should not be called concurrently with Write* methods.
@@ -267,7 +262,6 @@ func (f *flw) writeMsg(alsoClose bool, parts ...[]byte) (sent int, err error) { 
 		}
 
 		tokens, deduct := f.flowControl.tokens(ctx, f.encapsulated)
-		fmt.Printf("tokens: %v: %v\n", tokens, opened)
 		if opened && (tokens == 0 || ((f.noEncrypt || f.noFragment) && (tokens < totalSize))) {
 			// Oops, we really don't have data to send, probably because we've exhausted
 			// the remote buffer.  deactivate ourselves but keep trying.
@@ -284,10 +278,9 @@ func (f *flw) writeMsg(alsoClose bool, parts ...[]byte) (sent int, err error) { 
 			f.writeq.deactivateWriter(&f.writeqEntry, flowPriority)
 			continue
 		}
+
 		parts, tosend, size = popFront(parts, tosend[:0], tokens)
 		deduct(size)
-
-		fmt.Printf("tokens: %v: %v\n", tokens, opened)
 
 		// Actually write to the wire.  This is also where encryption
 		// happens, so this part can be slow.
@@ -323,7 +316,7 @@ func (f *flw) writeMsg(alsoClose bool, parts ...[]byte) (sent int, err error) { 
 		if !f.opened {
 			f.conn.unopenedFlows.Done()
 		}
-		f.opened = true
+		opened, f.opened = true, true
 		f.unlock()
 	}
 
