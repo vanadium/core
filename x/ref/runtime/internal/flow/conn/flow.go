@@ -79,6 +79,7 @@ func (c *Conn) newFlowLocked(
 	}
 	f.flowControl.borrowing = dialed
 	f.flowControl.flowControlConnStats = &c.flowControl
+	f.flowControl.id = id
 
 	f.q = newReadQ(f.sendRelease)
 
@@ -151,44 +152,6 @@ func (f *flw) ReadMsg2(_ []byte) (buf []byte, err error) {
 // with themselves or each other.
 func (f *flw) Write(p []byte) (n int, err error) {
 	return f.WriteMsg(p)
-}
-
-// tokensLocked returns the number of tokens this flow can send right now.
-// It is bounded by the channel mtu, the released counters, and possibly
-// the number of shared counters for the conn if we are sending on a just
-// dialed flow.
-func (f *flw) tokens() (int, func(int)) {
-	f.flowControl.lock()
-	defer f.flowControl.unlock()
-	max := f.flowControl.mtu
-	// When	our flow is proxied (i.e. encapsulated), the proxy has added overhead
-	// when forwarding the message. This means we must reduce our mtu to ensure
-	// that dialer framing reaches the acceptor without being truncated by the
-	// proxy.
-	if f.conn.IsEncapsulated() {
-		max -= proxyOverhead
-	}
-	if f.flowControl.borrowing {
-		if f.flowControl.lshared < max {
-			max = f.flowControl.lshared
-		}
-		return int(max), func(used int) {
-			f.flowControl.lshared -= uint64(used)
-			f.flowControl.borrowed += uint64(used)
-			if f.ctx.V(2) {
-				f.ctx.Infof("deducting %d borrowed tokens on flow %d(%p), total: %d left: %d", used, f.id, f, f.flowControl.borrowed, f.flowControl.lshared)
-			}
-		}
-	}
-	if f.flowControl.released < max {
-		max = f.flowControl.released
-	}
-	return int(max), func(used int) {
-		f.flowControl.released -= uint64(used)
-		if f.ctx.V(2) {
-			f.ctx.Infof("flow %d(%p) deducting %d tokens, %d left", f.id, f, used, f.flowControl.released)
-		}
-	}
 }
 
 // releaseCounters releases some counters from a remote reader to the local
@@ -278,7 +241,7 @@ func (f *flw) writeMsg(alsoClose bool, parts ...[]byte) (sent int, err error) { 
 			break
 		}
 		opened := f.opened
-		tokens, deduct := f.tokens()
+		tokens, deduct := f.flowControl.tokens(ctx, f.conn.IsEncapsulated())
 		if opened && (tokens == 0 || ((f.noEncrypt || f.noFragment) && (tokens < totalSize))) {
 			// Oops, we really don't have data to send, probably because we've exhausted
 			// the remote buffer.  deactivate ourselves but keep trying.
@@ -498,18 +461,7 @@ func (f *flw) close(ctx *context.T, closedRemotely bool, err error) {
 				Flags: message.CloseFlag,
 			})
 		}
-		f.flowControl.lock()
-		if closedRemotely {
-			// When the other side closes a flow, it implicitly releases all the
-			// counters used by that flow.  That means we should release the shared
-			// counter to be used on other new flows.
-			f.flowControl.lshared += f.flowControl.borrowed
-			f.flowControl.borrowed = 0
-		} else if f.flowControl.borrowed > 0 && f.conn.status < Closing {
-			f.flowControl.outstandingBorrowed[f.id] = f.flowControl.borrowed
-		}
-		f.flowControl.clearCountersLocked(f.id)
-		f.flowControl.unlock()
+		f.flowControl.handleFlowClose(closedRemotely, f.conn.status < Closing)
 		delete(f.conn.flows, f.id)
 		f.conn.mu.Unlock()
 		if serr != nil {
