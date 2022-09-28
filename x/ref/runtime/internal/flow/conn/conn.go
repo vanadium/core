@@ -50,11 +50,16 @@ var minChannelTimeout = map[string]time.Duration{
 const (
 	defaultMtu            = 1 << 16
 	defaultChannelTimeout = 30 * time.Minute
-	// DefaultBytesBufferedPerFlow defines the default number
-	// of bytes that can be buffered by a single flow.
-	DefaultBytesBufferedPerFlow = 1 << 20
-	proxyOverhead               = 32
+	proxyOverhead         = 32
 )
+
+var defaultBytesBufferedPerFlow = 1 << 20
+
+// DefaultBytesBufferedPerFlow defines the default number
+// of bytes that can be buffered by a single flow.
+func DefaultBytesBufferedPerFlow() uint64 {
+	return uint64(defaultBytesBufferedPerFlow)
+}
 
 // A FlowHandler processes accepted flows.
 type FlowHandler interface {
@@ -90,18 +95,19 @@ type healthCheckState struct {
 type Conn struct {
 	// All the variables here are set before the constructor returns
 	// and never changed after that.
-	mp            *messagePipe
-	version       version.RPCVersion
-	local, remote naming.Endpoint
-	remoteAddr    net.Addr
-	closed        chan struct{}
-	lameDucked    chan struct{}
-	blessingsFlow *blessingsFlow
-	loopWG        sync.WaitGroup
-	unopenedFlows sync.WaitGroup
-	cancel        context.CancelFunc
-	handler       FlowHandler
-	mtu           uint64
+	mp                   *messagePipe
+	version              version.RPCVersion
+	local, remote        naming.Endpoint
+	remoteAddr           net.Addr
+	closed               chan struct{}
+	lameDucked           chan struct{}
+	blessingsFlow        *blessingsFlow
+	loopWG               sync.WaitGroup
+	unopenedFlows        sync.WaitGroup
+	cancel               context.CancelFunc
+	handler              FlowHandler
+	mtu                  uint64
+	bytesBufferedPerFlow uint64
 
 	mu sync.Mutex // All the variables below here are protected by mu.
 
@@ -149,6 +155,7 @@ func NewDialed( //nolint:gocyclo
 	proxy bool,
 	handshakeTimeout time.Duration,
 	channelTimeout time.Duration,
+	bytesBufferedPerFlow uint64,
 	handler FlowHandler) (c *Conn, names []string, rejected []security.RejectedBlessing, err error) {
 
 	if _, err = version.CommonVersion(ctx, rpcversion.Supported, versions); err != nil {
@@ -189,6 +196,7 @@ func NewDialed( //nolint:gocyclo
 		cancel:               cancel,
 		activeWriters:        make([]writer, numPriorities),
 		acceptChannelTimeout: channelTimeout,
+		bytesBufferedPerFlow: bytesBufferedPerFlow,
 	}
 	c.flowControl.init()
 	done := make(chan struct{})
@@ -281,6 +289,7 @@ func NewAccepted(
 	versions version.RPCVersionRange,
 	handshakeTimeout time.Duration,
 	channelTimeout time.Duration,
+	bytesBufferedPerFlow uint64,
 	handler FlowHandler) (*Conn, error) {
 
 	if _, err := version.CommonVersion(ctx, rpcversion.Supported, versions); err != nil {
@@ -311,6 +320,7 @@ func NewAccepted(
 		cancel:               cancel,
 		activeWriters:        make([]writer, numPriorities),
 		acceptChannelTimeout: channelTimeout,
+		bytesBufferedPerFlow: bytesBufferedPerFlow,
 	}
 	c.flowControl.init()
 	done := make(chan struct{}, 1)

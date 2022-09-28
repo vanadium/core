@@ -81,7 +81,7 @@ func (c *Conn) newFlowLocked(
 	f.flowControl.flowControlConnStats = &c.flowControl
 	f.flowControl.id = id
 
-	f.q = newReadQ(f.sendRelease)
+	f.q = newReadQ(c.bytesBufferedPerFlow, f.sendRelease)
 
 	f.next, f.prev = f, f
 	f.ctx, f.cancel = context.WithCancel(ctx)
@@ -259,7 +259,7 @@ func (f *flw) writeMsg(alsoClose bool, parts ...[]byte) (sent int, err error) { 
 		} else {
 			err = f.conn.mp.writeMsg(ctx, &message.OpenFlow{
 				ID:              f.id,
-				InitialCounters: DefaultBytesBufferedPerFlow,
+				InitialCounters: f.flowControl.bytesBufferedPerFlow,
 				BlessingsKey:    bkey,
 				DischargeKey:    dkey,
 				Flags:           d.Flags,

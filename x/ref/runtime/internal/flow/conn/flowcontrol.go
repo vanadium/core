@@ -27,6 +27,8 @@ type flowControlConnStats struct {
 
 	mtu uint64
 
+	bytesBufferedPerFlow uint64
+
 	// TODO(mattr): Integrate these maps back into the flows themselves as
 	// has been done with the sending counts.
 	// toRelease is a map from flowID to a number of tokens which are pending
@@ -86,8 +88,8 @@ func (fs *flowControlConnStats) init() {
 
 // configure must be called after the connection setup handshake is complete
 // and the mtu and shared tokens are known.
-func (fs *flowControlConnStats) configure(mtu, shared uint64) {
-	fs.mtu, fs.lshared = mtu, shared
+func (fs *flowControlConnStats) configure(bytesBufferedPerFlow, mtu, shared uint64) {
+	fs.bytesBufferedPerFlow, fs.mtu, fs.lshared = bytesBufferedPerFlow, mtu, shared
 }
 
 func (fs *flowControlConnStats) lock() {
@@ -102,7 +104,7 @@ func (fs *flowControlConnStats) unlock() {
 func (fs *flowControlConnStats) newCounters(fid uint64) {
 	fs.mu.Lock()
 	defer fs.mu.Unlock()
-	fs.toRelease[fid] = DefaultBytesBufferedPerFlow
+	fs.toRelease[fid] = fs.bytesBufferedPerFlow
 	fs.borrowing[fid] = true
 }
 
@@ -121,9 +123,9 @@ func (fs *flowControlConnStats) createReleaseMessageContents(fid, count uint64) 
 	defer fs.mu.Unlock()
 	if fs.borrowing[fid] {
 		fs.toRelease[invalidFlowID] += count
-		release = fs.toRelease[invalidFlowID] > DefaultBytesBufferedPerFlow/2
+		release = fs.toRelease[invalidFlowID] > fs.bytesBufferedPerFlow/2
 	} else {
-		release = fs.toRelease[fid] > DefaultBytesBufferedPerFlow/2
+		release = fs.toRelease[fid] > fs.bytesBufferedPerFlow/2
 	}
 	if !release {
 		return nil
