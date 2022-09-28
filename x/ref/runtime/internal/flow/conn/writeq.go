@@ -6,8 +6,6 @@ package conn
 
 import (
 	"fmt"
-	"os"
-	"runtime"
 	"strings"
 	"sync"
 )
@@ -47,6 +45,8 @@ type writeq struct {
 	activeWriters [numPriorities]*writer
 
 	writing *writer
+
+	trace callerCircularList
 }
 
 type writer struct {
@@ -68,6 +68,8 @@ type writer struct {
 
 	mu     sync.Mutex
 	notify chan struct{}
+
+	stack []uintptr
 }
 
 func (w *writer) lock() {
@@ -81,11 +83,9 @@ func (w *writer) unlock() {
 // initWriter initializes the supplied writer, in particular creating a channel
 // for notificaions.
 func initWriter(w *writer, chanSize int) {
-	//	_, file, line, _ := runtime.Caller(1)
-	//	file = filepath.Base(file)
 	w.prev, w.next = nil, nil
 	w.notify = make(chan struct{}, chanSize)
-	// fmt.Fprintf(os.Stderr, "initWriter: %p ch: %v @ %v:%v\n", w, w.notify, file, line)
+	w.stack = callers(0, 15)
 }
 
 func (q *writeq) String() string {
@@ -151,15 +151,7 @@ func (q *writeq) addWriterLocked(head *writer, w *writer, p int) {
 func (q *writeq) notifyNextWriter(w *writer) {
 	q.mu.Lock()
 	defer q.mu.Unlock()
-	/*	if w == nil {
-		fmt.Printf("notifyNextWriter nil: before: %s\n", q.stringLocked())
-	}*/
 	q.notifyNextWriterLocked(w)
-	/*
-		if w == nil {
-			fmt.Printf("notifyNextWriter nil: after: %s\n", q.stringLocked())
-		}
-	*/
 }
 
 func (q *writeq) notifyNextWriterLocked(w *writer) {
@@ -176,13 +168,9 @@ func (q *writeq) notifyNextWriterLocked(w *writer) {
 			q.writing = head
 			select {
 			case head.notify <- struct{}{}:
-				//fmt.Fprintf(os.Stderr, "%p: notify: %p - %v\n", w, head, head.notify)
+				q.trace.append(&writeqNotification{q: q, w: w, s: q.stringLocked()})
 			default:
-				fmt.Fprintf(os.Stderr, "would block: %p: (%v: %v) %s\n", w, len(head.notify), cap(head.notify), q.stringLocked())
-				buf := make([]byte, 1<<16)
-				n := runtime.Stack(buf, true)
-				fmt.Fprintf(os.Stderr, "%s\n\n", buf[:n])
-				panic("would block")
+				q.dumpAndExit("would block", w, head)
 			}
 			return
 		}

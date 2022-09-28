@@ -226,6 +226,7 @@ func (p *messagePipe) readAnyMessage(ctx *context.T, plaintext []byte) (message.
 	if ctx.V(2) {
 		ctx.Infof("Read low-level message: %T: %v", m, m)
 	}
+	//fmt.Printf("readAnyMessage: %T (from %v bytes)\n", m, len(plaintext))
 	return m, err
 }
 
@@ -250,5 +251,10 @@ func (p *messagePipe) readDataMsg(ctx *context.T, plaintextBuf []byte, m *messag
 	if ctx.V(2) {
 		ctx.Infof("Read low-level message: %T: %v", m, m)
 	}
+	//if len(m.Payload) > 0 {
+	//fmt.Printf("readDataMsg: %T (payload %v)\n", m, len(m.Payload[0]))
+	//} else {
+	//fmt.Printf("readDataMsg: %T (empty payload)\n", m)
+	//}
 	return nil, nil
 }

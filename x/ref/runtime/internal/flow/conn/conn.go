@@ -745,6 +745,16 @@ func (c *Conn) state() Status {
 	return c.status
 }
 
+// deleteFlow removes the specified flow id from the Conn's set of active
+// flows. This has the following consequences for flow control:
+//   - flow control token releases received from a peer will be treated
+//     as 'borrowed' and assigned back to the shared pool
+//     (see releaseOutstandingBorrowed).
+//   - flow control token releases due to be sent to a remote peer will not be
+//     assigned to the local map used to keep track of the available tokens
+//     for that flow.
+//   - when the Conn is closed, this flow will not be used to calculate healthcheck
+//     timeouts.
 func (c *Conn) deleteFlow(fid uint64) {
 	c.lock()
 	defer c.unlock()
@@ -799,9 +809,6 @@ func (c *Conn) sendRelease(ctx *context.T, fid, count uint64) {
 		c.flowControl.incrementToRelease(fid, count)
 	}
 	toRelease := c.flowControl.createReleaseMessageContents(fid, count)
-	if len(toRelease) > 0 {
-		fmt.Printf("toRelease: counters: #%v\n", len(toRelease))
-	}
 	var err error
 	if toRelease != nil {
 		delete(toRelease, invalidFlowID)

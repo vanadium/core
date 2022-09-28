@@ -176,15 +176,14 @@ func (f *flw) releaseCounters(tokens uint64) {
 	// by waiting for it's turn in the writeq, so we give it a chance to
 	// run to check to see what it's state is.
 	f.lock()
-	writing := f.writing
-	f.unlock()
-	if writing {
+	if f.writing {
 		f.writeq.activateWriter(&f.writeqEntry, flowPriority)
 		f.writeq.notifyNextWriter(nil)
 		if debug {
 			f.ctx.Infof("Activated writing flow %d(%p) now that we have tokens.", f.id, f)
 		}
 	}
+	f.unlock()
 }
 
 func (f *flw) currentContext() *context.T {
@@ -237,6 +236,8 @@ func (f *flw) writeMsg(alsoClose bool, parts ...[]byte) (sent int, err error) { 
 		select {
 		case <-ctx.Done():
 			err = io.EOF
+		case <-time.After(time.Second):
+			f.writeq.dumpAndExit("timeout", &f.writeqEntry, nil)
 		case <-f.writeqEntry.notify:
 		}
 
@@ -457,6 +458,12 @@ func (f *flw) close(ctx *context.T, closedRemotely bool, err error) {
 	f.unlock()
 
 	if !closed {
+		// delete the flow as soon as possible to ensure that flow control
+		// releases are handled appropriately for a closed/closing flow.
+		// From this point on, all flow control updates are handled as per
+		// a closed flow.
+		f.conn.deleteFlow(f.id)
+
 		f.q.close(ctx)
 		if log {
 			ctx.Infof("closing %d(%p): %v", f.id, f, err)
@@ -481,8 +488,11 @@ func (f *flw) close(ctx *context.T, closedRemotely bool, err error) {
 				ctx.Infof("could not send close flow message: %v: close error (if any): %v", serr, err)
 			}
 		}
+		// update flow control state now that we're guaranteed to no longer
+		// send any messages. Messages may still arrive if the flow is closed
+		// locally but not remotely, but they will be handled appropriately
+		// with regard to flow control.
 		f.flowControl.handleFlowClose(closedRemotely, f.conn.state() < Closing)
-		f.conn.deleteFlow(f.id)
 	}
 }
 

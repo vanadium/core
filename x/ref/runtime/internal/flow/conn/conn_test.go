@@ -64,7 +64,9 @@ func doRead(t *testing.T, f flow.Flow, want []byte, wg *sync.WaitGroup) {
 	if len(want) != 0 {
 		t.Errorf("got %d leftover bytes, expected 0.", len(want))
 	}
-	wg.Done()
+	if wg != nil {
+		wg.Done()
+	}
 }
 
 func TestLargeWrite(t *testing.T) {
@@ -81,6 +83,41 @@ func TestLargeWrite(t *testing.T) {
 	af := <-flows
 	go doRead(t, af, randData, &wg)
 	go doWrite(t, af, randData)
+	wg.Wait()
+}
+
+func TestManyLargeWrites(t *testing.T) {
+	defer goroutines.NoLeaks(t, leakWaitTime)()
+	ctx, shutdown := test.V23Init()
+	defer shutdown()
+	df, flows, cl := setupFlow(t, "local", "", ctx, ctx, true)
+	defer cl()
+
+	var wg sync.WaitGroup
+	wg.Add(2)
+
+	iterations := 200
+
+	writer := func(f flow.Flow) {
+		for i := 0; i < iterations; i++ {
+			doWrite(t, f, randData)
+		}
+	}
+	reader := func(f flow.Flow) {
+		for i := 0; i < iterations; i++ {
+			doRead(t, f, randData, nil)
+		}
+		wg.Done()
+	}
+
+	go writer(df)
+	go reader(df)
+
+	af := <-flows
+
+	go reader(af)
+	go writer(af)
+
 	wg.Wait()
 }
 
