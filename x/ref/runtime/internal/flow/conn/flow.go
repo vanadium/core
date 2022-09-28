@@ -95,7 +95,6 @@ func (c *Conn) newFlowLocked(
 
 	f.q = newReadQ(f.sendRelease)
 	f.flowControl.borrowing = dialed
-	f.flowControl.flowControlConnStats = &c.flowControl
 	f.flowControl.id = id
 
 	f.ctx, f.cancel = context.WithCancel(ctx)

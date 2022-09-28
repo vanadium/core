@@ -62,7 +62,7 @@ type flowControlConnStats struct {
 // flowControlFlowStats represents per-flow flow control counters. Access to it
 // must be guarded by the mutex in flowControlConnStats.
 type flowControlFlowStats struct {
-	*flowControlConnStats
+	shared *flowControlConnStats
 
 	id uint64
 
@@ -159,27 +159,10 @@ func (fs *flowControlConnStats) releaseOutstandingBorrowed(fid, val uint64) {
 	}
 }
 
-func (fs *flowControlConnStats) clearCountersLocked(fid uint64) {
-	if !fs.borrowing[fid] {
-		_, ok := fs.toRelease[fid]
-		delete(fs.toRelease, fid)
-		delete(fs.borrowing, fid)
-		fmt.Printf("%p: clearCountersLocked: not borrowing: fs.toRelease(%v: %v): #%v\n", fs, fid, ok, len(fs.toRelease))
-	} else {
-		fmt.Printf("%p: clearCountersLocked: borrowing: fs.toRelease(%v): #%v\n", fs, fid, len(fs.toRelease))
-	}
-	// Need to keep borrowed counters around so that they can be sent
-	// to the dialer to allow for the shared counter to be incremented
-	// for all the past flows that borrowed counters (ie. pretty much
-	// any/all short lived connections). A much better approach would be
-	// to use a 'special' flow ID (e.g use the invalidFlowID) to use
-	// for referring to all borrowed tokens for closed flows.
-}
-
 func (fs *flowControlFlowStats) releaseCounters(ctx *context.T, tokens uint64) {
 	debug := ctx.V(2)
-	fs.lock()
-	defer fs.unlock()
+	fs.shared.lock()
+	defer fs.shared.unlock()
 	fs.borrowing = false
 	if fs.borrowed > 0 {
 		n := tokens
@@ -187,11 +170,11 @@ func (fs *flowControlFlowStats) releaseCounters(ctx *context.T, tokens uint64) {
 			n = fs.borrowed
 		}
 		if debug {
-			ctx.Infof("Returning %d/%d tokens borrowed by %d shared: %d", n, tokens, fs.id, fs.lshared)
+			ctx.Infof("Returning %d/%d tokens borrowed by %d shared: %d", n, tokens, fs.id, fs.shared.lshared)
 		}
 		tokens -= n
 		fs.borrowed -= n
-		fs.lshared += n
+		fs.shared.lshared += n
 	}
 	fs.released += tokens
 	if debug {
@@ -204,9 +187,9 @@ func (fs *flowControlFlowStats) releaseCounters(ctx *context.T, tokens uint64) {
 // the number of shared counters for the conn if we are sending on a just
 // dialed flow.
 func (fs *flowControlFlowStats) tokens(ctx *context.T, encapsulated bool) (int, func(int)) {
-	fs.lock()
-	defer fs.unlock()
-	max := fs.mtu
+	fs.shared.lock()
+	defer fs.shared.unlock()
+	max := fs.shared.mtu
 	// When	our flow is proxied (i.e. encapsulated), the proxy has added overhead
 	// when forwarding the message. This means we must reduce our mtu to ensure
 	// that dialer framing reaches the acceptor without being truncated by the
@@ -215,16 +198,16 @@ func (fs *flowControlFlowStats) tokens(ctx *context.T, encapsulated bool) (int, 
 		max -= proxyOverhead
 	}
 	if fs.borrowing {
-		if fs.lshared < max {
-			max = fs.lshared
+		if fs.shared.lshared < max {
+			max = fs.shared.lshared
 		}
 		return int(max), func(used int) {
-			fs.lock()
-			defer fs.unlock()
-			fs.lshared -= uint64(used)
+			fs.shared.lock()
+			defer fs.shared.unlock()
+			fs.shared.lshared -= uint64(used)
 			fs.borrowed += uint64(used)
 			if ctx.V(2) {
-				ctx.Infof("deducting %d borrowed tokens on flow %d, total: %d left: %d", used, fs.id, fs.borrowed, fs.lshared)
+				ctx.Infof("deducting %d borrowed tokens on flow %d, total: %d left: %d", used, fs.id, fs.borrowed, fs.shared.lshared)
 			}
 		}
 	}
@@ -232,8 +215,8 @@ func (fs *flowControlFlowStats) tokens(ctx *context.T, encapsulated bool) (int, 
 		max = fs.released
 	}
 	return int(max), func(used int) {
-		fs.lock()
-		defer fs.unlock()
+		fs.shared.lock()
+		defer fs.shared.unlock()
 		fs.released -= uint64(used)
 		if ctx.V(2) {
 			ctx.Infof("flow %d deducting %d tokens, %d left", fs.id, used, fs.released)
@@ -242,16 +225,30 @@ func (fs *flowControlFlowStats) tokens(ctx *context.T, encapsulated bool) (int, 
 }
 
 func (fs *flowControlFlowStats) handleFlowClose(closedRemotely, notConnClosing bool) {
-	fs.lock()
-	defer fs.unlock()
+	fs.shared.lock()
+	defer fs.shared.unlock()
+	fid := fs.id
 	if closedRemotely {
 		// When the other side closes a flow, it implicitly releases all the
 		// counters used by that flow.  That means we should release the shared
 		// counter to be used on other new flows.
-		fs.lshared += fs.borrowed
+		fs.shared.lshared += fs.borrowed
 		fs.borrowed = 0
 	} else if fs.borrowed > 0 && notConnClosing {
-		fs.outstandingBorrowed[fs.id] = fs.borrowed
+		fs.shared.outstandingBorrowed[fid] = fs.borrowed
 	}
-	fs.clearCountersLocked(fs.id)
+	if !fs.shared.borrowing[fid] {
+		_, ok := fs.shared.toRelease[fid]
+		delete(fs.shared.toRelease, fid)
+		delete(fs.shared.borrowing, fid)
+		fmt.Printf("%p: clearCountersLocked: not borrowing: fs.toRelease(%v: %v): #%v\n", fs, fid, ok, len(fs.shared.toRelease))
+	} else {
+		fmt.Printf("%p: clearCountersLocked: borrowing: fs.toRelease(%v): #%v\n", fs, fid, len(fs.shared.toRelease))
+	}
+	// Need to keep borrowed counters around so that they can be sent
+	// to the dialer to allow for the shared counter to be incremented
+	// for all the past flows that borrowed counters (ie. pretty much
+	// any/all short lived connections). A much better approach would be
+	// to use a 'special' flow ID (e.g use the invalidFlowID) to use
+	// for referring to all borrowed tokens for closed flows.
 }
