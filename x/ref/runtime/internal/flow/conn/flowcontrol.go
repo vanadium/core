@@ -105,6 +105,7 @@ func (fs *flowControlConnStats) newCounters(fid uint64) {
 	defer fs.mu.Unlock()
 	fs.toRelease[fid] = DefaultBytesBufferedPerFlow
 	fs.borrowing[fid] = true
+	fmt.Printf("%p: new counters for: %v: (#%v)\n", fs, fid, len(fs.toRelease))
 }
 
 // incrementToRelease increments the 'toRelease' count for the specified flow id.
@@ -112,6 +113,7 @@ func (fs *flowControlConnStats) incrementToRelease(fid, count uint64) {
 	fs.mu.Lock()
 	defer fs.mu.Unlock()
 	fs.toRelease[fid] += count
+	fmt.Printf("%p: inc counters for: %v: (#%v)\n", fs, fid, len(fs.toRelease))
 }
 
 // createReleaseMessageContents creates the data to be sent in a release
