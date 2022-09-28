@@ -909,8 +909,8 @@ func (c *Conn) sendMessage(
 	cancelWithContext bool,
 	priority int,
 	m message.Message) error {
-	c.writeqEntry.lock()
-	defer c.writeqEntry.unlock()
+	//c.writeqEntry.lock()
+	//defer c.writeqEntry.unlock()
 	c.writeq.activateAndNotify(&c.writeqEntry, priority)
 	if cancelWithContext {
 		select {

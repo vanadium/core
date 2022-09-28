@@ -225,28 +225,28 @@ func (f *flw) writeMsg(alsoClose bool, parts ...[]byte) (sent int, err error) { 
 	f.markUsed()
 	f.lock()
 	f.writing = true
-	f.unlock()
 
-	f.writeqEntry.lock()
+	//f.writeqEntry.lock()
 	f.writeq.activateWriter(&f.writeqEntry, flowPriority)
 	for err == nil && len(parts) > 0 {
 		f.writeq.notifyNextWriter(&f.writeqEntry)
+		f.unlock()
 
 		// Wait for our turn.
 		select {
 		case <-ctx.Done():
 			err = io.EOF
-		case <-time.After(time.Second):
-			f.writeq.dumpAndExit("timeout", &f.writeqEntry, nil)
 		case <-f.writeqEntry.notify:
 		}
+
+		f.lock()
 
 		// It's our turn, we lock to learn the current state of our buffer tokens.
 		if err != nil {
 			break
 		}
 
-		opened := f.isOpened()
+		opened := f.opened
 		tokens, deduct := f.flowControl.tokens(ctx, f.encapsulated)
 		if opened && (tokens == 0 || ((f.noEncrypt || f.noFragment) && (tokens < totalSize))) {
 			// Oops, we really don't have data to send, probably because we've exhausted
@@ -289,19 +289,17 @@ func (f *flw) writeMsg(alsoClose bool, parts ...[]byte) (sent int, err error) { 
 				Flags:           d.Flags,
 				Payload:         d.Payload,
 			})
-			f.setOpened()
+			f.setOpenedLocked()
 		}
 		sent += size
 	}
-
-	f.lock()
 	f.writing = false
 	f.unlock()
 
 	f.writeq.deactivateWriter(&f.writeqEntry, flowPriority)
 	f.writeq.notifyNextWriter(&f.writeqEntry)
 
-	f.writeqEntry.unlock()
+	//f.writeqEntry.unlock()
 
 	if debug {
 		f.ctx.Infof("finishing write on %d(%p): %v", f.id, f, err)
@@ -426,19 +424,16 @@ func (f *flw) ID() uint64 {
 	return f.id
 }
 
-// isOpened returns true if the flow has been opened.
-func (f *flw) isOpened() bool {
-	f.mu.Lock()
-	defer f.mu.Unlock()
-	return f.opened
-}
-
 // setOpened ensures that on exit f.opened is true and if necessary
 // (ie. f.opened was false on entry) it will call Done on the unopenedFlows
 // waitgroup.
 func (f *flw) setOpened() bool {
 	f.mu.Lock()
 	defer f.mu.Unlock()
+	return f.setOpenedLocked()
+}
+
+func (f *flw) setOpenedLocked() bool {
 	if f.opened {
 		return true
 	}

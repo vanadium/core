@@ -66,12 +66,13 @@ type writer struct {
 	// to be sent and head.prev points to the last item to be sent.
 	prev, next *writer
 
-	mu     sync.Mutex
+	//mu     sync.Mutex
 	notify chan struct{}
 
 	stack []uintptr
 }
 
+/*
 func (w *writer) lock() {
 	w.mu.Lock()
 }
@@ -79,6 +80,7 @@ func (w *writer) lock() {
 func (w *writer) unlock() {
 	w.mu.Unlock()
 }
+*/
 
 // initWriter initializes the supplied writer, in particular creating a channel
 // for notificaions.
@@ -166,6 +168,7 @@ func (q *writeq) notifyNextWriterLocked(w *writer) {
 		if head != nil {
 			q.activeWriters[p] = head.next
 			q.writing = head
+			//head.notify <- struct{}{}
 			select {
 			case head.notify <- struct{}{}:
 				q.trace.append(&writeqNotification{q: q, w: w, s: q.stringLocked()})
