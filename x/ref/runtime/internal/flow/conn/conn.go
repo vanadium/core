@@ -884,8 +884,8 @@ LastUsed:    %v
 }
 
 func (c *Conn) writeEncodedBlessings(ctx *context.T, w *writer, data []byte) error {
-	w.lock()
-	defer w.unlock()
+	//	w.lock()
+	//	defer w.unlock()
 	c.writeq.activateAndNotify(w, flowPriority)
 	select {
 	case <-ctx.Done():

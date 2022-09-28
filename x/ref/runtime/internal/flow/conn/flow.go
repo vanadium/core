@@ -47,7 +47,7 @@ type flw struct {
 	// this will always be true.
 	opened bool
 	// writing is true if we're in the middle of a write to this flow.
-	writing bool
+	writing chan struct{}
 	// closed is true as soon as f.close has been called.
 	closed bool
 }
@@ -176,9 +176,11 @@ func (f *flw) releaseCounters(tokens uint64) {
 	// by waiting for it's turn in the writeq, so we give it a chance to
 	// run to check to see what it's state is.
 	f.lock()
-	if f.writing {
-		f.writeq.activateWriter(&f.writeqEntry, flowPriority)
-		f.writeq.notifyNextWriter(nil)
+	if f.writing != nil {
+		close(f.writing)
+		f.writing = make(chan struct{})
+		//		f.writeq.activateWriter(&f.writeqEntry, flowPriority)
+		//		f.writeq.notifyNextWriter(nil)
 		if debug {
 			f.ctx.Infof("Activated writing flow %d(%p) now that we have tokens.", f.id, f)
 		}
@@ -224,29 +226,35 @@ func (f *flw) writeMsg(alsoClose bool, parts ...[]byte) (sent int, err error) { 
 
 	f.markUsed()
 	f.lock()
-	f.writing = true
+	f.writing = make(chan struct{})
+	f.unlock()
 
 	//f.writeqEntry.lock()
 	f.writeq.activateWriter(&f.writeqEntry, flowPriority)
 	for err == nil && len(parts) > 0 {
 		f.writeq.notifyNextWriter(&f.writeqEntry)
-		f.unlock()
 
 		// Wait for our turn.
 		select {
 		case <-ctx.Done():
 			err = io.EOF
 		case <-f.writeqEntry.notify:
+		case <-f.writing:
+			// drain the queue, just in case both are ready.
+			select {
+			case <-f.writeqEntry.notify:
+			default:
+			}
 		}
-
-		f.lock()
 
 		// It's our turn, we lock to learn the current state of our buffer tokens.
 		if err != nil {
 			break
 		}
 
+		f.lock()
 		opened := f.opened
+		f.unlock()
 		tokens, deduct := f.flowControl.tokens(ctx, f.encapsulated)
 		if opened && (tokens == 0 || ((f.noEncrypt || f.noFragment) && (tokens < totalSize))) {
 			// Oops, we really don't have data to send, probably because we've exhausted
@@ -289,11 +297,13 @@ func (f *flw) writeMsg(alsoClose bool, parts ...[]byte) (sent int, err error) { 
 				Flags:           d.Flags,
 				Payload:         d.Payload,
 			})
-			f.setOpenedLocked()
+			f.setOpened()
 		}
 		sent += size
 	}
-	f.writing = false
+
+	f.lock()
+	f.writing = nil
 	f.unlock()
 
 	f.writeq.deactivateWriter(&f.writeqEntry, flowPriority)
