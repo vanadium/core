@@ -167,27 +167,9 @@ func (f *flw) Write(p []byte) (n int, err error) {
 // releaseCounters releases some counters from a remote reader to the local
 // writer.  This allows the writer to then write more data to the wire.
 func (f *flw) releaseCounters(tokens uint64) {
-	debug := f.ctx.V(2)
-	f.flowControl.lock()
-
-	f.flowControl.borrowing = false
-	if f.flowControl.borrowed > 0 {
-		n := tokens
-		if f.flowControl.borrowed < tokens {
-			n = f.flowControl.borrowed
-		}
-		if debug {
-			f.ctx.Infof("Returning %d/%d tokens borrowed by %d(%p) shared: %d", n, tokens, f.id, f, f.flowControl.lshared)
-		}
-		tokens -= n
-		f.flowControl.borrowed -= n
-		f.flowControl.lshared += n
-	}
-	f.flowControl.released += tokens
-	if debug {
-		f.ctx.Infof("Tokens release to %d(%p): %d => %d", f.id, f, tokens, f.flowControl.released)
-	}
-	f.flowControl.unlock()
+	ctx := f.currentContext()
+	debug := ctx.V(2)
+	f.flowControl.releaseCounters(ctx, tokens)
 
 	// If f.writing is true, flow.writeMsg may be waiting for tokens
 	// by waiting for it's turn in the writeq, so we give it a chance to
