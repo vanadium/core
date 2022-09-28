@@ -94,6 +94,8 @@ func (c *Conn) newFlowLocked(
 	initWriter(&f.writeqEntry, 1)
 
 	f.q = newReadQ(f.sendRelease)
+
+	f.flowControl.shared = &c.flowControl
 	f.flowControl.borrowing = dialed
 	f.flowControl.id = id
 
