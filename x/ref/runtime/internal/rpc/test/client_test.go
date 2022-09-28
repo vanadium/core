@@ -652,7 +652,6 @@ func TestStreamTimeout(t *testing.T) {
 		// connection rather than having the overhead of establishing a new one.
 		var out string
 		if err := v23.GetClient(ctx).Call(ctx, name, "Echo", []interface{}{"dummy"}, []interface{}{&out}); err != nil {
-			fmt.Printf("ERRR... %v\n", err)
 			return err
 		}
 
@@ -666,8 +665,8 @@ func TestStreamTimeout(t *testing.T) {
 		if err != nil {
 			if !errors.Is(err, verror.ErrTimeout) {
 				record := vtrace.GetStore(ctx).TraceRecord(span.Trace())
-				return fmt.Errorf("timeout: %s: verror should be a timeout not %s: stack %s, vtrace: %v",
-					timeout, err, verror.Stack(err), record)
+				return fmt.Errorf("timeout: %s: verror should be a timeout not %s: err: %v, stack %s, vtrace: %v",
+					timeout, err, verror.DebugString(err), verror.Stack(err), record)
 			}
 			return nil
 		}
@@ -684,19 +683,19 @@ func TestStreamTimeout(t *testing.T) {
 			}
 			if got, want := verror.ErrorID(err), verror.ErrTimeout.ID; got != want {
 				record := vtrace.GetStore(ctx).TraceRecord(span.Trace())
-				return fmt.Errorf("timeout %s: got %v, want %v\n%v", timeout, got, want, record)
+				return fmt.Errorf("timeout %s: got %v, want %v\n%v\n%v", timeout, got, want, verror.DebugString(err), record)
 			}
 			break
 		}
 		err = call.Finish()
 		if got, want := verror.ErrorID(err), verror.ErrTimeout.ID; got != want {
 			record := vtrace.GetStore(ctx).TraceRecord(span.Trace())
-			return fmt.Errorf("timeout: %s, got %v, want %v:\n%v", timeout, got, want, record)
+			return fmt.Errorf("timeout: %s, got %v, want %v:\n%v\n%v", timeout, got, want, verror.DebugString(err), record)
 		}
 		return nil
 	}
 
-	timeoutTest(t, ctx, runner, 3*time.Millisecond, time.Second)
+	timeoutTest(t, ctx, runner, 3*time.Millisecond, 300*time.Millisecond, time.Second)
 
 }
 

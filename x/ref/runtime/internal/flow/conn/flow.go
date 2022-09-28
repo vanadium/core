@@ -77,8 +77,8 @@ func (c *Conn) newFlowLocked(
 		channelTimeout: channelTimeout,
 		sideChannel:    sideChannel,
 	}
+	f.flowControl.shared = &c.flowControl
 	f.flowControl.borrowing = dialed
-	f.flowControl.flowControlConnStats = &c.flowControl
 	f.flowControl.id = id
 
 	f.q = newReadQ(c.bytesBufferedPerFlow, f.sendRelease)
