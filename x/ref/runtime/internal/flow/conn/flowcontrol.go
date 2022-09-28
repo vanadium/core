@@ -169,6 +169,29 @@ func (fs *flowControlConnStats) clearCountersLocked(fid uint64) {
 	// for referring to all borrowed tokens for closed flows.
 }
 
+func (fs *flowControlFlowStats) releaseCounters(ctx *context.T, tokens uint64) {
+	debug := ctx.V(2)
+	fs.lock()
+	defer fs.unlock()
+	fs.borrowing = false
+	if fs.borrowed > 0 {
+		n := tokens
+		if fs.borrowed < tokens {
+			n = fs.borrowed
+		}
+		if debug {
+			ctx.Infof("Returning %d/%d tokens borrowed by %d shared: %d", n, tokens, fs.id, fs.lshared)
+		}
+		tokens -= n
+		fs.borrowed -= n
+		fs.lshared += n
+	}
+	fs.released += tokens
+	if debug {
+		ctx.Infof("Tokens release to %d(%p): %d => %d", fs.id, tokens, fs.released)
+	}
+}
+
 // tokens returns the number of tokens this flow can send right now.
 // It is bounded by the channel mtu, the released counters, and possibly
 // the number of shared counters for the conn if we are sending on a just
