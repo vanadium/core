@@ -161,11 +161,12 @@ func (fs *flowControlConnStats) releaseOutstandingBorrowed(fid, val uint64) {
 
 func (fs *flowControlConnStats) clearCountersLocked(fid uint64) {
 	if !fs.borrowing[fid] {
+		_, ok := fs.toRelease[fid]
 		delete(fs.toRelease, fid)
 		delete(fs.borrowing, fid)
-		fmt.Printf("%p: not borrowing: fs.toRelease: #%v\n", fs, len(fs.toRelease))
+		fmt.Printf("%p: clearCountersLocked: not borrowing: fs.toRelease(%v: %v): #%v\n", fs, fid, ok, len(fs.toRelease))
 	} else {
-		fmt.Printf("%p:     borrowing: fs.toRelease: #%v\n", fs, len(fs.toRelease))
+		fmt.Printf("%p: clearCountersLocked: borrowing: fs.toRelease(%v): #%v\n", fs, fid, len(fs.toRelease))
 	}
 	// Need to keep borrowed counters around so that they can be sent
 	// to the dialer to allow for the shared counter to be incremented
