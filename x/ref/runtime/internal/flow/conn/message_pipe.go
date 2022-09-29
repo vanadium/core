@@ -59,15 +59,14 @@ type messagePipe struct {
 	framer      framer.T
 	frameOffset int
 
-	// locks are required to serialize access to the cipher operations since
+	// locks are required to serialize access to the read/write operations since
 	// the messagePipe may be called by different goroutines when connections
-	// are being created or because of the need to send changed blessings
-	// asynchronously. Other than these cases there will be no lock
-	// contention.
-	sealMu sync.Mutex
-	seal   sealFunc
-	openMu sync.Mutex
-	open   openFunc
+	// now that finer granularity locking is used by the conn and flow objects.
+	readMu  sync.Mutex
+	writeMu sync.Mutex
+
+	seal sealFunc
+	open openFunc
 }
 
 func (p *messagePipe) isEncapsulated() bool {
@@ -128,14 +127,19 @@ func (p *messagePipe) writeCiphertext(ctx *context.T, m message.Message, plainte
 	if err != nil {
 		return
 	}
-	p.sealMu.Lock()
 	wire, err = p.seal(ciphertextBuf[p.frameOffset:p.frameOffset], plaintext)
-	p.sealMu.Unlock()
 	framed = ciphertextBuf
 	return
 }
 
 func (p *messagePipe) writeMsg(ctx *context.T, m message.Message) error {
+	p.writeMu.Lock()
+	defer p.writeMu.Unlock()
+	//if dm, ok := m.(*message.Data); ok && len(dm.Payload) > 0 {
+	//fmt.Printf("%p: writeMsg: %T: #%v bytes\n", p, m, len(dm.Payload[0]))
+	//} else {
+	//fmt.Printf("%p: writeMsg: %T\n", p, m)
+	//}
 	plaintextBuf := messagePipePool.Get().(*[]byte)
 	defer messagePipePool.Put(plaintextBuf)
 
@@ -193,9 +197,7 @@ func (p *messagePipe) readClearText(ctx *context.T, plaintextBuf []byte) ([]byte
 	if err != nil {
 		return nil, err
 	}
-	p.openMu.Lock()
 	plaintext, ok := p.open(plaintextBuf[:0], ciphertext)
-	p.openMu.Unlock()
 	if !ok {
 		return nil, message.NewErrInvalidMsg(ctx, 0, uint64(len(ciphertext)), 0, nil)
 	}
@@ -203,6 +205,8 @@ func (p *messagePipe) readClearText(ctx *context.T, plaintextBuf []byte) ([]byte
 }
 
 func (p *messagePipe) readMsg(ctx *context.T, plaintextBuf []byte) (message.Message, error) {
+	p.readMu.Lock()
+	defer p.readMu.Unlock()
 	plaintext, err := p.readClearText(ctx, plaintextBuf)
 	if err != nil {
 		return nil, err
@@ -226,11 +230,13 @@ func (p *messagePipe) readAnyMessage(ctx *context.T, plaintext []byte) (message.
 	if ctx.V(2) {
 		ctx.Infof("Read low-level message: %T: %v", m, m)
 	}
-	//fmt.Printf("readAnyMessage: %T (from %v bytes)\n", m, len(plaintext))
+	//fmt.Printf("%p: readMsg.Any: %T\n", p, m)
 	return m, err
 }
 
 func (p *messagePipe) readDataMsg(ctx *context.T, plaintextBuf []byte, m *message.Data) (message.Message, error) {
+	p.readMu.Lock()
+	defer p.readMu.Unlock()
 	plaintext, err := p.readClearText(ctx, plaintextBuf)
 	if err != nil {
 		return nil, err
@@ -251,10 +257,10 @@ func (p *messagePipe) readDataMsg(ctx *context.T, plaintextBuf []byte, m *messag
 	if ctx.V(2) {
 		ctx.Infof("Read low-level message: %T: %v", m, m)
 	}
-	//if len(m.Payload) > 0 {
-	//fmt.Printf("readDataMsg: %T (payload %v)\n", m, len(m.Payload[0]))
-	//} else {
-	//fmt.Printf("readDataMsg: %T (empty payload)\n", m)
-	//}
+	/*if len(m.Payload) > 0 {
+		fmt.Printf("%p: readMsg.Data: %T (payload %v)\n", p, m, len(m.Payload[0]))
+	} else {
+		fmt.Printf("%p: readMsg.Data: %T (empty payload)\n", p, m)
+	}*/
 	return nil, nil
 }

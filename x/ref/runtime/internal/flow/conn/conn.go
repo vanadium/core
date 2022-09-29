@@ -684,8 +684,10 @@ func (c *Conn) internalClose(ctx *context.T, closedRemotely, closedWhileAcceptin
 }
 
 func (c *Conn) internalCloseLocked(ctx *context.T, closedRemotely, closedWhileAccepting bool, err error) {
-	debug := ctx.VI(2)
-	debug.Infof("Closing connection: %v", err)
+	debug := ctx.V(2)
+	if debug {
+		ctx.Infof("Closing connection: %v", err)
+	}
 
 	if c.status >= Closing {
 		// This conn is already being torn down.
@@ -728,8 +730,8 @@ func (c *Conn) internalCloseLocked(ctx *context.T, closedRemotely, closedWhileAc
 		for _, f := range flows {
 			f.close(ctx, false, err)
 		}
-		if cerr := c.mp.Close(); cerr != nil {
-			debug.Infof("Error closing underlying connection for %s: %v", c.remote, cerr)
+		if cerr := c.mp.Close(); cerr != nil && debug {
+			ctx.Infof("Error closing underlying connection for %s: %v", c.remote, cerr)
 		}
 		if c.cancel != nil {
 			c.cancel()
@@ -816,6 +818,9 @@ func (c *Conn) sendRelease(ctx *context.T, fid, count uint64) {
 		c.flowControl.incrementToRelease(fid, count)
 	}
 	toRelease := c.flowControl.createReleaseMessageContents(fid, count)
+	//if count != 0 {
+	//fmt.Printf("%p: sendRelease: flow %v, count %v: all %p: %v (ok: %v)\n", c, fid, count, toRelease, toRelease, ok)
+	//}
 	var err error
 	if toRelease != nil {
 		delete(toRelease, invalidFlowID)
@@ -891,18 +896,13 @@ LastUsed:    %v
 }
 
 func (c *Conn) writeEncodedBlessings(ctx *context.T, w *writer, data []byte) error {
-	//	w.lock()
-	//	defer w.unlock()
-	c.writeq.activateAndNotify(w, flowPriority)
-	select {
-	case <-ctx.Done():
-		return ctx.Err()
-	case <-w.notify:
+	if err := c.writeq.wait(ctx, w, flowPriority); err != nil {
+		return err
 	}
 	err := c.mp.writeMsg(ctx, &message.Data{
 		ID:      blessingsFlowID,
 		Payload: [][]byte{data}})
-	c.writeq.deactivateAndNotify(w, flowPriority)
+	c.writeq.done(w)
 	return err
 }
 
@@ -916,26 +916,16 @@ func (c *Conn) sendMessage(
 	cancelWithContext bool,
 	priority int,
 	m message.Message) error {
-	//c.writeqEntry.lock()
-	//defer c.writeqEntry.unlock()
-	c.writeq.activateAndNotify(&c.writeqEntry, priority)
+
+	var cctx *context.T
 	if cancelWithContext {
-		select {
-		case <-ctx.Done():
-			c.writeq.deactivateAndNotify(&c.writeqEntry, priority)
-			return ctx.Err()
-		case <-c.writeqEntry.notify:
-			//fmt.Printf("%p: sendMessage cancel notified: %v\n", &c.writeqEntry, &c.writeqEntry.notify)
-		}
-	} else {
-		//		fmt.Printf("waiting our turn: %p .. %v\n%s\n", &c.writeqEntry, c.writeqEntry.notify, &c.writeq)
-		<-c.writeqEntry.notify
-		//		fmt.Printf("got our turn: %p .. %v\n", &c.writeqEntry, c.writeqEntry.notify)
-		//fmt.Printf("%p: sendMessage notified: %v\n", &c.writeqEntry, &c.writeqEntry.notify)
+		cctx = ctx
 	}
-	// send the actual message.
+	if err := c.writeq.wait(cctx, &c.writeqEntry, priority); err != nil {
+		return err
+	}
 	err := c.mp.writeMsg(ctx, m)
-	c.writeq.deactivateAndNotify(&c.writeqEntry, priority)
+	c.writeq.done(&c.writeqEntry)
 	return err
 }
 

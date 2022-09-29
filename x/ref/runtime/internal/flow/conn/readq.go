@@ -145,7 +145,6 @@ func (r *readq) read(ctx *context.T, data []byte) (n int, err error) {
 func (r *readq) get(ctx *context.T) (out []byte, err error) {
 	r.mu.Lock()
 	if err = r.waitLocked(ctx); err == nil {
-		err = nil
 		out = r.bufs[r.b]
 		r.bufs[r.b] = nil // allow used buffer to be GC'ed
 		r.b = (r.b + 1) % len(r.bufs)

@@ -5,10 +5,8 @@
 package conn
 
 import (
-	"fmt"
 	"io"
 	"net"
-	"os"
 	"sync"
 	"time"
 
@@ -48,8 +46,11 @@ type flw struct {
 	// we need to send an open flow on the next write.  For accepted flows
 	// this will always be true.
 	opened bool
-	// writing is true if we're in the middle of a write to this flow.
-	writing chan struct{}
+
+	// tokenWait is set if a write is blocked waiting for flowcontrol
+	// tokens. When tokens become available the channel should be closed.
+	tokenWait chan struct{}
+
 	// closed is true as soon as f.close has been called.
 	closed bool
 }
@@ -167,40 +168,46 @@ func (f *flw) Write(p []byte) (n int, err error) {
 	return f.WriteMsg(p)
 }
 
-// releaseCounters releases some counters from a remote reader to the local
-// writer.  This allows the writer to then write more data to the wire.
-func (f *flw) releaseCounters(tokens uint64) {
-	ctx := f.currentContext()
-	debug := ctx.V(2)
-	f.flowControl.releaseCounters(ctx, tokens)
-
-	// If f.writing is true, flow.writeMsg may be waiting for tokens
-	// by waiting for it's turn in the writeq, so we give it a chance to
-	// run to check to see what it's state is.
-	f.lock()
-	if f.writing != nil {
-		//fmt.Printf("CLOSING %v\n", f.writing)
-		/*select {
-		case f.writing <- struct{}{}:
-		default:
-		}*/
-		f.unlock()
-		//f.writing = nil
-		//		f.writing = make(chan struct{})
-		f.writeq.activateWriter(&f.writeqEntry, flowPriority)
-		f.writeq.notifyNextWriter(nil)
-		if debug {
-			f.ctx.Infof("Activated writing flow %d(%p) now that we have tokens.", f.id, f)
-		}
-	} else {
-		f.unlock()
-	}
-}
-
 func (f *flw) currentContext() *context.T {
 	f.lock()
 	defer f.unlock()
 	return f.ctx
+}
+
+// releaseCounters releases some counters from a remote reader to the local
+// writer.  This allows the writer to then write more data to the wire.
+func (f *flw) releaseCounters(tokens uint64) {
+	ctx := f.currentContext()
+	f.flowControl.releaseCounters(ctx, tokens)
+	//fmt.Fprintf(os.Stderr, "%p:%v: releaseCounters: #%v tokens\n", f, f.id, tokens)
+	f.tokensAvailable(ctx)
+}
+
+func (f *flw) tokensAvailable(ctx *context.T) {
+	f.lock()
+	defer f.unlock()
+	if f.tokenWait != nil {
+		// If f.tokenWait is set, flow.writeMsg is waiting for tokens, so
+		// notify it that some may have arrived.
+		close(f.tokenWait)
+		f.tokenWait = nil
+		if ctx.V(2) {
+			ctx.Infof("Activated writing flow %d(%p) now that we have tokens.", f.id, f)
+		}
+	}
+}
+
+func (f *flw) waitForTokens(ctx *context.T) error {
+	f.lock()
+	ch := make(chan struct{})
+	f.tokenWait = ch
+	f.unlock()
+	select {
+	case <-ctx.Done():
+		return ctx.Err()
+	case <-ch:
+		return nil
+	}
 }
 
 func (f *flw) writeMsg(alsoClose bool, parts ...[]byte) (sent int, err error) { //nolint:gocyclo
@@ -234,41 +241,19 @@ func (f *flw) writeMsg(alsoClose bool, parts ...[]byte) (sent int, err error) { 
 	size, sent, tosend := 0, 0, make([][]byte, len(parts))
 
 	f.markUsed()
-	f.lock()
-	f.writing = make(chan struct{}, 1)
-	fmt.Printf("f.writing: %v\n", f.writing)
 
-	//f.writeqEntry.lock()
-	f.writeq.activateWriter(&f.writeqEntry, flowPriority)
 	for err == nil && len(parts) > 0 {
-		f.writeq.notifyNextWriter(&f.writeqEntry)
-		f.unlock()
-
-		// Wait for our turn.
-		fmt.Fprintf(os.Stderr, "%p:%p: waiting\n", f.writeq, &f.writeqEntry)
-		select {
-		case <-ctx.Done():
+		if werr := f.writeq.wait(ctx, &f.writeqEntry, flowPriority); werr != nil {
 			err = io.EOF
-		case <-f.writeqEntry.notify:
-			//case _, ok := <-f.writing:
-			//	fmt.Printf("OK: got closing %v: %v - %v\n", f.writing, ok, len(f.writeqEntry.notify))
-			// drain the queue, just in case both are ready.
-			/*select {
-			case <-f.writeqEntry.notify:
-				fmt.Printf("Ok. oh ok\n")
-			default:
-			}*/
-		}
-		fmt.Fprintf(os.Stderr, "%p:%p: ready: %v\n", f.writeq, &f.writeqEntry, err)
-
-		if err != nil {
 			break
 		}
 
 		// It's our turn, we lock to learn the current state of our buffer tokens.
 		f.lock()
 		opened := f.opened
+		f.unlock()
 		tokens, deduct := f.flowControl.tokens(ctx, f.encapsulated)
+
 		if opened && (tokens == 0 || ((f.noEncrypt || f.noFragment) && (tokens < totalSize))) {
 			// Oops, we really don't have data to send, probably because we've exhausted
 			// the remote buffer.  deactivate ourselves but keep trying.
@@ -281,9 +266,10 @@ func (f *flw) writeMsg(alsoClose bool, parts ...[]byte) (sent int, err error) { 
 			if debug {
 				f.ctx.Infof("Deactivating write on flow %d(%p) due to lack of tokens", f.id, f)
 			}
-			// We'll get added back by releaseCounters.
-			f.writeq.deactivateWriter(&f.writeqEntry, flowPriority)
-			fmt.Fprintf(os.Stderr, "%p:%p: need flow control\n", f.writeq, &f.writeqEntry)
+			f.writeq.done(&f.writeqEntry)
+			//fmt.Fprintf(os.Stderr, "%p:%p:%v: %p:%p: need flow control: %v %v/%v\n", f.conn, f, f.id, f.writeq, &f.writeqEntry, tokens, sent, totalSize)
+			err = f.waitForTokens(ctx)
+			//fmt.Fprintf(os.Stderr, "%p:%p:%v: %p:%p: got flow control\n", f.conn, f, f.id, f.writeq, &f.writeqEntry)
 			continue
 		}
 
@@ -299,7 +285,6 @@ func (f *flw) writeMsg(alsoClose bool, parts ...[]byte) (sent int, err error) { 
 		if f.noEncrypt {
 			d.Flags |= message.DisableEncryptionFlag
 		}
-
 		if opened {
 			err = f.conn.mp.writeMsg(ctx, d)
 		} else {
@@ -311,19 +296,16 @@ func (f *flw) writeMsg(alsoClose bool, parts ...[]byte) (sent int, err error) { 
 				Flags:           d.Flags,
 				Payload:         d.Payload,
 			})
-			f.setOpenedLocked()
+			f.setOpened()
 		}
-		sent += size
+		if err == nil {
+			sent += size
+		}
+		f.writeq.done(&f.writeqEntry)
+		//fmt.Fprintf(os.Stderr, "%p: wrote #%v/%v bytes on %p: err %v\n", f, len(d.Payload[0]), sent, f.conn.mp, err)
 	}
 
-	close(f.writing)
-	f.writing = nil
-	f.unlock()
-
-	f.writeq.deactivateWriter(&f.writeqEntry, flowPriority)
-	f.writeq.notifyNextWriter(&f.writeqEntry)
-
-	//f.writeqEntry.unlock()
+	//fmt.Fprintf(os.Stderr, "%p: wrote #%v bytes: done (close: %v): err %v\n", f, sent, alsoClose, err)
 
 	if debug {
 		f.ctx.Infof("finishing write on %d(%p): %v", f.id, f, err)

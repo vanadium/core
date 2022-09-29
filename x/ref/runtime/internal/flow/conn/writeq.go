@@ -8,7 +8,8 @@ import (
 	"fmt"
 	"strings"
 	"sync"
-	"time"
+
+	"v.io/v23/context"
 )
 
 const (
@@ -47,7 +48,7 @@ type writeq struct {
 	// of all the lowest priority writing flows.
 	activeWriters [numPriorities]*writer
 
-	writing *writer
+	active *writer
 
 	trace callerCircularList
 }
@@ -69,20 +70,10 @@ type writer struct {
 	// to be sent and head.prev points to the last item to be sent.
 	prev, next *writer
 
-	//mu     sync.Mutex
 	notify chan struct{}
 
 	stack []uintptr
 }
-
-/*func (w *writer) lock() {
-	w.mu.Lock()
-}
-
-func (w *writer) unlock() {
-	w.mu.Unlock()
-}
-*/
 
 // initWriter initializes the supplied writer, in particular creating a channel
 // for notificaions.
@@ -100,7 +91,12 @@ func (q *writeq) String() string {
 
 func (q *writeq) stringLocked() string {
 	out := strings.Builder{}
-	fmt.Fprintf(&out, "writeq(%p): active: %p\n", q, q.writing)
+	if q.active == nil {
+		fmt.Fprintf(&out, "writeq(%p): idle\n", q)
+	} else {
+		fmt.Fprintf(&out, "writeq(%p): active: %p\n", q, q.active)
+
+	}
 	for p, h := range q.activeWriters {
 		if h != nil {
 			fmt.Fprintf(&out, "\t%v: ", p)
@@ -114,23 +110,6 @@ func (q *writeq) stringLocked() string {
 		}
 	}
 	return out.String()
-}
-
-// activateWriter adds a given writer to the list of active writers.
-// The writer will be given a turn when the channel becomes available.
-// You should try to only have writers with actual work to do in the
-// list of activeWriters because we will switch to that thread to allow it
-// to do work, and it will be wasteful if it turns out there is no work to do.
-// After calling this you should typically call notifyNextWriterLocked.
-func (q *writeq) activateWriter(w *writer, p int) {
-	q.mu.Lock()
-	defer q.mu.Unlock()
-	head := q.activeWriters[p]
-	if head == w || w.prev != nil || w.next != nil {
-		// We're already active, ie. in a list.
-		return
-	}
-	q.addWriterLocked(head, w, p)
 }
 
 func (q *writeq) addWriterLocked(head *writer, w *writer, p int) {
@@ -147,89 +126,76 @@ func (q *writeq) addWriterLocked(head *writer, w *writer, p int) {
 	}
 }
 
-// notifyNextWriter notifies the highest priority activeWriter to take
-// a turn writing.  If w is the active writer give up w's claim and choose
-// the next writer (which maybe w itself if there are no other writers ahead
-// of it in the queue).  If there is already an active
-// writer != w, this function does nothing.
-func (q *writeq) notifyNextWriter(w *writer) {
+func (q *writeq) wait(ctx *context.T, w *writer, p int) error {
 	q.mu.Lock()
-	defer q.mu.Unlock()
-	q.notifyNextWriterLocked(w)
+	if q.active != nil {
+		//		fmt.Printf("%p: active: non idle %p\n", q, q.active)
+		q.addWriterLocked(q.activeWriters[p], w, p)
+		q.mu.Unlock()
+	} else {
+		//		fmt.Printf("%p: active: idle\n", q)
+		q.active = w
+		head := q.nextLocked()
+		if head == nil || head == w {
+			// Either the q is empty or w is the only item in the q.
+			q.mu.Unlock()
+			return nil
+		}
+		q.mu.Unlock()
+		// notify the next item and then wait to be notified below.
+		head.notify <- struct{}{}
+	}
+
+	if ctx == nil {
+		<-w.notify
+	} else {
+		select {
+		case <-ctx.Done():
+			return ctx.Err()
+		case <-w.notify:
+		}
+	}
+	return nil
 }
 
-func (q *writeq) notifyNextWriterLocked(w *writer) {
-	if q.writing == w {
-		// give up w's turn.
-		q.writing = nil
+func (q *writeq) done(w *writer) {
+	q.mu.Lock()
+	if q.active == w {
+		q.active = nil
 	}
-	if q.writing != nil {
+	head := q.nextLocked()
+	q.mu.Unlock()
+	if head != nil {
+		head.notify <- struct{}{}
+	}
+}
+
+func (q *writeq) notifyNext() {
+	q.mu.Lock()
+	head := q.nextLocked()
+	q.mu.Unlock()
+	if head == nil {
 		return
 	}
+	head.notify <- struct{}{}
+}
+
+// nextLocked returns the next writer in the q by priority and LIFO
+// order. If a writer is found it is removed from the queue.
+func (q *writeq) nextLocked() *writer {
 	for p, head := range q.activeWriters {
 		if head != nil {
-			q.activeWriters[p] = head.next
-			q.writing = head
-			//head.notify <- struct{}{}
-			select {
-			case head.notify <- struct{}{}:
-				q.trace.append(&writeqNotification{q: q, w: w, s: q.stringLocked()})
-			case <-time.After(time.Second):
-				q.dumpAndExit("would block", w, head)
+			prv, nxt := head.prev, head.next
+			if nxt == head {
+				q.activeWriters[p] = nil
+				return head
 			}
-			return
+			q.activeWriters[p] = head.next
+			nxt.prev = prv
+			prv.next = nxt
+			head.prev, head.next = nil, nil
+			return head
 		}
 	}
-}
-
-// deactivateAndNotify is equivalent to calling activateWriter followed
-// by notifyNextWriter.
-func (q *writeq) activateAndNotify(w *writer, p int) {
-	q.mu.Lock()
-	defer q.mu.Unlock()
-	head := q.activeWriters[p]
-	if head != w && w != nil && w.prev == nil && w.next == nil {
-		// w is not in any queue, so add it.
-		q.addWriterLocked(head, w, p)
-	}
-	q.notifyNextWriterLocked(w)
-}
-
-// deactivateWriterLocked removes a writer from the active writer list.  After
-// this function is called it is certain that the writer will not be given any
-// new turns.  If the writer is already in the middle of a turn, that turn is
-// not terminated, workers must end their turn explicitly by calling
-// notifyNextWriterLocked.
-func (q *writeq) deactivateWriter(w *writer, p int) {
-	q.mu.Lock()
-	defer q.mu.Unlock()
-	if w.next == nil && w.prev == nil {
-		return
-	}
-	q.rmWriter(w, p)
-}
-
-func (q *writeq) rmWriter(w *writer, p int) {
-	prv, nxt := w.prev, w.next
-	if head := q.activeWriters[p]; head == w {
-		if w == nxt { // We're the only one in the list.
-			q.activeWriters[p] = nil
-		} else {
-			q.activeWriters[p] = nxt
-		}
-	}
-	w.next.prev = prv
-	prv.next = nxt
-	w.prev, w.next = nil, nil
-}
-
-// deactivateAndNotify is equivalent to calling deactivateWriter followed
-// by notifyNextWriter.
-func (q *writeq) deactivateAndNotify(w *writer, p int) {
-	q.mu.Lock()
-	defer q.mu.Unlock()
-	if w.next != nil && w.prev != nil {
-		q.rmWriter(w, p)
-	}
-	q.notifyNextWriterLocked(w)
+	return nil
 }

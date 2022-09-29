@@ -7,6 +7,7 @@ package conn
 import (
 	"reflect"
 	"runtime"
+	"sync"
 	"testing"
 )
 
@@ -34,25 +35,22 @@ func listWQEntries(wq *writeq, p int) []*writer {
 
 func addWriteq(wq *writeq, priority int, w ...*writeqEntry) {
 	for i := range w {
-		wq.activateWriter(&w[i].writer, priority)
-	}
-}
-
-func rmWriteq(wq *writeq, priority int, w ...*writeqEntry) {
-	for i := range w {
-		wq.deactivateWriter(&w[i].writer, priority)
+		wq.addWriterLocked(wq.activeWriters[priority], &w[i].writer, priority)
 	}
 }
 
 func cmpWriteqEntries(t *testing.T, wq *writeq, priority int, active *writeqEntry, w ...*writeqEntry) {
-	_, _, line, _ := runtime.Caller(2)
-	var writing *writer
-	if active != nil {
-		writing = &active.writer
+	_, _, line, _ := runtime.Caller(1)
+	if active == nil {
+		if got, want := wq.active, (*writer)(nil); got != want {
+			t.Errorf("line %v: queue: got %v, want %v", line, got, want)
+		}
+	} else {
+		if got, want := wq.active, &active.writer; got != want {
+			t.Errorf("line %v: queue: got %v, want %v", line, got, want)
+		}
 	}
-	if got, want := wq.writing, writing; got != want {
-		t.Errorf("line %v: active got %p, want %p", line, got, want)
-	}
+
 	var wl []*writer
 	if len(w) > 0 {
 		wl = make([]*writer, len(w))
@@ -65,29 +63,135 @@ func cmpWriteqEntries(t *testing.T, wq *writeq, priority int, active *writeqEntr
 	}
 }
 
+func cmpWriteqNext(t *testing.T, wq *writeq, w *writeqEntry) {
+	_, _, line, _ := runtime.Caller(1)
+	if got, want := wq.nextLocked(), &w.writer; got != want {
+		t.Errorf("line %v: next: got %v, want %v", line, got, want)
+	}
+}
+
 func TestWriteqLists(t *testing.T) {
 	wq := &writeq{}
 
-	add := func(w ...*writeqEntry) {
-		addWriteq(wq, flowPriority, w...)
-	}
-
-	rm := func(w ...*writeqEntry) {
-		rmWriteq(wq, flowPriority, w...)
-	}
-
-	cmp := func(w ...*writeqEntry) {
-		cmpWriteqEntries(t, wq, flowPriority, nil, w...)
-	}
-
 	fe1, fe2, fe3 := newEntry(), newEntry(), newEntry()
-	add(fe1, fe1)
+
+	addWriteq(wq, flowPriority, fe1, fe2)
+	addWriteq(wq, expressPriority, fe3)
+	cmpWriteqEntries(t, wq, flowPriority, nil, fe1, fe2)
+	cmpWriteqEntries(t, wq, expressPriority, nil, fe3)
+	cmpWriteqNext(t, wq, fe3)
+	cmpWriteqEntries(t, wq, expressPriority, nil)
+	cmpWriteqEntries(t, wq, flowPriority, nil, fe1, fe2)
+
+	cmpWriteqNext(t, wq, fe1)
+	cmpWriteqEntries(t, wq, flowPriority, nil, fe2)
+	cmpWriteqNext(t, wq, fe2)
+	cmpWriteqEntries(t, wq, flowPriority, nil)
+}
+
+func TestWriteqNotifySerial(t *testing.T) {
+	wq := &writeq{}
+	fe1, fe2, fe3 := newEntry(), newEntry(), newEntry()
+
+	// wait will return immediately if the writeq is empty and
+	// there is no active writer.
+	wq.wait(nil, &fe1.writer, expressPriority)
+	cmpWriteqEntries(t, wq, flowPriority, fe1)
+	cmpWriteqEntries(t, wq, expressPriority, fe1)
+	// reset the active writer to allow the next wq.wait to run straight
+	// through.
+	wq.done(&fe1.writer)
+	wq.wait(nil, &fe2.writer, flowPriority)
+	cmpWriteqEntries(t, wq, flowPriority, fe2)
+	cmpWriteqEntries(t, wq, expressPriority, fe2)
+	wq.done(&fe2.writer)
+	wq.wait(nil, &fe3.writer, flowPriority)
+	cmpWriteqEntries(t, wq, flowPriority, fe3)
+	cmpWriteqEntries(t, wq, expressPriority, fe3)
+	wq.done(&fe3.writer)
+	cmpWriteqEntries(t, wq, flowPriority, nil)
+	cmpWriteqEntries(t, wq, expressPriority, nil)
+}
+
+func TestWriteqNotifyPriority(t *testing.T) {
+	wq := &writeq{}
+	fe1, fe2, fe3 := newEntry(), newEntry(), newEntry()
+
+	ch := make(chan *writeqEntry, 3)
+	var wg sync.WaitGroup
+	wg.Add(2)
+
+	wq.wait(nil, &fe1.writer, flowPriority)
+
+	go func() {
+		wg.Done()
+		wq.wait(nil, &fe2.writer, flowPriority)
+		ch <- fe2
+	}()
+	go func() {
+		wg.Done()
+		wq.wait(nil, &fe3.writer, expressPriority)
+		ch <- fe3
+	}()
+
+	wg.Wait()
+	wq.done(&fe1.writer)
+	if got, want := <-ch, fe3; got != want {
+		t.Errorf("got %p, want %p", got, want)
+	}
+	wq.done(&fe3.writer)
+	if got, want := <-ch, fe2; got != want {
+		t.Errorf("got %p, want %p", got, want)
+	}
+
+}
+
+// test context cancelation.
+
+/*
+	ch := make(chan *writeqEntry, 3)
+	var wg sync.WaitGroup
+	wg.Add(3)
+
+	w1, w2, w3 := make(chan struct{}), make(chan struct{}), make(chan struct{})
+	waiter := func(w *writeqEntry, p int, gate <-chan struct{}) {
+		<-gate
+		wq.wait(nil, &w.writer, p)
+		ch <- w
+		wg.Done()
+	}
+
+	go waiter(fe1, flowPriority, w1)
+	go waiter(fe2, expressPriority, w2)
+	go waiter(fe3, flowPriority, w3)
+
+	close(w1)
+	close(w2)
+	close(w3)
+	wg.Wait()
+	close(ch)
+
+	var done []*writeqEntry
+	for w := range ch {
+		done = append(done, w)
+	}
+	if got, want := done, []*writeqEntry{fe2, fe1, fe3}; !reflect.DeepEqual(got, want) {
+		t.Errorf("got %v, want %v", got, want)
+	}*/
+//}
+
+//	add(fe1, fe1)
+
+/*
 	cmp(fe1)
 	rm(fe1)
 	cmp()
 	add(fe1)
 	cmp(fe1)
 
+	_, _ = fe2, fe3
+*/
+/*
 	add(fe2)
 	add(fe2)
 	cmp(fe1, fe2)
@@ -110,9 +214,9 @@ func TestWriteqLists(t *testing.T) {
 	rm(fe2)
 	cmp(fe1)
 	rm(fe1)
-	cmp()
-}
+	cmp()*/
 
+/*
 func TestWriteqNotification(t *testing.T) {
 	wq := &writeq{}
 
@@ -245,3 +349,4 @@ func TestWriteqNotification(t *testing.T) {
 	wq.activateAndNotify(&fe1.writer, flowPriority)
 	wq.activateAndNotify(nil, flowPriority)
 }
+*/

@@ -24,12 +24,11 @@ import (
 func block(c *Conn, p int) chan struct{} {
 	w := writer{notify: make(chan struct{}, 1)}
 	ready, unblock := make(chan struct{}), make(chan struct{})
-	c.writeq.activateAndNotify(&w, p)
 	go func() {
-		<-w.notify
+		c.writeq.wait(nil, &w, p)
 		close(ready)
 		<-unblock
-		c.writeq.deactivateAndNotify(&w, p)
+		c.writeq.done(&w)
 	}()
 	<-ready
 	return unblock
@@ -58,6 +57,7 @@ func waitForWriters(ctx *context.T, conn *Conn, num int) {
 			}
 		}
 		conn.writeq.mu.Unlock()
+		fmt.Printf("%v ... %v\n", count, num)
 		return count >= num
 	})
 }
@@ -113,16 +113,8 @@ func TestOrdering(t *testing.T) {
 	unblock := block(dc, 0)
 	var wg sync.WaitGroup
 	wg.Add(2 * nflows)
-	errCh := make(chan error, len(flows)*2)
-	defer func() {
-		wg.Wait()
-		close(errCh)
-		for err := range errCh {
-			if err != nil {
-				t.Fatal(err)
-			}
-		}
-	}()
+	errCh := make(chan error, 2*nflows)
+
 	for _, f := range flows {
 		go func(fl flow.Flow) {
 			defer wg.Done()
@@ -131,6 +123,7 @@ func TestOrdering(t *testing.T) {
 				return
 			}
 			errCh <- nil
+			fmt.Printf("write: worked\n")
 		}(f)
 		go func() {
 			defer wg.Done()
@@ -144,10 +137,13 @@ func TestOrdering(t *testing.T) {
 				errCh <- fmt.Errorf("unequal data")
 				return
 			}
+			fmt.Printf("read: worked\n")
 			errCh <- nil
 		}()
 	}
+
 	waitForWriters(ctx, dc, nflows+1)
+
 	// Now close the conn which will send a teardown message, but only after
 	// the other flows finish their current write.
 	go dc.Close(ctx, nil)
@@ -171,34 +167,63 @@ func TestOrdering(t *testing.T) {
 			t.Fatalf("Did not receive a message from each flow in round %d: %v", i, found)
 		}
 	}
+
+	wg.Wait()
+	close(errCh)
+	for err := range errCh {
+		if err != nil {
+			t.Fatal(err)
+		}
+	}
 }
 
 func TestFlowControl(t *testing.T) {
 	defer goroutines.NoLeaks(t, leakWaitTime)()
 	ctx, shutdown := test.V23Init()
 	defer shutdown()
-	nflows := 10
 
-	for _, bytesBuffered := range []int{33, 396, 4093} {
-		dfs, flows, ac, dc := setupFlowsBytesBuffered(t, "local", "", ctx, ctx, true, nflows, uint64(bytesBuffered))
-		defer func() {
-			dc.Close(ctx, nil)
-			ac.Close(ctx, nil)
-		}()
+	for _, nflows := range []int{1, 2, 100} {
+		for _, bytesBuffered := range []int{33, 396, 4093} {
+			fmt.Printf("starting: #%v flows, buffered %#v bytes\n", nflows, bytesBuffered)
+			dfs, flows, ac, dc := setupFlowsBytesBuffered(t, "local", "", ctx, ctx, true, nflows, uint64(bytesBuffered))
+			defer func() {
+				dc.Close(ctx, nil)
+				ac.Close(ctx, nil)
+			}()
 
-		var wg sync.WaitGroup
-		wg.Add(nflows * 2)
+			errs := make(chan error, nflows*4)
+			var wg sync.WaitGroup
+			wg.Add(nflows * 4)
 
-		for i := 0; i < nflows; i++ {
-			go doWrite(t, dfs[i], randData)
-			go doRead(t, dfs[i], randData, &wg)
+			for i := 0; i < nflows; i++ {
+				go func(i int) {
+					errs <- doWrite(dfs[i], randData)
+					wg.Done()
+				}(i)
+				go func(i int) {
+					errs <- doRead(dfs[i], randData, &wg)
+					wg.Done()
+				}(i)
+			}
+			for i := 0; i < nflows; i++ {
+				af := <-flows
+				go func() {
+					errs <- doRead(af, randData, &wg)
+					wg.Done()
+				}()
+				go func() {
+					errs <- doWrite(af, randData)
+					wg.Done()
+				}()
+			}
+			wg.Wait()
+			close(errs)
+			for err := range errs {
+				if err != nil {
+					t.Error(err)
+				}
+			}
+			fmt.Printf("done: #%v flows, buffered %#v bytes\n", nflows, bytesBuffered)
 		}
-		for i := 0; i < nflows; i++ {
-			af := <-flows
-			go doRead(t, af, randData, &wg)
-			go doWrite(t, af, randData)
-		}
-		wg.Wait()
 	}
-
 }
