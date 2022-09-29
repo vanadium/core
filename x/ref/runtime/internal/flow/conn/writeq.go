@@ -72,8 +72,7 @@ type writer struct {
 	stack []uintptr
 }
 
-/*
-func (w *writer) lock() {
+/*func (w *writer) lock() {
 	w.mu.Lock()
 }
 

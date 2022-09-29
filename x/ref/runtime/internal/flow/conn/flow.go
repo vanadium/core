@@ -5,6 +5,7 @@
 package conn
 
 import (
+	"fmt"
 	"io"
 	"net"
 	"sync"
@@ -93,11 +94,11 @@ func (c *Conn) newFlowLocked(
 	// have tokens to spend on writes.
 	initWriter(&f.writeqEntry, 1)
 
-	f.q = newReadQ(f.flowControl.shared.bytesBufferedPerFlow, f.sendRelease)
-
 	f.flowControl.shared = &c.flowControl
 	f.flowControl.borrowing = dialed
 	f.flowControl.id = id
+
+	f.q = newReadQ(f.flowControl.shared.bytesBufferedPerFlow, f.sendRelease)
 
 	f.ctx, f.cancel = context.WithCancel(ctx)
 	if !f.opened {
@@ -177,10 +178,12 @@ func (f *flw) releaseCounters(tokens uint64) {
 	// run to check to see what it's state is.
 	f.lock()
 	if f.writing != nil {
-		close(f.writing)
-		f.writing = make(chan struct{})
-		//		f.writeq.activateWriter(&f.writeqEntry, flowPriority)
-		//		f.writeq.notifyNextWriter(nil)
+		//fmt.Printf("CLOSING %v\n", f.writing)
+		//close(f.writing)
+		//f.writing = nil
+		//		f.writing = make(chan struct{})
+		f.writeq.activateWriter(&f.writeqEntry, flowPriority)
+		f.writeq.notifyNextWriter(nil)
 		if debug {
 			f.ctx.Infof("Activated writing flow %d(%p) now that we have tokens.", f.id, f)
 		}
@@ -227,6 +230,7 @@ func (f *flw) writeMsg(alsoClose bool, parts ...[]byte) (sent int, err error) { 
 	f.markUsed()
 	f.lock()
 	f.writing = make(chan struct{})
+	fmt.Printf("f.writing: %v\n", f.writing)
 	f.unlock()
 
 	//f.writeqEntry.lock()
@@ -239,12 +243,13 @@ func (f *flw) writeMsg(alsoClose bool, parts ...[]byte) (sent int, err error) { 
 		case <-ctx.Done():
 			err = io.EOF
 		case <-f.writeqEntry.notify:
-		case <-f.writing:
+			/*case _, closed := <-f.writing:
+			fmt.Printf("OK: got closing %v: %v - %v\n", f.writing, closed, len(f.writeqEntry.notify))*/
 			// drain the queue, just in case both are ready.
-			select {
-			case <-f.writeqEntry.notify:
-			default:
-			}
+			//select {
+			//case <-f.writeqEntry.notify:
+			//default:
+			//}
 		}
 
 		// It's our turn, we lock to learn the current state of our buffer tokens.
