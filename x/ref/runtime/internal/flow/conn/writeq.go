@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"strings"
 	"sync"
+	"time"
 )
 
 const (
@@ -32,8 +33,10 @@ const (
 //	// access the message pipe
 //	deactivateAndNotifyWriter(&writer)
 //
-// TODO(cnicolaou): explore using buffer hand off rather than the blocking
-// model.
+// The invariant that must be maintained is that the total number of
+// additions to writeq must be matched by total number of notifications
+// issued to ensure that every blocked writer is guaranteed to be woken
+// up.
 type writeq struct {
 	mu sync.Mutex
 
@@ -50,10 +53,10 @@ type writeq struct {
 }
 
 type writer struct {
-	// Maintain a doubly linked list whereby next and prev are unconventially
-	// used to create two circular lists in opposite directions to create
-	// a LIFO list. That is, 'next' always refers to the next writer to be sent,
-	// ie. the 'last' one added, whereas 'prev' refers to the most recently
+	// Maintain a doubly linked list whereby next and prev are used to create
+	// two circular lists in opposite directions to create a LIFO list. That is,
+	// 'next' always refers to the next writer to be sent, ie. the 'last' one
+	// added, whereas 'prev' refers to the most recently
 	// added.
 	//
 	//  head ->  e1    e2    e3
@@ -171,7 +174,7 @@ func (q *writeq) notifyNextWriterLocked(w *writer) {
 			select {
 			case head.notify <- struct{}{}:
 				q.trace.append(&writeqNotification{q: q, w: w, s: q.stringLocked()})
-			default:
+			case <-time.After(time.Second):
 				q.dumpAndExit("would block", w, head)
 			}
 			return
