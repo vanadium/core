@@ -27,7 +27,7 @@ const leakWaitTime = 500 * time.Millisecond
 var randData []byte
 
 func init() {
-	randData = make([]byte, 2*DefaultBytesBufferedPerFlow)
+	randData = make([]byte, 2*DefaultBytesBufferedPerFlow())
 	if _, err := rand.Read(randData); err != nil {
 		panic("Could not read random data.")
 	}
@@ -200,7 +200,7 @@ func TestMinChannelTimeout(t *testing.T) {
 	af2.Close()
 
 	// Setup new conns with a default channel timeout below the min.
-	dc, ac, derr, aerr = setupConnsWithTimeout(t, "local", "", ctx, ctx, dflows, aflows, nil, nil, 0, time.Minute, time.Second)
+	dc, ac, derr, aerr = setupConnsWithTimeout(t, "local", "", ctx, ctx, dflows, aflows, nil, nil, 0, time.Minute, time.Second, DefaultBytesBufferedPerFlow())
 	if derr != nil || aerr != nil {
 		t.Fatal(derr, aerr)
 	}
@@ -237,7 +237,7 @@ func TestHandshakeDespiteCancel(t *testing.T) {
 	dctx, dcancel := context.WithTimeout(ctx, time.Minute)
 	dflows, aflows := make(chan flow.Flow, 1), make(chan flow.Flow, 1)
 	dcancel()
-	dc, ac, derr, aerr := setupConnsWithTimeout(t, "local", "", dctx, ctx, dflows, aflows, nil, nil, 1*time.Second, 4*time.Second, time.Second)
+	dc, ac, derr, aerr := setupConnsWithTimeout(t, "local", "", dctx, ctx, dflows, aflows, nil, nil, 1*time.Second, 4*time.Second, time.Second, DefaultBytesBufferedPerFlow())
 	if aerr != nil {
 		t.Fatalf("setupConnsWithTimeout: unexpectedly failed: %v, %v", derr, aerr)
 	}

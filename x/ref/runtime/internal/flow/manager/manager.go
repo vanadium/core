@@ -583,6 +583,7 @@ func (m *manager) lnAcceptLoop(ctx *context.T, ln flow.Listener, local naming.En
 				version.Supported,
 				handshakeTimeout,
 				m.acceptChannelTimeout,
+				conn.DefaultBytesBufferedPerFlow(),
 				fh)
 			if err != nil {
 				// We don't want probing from load balancers or Prometheus to cause
@@ -705,6 +706,7 @@ func (h *proxyFlowHandler) HandleFlow(f flow.Flow) error {
 			version.Supported,
 			handshakeTimeout,
 			h.m.acceptChannelTimeout,
+			conn.DefaultBytesBufferedPerFlow(),
 			fh)
 		if err != nil {
 			h.m.ctx.Errorf("failed to create accepted conn: %v", err)
@@ -977,6 +979,7 @@ func (m *manager) dialConn(
 		false,
 		handshakeTimeout,
 		0,
+		conn.DefaultBytesBufferedPerFlow(),
 		fh,
 	)
 	if errors.Is(err, verror.ErrCanceled) {

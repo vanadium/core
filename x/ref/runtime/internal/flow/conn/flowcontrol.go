@@ -23,6 +23,8 @@ import (
 // to guard access to it and to all of the flowControlFlowStats instances
 // in each flow.
 type flowControlConnStats struct {
+	bytesBufferedPerFlow uint64
+
 	mu sync.Mutex
 
 	mtu uint64
@@ -77,9 +79,10 @@ type flowControlFlowStats struct {
 	borrowing bool
 }
 
-func (fs *flowControlConnStats) init() {
+func (fs *flowControlConnStats) init(bytesBufferedPerFlow uint64) {
 	fs.toRelease = map[uint64]uint64{}
 	fs.borrowing = map[uint64]bool{}
+	fs.bytesBufferedPerFlow = bytesBufferedPerFlow
 	fs.lshared = 0
 	fs.outstandingBorrowed = make(map[uint64]uint64)
 }
@@ -102,7 +105,7 @@ func (fs *flowControlConnStats) unlock() {
 func (fs *flowControlConnStats) newCounters(fid uint64) {
 	fs.mu.Lock()
 	defer fs.mu.Unlock()
-	fs.toRelease[fid] = DefaultBytesBufferedPerFlow
+	fs.toRelease[fid] = fs.bytesBufferedPerFlow
 	fs.borrowing[fid] = true
 	//fmt.Printf("%p: new counters for: %v: (#%v)\n", fs, fid, len(fs.toRelease))
 }
@@ -123,9 +126,9 @@ func (fs *flowControlConnStats) createReleaseMessageContents(fid, count uint64) 
 	defer fs.mu.Unlock()
 	if fs.borrowing[fid] {
 		fs.toRelease[invalidFlowID] += count
-		release = fs.toRelease[invalidFlowID] > DefaultBytesBufferedPerFlow/2
+		release = fs.toRelease[invalidFlowID] > fs.bytesBufferedPerFlow/2
 	} else {
-		release = fs.toRelease[fid] > DefaultBytesBufferedPerFlow/2
+		release = fs.toRelease[fid] > fs.bytesBufferedPerFlow/2
 	}
 	if !release {
 		return nil

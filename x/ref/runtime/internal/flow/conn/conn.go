@@ -41,11 +41,16 @@ var minChannelTimeout = map[string]time.Duration{
 const (
 	defaultMtu            = 1 << 16
 	defaultChannelTimeout = 30 * time.Minute
-	// DefaultBytesBufferedPerFlow defines the default number
-	// of bytes that can be buffered by a single flow.
-	DefaultBytesBufferedPerFlow = 1 << 20
-	proxyOverhead               = 32
+	proxyOverhead         = 32
 )
+
+var defaultBytesBufferedPerFlow = 1 << 20
+
+// DefaultBytesBufferedPerFlow defines the default number
+// of bytes that can be buffered by a single flow.
+func DefaultBytesBufferedPerFlow() uint64 {
+	return uint64(defaultBytesBufferedPerFlow)
+}
 
 // A FlowHandler processes accepted flows.
 type FlowHandler interface {
@@ -137,6 +142,7 @@ func NewDialed( //nolint:gocyclo
 	proxy bool,
 	handshakeTimeout time.Duration,
 	channelTimeout time.Duration,
+	bytesBufferedPerFlow uint64,
 	handler FlowHandler) (c *Conn, names []string, rejected []security.RejectedBlessing, err error) {
 
 	if _, err = version.CommonVersion(ctx, rpcversion.Supported, versions); err != nil {
@@ -178,7 +184,7 @@ func NewDialed( //nolint:gocyclo
 		acceptChannelTimeout: channelTimeout,
 	}
 	initWriter(&c.writeqEntry, 1)
-	c.flowControl.init()
+	c.flowControl.init(bytesBufferedPerFlow)
 	done := make(chan struct{})
 	var rtt time.Duration
 	c.loopWG.Add(1)
@@ -269,6 +275,7 @@ func NewAccepted(
 	versions version.RPCVersionRange,
 	handshakeTimeout time.Duration,
 	channelTimeout time.Duration,
+	bytesBufferedPerFlow uint64,
 	handler FlowHandler) (*Conn, error) {
 
 	if _, err := version.CommonVersion(ctx, rpcversion.Supported, versions); err != nil {
@@ -300,7 +307,7 @@ func NewAccepted(
 		acceptChannelTimeout: channelTimeout,
 	}
 	initWriter(&c.writeqEntry, 1)
-	c.flowControl.init()
+	c.flowControl.init(bytesBufferedPerFlow)
 	done := make(chan struct{}, 1)
 	var rtt time.Duration
 	var err error

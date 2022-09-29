@@ -134,7 +134,7 @@ func (c *Conn) setup(ctx *context.T, versions version.RPCVersionRange, dialer bo
 		PeerLocalEndpoint: c.local,
 		PeerNaClPublicKey: pk,
 		Mtu:               defaultMtu,
-		SharedTokens:      DefaultBytesBufferedPerFlow,
+		SharedTokens:      c.flowControl.bytesBufferedPerFlow,
 	}
 	if !c.remote.IsZero() {
 		lSetup.PeerRemoteEndpoint = c.remote

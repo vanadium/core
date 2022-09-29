@@ -93,7 +93,7 @@ func (c *Conn) newFlowLocked(
 	// have tokens to spend on writes.
 	initWriter(&f.writeqEntry, 1)
 
-	f.q = newReadQ(f.sendRelease)
+	f.q = newReadQ(f.flowControl.shared.bytesBufferedPerFlow, f.sendRelease)
 
 	f.flowControl.shared = &c.flowControl
 	f.flowControl.borrowing = dialed
@@ -291,7 +291,7 @@ func (f *flw) writeMsg(alsoClose bool, parts ...[]byte) (sent int, err error) { 
 		} else {
 			err = f.conn.mp.writeMsg(ctx, &message.OpenFlow{
 				ID:              f.id,
-				InitialCounters: DefaultBytesBufferedPerFlow,
+				InitialCounters: f.flowControl.shared.bytesBufferedPerFlow,
 				BlessingsKey:    bkey,
 				DischargeKey:    dkey,
 				Flags:           d.Flags,
