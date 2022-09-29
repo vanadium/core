@@ -61,7 +61,7 @@ func newReadQ(bytesBufferedPerFlow uint64, readCallback func(ctx *context.T, n i
 }
 
 func (r *readq) put(ctx *context.T, bufs [][]byte) error {
-	l := uint64(0)
+	l := 0
 	for _, b := range bufs {
 		l += len(b)
 	}
@@ -77,7 +77,7 @@ func (r *readq) put(ctx *context.T, bufs [][]byte) error {
 		return nil
 	}
 
-	newSize := l + r.size
+	newSize := uint64(l) + r.size
 	if newSize > r.bytesBufferedPerFlow {
 		return ErrCounterOverflow.Errorf(ctx, "a remote process has sent more data than allowed")
 	}
@@ -135,7 +135,7 @@ func (r *readq) read(ctx *context.T, data []byte) (n int, err error) {
 			r.bufs[r.b] = nil // allow used buffer to be GC'ed
 			r.b = (r.b + 1) % len(r.bufs)
 		}
-		r.size -= n
+		r.size -= uint64(n)
 	}
 	r.mu.Unlock()
 	r.readCallback(ctx, n)
@@ -149,7 +149,7 @@ func (r *readq) get(ctx *context.T) (out []byte, err error) {
 		out = r.bufs[r.b]
 		r.bufs[r.b] = nil // allow used buffer to be GC'ed
 		r.b = (r.b + 1) % len(r.bufs)
-		r.size -= len(out)
+		r.size -= uint64(len(out))
 		r.nbufs--
 	}
 	r.mu.Unlock()

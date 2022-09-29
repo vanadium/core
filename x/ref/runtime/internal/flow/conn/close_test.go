@@ -291,6 +291,7 @@ func acceptor(errCh chan error, acceptCh chan flow.Flow, size int, close bool) {
 
 func testCounters(t *testing.T, ctx *context.T, count int, dialClose, acceptClose bool, size int) (
 	dialRelease, dialBorrowed, acceptRelease, acceptBorrowed int) {
+
 	acceptCh := make(chan flow.Flow, 1)
 	dc, ac, derr, aerr := setupConns(t, "local", "", ctx, ctx, nil, acceptCh, nil, nil)
 	if derr != nil || aerr != nil {

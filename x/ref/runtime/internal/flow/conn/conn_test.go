@@ -27,7 +27,7 @@ const leakWaitTime = 500 * time.Millisecond
 var randData []byte
 
 func init() {
-	randData = make([]byte, 2*DefaultBytesBufferedPerFlow)
+	randData = make([]byte, 2*DefaultBytesBufferedPerFlow())
 	if _, err := rand.Read(randData); err != nil {
 		panic("Could not read random data.")
 	}
@@ -64,7 +64,9 @@ func doRead(t *testing.T, f flow.Flow, want []byte, wg *sync.WaitGroup) {
 	if len(want) != 0 {
 		t.Errorf("got %d leftover bytes, expected 0.", len(want))
 	}
-	wg.Done()
+	if wg != nil {
+		wg.Done()
+	}
 }
 
 func TestLargeWrite(t *testing.T) {
@@ -81,6 +83,41 @@ func TestLargeWrite(t *testing.T) {
 	af := <-flows
 	go doRead(t, af, randData, &wg)
 	go doWrite(t, af, randData)
+	wg.Wait()
+}
+
+func TestManyLargeWrites(t *testing.T) {
+	defer goroutines.NoLeaks(t, leakWaitTime)()
+	ctx, shutdown := test.V23Init()
+	defer shutdown()
+	df, flows, cl := setupFlow(t, "local", "", ctx, ctx, true)
+	defer cl()
+
+	var wg sync.WaitGroup
+	wg.Add(2)
+
+	iterations := 200
+
+	writer := func(f flow.Flow) {
+		for i := 0; i < iterations; i++ {
+			doWrite(t, f, randData)
+		}
+	}
+	reader := func(f flow.Flow) {
+		for i := 0; i < iterations; i++ {
+			doRead(t, f, randData, nil)
+		}
+		wg.Done()
+	}
+
+	go writer(df)
+	go reader(df)
+
+	af := <-flows
+
+	go reader(af)
+	go writer(af)
+
 	wg.Wait()
 }
 
@@ -163,7 +200,7 @@ func TestMinChannelTimeout(t *testing.T) {
 	af2.Close()
 
 	// Setup new conns with a default channel timeout below the min.
-	dc, ac, derr, aerr = setupConnsWithTimeout(t, "local", "", ctx, ctx, dflows, aflows, nil, nil, 0, time.Minute, time.Second)
+	dc, ac, derr, aerr = setupConnsWithTimeout(t, "local", "", ctx, ctx, dflows, aflows, nil, nil, 0, time.Minute, time.Second, DefaultBytesBufferedPerFlow())
 	if derr != nil || aerr != nil {
 		t.Fatal(derr, aerr)
 	}
@@ -200,7 +237,7 @@ func TestHandshakeDespiteCancel(t *testing.T) {
 	dctx, dcancel := context.WithTimeout(ctx, time.Minute)
 	dflows, aflows := make(chan flow.Flow, 1), make(chan flow.Flow, 1)
 	dcancel()
-	dc, ac, derr, aerr := setupConnsWithTimeout(t, "local", "", dctx, ctx, dflows, aflows, nil, nil, 1*time.Second, 4*time.Second, time.Second)
+	dc, ac, derr, aerr := setupConnsWithTimeout(t, "local", "", dctx, ctx, dflows, aflows, nil, nil, 1*time.Second, 4*time.Second, time.Second, DefaultBytesBufferedPerFlow())
 	if aerr != nil {
 		t.Fatalf("setupConnsWithTimeout: unexpectedly failed: %v, %v", derr, aerr)
 	}

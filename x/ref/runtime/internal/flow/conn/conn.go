@@ -95,19 +95,18 @@ type healthCheckState struct {
 type Conn struct {
 	// All the variables here are set before the constructor returns
 	// and never changed after that.
-	mp                   *messagePipe
-	version              version.RPCVersion
-	local, remote        naming.Endpoint
-	remoteAddr           net.Addr
-	closed               chan struct{}
-	lameDucked           chan struct{}
-	blessingsFlow        *blessingsFlow
-	loopWG               sync.WaitGroup
-	unopenedFlows        sync.WaitGroup
-	cancel               context.CancelFunc
-	handler              FlowHandler
-	mtu                  uint64
-	bytesBufferedPerFlow uint64
+	mp            *messagePipe
+	version       version.RPCVersion
+	local, remote naming.Endpoint
+	remoteAddr    net.Addr
+	closed        chan struct{}
+	lameDucked    chan struct{}
+	blessingsFlow *blessingsFlow
+	loopWG        sync.WaitGroup
+	unopenedFlows sync.WaitGroup
+	cancel        context.CancelFunc
+	handler       FlowHandler
+	mtu           uint64
 
 	mu sync.Mutex // All the variables below here are protected by mu.
 
@@ -196,9 +195,8 @@ func NewDialed( //nolint:gocyclo
 		cancel:               cancel,
 		activeWriters:        make([]writer, numPriorities),
 		acceptChannelTimeout: channelTimeout,
-		bytesBufferedPerFlow: bytesBufferedPerFlow,
 	}
-	c.flowControl.init()
+	c.flowControl.init(bytesBufferedPerFlow)
 	done := make(chan struct{})
 	var rtt time.Duration
 	c.loopWG.Add(1)
@@ -320,9 +318,8 @@ func NewAccepted(
 		cancel:               cancel,
 		activeWriters:        make([]writer, numPriorities),
 		acceptChannelTimeout: channelTimeout,
-		bytesBufferedPerFlow: bytesBufferedPerFlow,
 	}
-	c.flowControl.init()
+	c.flowControl.init(bytesBufferedPerFlow)
 	done := make(chan struct{}, 1)
 	var rtt time.Duration
 	var err error

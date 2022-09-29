@@ -23,11 +23,11 @@ import (
 // to guard access to it and to all of the flowControlFlowStats instances
 // in each flow.
 type flowControlConnStats struct {
+	bytesBufferedPerFlow uint64
+
 	mu sync.Mutex
 
 	mtu uint64
-
-	bytesBufferedPerFlow uint64
 
 	// TODO(mattr): Integrate these maps back into the flows themselves as
 	// has been done with the sending counts.
@@ -79,17 +79,18 @@ type flowControlFlowStats struct {
 	borrowing bool
 }
 
-func (fs *flowControlConnStats) init() {
+func (fs *flowControlConnStats) init(bytesBufferedPerFlow uint64) {
 	fs.toRelease = map[uint64]uint64{}
 	fs.borrowing = map[uint64]bool{}
+	fs.bytesBufferedPerFlow = bytesBufferedPerFlow
 	fs.lshared = 0
 	fs.outstandingBorrowed = make(map[uint64]uint64)
 }
 
 // configure must be called after the connection setup handshake is complete
 // and the mtu and shared tokens are known.
-func (fs *flowControlConnStats) configure(bytesBufferedPerFlow, mtu, shared uint64) {
-	fs.bytesBufferedPerFlow, fs.mtu, fs.lshared = bytesBufferedPerFlow, mtu, shared
+func (fs *flowControlConnStats) configure(mtu, shared uint64) {
+	fs.mtu, fs.lshared = mtu, shared
 }
 
 func (fs *flowControlConnStats) lock() {

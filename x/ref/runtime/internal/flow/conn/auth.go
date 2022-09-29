@@ -136,7 +136,7 @@ func (c *Conn) setup(ctx *context.T, versions version.RPCVersionRange, dialer bo
 		PeerLocalEndpoint: c.local,
 		PeerNaClPublicKey: pk,
 		Mtu:               defaultMtu,
-		SharedTokens:      c.bytesBufferedPerFlow,
+		SharedTokens:      c.flowControl.bytesBufferedPerFlow,
 	}
 	if !c.remote.IsZero() {
 		lSetup.PeerRemoteEndpoint = c.remote
@@ -176,7 +176,7 @@ func (c *Conn) setup(ctx *context.T, versions version.RPCVersionRange, dialer bo
 	if rSetup.SharedTokens != 0 && rSetup.SharedTokens < lshared {
 		lshared = rSetup.SharedTokens
 	}
-	c.flowControl.configure(c.bytesBufferedPerFlow, c.mtu, lshared)
+	c.flowControl.configure(c.mtu, lshared)
 
 	if rSetup.PeerNaClPublicKey == nil {
 		return nil, naming.Endpoint{}, rttstart, ErrMissingSetupOption.Errorf(ctx, "conn.setup: missing required setup option: peerNaClPublicKey")

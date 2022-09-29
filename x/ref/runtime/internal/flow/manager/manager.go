@@ -706,6 +706,7 @@ func (h *proxyFlowHandler) HandleFlow(f flow.Flow) error {
 			version.Supported,
 			handshakeTimeout,
 			h.m.acceptChannelTimeout,
+			conn.DefaultBytesBufferedPerFlow(),
 			fh)
 		if err != nil {
 			h.m.ctx.Errorf("failed to create accepted conn: %v", err)
