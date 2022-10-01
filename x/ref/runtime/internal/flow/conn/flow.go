@@ -5,8 +5,10 @@
 package conn
 
 import (
+	"fmt"
 	"io"
 	"net"
+	"os"
 	"sync"
 	"time"
 
@@ -95,6 +97,11 @@ func (c *Conn) newFlowLocked(
 	// messages to notify a flow-controlled writeMgs that it may potentially
 	// have tokens to spend on writes.
 	initWriter(&f.writeqEntry, 1)
+	//	if dialed {
+	//		f.writeqEntry.msg = fmt.Sprintf("flow %p, id %v: dialed", f, id)
+	//	} else {
+	//		f.writeqEntry.msg = fmt.Sprintf("flow %p, id %v: accepted", f, id)
+	//	}
 
 	f.flowControl.shared = &c.flowControl
 	f.flowControl.borrowing = dialed
@@ -179,7 +186,7 @@ func (f *flw) currentContext() *context.T {
 func (f *flw) releaseCounters(tokens uint64) {
 	ctx := f.currentContext()
 	f.flowControl.releaseCounters(ctx, tokens)
-	//fmt.Fprintf(os.Stderr, "%p:%v: releaseCounters: #%v tokens\n", f, f.id, tokens)
+	fmt.Fprintf(os.Stderr, "flow.control: %p:%p:%v: releaseCounters: #%v tokens\n", f.conn, f, f.id, tokens)
 	f.tokensAvailable(ctx)
 }
 
@@ -198,10 +205,10 @@ func (f *flw) tokensAvailable(ctx *context.T) {
 }
 
 func (f *flw) waitForTokens(ctx *context.T) error {
-	f.lock()
 	ch := make(chan struct{})
 	f.tokenWait = ch
 	f.unlock()
+	defer f.lock()
 	select {
 	case <-ctx.Done():
 		return ctx.Err()
@@ -248,11 +255,12 @@ func (f *flw) writeMsg(alsoClose bool, parts ...[]byte) (sent int, err error) { 
 			break
 		}
 
-		// It's our turn, we lock to learn the current state of our buffer tokens.
 		f.lock()
+		// It's our turn, we lock to learn the current state of our buffer tokens.
 		opened := f.opened
-		f.unlock()
 		tokens, deduct := f.flowControl.tokens(ctx, f.encapsulated)
+
+		fmt.Fprintf(os.Stderr, "flow.control: writeMsg: %p:%p:%v: %p:%p: check flow control: %v %v/%v\n", f.conn, f, f.id, f.writeq, &f.writeqEntry, tokens, sent, totalSize)
 
 		if opened && (tokens == 0 || ((f.noEncrypt || f.noFragment) && (tokens < totalSize))) {
 			// Oops, we really don't have data to send, probably because we've exhausted
@@ -267,14 +275,19 @@ func (f *flw) writeMsg(alsoClose bool, parts ...[]byte) (sent int, err error) { 
 				f.ctx.Infof("Deactivating write on flow %d(%p) due to lack of tokens", f.id, f)
 			}
 			f.writeq.done(&f.writeqEntry)
-			//fmt.Fprintf(os.Stderr, "%p:%p:%v: %p:%p: need flow control: %v %v/%v\n", f.conn, f, f.id, f.writeq, &f.writeqEntry, tokens, sent, totalSize)
+
+			fmt.Fprintf(os.Stderr, "flow.control: writeMsg: %p:%p:%v: %p:%p: need flow control: %v %v/%v\n", f.conn, f, f.id, f.writeq, &f.writeqEntry, tokens, sent, totalSize)
+
 			err = f.waitForTokens(ctx)
-			//fmt.Fprintf(os.Stderr, "%p:%p:%v: %p:%p: got flow control\n", f.conn, f, f.id, f.writeq, &f.writeqEntry)
+
+			fmt.Fprintf(os.Stderr, "flow.control: writeMsg: %p:%p:%v: %p:%p: got flow control: %v %v/%v\n", f.conn, f, f.id, f.writeq, &f.writeqEntry, tokens, sent, totalSize)
 			continue
 		}
 
 		parts, tosend, size = popFront(parts, tosend[:0], tokens)
 		deduct(size)
+
+		fmt.Fprintf(os.Stderr, "flow: writeMsg: %p:%p:%v: %p:%p: after flow control: %v %v/%v (alsoclose: %v)\n", f.conn, f, f.id, f.writeq, &f.writeqEntry, tokens, sent, totalSize, alsoClose)
 
 		// Actually write to the wire.  This is also where encryption
 		// happens, so this part can be slow.
@@ -302,8 +315,12 @@ func (f *flw) writeMsg(alsoClose bool, parts ...[]byte) (sent int, err error) { 
 			sent += size
 		}
 		f.writeq.done(&f.writeqEntry)
+
 		//fmt.Fprintf(os.Stderr, "%p: wrote #%v/%v bytes on %p: err %v\n", f, len(d.Payload[0]), sent, f.conn.mp, err)
 	}
+	f.unlock()
+
+	fmt.Fprintf(os.Stderr, "flow: writeMsg: %p:%p:%v: %p:%p: done flow control: %v/%v (alsoclose: %v): error: %v\n", f.conn, f, f.id, f.writeq, &f.writeqEntry, sent, totalSize, alsoClose, err)
 
 	//fmt.Fprintf(os.Stderr, "%p: wrote #%v bytes: done (close: %v): err %v\n", f, sent, alsoClose, err)
 
@@ -453,6 +470,10 @@ func (f *flw) close(ctx *context.T, closedRemotely bool, err error) {
 	log := f.ctx.V(2)
 
 	f.lock()
+	if !f.closed {
+		fmt.Fprintf(os.Stderr, "flow: close: %p:%p:%v - remotely: %v: already closed %v\n", f.conn, f, f.id, closedRemotely, f.closed)
+	}
+	panic('x')
 	closed := f.closed
 	f.closed = true
 	cancel := f.cancel

@@ -5,6 +5,7 @@
 package conn
 
 import (
+	"fmt"
 	"sync"
 
 	"v.io/v23/context"
@@ -135,11 +136,15 @@ func (p *messagePipe) writeCiphertext(ctx *context.T, m message.Message, plainte
 func (p *messagePipe) writeMsg(ctx *context.T, m message.Message) error {
 	p.writeMu.Lock()
 	defer p.writeMu.Unlock()
-	//if dm, ok := m.(*message.Data); ok && len(dm.Payload) > 0 {
-	//fmt.Printf("%p: writeMsg: %T: #%v bytes\n", p, m, len(dm.Payload[0]))
-	//} else {
-	//fmt.Printf("%p: writeMsg: %T\n", p, m)
-	//}
+	if dm, ok := m.(*message.Data); ok {
+		if len(dm.Payload) > 0 {
+			fmt.Printf("%p: writeMsg: %T: flags: %02x, #%v bytes\n", p, m, dm.Flags, len(dm.Payload[0]))
+		} else {
+			fmt.Printf("%p: writeMsg: %T: flags: %02x - no payload\n", p, m, dm.Flags)
+		}
+	} else {
+		fmt.Printf("%p: writeMsg: %T\n", p, m)
+	}
 	plaintextBuf := messagePipePool.Get().(*[]byte)
 	defer messagePipePool.Put(plaintextBuf)
 
@@ -211,10 +216,10 @@ func (p *messagePipe) readMsg(ctx *context.T, plaintextBuf []byte) (message.Mess
 	if err != nil {
 		return nil, err
 	}
-	return p.readAnyMessage(ctx, plaintext)
+	return p.readAnyMessageLocked(ctx, plaintext)
 }
 
-func (p *messagePipe) readAnyMessage(ctx *context.T, plaintext []byte) (message.Message, error) {
+func (p *messagePipe) readAnyMessageLocked(ctx *context.T, plaintext []byte) (message.Message, error) {
 	m, err := message.Read(ctx, plaintext)
 	if err != nil {
 		return nil, err
@@ -230,7 +235,7 @@ func (p *messagePipe) readAnyMessage(ctx *context.T, plaintext []byte) (message.
 	if ctx.V(2) {
 		ctx.Infof("Read low-level message: %T: %v", m, m)
 	}
-	//fmt.Printf("%p: readMsg.Any: %T\n", p, m)
+	fmt.Printf("%p: readMsg.Any: %T\n", p, m)
 	return m, err
 }
 
@@ -245,7 +250,7 @@ func (p *messagePipe) readDataMsg(ctx *context.T, plaintextBuf []byte, m *messag
 		if err != nil {
 			return nil, err
 		}
-		return p.readAnyMessage(ctx, plaintext)
+		return p.readAnyMessageLocked(ctx, plaintext)
 	}
 	if m.Flags&message.DisableEncryptionFlag != 0 {
 		payload, err := p.rw.ReadMsg2(nil)
@@ -257,10 +262,10 @@ func (p *messagePipe) readDataMsg(ctx *context.T, plaintextBuf []byte, m *messag
 	if ctx.V(2) {
 		ctx.Infof("Read low-level message: %T: %v", m, m)
 	}
-	/*if len(m.Payload) > 0 {
+	if len(m.Payload) > 0 {
 		fmt.Printf("%p: readMsg.Data: %T (payload %v)\n", p, m, len(m.Payload[0]))
 	} else {
 		fmt.Printf("%p: readMsg.Data: %T (empty payload)\n", p, m)
-	}*/
+	}
 	return nil, nil
 }

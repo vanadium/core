@@ -43,11 +43,11 @@ func cmpWriteqEntries(t *testing.T, wq *writeq, priority int, active *writeqEntr
 	_, _, line, _ := runtime.Caller(1)
 	if active == nil {
 		if got, want := wq.active, (*writer)(nil); got != want {
-			t.Errorf("line %v: queue: got %v, want %v", line, got, want)
+			t.Errorf("line %v: active: got %v, want %v", line, got, want)
 		}
 	} else {
 		if got, want := wq.active, &active.writer; got != want {
-			t.Errorf("line %v: queue: got %v, want %v", line, got, want)
+			t.Errorf("line %v: active: got %v, want %v", line, got, want)
 		}
 	}
 
@@ -87,6 +87,22 @@ func TestWriteqLists(t *testing.T) {
 	cmpWriteqEntries(t, wq, flowPriority, nil, fe2)
 	cmpWriteqNext(t, wq, fe2)
 	cmpWriteqEntries(t, wq, flowPriority, nil)
+
+	fe1, fe2, fe3 = newEntry(), newEntry(), newEntry()
+	fe4, fe5, fe6 := newEntry(), newEntry(), newEntry()
+	addWriteq(wq, flowPriority, fe1, fe2)
+	addWriteq(wq, expressPriority, fe3)
+	addWriteq(wq, flowPriority, fe4)
+	addWriteq(wq, expressPriority, fe5, fe6)
+
+	cmpWriteqEntries(t, wq, expressPriority, nil, fe3, fe5, fe6)
+	cmpWriteqEntries(t, wq, flowPriority, nil, fe1, fe2, fe4)
+	cmpWriteqNext(t, wq, fe3)
+	cmpWriteqNext(t, wq, fe5)
+	cmpWriteqEntries(t, wq, expressPriority, nil, fe6)
+	cmpWriteqEntries(t, wq, flowPriority, nil, fe1, fe2, fe4)
+	addWriteq(wq, expressPriority, fe3)
+	cmpWriteqEntries(t, wq, expressPriority, nil, fe6, fe3)
 }
 
 func TestWriteqNotifySerial(t *testing.T) {
@@ -121,21 +137,45 @@ func TestWriteqNotifyPriority(t *testing.T) {
 	var wg sync.WaitGroup
 	wg.Add(2)
 
+	first, second := make(chan struct{}), make(chan struct{})
 	wq.wait(nil, &fe1.writer, flowPriority)
 
 	go func() {
-		wg.Done()
+		<-first
 		wq.wait(nil, &fe2.writer, flowPriority)
 		ch <- fe2
 	}()
 	go func() {
-		wg.Done()
+		<-second
 		wq.wait(nil, &fe3.writer, expressPriority)
 		ch <- fe3
 	}()
 
-	wg.Wait()
+	close(first)
+
+	waitFor(func() bool {
+		wq.mu.Lock()
+		defer wq.mu.Unlock()
+		return wq.active == &fe1.writer &&
+			wq.activeWriters[flowPriority] == &fe2.writer
+	})
+
+	cmpWriteqEntries(t, wq, flowPriority, fe1, fe2)
+	close(second)
+
+	waitFor(func() bool {
+		wq.mu.Lock()
+		defer wq.mu.Unlock()
+		return wq.active == &fe1.writer &&
+			wq.activeWriters[expressPriority] == &fe3.writer
+	})
+	cmpWriteqEntries(t, wq, expressPriority, fe1, fe3)
+
+	// fe2 and fe3 are blocked until now.
 	wq.done(&fe1.writer)
+
+	// fe3 should run first because of its priority, even though
+	// it called wait second.
 	if got, want := <-ch, fe3; got != want {
 		t.Errorf("got %p, want %p", got, want)
 	}
@@ -143,7 +183,116 @@ func TestWriteqNotifyPriority(t *testing.T) {
 	if got, want := <-ch, fe2; got != want {
 		t.Errorf("got %p, want %p", got, want)
 	}
+}
 
+func TestWriteqSimpleOrdering(t *testing.T) {
+	wq := &writeq{}
+	start := newEntry()
+	wq.wait(nil, &start.writer, flowPriority)
+
+	nworkers := 10
+	var wg sync.WaitGroup
+	wg.Add(nworkers)
+	numCh := make(chan int, 1)
+	numChDone := make(chan struct{})
+	doneCh := make(chan *writeqEntry, nworkers)
+
+	var writerMu sync.Mutex
+	writers := make([]*writeqEntry, nworkers)
+
+	for i := 0; i < nworkers; i++ {
+		wr := newEntry()
+		go func(w *writeqEntry) {
+			n := <-numCh
+			if n >= (nworkers - 1) {
+				close(numChDone)
+			}
+			writerMu.Lock()
+			writers[n] = wr
+			writerMu.Unlock()
+			go func() {
+				numCh <- n + 1
+			}()
+			wq.wait(nil, &w.writer, flowPriority)
+			wq.done(&w.writer)
+			doneCh <- wr
+			wg.Done()
+		}(wr)
+	}
+
+	numCh <- 0
+	<-numChDone
+	// All goroutines are now blocked in writeq.wait, waiting
+	// in the order that they were created.
+	cmpWriteqEntries(t, wq, flowPriority, start, writers...)
+
+	// Release the first writeq.wait
+	wq.done(&start.writer)
+
+	wg.Wait()
+	cmpWriteqEntries(t, wq, flowPriority, nil)
+
+	close(doneCh)
+	i := 0
+	// All of the goroutines should get their writeq turn in the
+	// order that they were created.
+	for w := range doneCh {
+		if got, want := w, writers[i]; got != want {
+			t.Errorf("got %v, want %v", got, want)
+		}
+		i++
+	}
+}
+
+func TestWriteqSharedEntries(t *testing.T) {
+	wq := &writeq{}
+
+	nworkers := 10
+	niterations := 1000
+	shared := newEntry()
+	var sharedMu sync.Mutex
+	var done, ready sync.WaitGroup
+	done.Add(nworkers)
+	ready.Add(nworkers)
+	goCh := make(chan struct{})
+
+	ran := map[int]map[int]int{}
+	for i := 0; i < nworkers; i++ {
+		ran[i] = map[int]int{}
+	}
+	for i := 0; i < nworkers; i++ {
+		go func(i int) {
+			ready.Done()
+			<-goCh
+			defer done.Done()
+
+			for j := 0; j < niterations; j++ {
+				sharedMu.Lock()
+				wq.wait(nil, &shared.writer, flowPriority)
+				ran[i][j]++
+				wq.done(&shared.writer)
+				sharedMu.Unlock()
+			}
+		}(i)
+	}
+	ready.Wait()
+	close(goCh)
+	done.Wait()
+
+	// Make sure they all got to run exactly once.
+	if got, want := len(ran), nworkers; got != want {
+		t.Errorf("got %v, want %v", got, want)
+	}
+	for i := 0; i < nworkers; i++ {
+		if got, want := len(ran[i]), niterations; got != want {
+			t.Errorf("%v: got %v, want %v", i, got, want)
+		}
+		for j := 0; j < niterations; j++ {
+			if got, want := ran[i][j], 1; got != want {
+				t.Errorf("%v:%v: got %v, want %v", i, j, got, want)
+			}
+		}
+	}
 }
 
 // test context cancelation.

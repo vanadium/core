@@ -94,6 +94,7 @@ func newBlessingsFlow(conn blessingsCon) *blessingsFlow {
 	b.dec = vom.NewDecoder(&b.decBuf)
 	b.enc = vom.NewEncoder(&b.encBuf)
 	initWriter(&b.writer, 1)
+	//b.writer.msg = fmt.Sprintf("blessings flow %p, id %v: dialed", b, 1)
 	return b
 }
 

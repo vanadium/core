@@ -5,6 +5,7 @@
 package conn
 
 import (
+	"fmt"
 	"math"
 	"time"
 
@@ -184,13 +185,16 @@ func (c *Conn) handleHealthCheckRequest(ctx *context.T) error {
 }
 
 func (c *Conn) handleRelease(ctx *context.T, msg *message.Release) error {
+	fmt.Printf("flow.control: %p: handleRelease: %v\n", c, msg.Counters)
 	for fid, val := range msg.Counters {
 		c.lock()
 		f := c.flows[fid]
 		c.unlock()
 		if f != nil {
+			fmt.Printf("flow.control: %p:%p: handleRelease: %v: %v\n", c, f, fid, val)
 			f.releaseCounters(val)
 		} else {
+			fmt.Printf("flow.control: %p: handleRelease: %v closed..\n", c, fid)
 			c.flowControl.releaseOutstandingBorrowed(fid, val)
 		}
 	}

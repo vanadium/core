@@ -7,6 +7,7 @@ package conn
 import (
 	"fmt"
 	"net"
+	"os"
 	"sync"
 	"time"
 
@@ -103,8 +104,8 @@ type Conn struct {
 	// are locked indepdently.
 	flowControl flowControlConnStats
 
-	writeq      writeq
-	writeqEntry writer
+	writeq        writeq
+	writeqEntries [numPriorities]writer
 
 	mux sync.Mutex // All the variables below here are protected by mu.
 
@@ -183,7 +184,9 @@ func NewDialed( //nolint:gocyclo
 		cancel:               cancel,
 		acceptChannelTimeout: channelTimeout,
 	}
-	initWriter(&c.writeqEntry, 1)
+	initWriters(c.writeqEntries[:], 1)
+	//c.writeqEntry.msg = fmt.Sprintf("conn %p, NewDialed", c)
+
 	c.flowControl.init(bytesBufferedPerFlow)
 	done := make(chan struct{})
 	var rtt time.Duration
@@ -306,7 +309,9 @@ func NewAccepted(
 		cancel:               cancel,
 		acceptChannelTimeout: channelTimeout,
 	}
-	initWriter(&c.writeqEntry, 1)
+	initWriters(c.writeqEntries[:], 1)
+	//	c.writeqEntry.msg = fmt.Sprintf("conn %p, NewAccepted", c)
+
 	c.flowControl.init(bytesBufferedPerFlow)
 	done := make(chan struct{}, 1)
 	var rtt time.Duration
@@ -818,9 +823,9 @@ func (c *Conn) sendRelease(ctx *context.T, fid, count uint64) {
 		c.flowControl.incrementToRelease(fid, count)
 	}
 	toRelease := c.flowControl.createReleaseMessageContents(fid, count)
-	//if count != 0 {
-	//fmt.Printf("%p: sendRelease: flow %v, count %v: all %p: %v (ok: %v)\n", c, fid, count, toRelease, toRelease, ok)
-	//}
+	if count != 0 {
+		fmt.Printf("flow.control: %p: sendRelease: flow %v, count %v: all %p: %v (ok: %v)\n", c, fid, count, toRelease, toRelease, ok)
+	}
 	var err error
 	if toRelease != nil {
 		delete(toRelease, invalidFlowID)
@@ -899,6 +904,7 @@ func (c *Conn) writeEncodedBlessings(ctx *context.T, w *writer, data []byte) err
 	if err := c.writeq.wait(ctx, w, flowPriority); err != nil {
 		return err
 	}
+	// TODO(cnicolaou): what about fragmentation and flow control here?
 	err := c.mp.writeMsg(ctx, &message.Data{
 		ID:      blessingsFlowID,
 		Payload: [][]byte{data}})
@@ -921,11 +927,37 @@ func (c *Conn) sendMessage(
 	if cancelWithContext {
 		cctx = ctx
 	}
-	if err := c.writeq.wait(cctx, &c.writeqEntry, priority); err != nil {
+
+	c.lock()
+	w := &c.writeqEntries[priority]
+
+	switch msg := m.(type) {
+	case *message.Release:
+		fmt.Fprintf(os.Stderr, "flow.control: sendMessage: %p: sending: %T (%v) @ %v using %v (%p <-> %p)\n", c, msg, msg.Counters, priority, w, w.next, w.prev)
+	default:
+		fmt.Fprintf(os.Stderr, "flow.control: sendMessage: %p: sending: %T @ %v using %v (%p <-> %p)\n", c, m, priority, w, w.next, w.prev)
+	}
+
+	w.mu.Lock()
+
+	c.unlock()
+	if err := c.writeq.wait(cctx, w, priority); err != nil {
+		fmt.Fprintf(os.Stderr, "flow.control: sendMessage: %p: %T @ %v using %v (%p <-> %p) FAILED: %v\n", c, m, priority, w, w.next, w.prev, err)
+		w.mu.Unlock()
 		return err
 	}
 	err := c.mp.writeMsg(ctx, m)
-	c.writeq.done(&c.writeqEntry)
+
+	switch msg := m.(type) {
+	case *message.Release:
+		fmt.Fprintf(os.Stderr, "flow.control: sendMessage: %p: sent: %T (%v) using %v (%p <-> %p)\n", c, msg, msg.Counters, w, w.next, w.prev)
+	default:
+		fmt.Fprintf(os.Stderr, "flow.control: sendMessage: %p: sent: %T @ %v using %v (%p <-> %p)\n", c, m, priority, w, w.next, w.prev)
+	}
+
+	c.writeq.done(w)
+	w.mu.Unlock()
+
 	return err
 }
 

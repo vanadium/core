@@ -21,19 +21,6 @@ import (
 	"v.io/x/ref/test/goroutines"
 )
 
-func block(c *Conn, p int) chan struct{} {
-	w := writer{notify: make(chan struct{}, 1)}
-	ready, unblock := make(chan struct{}), make(chan struct{})
-	go func() {
-		c.writeq.wait(nil, &w, p)
-		close(ready)
-		<-unblock
-		c.writeq.done(&w)
-	}()
-	<-ready
-	return unblock
-}
-
 func waitFor(f func() bool) {
 	t := time.NewTicker(10 * time.Millisecond)
 	defer t.Stop()
@@ -44,10 +31,27 @@ func waitFor(f func() bool) {
 	}
 }
 
+func block(ctx *context.T, c *Conn, p int) chan struct{} {
+	w := writer{notify: make(chan struct{}, 1)}
+	ready, unblock := make(chan struct{}), make(chan struct{})
+	go func() {
+		waitForWriters(ctx, c, 0)
+		c.writeq.wait(nil, &w, p)
+		close(ready)
+		<-unblock
+		c.writeq.done(&w)
+	}()
+	<-ready
+	return unblock
+}
+
 func waitForWriters(ctx *context.T, conn *Conn, num int) {
 	waitFor(func() bool {
 		conn.writeq.mu.Lock()
 		count := 0
+		if conn.writeq.active != nil {
+			count++
+		}
 		for _, w := range conn.writeq.activeWriters {
 			if w != nil {
 				count++
@@ -57,7 +61,7 @@ func waitForWriters(ctx *context.T, conn *Conn, num int) {
 			}
 		}
 		conn.writeq.mu.Unlock()
-		fmt.Printf("%v ... %v\n", count, num)
+		fmt.Printf("%v ... %v\n%s\n", count, num, &conn.writeq)
 		return count >= num
 	})
 }
@@ -76,10 +80,12 @@ func (r *readConn) ReadMsg() ([]byte, error) {
 		case *message.OpenFlow:
 			if msg.ID > 1 { // Ignore the blessings flow.
 				r.ch <- m
+				fmt.Printf(">>>>>> debug: sent ... %T: %v\n", m, msg.ID)
 			}
 		case *message.Data:
 			if msg.ID > 1 { // Ignore the blessings flow.
 				r.ch <- m
+				fmt.Printf(">>>>>> debug: sent ... %T: %v\n", m, msg.ID)
 			}
 		}
 	}
@@ -98,7 +104,7 @@ func TestOrdering(t *testing.T) {
 	// flows finish writing because the flows' writes will become blocked from
 	// counter exhaustion.
 	// 4*4*2^16 == 2^20 so it's the perfect number.
-	const nflows = 4
+	const nflows = 2
 	const nmessages = 4
 
 	ctx, shutdown := test.V23Init()
@@ -110,20 +116,23 @@ func TestOrdering(t *testing.T) {
 	})
 	flows, accept, dc, ac := setupFlows(t, "debug", "local/", ctx, fctx, true, nflows)
 
-	unblock := block(dc, 0)
+	//unblock := block(dc, 0)
 	var wg sync.WaitGroup
 	wg.Add(2 * nflows)
 	errCh := make(chan error, 2*nflows)
+	unblock := block(ctx, dc, flowPriority)
 
 	for _, f := range flows {
 		go func(fl flow.Flow) {
+			fmt.Printf("write: started: %v\n", defaultMtu*nmessages)
 			defer wg.Done()
 			if _, err := fl.WriteMsg(randData[:defaultMtu*nmessages]); err != nil {
+				fmt.Printf("write: err %v\n", err)
 				errCh <- err
 				return
 			}
+			fmt.Printf("write: done\n")
 			errCh <- nil
-			fmt.Printf("write: worked\n")
 		}(f)
 		go func() {
 			defer wg.Done()
@@ -143,13 +152,14 @@ func TestOrdering(t *testing.T) {
 	}
 
 	waitForWriters(ctx, dc, nflows+1)
+	close(unblock)
+	wg.Wait()
+	fmt.Printf("LL: %v\n", len(ch))
 
 	// Now close the conn which will send a teardown message, but only after
 	// the other flows finish their current write.
 	go dc.Close(ctx, nil)
 	defer func() { <-dc.Closed(); <-ac.Closed() }()
-
-	close(unblock)
 
 	// OK now we expect all the flows to write interleaved messages.
 	for i := 0; i < nmessages; i++ {
@@ -158,9 +168,14 @@ func TestOrdering(t *testing.T) {
 			m := <-ch
 			switch msg := m.(type) {
 			case *message.OpenFlow:
+				fmt.Printf("TEST....... %T: %v\n", m, msg.ID)
 				found[msg.ID] = true
 			case *message.Data:
+				fmt.Printf("TEST....... %T: %v\n", m, msg.ID)
 				found[msg.ID] = true
+			case *message.TearDown:
+				fmt.Printf("TEST....... teardown %T\n", m)
+
 			}
 		}
 		if len(found) != nflows {
@@ -168,7 +183,6 @@ func TestOrdering(t *testing.T) {
 		}
 	}
 
-	wg.Wait()
 	close(errCh)
 	for err := range errCh {
 		if err != nil {
@@ -183,9 +197,10 @@ func TestFlowControl(t *testing.T) {
 	defer shutdown()
 
 	for _, nflows := range []int{1, 2, 100} {
-		for _, bytesBuffered := range []int{33, 396, 4093} {
+		for _, bytesBuffered := range []int{33, 396, 4093, defaultBytesBufferedPerFlow} {
 			fmt.Printf("starting: #%v flows, buffered %#v bytes\n", nflows, bytesBuffered)
 			dfs, flows, ac, dc := setupFlowsBytesBuffered(t, "local", "", ctx, ctx, true, nflows, uint64(bytesBuffered))
+
 			defer func() {
 				dc.Close(ctx, nil)
 				ac.Close(ctx, nil)
@@ -197,27 +212,46 @@ func TestFlowControl(t *testing.T) {
 
 			for i := 0; i < nflows; i++ {
 				go func(i int) {
-					errs <- doWrite(dfs[i], randData)
+					err := doWrite(dfs[i], randData)
+					if err != nil {
+						fmt.Printf("unexpected error: %v\n", err)
+					}
+					errs <- err
 					wg.Done()
 				}(i)
 				go func(i int) {
-					errs <- doRead(dfs[i], randData, &wg)
+					err := doRead(dfs[i], randData, &wg)
+					if err != nil {
+						fmt.Printf("unexpected error: %v\n", err)
+					}
+					errs <- err
 					wg.Done()
 				}(i)
 			}
 			for i := 0; i < nflows; i++ {
 				af := <-flows
 				go func() {
-					errs <- doRead(af, randData, &wg)
+
+					err := doRead(af, randData, &wg)
+					if err != nil {
+						fmt.Printf("unexpected error: %v\n", err)
+					}
+					errs <- err
 					wg.Done()
 				}()
 				go func() {
-					errs <- doWrite(af, randData)
+					err := doWrite(af, randData)
+					if err != nil {
+						fmt.Printf("unexpected error: %v\n", err)
+					}
+					errs <- err
 					wg.Done()
 				}()
 			}
+
 			wg.Wait()
 			close(errs)
+
 			for err := range errs {
 				if err != nil {
 					t.Error(err)

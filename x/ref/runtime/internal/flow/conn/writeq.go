@@ -6,6 +6,7 @@ package conn
 
 import (
 	"fmt"
+	"os"
 	"strings"
 	"sync"
 
@@ -24,18 +25,17 @@ const (
 // writeq implements a set of LIFOs queues used to order and prioritize
 // writing to a connections underlying message pipe. The intention is for
 // writers to block until their turn to transmit comes up. This approach,
-// as opposed to adding buffers to a queue, can minimize data copying
+// as opposed to adding buffers to a queue, can minimize data copying and
 // simplify data management.
 //
 // Usage is as follows:
 //
-//	activateAndNotifyWriter(&writer, priority)
-//	<- writer.notify
+//	wait(ctx, &writer, priority)
 //	// access the message pipe
-//	deactivateAndNotifyWriter(&writer)
+//	done(&writer)
 //
 // The invariant that must be maintained is that the total number of
-// additions to writeq must be matched by total number of notifications
+// additions to writeq must be matched by the total number of notifications
 // issued to ensure that every blocked writer is guaranteed to be woken
 // up.
 type writeq struct {
@@ -49,8 +49,6 @@ type writeq struct {
 	activeWriters [numPriorities]*writer
 
 	active *writer
-
-	trace callerCircularList
 }
 
 type writer struct {
@@ -70,17 +68,27 @@ type writer struct {
 	// to be sent and head.prev points to the last item to be sent.
 	prev, next *writer
 
+	mu     sync.Mutex
 	notify chan struct{}
 
-	stack []uintptr
+	msg string
 }
 
-// initWriter initializes the supplied writer, in particular creating a channel
+// initWriters initializes the supplied writers, in particular creating a channel
 // for notificaions.
+func initWriters(writers []writer, chanSize int) {
+	for i := range writers {
+		initWriter(&writers[i], chanSize)
+	}
+}
+
 func initWriter(w *writer, chanSize int) {
 	w.prev, w.next = nil, nil
 	w.notify = make(chan struct{}, chanSize)
-	w.stack = callers(0, 15)
+}
+
+func (w *writer) String() string {
+	return fmt.Sprintf("%p: %s", w, w.msg)
 }
 
 func (q *writeq) String() string {
@@ -94,14 +102,14 @@ func (q *writeq) stringLocked() string {
 	if q.active == nil {
 		fmt.Fprintf(&out, "writeq(%p): idle\n", q)
 	} else {
-		fmt.Fprintf(&out, "writeq(%p): active: %p\n", q, q.active)
+		fmt.Fprintf(&out, "writeq(%p): active: %v\n", q, q.active)
 
 	}
 	for p, h := range q.activeWriters {
 		if h != nil {
 			fmt.Fprintf(&out, "\t%v: ", p)
 			for w := h; w != nil; w = w.next {
-				fmt.Fprintf(&out, "%p ", w)
+				fmt.Fprintf(&out, "%v ", w)
 				if w.next == h {
 					break
 				}
@@ -112,7 +120,10 @@ func (q *writeq) stringLocked() string {
 	return out.String()
 }
 
-func (q *writeq) addWriterLocked(head *writer, w *writer, p int) {
+func (q *writeq) addWriterLocked(head *writer, w *writer, p int) bool {
+	if w.next != nil && w.prev != nil {
+		return false
+	}
 	if head == nil {
 		// Insert at the head of the list. w.next == w.prev since
 		// it's both the first and last item to be sent.
@@ -124,16 +135,23 @@ func (q *writeq) addWriterLocked(head *writer, w *writer, p int) {
 		head.prev.next = w
 		head.prev = w
 	}
+	return true
 }
 
 func (q *writeq) wait(ctx *context.T, w *writer, p int) error {
 	q.mu.Lock()
 	if q.active != nil {
-		//		fmt.Printf("%p: active: non idle %p\n", q, q.active)
-		q.addWriterLocked(q.activeWriters[p], w, p)
+		fmt.Printf("writeq(%p): priority %v: active: non idle %v: (%v)\n", q, p, q.active, w)
+		fmt.Printf("writeq(%p): %s\n", q, q.stringLocked())
+		if !q.addWriterLocked(q.activeWriters[p], w, p) {
+			fmt.Printf("writeq(%p): %s\n", q, q.stringLocked())
+			q.mu.Unlock()
+			return fmt.Errorf("writer %p, priority %v already exists in the writeq", w, p)
+		}
 		q.mu.Unlock()
 	} else {
-		//		fmt.Printf("%p: active: idle\n", q)
+		fmt.Printf("writeq(%p): priority %v: active: idle: (%v)\n", q, p, w)
+		fmt.Printf("writeq(%p): %s\n", q, q.stringLocked())
 		q.active = w
 		head := q.nextLocked()
 		if head == nil || head == w {
@@ -143,10 +161,12 @@ func (q *writeq) wait(ctx *context.T, w *writer, p int) error {
 		}
 		q.mu.Unlock()
 		// notify the next item and then wait to be notified below.
+		fmt.Fprintf(os.Stderr, "wait.signal: %p: %v\n", head, head.msg)
 		head.notify <- struct{}{}
 	}
 
 	if ctx == nil {
+		fmt.Fprintf(os.Stderr, "wait.wait: %p: %v\n", w, w.msg)
 		<-w.notify
 	} else {
 		select {
@@ -166,18 +186,9 @@ func (q *writeq) done(w *writer) {
 	head := q.nextLocked()
 	q.mu.Unlock()
 	if head != nil {
+		fmt.Fprintf(os.Stderr, "done.signal: %p: %v\n", head, head.msg)
 		head.notify <- struct{}{}
 	}
-}
-
-func (q *writeq) notifyNext() {
-	q.mu.Lock()
-	head := q.nextLocked()
-	q.mu.Unlock()
-	if head == nil {
-		return
-	}
-	head.notify <- struct{}{}
 }
 
 // nextLocked returns the next writer in the q by priority and LIFO
@@ -188,11 +199,11 @@ func (q *writeq) nextLocked() *writer {
 			prv, nxt := head.prev, head.next
 			if nxt == head {
 				q.activeWriters[p] = nil
+				head.prev, head.next = nil, nil
 				return head
 			}
 			q.activeWriters[p] = head.next
-			nxt.prev = prv
-			prv.next = nxt
+			nxt.prev, prv.next = prv, nxt
 			head.prev, head.next = nil, nil
 			return head
 		}
