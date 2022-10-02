@@ -185,6 +185,9 @@ func NewDialed( //nolint:gocyclo
 		acceptChannelTimeout: channelTimeout,
 	}
 	initWriters(c.writeqEntries[:], 1)
+	for i := range c.writeqEntries {
+		c.writeqEntries[i].msg = fmt.Sprintf("conn %p, NewDialed", c)
+	}
 	//c.writeqEntry.msg = fmt.Sprintf("conn %p, NewDialed", c)
 
 	c.flowControl.init(bytesBufferedPerFlow)
@@ -310,6 +313,9 @@ func NewAccepted(
 		acceptChannelTimeout: channelTimeout,
 	}
 	initWriters(c.writeqEntries[:], 1)
+	for i := range c.writeqEntries {
+		c.writeqEntries[i].msg = fmt.Sprintf("conn %p, NewAccepted", c)
+	}
 	//	c.writeqEntry.msg = fmt.Sprintf("conn %p, NewAccepted", c)
 
 	c.flowControl.init(bytesBufferedPerFlow)
@@ -423,8 +429,8 @@ func (c *Conn) MTU() uint64 {
 // The RTT will be updated with the receipt of every healthCheckResponse, so
 // this overestimate doesn't remain for long when the channel timeout is low.
 func (c *Conn) RTT() time.Duration {
-	defer c.unlock()
 	c.lock()
+	defer c.unlock()
 	rtt := c.hcstate.lastRTT
 	if !c.hcstate.requestSent.IsZero() {
 		if waitRTT := time.Since(c.hcstate.requestSent); waitRTT > rtt {
@@ -491,8 +497,8 @@ func (c *Conn) healthCheckNewFlowLocked(ctx *context.T, timeout time.Duration) {
 }
 
 func (c *Conn) healthCheckCloseDeadline() time.Time {
-	defer c.unlock()
 	c.lock()
+	defer c.unlock()
 	return c.hcstate.closeDeadline
 }
 
@@ -526,8 +532,8 @@ func (c *Conn) Dial(ctx *context.T, blessings security.Blessings, discharges map
 		// encoding of the publicKey can never error out.
 		blessings, _ = security.NamelessBlessing(v23.GetPrincipal(ctx).PublicKey())
 	}
-	defer c.unlock()
 	c.lock()
+	defer c.unlock()
 
 	// It may happen that in the case of bidirectional RPC the dialer of the connection
 	// has sent blessings,  but not yet discharges.  In this case we will wait for them
@@ -569,9 +575,8 @@ func (c *Conn) RemoteEndpoint() naming.Endpoint {
 // LocalBlessings returns the local blessings.
 func (c *Conn) LocalBlessings() security.Blessings {
 	c.lock()
-	localBlessings := c.localBlessings
-	c.unlock()
-	return localBlessings
+	defer c.unlock()
+	return c.localBlessings
 }
 
 // RemoteBlessings returns the remote blessings.
@@ -610,8 +615,8 @@ func (c *Conn) CommonVersion() version.RPCVersion { return c.version }
 
 // LastUsed returns the time at which the Conn had bytes read or written on it.
 func (c *Conn) LastUsed() time.Time {
-	defer c.unlock()
 	c.lock()
+	defer c.unlock()
 	return c.lastUsedTime
 }
 
@@ -619,8 +624,8 @@ func (c *Conn) LastUsed() time.Time {
 // it is in lame duck mode indicating that new flows should not be dialed on this
 // conn.
 func (c *Conn) RemoteLameDuck() bool {
-	defer c.unlock()
 	c.lock()
+	defer c.unlock()
 	return c.remoteLameDuck
 }
 
@@ -644,8 +649,8 @@ func (c *Conn) Close(ctx *context.T, err error) {
 // CloseIfIdle closes the connection if the conn has been idle for idleExpiry,
 // returning true if it closed it.
 func (c *Conn) CloseIfIdle(ctx *context.T, idleExpiry time.Duration) bool {
-	defer c.unlock()
 	c.lock()
+	defer c.unlock()
 	if c.isIdleLocked(ctx, idleExpiry) {
 		c.internalCloseLocked(ctx, false, false, ErrIdleConnKilled.Errorf(ctx, "connection killed because idle expiry was reached"))
 		return true
@@ -654,8 +659,8 @@ func (c *Conn) CloseIfIdle(ctx *context.T, idleExpiry time.Duration) bool {
 }
 
 func (c *Conn) IsIdle(ctx *context.T, idleExpiry time.Duration) bool {
-	defer c.unlock()
 	c.lock()
+	defer c.unlock()
 	return c.isIdleLocked(ctx, idleExpiry)
 }
 
@@ -668,8 +673,8 @@ func (c *Conn) isIdleLocked(ctx *context.T, idleExpiry time.Duration) bool {
 }
 
 func (c *Conn) HasActiveFlows() bool {
-	defer c.unlock()
 	c.lock()
+	defer c.unlock()
 	return c.hasActiveFlowsLocked()
 }
 
@@ -829,6 +834,7 @@ func (c *Conn) sendRelease(ctx *context.T, fid, count uint64) {
 	var err error
 	if toRelease != nil {
 		delete(toRelease, invalidFlowID)
+		// TODO: limit needs to set appropriately for the max buffered bytes.
 		err = c.fragmentReleaseMessage(ctx, toRelease, 8000)
 	}
 	if err != nil {
@@ -874,8 +880,8 @@ func (c *Conn) IsEncapsulated() bool {
 }
 
 func (c *Conn) DebugString() string {
-	defer c.unlock()
 	c.lock()
+	defer c.unlock()
 	return fmt.Sprintf(`
 Remote:
   Endpoint   %v
@@ -930,6 +936,8 @@ func (c *Conn) sendMessage(
 
 	c.lock()
 	w := &c.writeqEntries[priority]
+	c.unlock()
+	w.mu.Lock()
 
 	switch msg := m.(type) {
 	case *message.Release:
@@ -938,9 +946,6 @@ func (c *Conn) sendMessage(
 		fmt.Fprintf(os.Stderr, "flow.control: sendMessage: %p: sending: %T @ %v using %v (%p <-> %p)\n", c, m, priority, w, w.next, w.prev)
 	}
 
-	w.mu.Lock()
-
-	c.unlock()
 	if err := c.writeq.wait(cctx, w, priority); err != nil {
 		fmt.Fprintf(os.Stderr, "flow.control: sendMessage: %p: %T @ %v using %v (%p <-> %p) FAILED: %v\n", c, m, priority, w, w.next, w.prev, err)
 		w.mu.Unlock()

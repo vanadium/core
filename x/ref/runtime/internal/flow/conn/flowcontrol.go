@@ -5,6 +5,7 @@
 package conn
 
 import (
+	"fmt"
 	"sync"
 
 	"v.io/v23/context"
@@ -107,7 +108,7 @@ func (fs *flowControlConnStats) newCounters(fid uint64) {
 	defer fs.mu.Unlock()
 	fs.toRelease[fid] = fs.bytesBufferedPerFlow
 	fs.borrowing[fid] = true
-	//fmt.Printf("%p: new counters for: %v: (#%v)\n", fs, fid, len(fs.toRelease))
+	fmt.Printf("%p: new counters for: %v: (#%v)\n", fs, fid, len(fs.toRelease))
 }
 
 // incrementToRelease increments the 'toRelease' count for the specified flow id.
@@ -115,7 +116,7 @@ func (fs *flowControlConnStats) incrementToRelease(fid, count uint64) {
 	fs.mu.Lock()
 	defer fs.mu.Unlock()
 	fs.toRelease[fid] += count
-	//fmt.Printf("%p: inc counters for: %v: by %v (#%v)\n", fs, fid, count, len(fs.toRelease))
+	fmt.Printf("%p: inc counters for: %v: by %v (#%v)\n", fs, fid, count, len(fs.toRelease))
 }
 
 // createReleaseMessageContents creates the data to be sent in a release
@@ -134,6 +135,7 @@ func (fs *flowControlConnStats) createReleaseMessageContents(fid, count uint64) 
 		return nil
 	}
 	toRelease := fs.toRelease
+	fmt.Printf("createReleaseMessageContents: %v\n", toRelease)
 	fs.toRelease = make(map[uint64]uint64, len(fs.toRelease))
 	fs.borrowing = make(map[uint64]bool, len(fs.borrowing))
 	return toRelease
@@ -240,12 +242,12 @@ func (fs *flowControlFlowStats) handleFlowClose(closedRemotely, notConnClosing b
 		fs.shared.outstandingBorrowed[fid] = fs.borrowed
 	}
 	if !fs.shared.borrowing[fid] {
-		//_, ok := fs.shared.toRelease[fid]
+		_, ok := fs.shared.toRelease[fid]
 		delete(fs.shared.toRelease, fid)
 		delete(fs.shared.borrowing, fid)
-		//fmt.Printf("%p: clearCountersLocked: not borrowing: fs.toRelease(%v: %v): #%v\n", fs.shared, fid, ok, len(fs.shared.toRelease))
+		fmt.Printf("%p: clearCountersLocked: not borrowing: fs.toRelease(%v: %v): #%v\n", fs.shared, fid, ok, len(fs.shared.toRelease))
 	} else {
-		//fmt.Printf("%p: clearCountersLocked: borrowing: fs.toRelease(%v): #%v\n", fs.shared, fid, len(fs.shared.toRelease))
+		fmt.Printf("%p: clearCountersLocked: borrowing: fs.toRelease(%v): #%v\n", fs.shared, fid, len(fs.shared.toRelease))
 	}
 	// Need to keep borrowed counters around so that they can be sent
 	// to the dialer to allow for the shared counter to be incremented

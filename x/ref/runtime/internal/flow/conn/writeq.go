@@ -9,6 +9,7 @@ import (
 	"os"
 	"strings"
 	"sync"
+	"sync/atomic"
 
 	"v.io/v23/context"
 )
@@ -48,7 +49,11 @@ type writeq struct {
 	// of all the lowest priority writing flows.
 	activeWriters [numPriorities]*writer
 
-	active *writer
+	nextID uint64
+
+	bypass, in, out, cdone uint64
+	nwaits, nsignals       uint64
+	active                 *writer
 }
 
 type writer struct {
@@ -69,9 +74,21 @@ type writer struct {
 	prev, next *writer
 
 	mu     sync.Mutex
+	bypass bool
 	notify chan struct{}
 
+	id uint64
+
 	msg string
+}
+
+const dbq = false
+
+func dbqf(format string, args ...interface{}) {
+	if !dbq {
+		return
+	}
+	fmt.Fprintf(os.Stderr, format, args...)
 }
 
 // initWriters initializes the supplied writers, in particular creating a channel
@@ -88,7 +105,7 @@ func initWriter(w *writer, chanSize int) {
 }
 
 func (w *writer) String() string {
-	return fmt.Sprintf("%p: %s", w, w.msg)
+	return fmt.Sprintf("%p: cid: %v :: %s", w, w.id, w.msg)
 }
 
 func (q *writeq) String() string {
@@ -103,7 +120,6 @@ func (q *writeq) stringLocked() string {
 		fmt.Fprintf(&out, "writeq(%p): idle\n", q)
 	} else {
 		fmt.Fprintf(&out, "writeq(%p): active: %v\n", q, q.active)
-
 	}
 	for p, h := range q.activeWriters {
 		if h != nil {
@@ -138,57 +154,93 @@ func (q *writeq) addWriterLocked(head *writer, w *writer, p int) bool {
 	return true
 }
 
+func (q *writeq) stats(msg string, w *writer) string {
+	return fmt.Sprintf("writeq:%p: cid: %2v, %s in:out: %2v:%2v - bypass %2v, done: %2v, waits:signals: %2v:%2v:\t%v", q, atomic.LoadUint64(&q.nextID), msg, atomic.LoadUint64(&q.in), atomic.LoadUint64(&q.out), atomic.LoadUint64(&q.bypass), atomic.LoadUint64(&q.cdone), atomic.LoadUint64(&q.nwaits), atomic.LoadUint64(&q.nsignals), w)
+}
+
 func (q *writeq) wait(ctx *context.T, w *writer, p int) error {
+
 	q.mu.Lock()
+	w.id = atomic.AddUint64(&q.nextID, 1)
+	w.bypass = false
+
+	dbqf("%s\n", q.stats("wait: entry", w))
+	defer func() {
+		dbqf("%s\n", q.stats("wait: exit ", w))
+	}()
+
+	atomic.AddUint64(&q.in, 1)
+	defer atomic.AddUint64(&q.out, 1)
+
 	if q.active != nil {
-		fmt.Printf("writeq(%p): priority %v: active: non idle %v: (%v)\n", q, p, q.active, w)
-		fmt.Printf("writeq(%p): %s\n", q, q.stringLocked())
+		dbqf("writeq:%p: cid: %2v priority %v: active: non idle %v: (%v)\n", q, q.nextID, p, q.active, w)
+		dbqf("writeq:%p: cid: %2v %s\n", q, q.nextID, q.stringLocked())
 		if !q.addWriterLocked(q.activeWriters[p], w, p) {
-			fmt.Printf("writeq(%p): %s\n", q, q.stringLocked())
+			dbqf("writeq:%p: cid: %2v state: %s\n", q, q.nextID, q.stringLocked())
 			q.mu.Unlock()
 			return fmt.Errorf("writer %p, priority %v already exists in the writeq", w, p)
 		}
-		q.mu.Unlock()
+
+		if !q.active.bypass {
+			atomic.AddUint64(&q.nsignals, 1)
+			q.active.notify <- struct{}{}
+			q.active.bypass = true
+		}
+		/*		select {
+				case q.active.notify <- struct{}{}:
+				default:
+				}*/
+		// how do we know if it's waiting? If it is, signal it, otherwise
+		// wait for it to be done.
+
 	} else {
-		fmt.Printf("writeq(%p): priority %v: active: idle: (%v)\n", q, p, w)
-		fmt.Printf("writeq(%p): %s\n", q, q.stringLocked())
+		dbqf("writeq:%p: cid: %2v priority %v: active: idle: (%v)\n", q, q.nextID, p, w)
+		dbqf("writeq:%p: cid: %2v state: %s\n", q, q.nextID, q.stringLocked())
 		q.active = w
 		head := q.nextLocked()
 		if head == nil || head == w {
+			fmt.Printf("writeq:%p: cid: %2v priority %v: active: idle: (%v): done bypass\n", q, q.nextID, p, w)
 			// Either the q is empty or w is the only item in the q.
+			w.bypass = true
 			q.mu.Unlock()
+			atomic.AddUint64(&q.bypass, 1)
 			return nil
 		}
-		q.mu.Unlock()
 		// notify the next item and then wait to be notified below.
-		fmt.Fprintf(os.Stderr, "wait.signal: %p: %v\n", head, head.msg)
+		dbqf("writeq:%p: cid: %2v wait.signal: (%v)\n", q, q.nextID, head)
+		atomic.AddUint64(&q.nsignals, 1)
 		head.notify <- struct{}{}
 	}
-
+	dbqf("writeq:%p: cid: %2v wait.wait: ctx %v (%v): waiting\n", q, q.nextID, ctx != nil, w)
+	atomic.AddUint64(&q.nwaits, 1)
+	q.mu.Unlock()
 	if ctx == nil {
-		fmt.Fprintf(os.Stderr, "wait.wait: %p: %v\n", w, w.msg)
 		<-w.notify
 	} else {
 		select {
 		case <-ctx.Done():
+			dbqf("writeq:%p: cid: %2v wait.wait: ctx %v (%v): err: %v\n", q, q.nextID, ctx != nil, w, ctx.Err())
 			return ctx.Err()
 		case <-w.notify:
 		}
 	}
+	dbqf("writeq:%p: cid: %2v wait.wait: ctx %v (%v): done\n", q, q.nextID, ctx != nil, w)
 	return nil
 }
 
 func (q *writeq) done(w *writer) {
+	atomic.AddUint64(&q.cdone, 1)
 	q.mu.Lock()
 	if q.active == w {
 		q.active = nil
 	}
 	head := q.nextLocked()
-	q.mu.Unlock()
 	if head != nil {
-		fmt.Fprintf(os.Stderr, "done.signal: %p: %v\n", head, head.msg)
+		dbqf("writeq:%p: cid: %2v done.signal: %v\n", q, q.nextID, head)
+		atomic.AddUint64(&q.nsignals, 1)
 		head.notify <- struct{}{}
 	}
+	q.mu.Unlock()
 }
 
 // nextLocked returns the next writer in the q by priority and LIFO

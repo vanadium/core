@@ -202,12 +202,13 @@ func TestWriteqSimpleOrdering(t *testing.T) {
 
 	for i := 0; i < nworkers; i++ {
 		wr := newEntry()
-		go func(w *writeqEntry) {
+		go func(w *writeqEntry, id int) {
 			n := <-numCh
 			if n >= (nworkers - 1) {
 				close(numChDone)
 			}
 			writerMu.Lock()
+			wr.id = uint64(id)
 			writers[n] = wr
 			writerMu.Unlock()
 			go func() {
@@ -217,7 +218,7 @@ func TestWriteqSimpleOrdering(t *testing.T) {
 			wq.done(&w.writer)
 			doneCh <- wr
 			wg.Done()
-		}(wr)
+		}(wr, i+1)
 	}
 
 	numCh <- 0
