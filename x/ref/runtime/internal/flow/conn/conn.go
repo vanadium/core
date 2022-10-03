@@ -7,7 +7,6 @@ package conn
 import (
 	"fmt"
 	"net"
-	"os"
 	"sync"
 	"time"
 
@@ -20,6 +19,7 @@ import (
 	"v.io/v23/security"
 	"v.io/v23/verror"
 	slib "v.io/x/ref/lib/security"
+	"v.io/x/ref/runtime/internal/flow/conn/debug"
 	rpcversion "v.io/x/ref/runtime/internal/rpc/version"
 )
 
@@ -186,9 +186,8 @@ func NewDialed( //nolint:gocyclo
 	}
 	initWriters(c.writeqEntries[:], 1)
 	for i := range c.writeqEntries {
-		c.writeqEntries[i].msg = fmt.Sprintf("conn %p, NewDialed", c)
+		c.writeqEntries[i].SetComment(fmt.Sprintf("conn %p, NewDialed", c))
 	}
-	//c.writeqEntry.msg = fmt.Sprintf("conn %p, NewDialed", c)
 
 	c.flowControl.init(bytesBufferedPerFlow)
 	done := make(chan struct{})
@@ -314,9 +313,8 @@ func NewAccepted(
 	}
 	initWriters(c.writeqEntries[:], 1)
 	for i := range c.writeqEntries {
-		c.writeqEntries[i].msg = fmt.Sprintf("conn %p, NewAccepted", c)
+		c.writeqEntries[i].SetComment(fmt.Sprintf("conn %p, NewAccepted", c))
 	}
-	//	c.writeqEntry.msg = fmt.Sprintf("conn %p, NewAccepted", c)
 
 	c.flowControl.init(bytesBufferedPerFlow)
 	done := make(chan struct{}, 1)
@@ -828,9 +826,9 @@ func (c *Conn) sendRelease(ctx *context.T, fid, count uint64) {
 		c.flowControl.incrementToRelease(fid, count)
 	}
 	toRelease := c.flowControl.createReleaseMessageContents(fid, count)
-	if count != 0 {
+	/*if count != 0 {
 		fmt.Printf("flow.control: %p: sendRelease: flow %v, count %v: all %p: %v (ok: %v)\n", c, fid, count, toRelease, toRelease, ok)
-	}
+	}*/
 	var err error
 	if toRelease != nil {
 		delete(toRelease, invalidFlowID)
@@ -933,36 +931,17 @@ func (c *Conn) sendMessage(
 	if cancelWithContext {
 		cctx = ctx
 	}
-
-	c.lock()
-	w := &c.writeqEntries[priority]
-	c.unlock()
-	w.mu.Lock()
-
-	switch msg := m.(type) {
-	case *message.Release:
-		fmt.Fprintf(os.Stderr, "flow.control: sendMessage: %p: sending: %T (%v) @ %v using %v (%p <-> %p)\n", c, msg, msg.Counters, priority, w, w.next, w.prev)
-	default:
-		fmt.Fprintf(os.Stderr, "flow.control: sendMessage: %p: sending: %T @ %v using %v (%p <-> %p)\n", c, m, priority, w, w.next, w.prev)
-	}
-
-	if err := c.writeq.wait(cctx, w, priority); err != nil {
-		fmt.Fprintf(os.Stderr, "flow.control: sendMessage: %p: %T @ %v using %v (%p <-> %p) FAILED: %v\n", c, m, priority, w, w.next, w.prev, err)
-		w.mu.Unlock()
+	// We need a new writer for call to sendMessage since it can be called
+	// from many different flows concurrently to send flow control
+	// release messages.
+	var w writer
+	initWriter(&w, 1)
+	w.setComment(fmt.Sprintf("%p: sendMessage: conn %T, priority %v, %v", c, m, priority, debug.FormatMessage(m)))
+	if err := c.writeq.wait(cctx, &w, priority); err != nil {
 		return err
 	}
 	err := c.mp.writeMsg(ctx, m)
-
-	switch msg := m.(type) {
-	case *message.Release:
-		fmt.Fprintf(os.Stderr, "flow.control: sendMessage: %p: sent: %T (%v) using %v (%p <-> %p)\n", c, msg, msg.Counters, w, w.next, w.prev)
-	default:
-		fmt.Fprintf(os.Stderr, "flow.control: sendMessage: %p: sent: %T @ %v using %v (%p <-> %p)\n", c, m, priority, w, w.next, w.prev)
-	}
-
-	c.writeq.done(w)
-	w.mu.Unlock()
-
+	c.writeq.done(&w)
 	return err
 }
 

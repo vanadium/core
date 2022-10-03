@@ -196,8 +196,8 @@ func TestFlowControl(t *testing.T) {
 	ctx, shutdown := test.V23Init()
 	defer shutdown()
 
-	for _, nflows := range []int{20, 1, 2} {
-		for _, bytesBuffered := range []int{defaultMtu, defaultBytesBufferedPerFlow} {
+	for _, nflows := range []int{1, 2, 40} {
+		for _, bytesBuffered := range []int{1024, defaultMtu, defaultBytesBufferedPerFlow} {
 			fmt.Printf("starting: #%v flows, buffered %#v bytes\n", nflows, bytesBuffered)
 			dfs, flows, ac, dc := setupFlowsBytesBuffered(t, "local", "", ctx, ctx, true, nflows, uint64(bytesBuffered))
 
@@ -220,21 +220,23 @@ func TestFlowControl(t *testing.T) {
 					wg.Done()
 				}(i)
 				go func(i int) {
-					err := doRead(dfs[i], randData, &wg)
+					err := doRead(dfs[i], randData, nil)
 					if err != nil {
 						fmt.Printf("unexpected error: %v\n", err)
 					}
 					errs <- err
+					wg.Done()
 				}(i)
 			}
 			for i := 0; i < nflows; i++ {
 				af := <-flows
 				go func() {
-					err := doRead(af, randData, &wg)
+					err := doRead(af, randData, nil)
 					if err != nil {
 						fmt.Printf("unexpected error: %v\n", err)
 					}
 					errs <- err
+					wg.Done()
 				}()
 				go func() {
 					err := doWrite(af, randData)

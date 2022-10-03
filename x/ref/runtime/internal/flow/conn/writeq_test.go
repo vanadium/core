@@ -208,7 +208,6 @@ func TestWriteqSimpleOrdering(t *testing.T) {
 				close(numChDone)
 			}
 			writerMu.Lock()
-			wr.id = uint64(id)
 			writers[n] = wr
 			writerMu.Unlock()
 			go func() {
