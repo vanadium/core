@@ -8,7 +8,6 @@ import (
 	"sync"
 
 	"v.io/v23/context"
-	"v.io/x/ref/runtime/internal/flow/conn/debug"
 )
 
 // flowControlConnStats represents the flow control counters for all flows
@@ -108,7 +107,7 @@ func (fs *flowControlConnStats) newCounters(fid uint64) {
 	defer fs.mu.Unlock()
 	fs.toRelease[fid] = fs.bytesBufferedPerFlow
 	fs.borrowing[fid] = true
-	debug.FlowControl("%p: flow.control: connStats: new counters for flow %3v: #%v counters\n", fs, fid, fs.bytesBufferedPerFlow)
+	//debug.FlowControl("%p: flow.control: connStats: new counters for flow %3v: #%v counters\n", fs, fid, fs.bytesBufferedPerFlow)
 }
 
 // incrementToRelease increments the 'toRelease' count for the specified flow id.
@@ -116,7 +115,7 @@ func (fs *flowControlConnStats) incrementToRelease(fid, count uint64) {
 	fs.mu.Lock()
 	defer fs.mu.Unlock()
 	fs.toRelease[fid] += count
-	debug.FlowControl("%p: flow.control: connStats: inc counters for flow %3v by #%v, new #%v counters\n", fs, fid, count, fs.toRelease[fid])
+	//debug.FlowControl("%p: flow.control: connStats: inc counters for flow %3v by #%v, new #%v counters\n", fs, fid, count, fs.toRelease[fid])
 }
 
 // createReleaseMessageContents creates the data to be sent in a release
