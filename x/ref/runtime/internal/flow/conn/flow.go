@@ -16,7 +16,6 @@ import (
 	"v.io/v23/flow/message"
 	"v.io/v23/naming"
 	"v.io/v23/security"
-	"v.io/x/ref/runtime/internal/flow/conn/debug"
 )
 
 type flw struct {
@@ -99,11 +98,11 @@ func (c *Conn) newFlowLocked(
 	// messages to notify a flow-controlled writeMgs that it may potentially
 	// have tokens to spend on writes.
 	initWriter(&f.writeqEntry, 1)
-	if dialed {
-		f.writeqEntry.SetComment(fmt.Sprintf("flow %p, id %v: dialed", f, id))
-	} else {
-		f.writeqEntry.SetComment(fmt.Sprintf("flow %p, id %v: accepted", f, id))
-	}
+	//	if dialed {
+	//		f.writeqEntry.SetComment(fmt.Sprintf("flow %p, id %v: dialed", f, id))
+	//	} else {
+	//		f.writeqEntry.SetComment(fmt.Sprintf("flow %p, id %v: accepted", f, id))
+	//	}
 
 	f.flowControl.shared = &c.flowControl
 	f.flowControl.borrowing = dialed
@@ -196,12 +195,11 @@ func (f *flw) releaseCounters(tokens uint64) {
 	f.lock()
 	defer f.unlock()
 	f.flowControl.releaseCounters(ctx, tokens)
-	debug.FlowControl("%p: flow.control: releaseCounters: for %p:%3v: #%v counters\n", f.conn, f, f.id, tokens)
+	//debug.FlowControl("%p: flow.control: releaseCounters: for %p:%3v: #%v counters\n", f.conn, f, f.id, tokens)
 	// Broadcast to all flows blocked waiting for tokens that some may be availabe
 	// now.
 	close(f.tokenWait)
 	f.tokenWait = make(chan struct{})
-	f.conn.writeq.tryNotify()
 	if ctx.V(2) {
 		ctx.Infof("Activated writing flow %d(%p) now that we have tokens.", f.id, f)
 	}
@@ -222,7 +220,7 @@ func (f *flw) ensureTokens(ctx *context.T, debuglog bool, need int) (int, func(i
 		f.lock()
 		avail, deduct := f.flowControl.tokens(ctx, f.encapsulated)
 		if avail >= need {
-			debug.FlowControl("%p: flow.control: ensureTokens: done: flow %p:%3v avail: %v, need %v\n", f.conn, f, f.id, avail, need)
+			//debug.FlowControl("%p: flow.control: ensureTokens: done: flow %p:%3v avail: %v, need %v\n", f.conn, f, f.id, avail, need)
 			f.unlock()
 			return avail, deduct, nil
 		}
@@ -230,7 +228,7 @@ func (f *flw) ensureTokens(ctx *context.T, debuglog bool, need int) (int, func(i
 		if debuglog {
 			ctx.Infof("Deactivating write on flow %d(%p) due to lack of tokens", f.id, f)
 		}
-		debug.FlowControl("%p: flow.control: ensureTokens: waiting: flow %p:%3v avail: %v, need %v: waiting for more\n", f.conn, f, f.id, avail, need)
+		//debug.FlowControl("%p: flow.control: ensureTokens: waiting: flow %p:%3v avail: %v, need %v: waiting for more\n", f.conn, f, f.id, avail, need)
 		ch := f.tokenWait
 		f.unlock()
 		select {
@@ -238,7 +236,7 @@ func (f *flw) ensureTokens(ctx *context.T, debuglog bool, need int) (int, func(i
 			return 0, func(int) {}, ctx.Err()
 		case <-ch:
 		}
-		debug.FlowControl("%p: flow.control: ensureTokens: updated: flow %p:%3v avail: %v, need %v: waiting for more\n", f.conn, f, f.id, avail, need)
+		//debug.FlowControl("%p: flow.control: ensureTokens: updated: flow %p:%3v avail: %v, need %v: waiting for more\n", f.conn, f, f.id, avail, need)
 	}
 }
 
@@ -329,6 +327,12 @@ func (f *flw) writeMsg(alsoClose bool, parts ...[]byte) (sent int, err error) {
 }
 
 func (f *flw) sendFlowMessage(ctx *context.T, wasOpened, alsoClose, finalPart bool, bkey, dkey uint64, payload [][]byte) error {
+
+	if f.writeqEntry.prev != nil && f.writeqEntry.next != nil {
+		fmt.Printf("sendFlowMessage: %p:%p:  in (%p <-> %p)\n", f, &f.writeqEntry, f.writeqEntry.prev, f.writeqEntry.next)
+		defer fmt.Printf("sendFlowMessage: %p:%p: out (%p <-> %p)\n", f, &f.writeqEntry, f.writeqEntry.prev, f.writeqEntry.next)
+	}
+
 	if werr := f.writeq.wait(ctx, &f.writeqEntry, flowPriority); werr != nil {
 		return io.EOF
 	}

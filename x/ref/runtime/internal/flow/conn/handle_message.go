@@ -11,7 +11,6 @@ import (
 	"v.io/v23/context"
 	"v.io/v23/flow/message"
 	"v.io/x/lib/vlog"
-	"v.io/x/ref/runtime/internal/flow/conn/debug"
 )
 
 func (c *Conn) handleAnyMessage(ctx *context.T, m message.Message) error {
@@ -185,16 +184,16 @@ func (c *Conn) handleHealthCheckRequest(ctx *context.T) error {
 }
 
 func (c *Conn) handleRelease(ctx *context.T, msg *message.Release) error {
-	debug.FlowControl("%p: flow.control: conn: handleRelease: %v\n", c, debug.FormatCounters(msg.Counters))
+	//debug.FlowControl("%p: flow.control: conn: handleRelease: %v\n", c, debug.FormatCounters(msg.Counters))
 	for fid, val := range msg.Counters {
 		c.lock()
 		f := c.flows[fid]
 		c.unlock()
 		if f != nil {
-			debug.FlowControl("%p: flow.control: conn: flow exits: %p:%3v, #%v counters\n", c, f, fid, val)
+			//debug.FlowControl("%p: flow.control: conn: flow exits: %p:%3v, #%v counters\n", c, f, fid, val)
 			f.releaseCounters(val)
 		} else {
-			debug.FlowControl("%p: flow.control: conn: flow closed: %3v, #%v counters\n", c, fid, val)
+			//debug.FlowControl("%p: flow.control: conn: flow closed: %3v, #%v counters\n", c, fid, val)
 			c.flowControl.releaseOutstandingBorrowed(fid, val)
 		}
 	}

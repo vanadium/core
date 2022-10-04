@@ -6,13 +6,10 @@ package conn
 
 import (
 	"fmt"
-	"os"
 	"strings"
 	"sync"
-	"time"
 
 	"v.io/v23/context"
-	"v.io/x/ref/runtime/internal/flow/conn/debug"
 )
 
 const (
@@ -56,12 +53,8 @@ type writeq struct {
 	activeWriters [numPriorities]*writer
 
 	active *writer
-	// Keep track of whether the active writer was able to bypass waiting for a signal
-	// in order to avoid signaling a writer that will never read the signal.
-	activeBypass bool
-
-	debug.WriteqStats
-	debug.CallerCircularList
+	// Keep track of whether the active writer needs to be signaled.
+	activeNeedsSignal bool
 }
 
 type writer struct {
@@ -82,17 +75,6 @@ type writer struct {
 	prev, next *writer
 
 	notify chan struct{}
-
-	debug.WriterStats
-}
-
-const dbq = false
-
-func dbqf(format string, args ...interface{}) {
-	if !dbq {
-		return
-	}
-	fmt.Fprintf(os.Stderr, format, args...)
 }
 
 // initWriters initializes the supplied writers, in particular creating a channel
@@ -106,14 +88,6 @@ func initWriters(writers []writer, chanSize int) {
 func initWriter(w *writer, chanSize int) {
 	w.prev, w.next = nil, nil
 	w.notify = make(chan struct{}, chanSize)
-}
-
-func (w *writer) setComment(comment string) {
-	w.SetComment(comment)
-}
-
-func (w *writer) String() string {
-	return fmt.Sprintf("%p: %v", w, &w.WriterStats)
 }
 
 func (q *writeq) String() string {
@@ -144,23 +118,26 @@ func (q *writeq) stringLocked() string {
 	return out.String()
 }
 
-func (q *writeq) addWriterLocked(head *writer, w *writer, p int) bool {
-	if w.next != nil && w.prev != nil {
-		for _, h := range q.activeWriters {
-			if h != nil {
-				for c := h; c != nil; c = c.next {
-					if c.next == h {
-						break
-					}
-					if c == w {
-						fmt.Printf("Actually in the queueuueue\n")
-					}
+func (q *writeq) isPresentLocked(w *writer) bool {
+	for _, h := range q.activeWriters {
+		if h != nil {
+			for c := h; c != nil; c = c.next {
+				if c.next == h {
+					break
+				}
+				if c == w {
+					return true
 				}
 			}
 		}
+	}
+	return false
+}
+
+func (q *writeq) addWriterLocked(head *writer, w *writer, p int) bool {
+	if w.next != nil && w.prev != nil {
 		return false
 	}
-	q.Add()
 	if head == nil {
 		// Insert at the head of the list. w.next == w.prev since
 		// it's both the first and last item to be sent.
@@ -184,126 +161,81 @@ func (q *writeq) nextLocked() *writer {
 			if nxt == head {
 				q.activeWriters[p] = nil
 				head.prev, head.next = nil, nil
-				q.Rm()
 				return head
 			}
 			q.activeWriters[p] = head.next
 			nxt.prev, prv.next = prv, nxt
 			head.prev, head.next = nil, nil
-			q.Rm()
 			return head
 		}
 	}
 	return nil
 }
 
-func (q *writeq) wait(ctx *context.T, w *writer, p int) error {
-
-	q.WaitCall()
-	defer q.WaitReturn()
-
-	q.mu.Lock()
-
-	q.Next(&w.WriterStats)
-
-	debug.Writeq("%p: writeq: wait:entry:\t%v\n", q, &q.WriteqStats)
-	defer debug.Writeq("%p: writeq: wait:exit:\t%v\n", q, &q.WriteqStats)
-
-	if q.active != nil {
-		debug.Writeq("%p: writeq: active: %v\n", q, q.active)
-		if !q.addWriterLocked(q.activeWriters[p], w, p) {
-			q.mu.Unlock()
-			q.DumpAndExit(fmt.Sprintf("writer %v, priority %v already exists in the writeq\n", w, p))
-			return fmt.Errorf("writer %p, priority %v already exists in the writeq", w, p)
-		}
-		if !q.activeBypass {
-			q.Append(fmt.Sprintf("%p: signaling: active (no bypass): %v\n", q, q.active))
-			q.Send()
-			select {
-			case q.active.notify <- struct{}{}:
-			default:
-			}
-		}
-		q.mu.Unlock()
-	} else {
-		q.active = w
-		q.activeBypass = false
-		head := q.nextLocked()
-		if head == nil {
-			debug.Writeq("%p: writeq: idle: bypassing wait for: %v\n", q, w)
-			// Either the q is empty or w was the only item in the q, either
-			// way we return immediately and bypass any synchronisation.
-			q.activeBypass = true
-			q.mu.Unlock()
-			q.Bypassed()
-			q.Append(fmt.Sprintf("%p: bypass: %v", q, w))
-			return nil
-		}
-
-		// notify the next item and then wait to be notified below.
-		debug.Writeq("%p: writeq: idle: signal: %v, wait for: %v\n", q, head, w)
-		q.Send()
-		q.Append(fmt.Sprintf("%p: signaling: %v", q, head))
-		head.notify <- struct{}{}
-		q.mu.Unlock()
+func (q *writeq) signalActiveLocked() {
+	if q.activeNeedsSignal {
+		q.active.notify <- struct{}{}
+		q.activeNeedsSignal = false
 	}
-	q.Receive()
-	q.Append(fmt.Sprintf("%p: waiting: %v", q, w))
-	if ctx == nil {
-		select {
-		case <-w.notify:
-		case <-time.After(5 * time.Second):
-			fmt.Printf("writeq stats %s\n", &q.WriteqStats)
-			q.DumpAndExit(fmt.Sprintf("timeout: %v", w))
-		}
+}
 
-	} else {
-		select {
-		case <-ctx.Done():
-			return ctx.Err()
-		case <-w.notify:
-		case <-time.After(5 * time.Second):
-			fmt.Printf("writeq stats %s\n", &q.WriteqStats)
-			q.DumpAndExit(fmt.Sprintf("timeout: %v", w))
-		}
+func (q *writeq) waitLocked(ctx *context.T, w *writer) error {
+	if ctx == nil {
+		<-w.notify
+		return nil
+	}
+	select {
+	case <-ctx.Done():
+		return ctx.Err()
+	case <-w.notify:
 	}
 	return nil
 }
 
-func (q *writeq) done(w *writer) {
-	q.DoneCall()
-	defer q.DoneReturn()
+func (q *writeq) wait(ctx *context.T, w *writer, p int) error {
 	q.mu.Lock()
-
-	if q.active == w {
-		q.active = nil
-	}
 	if q.active != nil {
-		if !q.activeBypass {
-			q.active.notify <- struct{}{}
-			q.activeBypass = true
+		q.signalActiveLocked()
+		if !q.addWriterLocked(q.activeWriters[p], w, p) {
+			return fmt.Errorf("writer %p, priority %v already exists in the writeq", w, p)
 		}
 		q.mu.Unlock()
-		return
+		return q.waitLocked(ctx, w)
 	}
+
 	head := q.nextLocked()
-	q.mu.Unlock()
-	if head != nil {
-		q.Send()
-		q.Append(fmt.Sprintf("%p: signaling: %v", q, w))
-		head.notify <- struct{}{}
+	if head == nil {
+		// The q is empty, so return immediately and bypass any synchronisation.
+		q.active = w
+		q.activeNeedsSignal = false
+		q.mu.Unlock()
+		return nil
 	}
+	q.setActiveLocked(head)
+	q.mu.Unlock()
+	return q.waitLocked(ctx, w)
 }
 
-func (q *writeq) tryNotify() {
-	return
-	q.mu.Lock()
-	defer q.mu.Unlock()
-	if q.active == nil || q.activeBypass {
+func (q *writeq) setActiveLocked(head *writer) {
+	if head == nil {
 		return
 	}
-	select {
-	case q.active.notify <- struct{}{}:
-	default:
+	// Make the item removed from the Q the active one and signal it.
+	q.active = head
+	q.active.notify <- struct{}{}
+	q.activeNeedsSignal = false
+}
+
+func (q *writeq) done(w *writer) {
+	q.mu.Lock()
+	defer q.mu.Unlock()
+	if q.active == w {
+		q.active = nil
+		w.next, w.prev = nil, nil
 	}
+	if q.active != nil {
+		q.signalActiveLocked()
+		return
+	}
+	q.setActiveLocked(q.nextLocked())
 }

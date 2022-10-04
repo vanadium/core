@@ -19,7 +19,6 @@ import (
 	"v.io/v23/security"
 	"v.io/v23/verror"
 	slib "v.io/x/ref/lib/security"
-	"v.io/x/ref/runtime/internal/flow/conn/debug"
 	rpcversion "v.io/x/ref/runtime/internal/rpc/version"
 )
 
@@ -104,8 +103,7 @@ type Conn struct {
 	// are locked indepdently.
 	flowControl flowControlConnStats
 
-	writeq        writeq
-	writeqEntries [numPriorities]writer
+	writeq writeq
 
 	mux sync.Mutex // All the variables below here are protected by mu.
 
@@ -183,10 +181,6 @@ func NewDialed( //nolint:gocyclo
 		lastUsedTime:         time.Now(),
 		cancel:               cancel,
 		acceptChannelTimeout: channelTimeout,
-	}
-	initWriters(c.writeqEntries[:], 1)
-	for i := range c.writeqEntries {
-		c.writeqEntries[i].SetComment(fmt.Sprintf("conn %p, NewDialed", c))
 	}
 
 	c.flowControl.init(bytesBufferedPerFlow)
@@ -310,10 +304,6 @@ func NewAccepted(
 		lastUsedTime:         time.Now(),
 		cancel:               cancel,
 		acceptChannelTimeout: channelTimeout,
-	}
-	initWriters(c.writeqEntries[:], 1)
-	for i := range c.writeqEntries {
-		c.writeqEntries[i].SetComment(fmt.Sprintf("conn %p, NewAccepted", c))
 	}
 
 	c.flowControl.init(bytesBufferedPerFlow)
@@ -936,7 +926,7 @@ func (c *Conn) sendMessage(
 	// release messages.
 	var w writer
 	initWriter(&w, 1)
-	w.setComment(fmt.Sprintf("%p: sendMessage: conn %T, priority %v, %v", c, m, priority, debug.FormatMessage(m)))
+
 	if err := c.writeq.wait(cctx, &w, priority); err != nil {
 		return err
 	}

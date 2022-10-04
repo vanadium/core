@@ -13,7 +13,6 @@ import (
 	"v.io/v23/rpc/version"
 	"v.io/x/ref/runtime/internal/flow/cipher/aead"
 	"v.io/x/ref/runtime/internal/flow/cipher/naclbox"
-	"v.io/x/ref/runtime/internal/flow/conn/debug"
 	"v.io/x/ref/runtime/protocols/lib/framer"
 )
 
@@ -136,7 +135,7 @@ func (p *messagePipe) writeCiphertext(ctx *context.T, m message.Message, plainte
 func (p *messagePipe) writeMsg(ctx *context.T, m message.Message) error {
 	p.writeMu.Lock()
 	defer p.writeMu.Unlock()
-	debug.MessagePipe("%p: messagePipe.writeMsg:\t%v\n", p, debug.FormatMessage(m))
+	//debug.MessagePipe("%p: messagePipe.writeMsg:\t%v\n", p, debug.FormatMessage(m))
 	plaintextBuf := messagePipePool.Get().(*[]byte)
 	defer messagePipePool.Put(plaintextBuf)
 
@@ -227,7 +226,7 @@ func (p *messagePipe) readAnyMessageLocked(ctx *context.T, plaintext []byte) (me
 	if ctx.V(2) {
 		ctx.Infof("Read low-level message: %T: %v", m, m)
 	}
-	debug.MessagePipe("%p: messagePipe.readAnyMsg:\t%v\n", p, debug.FormatMessage(m))
+	//debug.MessagePipe("%p: messagePipe.readAnyMsg:\t%v\n", p, debug.FormatMessage(m))
 	return m, err
 }
 
@@ -254,6 +253,6 @@ func (p *messagePipe) readDataMsg(ctx *context.T, plaintextBuf []byte, m *messag
 	if ctx.V(2) {
 		ctx.Infof("Read low-level message: %T: %v", m, m)
 	}
-	debug.MessagePipe("%p: messagePipe.readDataMsg:\t%v\n", p, debug.FormatMessage(m))
+	//debug.MessagePipe("%p: messagePipe.readDataMsg:\t%v\n", p, debug.FormatMessage(m))
 	return nil, nil
 }
