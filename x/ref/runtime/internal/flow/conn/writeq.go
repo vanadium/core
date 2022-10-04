@@ -239,3 +239,9 @@ func (q *writeq) done(w *writer) {
 	}
 	q.setActiveLocked(q.nextLocked())
 }
+
+/*func (q *writeq) notify() {
+	q.mu.Lock()
+	defer q.mu.Unlock()
+	q.signalActiveLocked()
+}*/

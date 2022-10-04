@@ -61,7 +61,6 @@ func waitForWriters(ctx *context.T, conn *Conn, num int) {
 			}
 		}
 		conn.writeq.mu.Unlock()
-		fmt.Printf("%v ... %v\n%s\n", count, num, &conn.writeq)
 		return count >= num
 	})
 }
@@ -80,12 +79,10 @@ func (r *readConn) ReadMsg() ([]byte, error) {
 		case *message.OpenFlow:
 			if msg.ID > 1 { // Ignore the blessings flow.
 				r.ch <- m
-				fmt.Printf(">>>>>> debug: sent ... %T: %v\n", m, msg.ID)
 			}
 		case *message.Data:
 			if msg.ID > 1 { // Ignore the blessings flow.
 				r.ch <- m
-				fmt.Printf(">>>>>> debug: sent ... %T: %v\n", m, msg.ID)
 			}
 		}
 	}
@@ -116,7 +113,6 @@ func TestOrdering(t *testing.T) {
 	})
 	flows, accept, dc, ac := setupFlows(t, "debug", "local/", ctx, fctx, true, nflows)
 
-	//unblock := block(dc, 0)
 	var wg sync.WaitGroup
 	wg.Add(2 * nflows)
 	errCh := make(chan error, 2*nflows)
@@ -124,14 +120,12 @@ func TestOrdering(t *testing.T) {
 
 	for _, f := range flows {
 		go func(fl flow.Flow) {
-			fmt.Printf("write: started: %v\n", defaultMtu*nmessages)
 			defer wg.Done()
 			if _, err := fl.WriteMsg(randData[:defaultMtu*nmessages]); err != nil {
 				fmt.Printf("write: err %v\n", err)
 				errCh <- err
 				return
 			}
-			fmt.Printf("write: done\n")
 			errCh <- nil
 		}(f)
 		go func() {
@@ -146,7 +140,6 @@ func TestOrdering(t *testing.T) {
 				errCh <- fmt.Errorf("unequal data")
 				return
 			}
-			fmt.Printf("read: worked\n")
 			errCh <- nil
 		}()
 	}
@@ -154,7 +147,6 @@ func TestOrdering(t *testing.T) {
 	waitForWriters(ctx, dc, nflows+1)
 	close(unblock)
 	wg.Wait()
-	fmt.Printf("LL: %v\n", len(ch))
 
 	// Now close the conn which will send a teardown message, but only after
 	// the other flows finish their current write.
@@ -168,14 +160,10 @@ func TestOrdering(t *testing.T) {
 			m := <-ch
 			switch msg := m.(type) {
 			case *message.OpenFlow:
-				fmt.Printf("TEST....... %T: %v\n", m, msg.ID)
 				found[msg.ID] = true
 			case *message.Data:
-				fmt.Printf("TEST....... %T: %v\n", m, msg.ID)
 				found[msg.ID] = true
 			case *message.TearDown:
-				fmt.Printf("TEST....... teardown %T\n", m)
-
 			}
 		}
 		if len(found) != nflows {
@@ -196,8 +184,8 @@ func TestFlowControl(t *testing.T) {
 	ctx, shutdown := test.V23Init()
 	defer shutdown()
 
-	for _, nflows := range []int{1, 2, 40} {
-		for _, bytesBuffered := range []int{1024, defaultMtu, defaultBytesBufferedPerFlow} {
+	for _, nflows := range []int{1, 2, 40, 200} {
+		for _, bytesBuffered := range []int{defaultMtu, defaultBytesBufferedPerFlow} {
 			fmt.Printf("starting: #%v flows, buffered %#v bytes\n", nflows, bytesBuffered)
 			dfs, flows, ac, dc := setupFlowsBytesBuffered(t, "local", "", ctx, ctx, true, nflows, uint64(bytesBuffered))
 

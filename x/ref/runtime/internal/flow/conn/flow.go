@@ -199,6 +199,7 @@ func (f *flw) releaseCounters(tokens uint64) {
 	// now.
 	close(f.tokenWait)
 	f.tokenWait = make(chan struct{})
+	//f.writeq.notify()
 	if ctx.V(2) {
 		ctx.Infof("Activated writing flow %d(%p) now that we have tokens.", f.id, f)
 	}
