@@ -243,11 +243,7 @@ func (fs *flowControlFlowStats) handleFlowClose(closedRemotely, notConnClosing b
 	if !fs.shared.borrowing[fid] {
 		delete(fs.shared.toRelease, fid)
 		delete(fs.shared.borrowing, fid)
-		//_, ok := fs.shared.toRelease[fid]
-		//fmt.Printf("%p: clearCountersLocked: not borrowing: fs.toRelease(%v: %v): #%v\n", fs.shared, fid, ok, len(fs.shared.toRelease))
-	} /*else {
-		fmt.Printf("%p: clearCountersLocked: borrowing: fs.toRelease(%v): #%v\n", fs.shared, fid, len(fs.shared.toRelease))
-	}*/
+	}
 	// Need to keep borrowed counters around so that they can be sent
 	// to the dialer to allow for the shared counter to be incremented
 	// for all the past flows that borrowed counters (ie. pretty much

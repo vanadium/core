@@ -5,7 +5,6 @@
 package conn
 
 import (
-	"fmt"
 	"io"
 	"net"
 	"sync"
@@ -300,8 +299,6 @@ func (f *flw) writeMsg(alsoClose bool, parts ...[]byte) (sent int, err error) {
 			parts, tosend, size = popFront(parts, tosend[:0], tokens)
 			deduct(size)
 			err = terr
-
-			//fmt.Fprintf(os.Stderr, "flow: writeMsg: %p:%p:%3v: %p:%p: after flow control and before writeq: %v %v/%v (alsoclose: %v)\n", f.conn, f, f.id, f.writeq, &f.writeqEntry, tokens, sent, totalSize, alsoClose)
 		}
 
 		err = f.sendFlowMessage(ctx, wasOpened, alsoClose, len(parts) == 0, bkey, dkey, tosend)
@@ -314,8 +311,6 @@ func (f *flw) writeMsg(alsoClose bool, parts ...[]byte) (sent int, err error) {
 		sent += size
 	}
 
-	//fmt.Fprintf(os.Stderr, "flow: writeMsg: %p:%p:%3v: %p:%p: done flow control: %v/%v (alsoclose: %v): error: %v\n", f.conn, f, f.id, f.writeq, &f.writeqEntry, sent, totalSize, alsoClose, err)
-
 	if debug {
 		f.ctx.Infof("finishing write on %d(%p): %v", f.id, f, err)
 	}
@@ -327,11 +322,6 @@ func (f *flw) writeMsg(alsoClose bool, parts ...[]byte) (sent int, err error) {
 }
 
 func (f *flw) sendFlowMessage(ctx *context.T, wasOpened, alsoClose, finalPart bool, bkey, dkey uint64, payload [][]byte) error {
-
-	if f.writeqEntry.prev != nil && f.writeqEntry.next != nil {
-		fmt.Printf("sendFlowMessage: %p:%p:  in (%p <-> %p)\n", f, &f.writeqEntry, f.writeqEntry.prev, f.writeqEntry.next)
-		defer fmt.Printf("sendFlowMessage: %p:%p: out (%p <-> %p)\n", f, &f.writeqEntry, f.writeqEntry.prev, f.writeqEntry.next)
-	}
 
 	if werr := f.writeq.wait(ctx, &f.writeqEntry, flowPriority); werr != nil {
 		return io.EOF
