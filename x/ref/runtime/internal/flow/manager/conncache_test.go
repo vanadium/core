@@ -16,6 +16,7 @@ import (
 	"v.io/v23/flow"
 	"v.io/v23/naming"
 	"v.io/v23/security"
+	"v.io/x/ref/runtime/internal/flow/conn"
 	connpackage "v.io/x/ref/runtime/internal/flow/conn"
 	"v.io/x/ref/runtime/internal/flow/flowtest"
 	"v.io/x/ref/runtime/internal/rpc/version"
@@ -609,7 +610,7 @@ func makeConnAndFlow(t *testing.T, ctx *context.T, ep naming.Endpoint) connAndFl
 			version.Supported,
 			flowtest.AllowAllPeersAuthorizer{},
 			false,
-			time.Minute, 0, nil)
+			time.Minute, 0, conn.DefaultBytesBufferedPerFlow(), nil)
 		if err != nil {
 			err = fmt.Errorf("Unexpected error: %v", err)
 		}
@@ -619,7 +620,7 @@ func makeConnAndFlow(t *testing.T, ctx *context.T, ep naming.Endpoint) connAndFl
 	fh := fh{t, make(chan struct{})}
 	go func() {
 		a, err := connpackage.NewAccepted(ctx, nil, amrw, ep,
-			version.Supported, time.Minute, 0, fh)
+			version.Supported, time.Minute, 0, conn.DefaultBytesBufferedPerFlow(), fh)
 		if err != nil {
 			err = fmt.Errorf("Unexpected error: %v", err)
 		}

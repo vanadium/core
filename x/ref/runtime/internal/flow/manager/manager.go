@@ -1022,6 +1022,7 @@ func (m *manager) dialProxyConn(
 		true,
 		handshakeTimeout,
 		0,
+		conn.DefaultBytesBufferedPerFlow(),
 		fh,
 	)
 	if err != nil {
