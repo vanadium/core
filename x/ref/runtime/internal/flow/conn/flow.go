@@ -107,10 +107,6 @@ func (c *Conn) newFlowLocked(
 	f.flowControl.borrowing = dialed
 	f.flowControl.id = id
 
-	if f.opened {
-		f.openSent = make(chan struct{})
-		close(f.openSent)
-	}
 	f.tokenWait = make(chan struct{})
 
 	f.q = newReadQ(f.flowControl.shared.bytesBufferedPerFlow, f.sendRelease)
@@ -286,15 +282,8 @@ func (f *flw) writeMsg(alsoClose bool, parts ...[]byte) (sent int, err error) {
 			need = totalSize
 		}
 
-		f.lock()
-		wasOpened := f.setOpenedLocked()
-		if !wasOpened {
-			f.openSent = make(chan struct{})
-			f.unlock()
-		} else {
-			ch := f.openSent
-			f.unlock()
-			<-ch
+		wasOpened := f.setOpened()
+		if wasOpened {
 			tokens, deduct, terr := f.ensureTokens(ctx, debug, need)
 			parts, tosend, size = popFront(parts, tosend[:0], tokens)
 			deduct(size)
@@ -304,9 +293,6 @@ func (f *flw) writeMsg(alsoClose bool, parts ...[]byte) (sent int, err error) {
 		err = f.sendFlowMessage(ctx, wasOpened, alsoClose, len(parts) == 0, bkey, dkey, tosend)
 		if err != nil {
 			break
-		}
-		if !wasOpened {
-			close(f.openSent)
 		}
 		sent += size
 	}
