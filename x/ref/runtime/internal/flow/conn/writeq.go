@@ -31,23 +31,26 @@ const (
 //
 // Usage is as follows:
 //
-//			if err := wait(ctx, &writer, priority); err != nil {
-//		 		// handle context canceled/timeout etc.
-//			}
+//		if err := wait(ctx, &writer, priority); err != nil {
+//				// handle context canceled/timeout etc.
+//		}
 //
-//			// access the message pipe
+//		// access the message pipe
 //
-//			done(&writer)
+//		done(&writer)
 //
 //	 1. every call to wait, must be paired with a call to done.
 //	 2. only a single instance of writer may be in the writeq at any point
-//	    in time.
+//	    in time and it is the caller's responsibility to ensure that.
 //	 3. if a writer is to be used concurrently, the it should be locked
 //	    outside of the writeq implementation. writeq will never lock
 //	    a writer.
-//	 4. when wait returns, it's writer is guaranteed to be the
-//	    active one. Another writer cannot get it's turn until
-//	    done has been called.
+//	 4. when wait returns (without an error), it's writer is guaranteed to be
+//	     the active one. Another writer cannot get it's turn until
+//	    done has been called. If wait returns with an error, it guarantees
+//	    that the supplied writer is not the active one. An error is returned
+//	    either for context cancelation or attempting to wait on the same
+//	    writer more than once.
 type writeq struct {
 	mu sync.Mutex
 
@@ -249,7 +252,7 @@ func (q *writeq) signalWait(ctx *context.T, w *writer, p int) error {
 func (q *writeq) wait(ctx *context.T, w *writer, p int) error {
 	q.mu.Lock()
 	if q.active != nil {
-		if !q.addWriterLocked(w, p) {
+		if !q.addWriterLocked(w, p) || w == q.active {
 			return fmt.Errorf("writer %p, priority %v already exists in the writeq", w, p)
 		}
 		q.mu.Unlock()
