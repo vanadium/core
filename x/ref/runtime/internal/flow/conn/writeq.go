@@ -27,14 +27,17 @@ const (
 // as opposed to adding buffers to a queue, can minimize data copying and
 // simplify data management. A 'bypass' optimization is implemented whereby
 // a call to wait will return immediately if there are no other writers
-// active or queued. A number of invariants are required for correct usage
-// of a writeq.
+// active or queued.
 //
 // Usage is as follows:
 //
-//		wait(ctx, &writer, priority)
-//		// access the message pipe
-//		done(&writer)
+//			if err := wait(ctx, &writer, priority); err != nil {
+//		 		// handle context canceled/timeout etc.
+//			}
+//
+//			// access the message pipe
+//
+//			done(&writer)
 //
 //	 1. every call to wait, must be paired with a call to done.
 //	 2. only a single instance of writer may be in the writeq at any point
@@ -42,6 +45,9 @@ const (
 //	 3. if a writer is to be used concurrently, the it should be locked
 //	    outside of the writeq implementation. writeq will never lock
 //	    a writer.
+//	 4. when wait returns, it's writer is guaranteed to be the
+//	    active one. Another writer cannot get it's turn until
+//	    done has been called.
 type writeq struct {
 	mu sync.Mutex
 
@@ -53,7 +59,9 @@ type writeq struct {
 	activeWriters [numPriorities]*writer
 
 	active *writer
-	// Keep track of whether the active writer needs to be signaled.
+	// Keep track of whether the active writer needs to be signaled, this
+	// is required since the active writer may returned immediately without
+	// the need to be signaled.
 	activeNeedsSignal bool
 }
 
@@ -134,21 +142,62 @@ func (q *writeq) isPresentLocked(w *writer) bool {
 	return false
 }
 
-func (q *writeq) addWriterLocked(head *writer, w *writer, p int) bool {
+func (q *writeq) sizeLocked() int {
+	s := 0
+	for _, h := range q.activeWriters {
+		if h != nil {
+			s++
+			for c := h; c != nil; c = c.next {
+				if c.next == h {
+					break
+				}
+				s++
+			}
+		}
+	}
+	return s
+}
+
+func (q *writeq) rmWriter(w *writer, p int) {
+	q.mu.Lock()
+	defer q.mu.Unlock()
+	if q.active == w {
+		q.active = nil
+		q.activeNeedsSignal = false
+		return
+	}
+	prv, nxt := w.prev, w.next
+	if head := q.activeWriters[p]; head == w {
+		if w == nxt {
+			q.activeWriters[p] = nil
+		} else {
+			q.activeWriters[p] = nxt
+		}
+	}
+	if w.next == nil && w.prev == nil {
+		// just in case rmWriter is not in the queue.
+		return
+	}
+	w.next.prev = prv
+	prv.next = nxt
+	w.prev, w.next = nil, nil
+}
+
+func (q *writeq) addWriterLocked(w *writer, p int) bool {
 	if w.next != nil && w.prev != nil {
 		return false
 	}
-	if head == nil {
-		// Insert at the head of the list. w.next == w.prev since
-		// it's both the first and last item to be sent.
-		w.prev, w.next = w, w
-		q.activeWriters[p] = w
-	} else {
+	if head := q.activeWriters[p]; head != nil {
 		// Insert at the 'tail' of the list, ie. as the item to be sent last.
 		w.prev, w.next = head.prev, head
 		head.prev.next = w
 		head.prev = w
+		return true
 	}
+	// Insert at the head of the list. w.next == w.prev since
+	// it's both the first and last item to be sent.
+	w.prev, w.next = w, w
+	q.activeWriters[p] = w
 	return true
 }
 
@@ -179,7 +228,7 @@ func (q *writeq) signalActiveLocked() {
 	}
 }
 
-func (q *writeq) waitLocked(ctx *context.T, w *writer) error {
+func (q *writeq) signalWait(ctx *context.T, w *writer) error {
 	if ctx == nil {
 		<-w.notify
 		return nil
@@ -196,11 +245,17 @@ func (q *writeq) wait(ctx *context.T, w *writer, p int) error {
 	q.mu.Lock()
 	if q.active != nil {
 		q.signalActiveLocked()
-		if !q.addWriterLocked(q.activeWriters[p], w, p) {
+		if !q.addWriterLocked(w, p) {
 			return fmt.Errorf("writer %p, priority %v already exists in the writeq", w, p)
 		}
 		q.mu.Unlock()
-		return q.waitLocked(ctx, w)
+		if err := q.signalWait(ctx, w); err != nil {
+			// Remove the writer with the error, which is a canceled
+			// or timedout context, from the writeq.
+			q.rmWriter(w, p)
+			return err
+		}
+		return nil
 	}
 
 	head := q.nextLocked()
@@ -213,14 +268,26 @@ func (q *writeq) wait(ctx *context.T, w *writer, p int) error {
 	}
 	q.setActiveLocked(head)
 	q.mu.Unlock()
-	return q.waitLocked(ctx, w)
+	if err := q.signalWait(ctx, w); err != nil {
+		q.clearActive(w)
+	}
+	return nil
+}
+
+func (q *writeq) clearActive(w *writer) {
+	q.mu.Lock()
+	defer q.mu.Unlock()
+	if q.active == w {
+		q.active = nil
+		q.activeNeedsSignal = false
+	}
 }
 
 func (q *writeq) setActiveLocked(head *writer) {
 	if head == nil {
 		return
 	}
-	// Make the item removed from the Q the active one and signal it.
+	// Make the item removed from the queue the active one and signal it.
 	q.active = head
 	q.active.notify <- struct{}{}
 	q.activeNeedsSignal = false
@@ -232,16 +299,6 @@ func (q *writeq) done(w *writer) {
 	if q.active == w {
 		q.active = nil
 		w.next, w.prev = nil, nil
+		q.setActiveLocked(q.nextLocked())
 	}
-	if q.active != nil {
-		q.signalActiveLocked()
-		return
-	}
-	q.setActiveLocked(q.nextLocked())
 }
-
-/*func (q *writeq) notify() {
-	q.mu.Lock()
-	defer q.mu.Unlock()
-	q.signalActiveLocked()
-}*/

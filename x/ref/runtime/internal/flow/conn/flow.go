@@ -199,7 +199,6 @@ func (f *flw) releaseCounters(tokens uint64) {
 	// now.
 	close(f.tokenWait)
 	f.tokenWait = make(chan struct{})
-	//f.writeq.notify()
 	if ctx.V(2) {
 		ctx.Infof("Activated writing flow %d(%p) now that we have tokens.", f.id, f)
 	}
@@ -323,8 +322,8 @@ func (f *flw) writeMsg(alsoClose bool, parts ...[]byte) (sent int, err error) {
 }
 
 func (f *flw) sendFlowMessage(ctx *context.T, wasOpened, alsoClose, finalPart bool, bkey, dkey uint64, payload [][]byte) error {
-
 	if werr := f.writeq.wait(ctx, &f.writeqEntry, flowPriority); werr != nil {
+		ctx.Infof("flow %p:%v failed to wait on writeq %p on conn %p: %v", f, f.id, f.writeq, f.conn, werr)
 		return io.EOF
 	}
 	// Actually write to the wire.  This is also where encryption

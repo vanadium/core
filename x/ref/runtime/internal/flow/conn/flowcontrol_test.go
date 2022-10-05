@@ -186,7 +186,7 @@ func TestFlowControl(t *testing.T) {
 
 	for _, nflows := range []int{1, 2, 40, 200} {
 		for _, bytesBuffered := range []int{defaultMtu, defaultBytesBufferedPerFlow} {
-			fmt.Printf("starting: #%v flows, buffered %#v bytes\n", nflows, bytesBuffered)
+			t.Logf("starting: #%v flows, buffered %#v bytes\n", nflows, bytesBuffered)
 			dfs, flows, ac, dc := setupFlowsBytesBuffered(t, "local", "", ctx, ctx, true, nflows, uint64(bytesBuffered))
 
 			defer func() {

@@ -5,10 +5,17 @@
 package conn
 
 import (
+	"fmt"
+	"math/rand"
 	"reflect"
 	"runtime"
+	"strings"
 	"sync"
 	"testing"
+	"time"
+
+	"v.io/v23/context"
+	"v.io/x/ref/test"
 )
 
 type writeqEntry struct {
@@ -33,10 +40,28 @@ func listWQEntries(wq *writeq, p int) []*writer {
 	return r
 }
 
+func (q *writeq) addWriter(w *writer, p int) bool {
+	q.mu.Lock()
+	defer q.mu.Unlock()
+	return q.addWriterLocked(w, p)
+}
+
 func addWriteq(wq *writeq, priority int, w ...*writeqEntry) {
 	for i := range w {
-		wq.addWriterLocked(wq.activeWriters[priority], &w[i].writer, priority)
+		wq.addWriter(&w[i].writer, priority)
 	}
+}
+
+func rmWriteq(wq *writeq, priority int, w ...*writeqEntry) {
+	for i := range w {
+		wq.rmWriter(&w[i].writer, priority)
+	}
+}
+
+func (q *writeq) getActive() (*writer, bool) {
+	q.mu.Lock()
+	defer q.mu.Unlock()
+	return q.active, q.activeNeedsSignal
 }
 
 func cmpWriteqEntries(t *testing.T, wq *writeq, priority int, active *writeqEntry, w ...*writeqEntry) {
@@ -103,6 +128,49 @@ func TestWriteqLists(t *testing.T) {
 	cmpWriteqEntries(t, wq, flowPriority, nil, fe1, fe2, fe4)
 	addWriteq(wq, expressPriority, fe3)
 	cmpWriteqEntries(t, wq, expressPriority, nil, fe6, fe3)
+
+	rmWriteq(wq, flowPriority, fe2)
+	cmpWriteqEntries(t, wq, flowPriority, nil, fe1, fe4)
+	rmWriteq(wq, flowPriority, fe1)
+	rmWriteq(wq, flowPriority, fe1)
+	cmpWriteqEntries(t, wq, flowPriority, nil, fe4)
+	rmWriteq(wq, flowPriority, fe4)
+	cmpWriteqEntries(t, wq, flowPriority, nil)
+
+	// Make sure that removing the currently active writer works correctly.
+	// This is used internally to remove a writer whose context is canceled.
+	rmWriteq(wq, flowPriority, fe4)
+	w := wq.nextLocked()
+	cmpWriteqEntries(t, wq, expressPriority, nil, fe3)
+	wq.setActiveLocked(w)
+	cmpWriteqEntries(t, wq, expressPriority, fe6, fe3)
+	rmWriteq(wq, flowPriority, fe6)
+	cmpWriteqEntries(t, wq, expressPriority, nil, fe3)
+
+}
+
+func TestWriteqErrors(t *testing.T) {
+	wq := &writeq{}
+	fe1, fe2, fe3 := newEntry(), newEntry(), newEntry()
+	wq.wait(nil, &fe1.writer, expressPriority)
+
+	var ready sync.WaitGroup
+	ready.Add(2)
+	go func() {
+		ready.Done()
+		wq.wait(nil, &fe2.writer, expressPriority)
+	}()
+	go func() {
+		ready.Done()
+		wq.wait(nil, &fe3.writer, expressPriority)
+	}()
+
+	ready.Wait()
+	err := wq.wait(nil, &fe3.writer, expressPriority)
+	if err == nil || !strings.Contains(err.Error(), "already exists in the writeq") {
+		t.Fatalf("missing or unexpected error: %v", err)
+	}
+
 }
 
 func TestWriteqNotifySerial(t *testing.T) {
@@ -196,9 +264,12 @@ func TestWriteqSimpleOrdering(t *testing.T) {
 	numCh := make(chan int, 1)
 	numChDone := make(chan struct{})
 	doneCh := make(chan *writeqEntry, nworkers)
+	errCh := make(chan error, nworkers)
 
 	var writerMu sync.Mutex
 	writers := make([]*writeqEntry, nworkers)
+
+	// Test simple FIFO ordering and invariants.
 
 	for i := 0; i < nworkers; i++ {
 		wr := newEntry()
@@ -214,7 +285,16 @@ func TestWriteqSimpleOrdering(t *testing.T) {
 				numCh <- n + 1
 			}()
 			wq.wait(nil, &w.writer, flowPriority)
+			active, needSignal := wq.getActive()
+			if active != &w.writer {
+				errCh <- fmt.Errorf("invariant violated: active: got %p, want %p", active, &w.writer)
+			}
+			if needSignal {
+				errCh <- fmt.Errorf("invariant violated: active: %p should no longer need to be signaled", active)
+			}
+			time.Sleep(time.Duration(rand.Int31n(100)) * time.Millisecond)
 			wq.done(&w.writer)
+
 			doneCh <- wr
 			wg.Done()
 		}(wr, i+1)
@@ -233,6 +313,7 @@ func TestWriteqSimpleOrdering(t *testing.T) {
 	cmpWriteqEntries(t, wq, flowPriority, nil)
 
 	close(doneCh)
+	close(errCh)
 	i := 0
 	// All of the goroutines should get their writeq turn in the
 	// order that they were created.
@@ -241,6 +322,12 @@ func TestWriteqSimpleOrdering(t *testing.T) {
 			t.Errorf("got %v, want %v", got, want)
 		}
 		i++
+	}
+
+	for err := range errCh {
+		if err != nil {
+			t.Error(err)
+		}
 	}
 }
 
@@ -295,207 +382,113 @@ func TestWriteqSharedEntries(t *testing.T) {
 	}
 }
 
-// test context cancelation.
-
-/*
-	ch := make(chan *writeqEntry, 3)
-	var wg sync.WaitGroup
-	wg.Add(3)
-
-	w1, w2, w3 := make(chan struct{}), make(chan struct{}), make(chan struct{})
-	waiter := func(w *writeqEntry, p int, gate <-chan struct{}) {
-		<-gate
-		wq.wait(nil, &w.writer, p)
-		ch <- w
-		wg.Done()
-	}
-
-	go waiter(fe1, flowPriority, w1)
-	go waiter(fe2, expressPriority, w2)
-	go waiter(fe3, flowPriority, w3)
-
-	close(w1)
-	close(w2)
-	close(w3)
-	wg.Wait()
-	close(ch)
-
-	var done []*writeqEntry
-	for w := range ch {
-		done = append(done, w)
-	}
-	if got, want := done, []*writeqEntry{fe2, fe1, fe3}; !reflect.DeepEqual(got, want) {
-		t.Errorf("got %v, want %v", got, want)
-	}*/
-//}
-
-//	add(fe1, fe1)
-
-/*
-	cmp(fe1)
-	rm(fe1)
-	cmp()
-	add(fe1)
-	cmp(fe1)
-
-	_, _ = fe2, fe3
-*/
-/*
-	add(fe2)
-	add(fe2)
-	cmp(fe1, fe2)
-	add(fe3)
-	add(fe1)
-	add(fe2)
-	add(fe3)
-	cmp(fe1, fe2, fe3)
-
-	rm(fe2)
-	cmp(fe1, fe3)
-	rm(fe1)
-	cmp(fe3)
-	rm(fe3)
-	cmp()
-	add(fe1, fe2, fe3)
-	cmp(fe1, fe2, fe3)
-	rm(fe3)
-	cmp(fe1, fe2)
-	rm(fe2)
-	cmp(fe1)
-	rm(fe1)
-	cmp()*/
-
-/*
-func TestWriteqNotification(t *testing.T) {
+func TestWriteqConcurrency(t *testing.T) {
 	wq := &writeq{}
+	ctx, shutdown := test.V23Init()
+	defer shutdown()
 
-	add := func(w ...*writeqEntry) {
-		addWriteq(wq, flowPriority, w...)
+	nworkers := 100
+	niterations := 1000
+	var done sync.WaitGroup
+	errCh := make(chan error, nworkers)
+	done.Add(nworkers)
+
+	for i := 0; i < nworkers; i++ {
+		go func(i int) {
+			defer done.Done()
+			shared := newEntry()
+			for j := 0; j < niterations; j++ {
+				priority := expressPriority
+				if j%2 == 0 {
+					priority = flowPriority
+				}
+				if err := wq.wait(ctx, &shared.writer, priority); err != nil {
+					errCh <- err
+					return
+				}
+				active, needSignal := wq.getActive()
+				if active != &shared.writer {
+					errCh <- fmt.Errorf("invariant violated: active: got %p, want %p", active, &shared.writer)
+					return
+				}
+				if needSignal {
+					errCh <- fmt.Errorf("invariant violated: active: %p should no longer need to be signaled", active)
+					return
+				}
+				time.Sleep(time.Duration(rand.Int31n(100)) * time.Nanosecond)
+				wq.done(&shared.writer)
+			}
+		}(i)
 	}
-
-	rm := func(w ...*writeqEntry) {
-		rmWriteq(wq, flowPriority, w...)
-	}
-
-	cmp := func(a *writeqEntry, w ...*writeqEntry) {
-		cmpWriteqEntries(t, wq, flowPriority, a, w...)
-	}
-
-	addP0 := func(w ...*writeqEntry) {
-		addWriteq(wq, expressPriority, w...)
-	}
-
-	rmP0 := func(w ...*writeqEntry) {
-		rmWriteq(wq, expressPriority, w...)
-	}
-
-	cmpP0 := func(a *writeqEntry, w ...*writeqEntry) {
-		cmpWriteqEntries(t, wq, expressPriority, a, w...)
-	}
-
-	notify := func(w *writeqEntry) {
-		var wr *writer
-		if w != nil {
-			wr = &w.writer
-		}
-		wq.notifyNextWriter(wr)
-	}
-
-	fe1, fe2, fe3 := newEntry(), newEntry(), newEntry()
-
-	notified := func(w *writeqEntry) {
-		var got *writer
-		select {
-		case <-fe1.writer.notify:
-			got = &fe1.writer
-		case <-fe2.writer.notify:
-			got = &fe2.writer
-		case <-fe3.writer.notify:
-			got = &fe3.writer
-		}
-		if want := &w.writer; got != want {
-			_, _, line, _ := runtime.Caller(1)
-			t.Errorf("line %v: wrong writer notified: got %v, want %v", line, got, want)
+	done.Wait()
+	close(errCh)
+	for err := range errCh {
+		if err != nil {
+			t.Error(err)
 		}
 	}
-
-	add(fe1)
-	notify(fe1)
-	<-fe1.notify
-	cmp(fe1, fe1)
-	rm(fe1)
-	cmp(fe1)
-	notify(fe1)
-	cmp(nil)
-
-	// iterate a few times to ensure that the select statement in
-	// notified doesn't select from the expected channel by chance
-	// when there are multiple channels ready - i.e. make sure that
-	// there is exactly one writer ready to go.
-	for i := 0; i < 100; i++ {
-		add(fe1, fe2, fe3)
-		cmp(nil, fe1, fe2, fe3)
-		notify(fe1)
-		notified(fe1)
-		cmp(fe1, fe2, fe3, fe1)
-		notify(fe1)
-		notified(fe2)
-		cmp(fe2, fe3, fe1, fe2)
-		notify(fe2)
-		notified(fe3)
-		cmp(fe3, fe1, fe2, fe3)
-		notify(fe3)
-		notified(fe1)
-		cmp(fe1, fe2, fe3, fe1)
-		notify(fe1)
-		notified(fe2)
-
-		// reset to empty state.
-		rm(fe1, fe2, fe3)
-		notify(fe2)
-		cmp(nil)
-	}
-
-	// test priorities
-	for i := 0; i < 100; i++ {
-		add(fe2, fe3)
-		addP0(fe1)
-		cmp(nil, fe2, fe3)
-		cmpP0(nil, fe1)
-		notify(fe2)
-		notified(fe1) // the higher priority writer should get unblocked
-
-		cmp(fe1, fe2, fe3)
-		cmpP0(fe1, fe1)
-		rmP0(fe1)
-		// fe1 is done so remove it as the active writer and unblock fe2
-		notify(fe1)
-		cmp(fe2, fe3, fe2)
-		notified(fe2)
-		notify(fe2)
-		notified(fe3)
-
-		// reset to empty state.
-		rm(fe2, fe3)
-		notify(fe3)
-		cmp(nil)
-	}
-
-	for i := 0; i < 100; i++ {
-		wq.activateAndNotify(&fe2.writer, flowPriority)
-		cmp(fe2, fe2)
-		notified(fe2)
-		cmp(fe2, fe2)
-		wq.activateAndNotify(&fe1.writer, flowPriority)
-		cmp(fe2, fe2, fe1)
-		wq.deactivateAndNotify(&fe2.writer, flowPriority)
-		cmp(fe1, fe1)
-		notified(fe1)
-		wq.deactivateAndNotify(&fe1.writer, flowPriority)
-		cmp(nil)
-	}
-
-	wq.activateAndNotify(&fe1.writer, flowPriority)
-	wq.activateAndNotify(nil, flowPriority)
 }
-*/
+
+func TestWriteqContextCancel(t *testing.T) {
+	wq := &writeq{}
+	rctx, shutdown := test.V23Init()
+
+	defer shutdown()
+	fe1, fe2 := newEntry(), newEntry()
+
+	ctx, cancel := context.WithCancel(rctx)
+
+	wq.wait(ctx, &fe1.writer, expressPriority)
+	cancel()
+	err := wq.wait(ctx, &fe2.writer, expressPriority)
+	if err == nil || !strings.Contains(err.Error(), "context canceled") {
+		t.Fatalf("missing or unexpected error: %v", err)
+	}
+	// fe2 will never make it into the queue since it was canceled.
+	cmpWriteqEntries(t, wq, expressPriority, fe1)
+	// fe1 is still the active writer since the cancel was issued after
+	// it's wait had returned.
+	wq.done(&fe1.writer)
+	cmpWriteqEntries(t, wq, expressPriority, nil)
+
+	nworkers := 1000
+	var done sync.WaitGroup
+	errCh := make(chan error, nworkers)
+	done.Add(nworkers)
+
+	// Need to use a largish number of goroutines to exercise all of the
+	// paths in writeq.wait.
+	for i := 0; i < nworkers; i++ {
+		ctx, cancel := context.WithCancel(rctx)
+		go func(i int) {
+			defer done.Done()
+			shared := newEntry()
+			if err := wq.wait(ctx, &shared.writer, flowPriority); err != nil {
+				errCh <- err
+				return
+			}
+			time.Sleep(time.Duration(rand.Int31n(100)) * time.Nanosecond)
+			wq.done(&shared.writer)
+
+		}(i)
+		go func() {
+			time.Sleep(time.Duration(rand.Int31n(500)) * time.Nanosecond)
+			cancel()
+		}()
+	}
+
+	done.Wait()
+	close(errCh)
+	nerrors := 0
+	for err := range errCh {
+		if err == nil || !strings.Contains(err.Error(), "context canceled") {
+			t.Fatalf("missing or unexpected error: %v", err)
+		}
+		nerrors++
+	}
+
+	if got, want := nerrors, nworkers/2; got < want {
+		t.Errorf("got %v, want >= %v", got, want)
+	}
+
+}
