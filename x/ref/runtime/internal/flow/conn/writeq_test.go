@@ -58,10 +58,10 @@ func rmWriteq(wq *writeq, priority int, w ...*writeqEntry) {
 	}
 }
 
-func (q *writeq) getActive() (*writer, bool) {
+func (q *writeq) getActive() *writer {
 	q.mu.Lock()
 	defer q.mu.Unlock()
-	return q.active, q.activeNeedsSignal
+	return q.active
 }
 
 func cmpWriteqEntries(t *testing.T, wq *writeq, priority int, active *writeqEntry, w ...*writeqEntry) {
@@ -140,10 +140,8 @@ func TestWriteqLists(t *testing.T) {
 	// Make sure that removing the currently active writer works correctly.
 	// This is used internally to remove a writer whose context is canceled.
 	rmWriteq(wq, flowPriority, fe4)
-	w := wq.nextLocked()
+	wq.nextLocked()
 	cmpWriteqEntries(t, wq, expressPriority, nil, fe3)
-	wq.setActiveLocked(w)
-	cmpWriteqEntries(t, wq, expressPriority, fe6, fe3)
 	rmWriteq(wq, flowPriority, fe6)
 	cmpWriteqEntries(t, wq, expressPriority, nil, fe3)
 
@@ -285,12 +283,9 @@ func TestWriteqSimpleOrdering(t *testing.T) {
 				numCh <- n + 1
 			}()
 			wq.wait(nil, &w.writer, flowPriority)
-			active, needSignal := wq.getActive()
+			active := wq.getActive()
 			if active != &w.writer {
 				errCh <- fmt.Errorf("invariant violated: active: got %p, want %p", active, &w.writer)
-			}
-			if needSignal {
-				errCh <- fmt.Errorf("invariant violated: active: %p should no longer need to be signaled", active)
 			}
 			time.Sleep(time.Duration(rand.Int31n(100)) * time.Millisecond)
 			wq.done(&w.writer)
@@ -406,13 +401,9 @@ func TestWriteqConcurrency(t *testing.T) {
 					errCh <- err
 					return
 				}
-				active, needSignal := wq.getActive()
+				active := wq.getActive()
 				if active != &shared.writer {
 					errCh <- fmt.Errorf("invariant violated: active: got %p, want %p", active, &shared.writer)
-					return
-				}
-				if needSignal {
-					errCh <- fmt.Errorf("invariant violated: active: %p should no longer need to be signaled", active)
 					return
 				}
 				time.Sleep(time.Duration(rand.Int31n(100)) * time.Nanosecond)

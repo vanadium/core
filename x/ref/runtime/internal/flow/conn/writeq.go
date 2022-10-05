@@ -58,11 +58,11 @@ type writeq struct {
 	// of all the lowest priority writing flows.
 	activeWriters [numPriorities]*writer
 
+	// The currently active writer. A writer will be signaled when it
+	// becomes active, with the special case, that a writer is added
+	// to an empty writeq (via wait) will return immediately since there is
+	// no need for it to wait.
 	active *writer
-	// Keep track of whether the active writer needs to be signaled, this
-	// is required since the active writer may returned immediately without
-	// the need to be signaled.
-	activeNeedsSignal bool
 }
 
 type writer struct {
@@ -163,7 +163,6 @@ func (q *writeq) rmWriter(w *writer, p int) {
 	defer q.mu.Unlock()
 	if q.active == w {
 		q.active = nil
-		q.activeNeedsSignal = false
 		return
 	}
 	prv, nxt := w.prev, w.next
@@ -221,13 +220,6 @@ func (q *writeq) nextLocked() *writer {
 	return nil
 }
 
-func (q *writeq) signalActiveLocked() {
-	if q.activeNeedsSignal {
-		q.active.notify <- struct{}{}
-		q.activeNeedsSignal = false
-	}
-}
-
 func (q *writeq) signalWait(ctx *context.T, w *writer) error {
 	if ctx == nil {
 		<-w.notify
@@ -244,7 +236,6 @@ func (q *writeq) signalWait(ctx *context.T, w *writer) error {
 func (q *writeq) wait(ctx *context.T, w *writer, p int) error {
 	q.mu.Lock()
 	if q.active != nil {
-		q.signalActiveLocked()
 		if !q.addWriterLocked(w, p) {
 			return fmt.Errorf("writer %p, priority %v already exists in the writeq", w, p)
 		}
@@ -260,13 +251,13 @@ func (q *writeq) wait(ctx *context.T, w *writer, p int) error {
 
 	head := q.nextLocked()
 	if head == nil {
-		// The q is empty, so return immediately and bypass any synchronisation.
 		q.active = w
-		q.activeNeedsSignal = false
 		q.mu.Unlock()
 		return nil
 	}
-	q.setActiveLocked(head)
+	// Make the item removed from the queue the active one and signal it.
+	q.active = head
+	q.active.notify <- struct{}{}
 	q.mu.Unlock()
 	if err := q.signalWait(ctx, w); err != nil {
 		q.clearActive(w)
@@ -279,18 +270,7 @@ func (q *writeq) clearActive(w *writer) {
 	defer q.mu.Unlock()
 	if q.active == w {
 		q.active = nil
-		q.activeNeedsSignal = false
 	}
-}
-
-func (q *writeq) setActiveLocked(head *writer) {
-	if head == nil {
-		return
-	}
-	// Make the item removed from the queue the active one and signal it.
-	q.active = head
-	q.active.notify <- struct{}{}
-	q.activeNeedsSignal = false
 }
 
 func (q *writeq) done(w *writer) {
@@ -299,6 +279,10 @@ func (q *writeq) done(w *writer) {
 	if q.active == w {
 		q.active = nil
 		w.next, w.prev = nil, nil
-		q.setActiveLocked(q.nextLocked())
+		if head := q.nextLocked(); head != nil {
+			// If there is a new active writer, signal it.
+			q.active = head
+			q.active.notify <- struct{}{}
+		}
 	}
 }
