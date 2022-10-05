@@ -315,6 +315,10 @@ func (f *flw) writeMsg(alsoClose bool, parts ...[]byte) (sent int, err error) {
 		f.ctx.Infof("finishing write on %d(%p): %v", f.id, f, err)
 	}
 
+	//if err != nil {
+	//	fmt.Printf("flow.writeMsg: canceled %p (%v)\n", &f.writeqEntry, err)
+	//}
+
 	if alsoClose || err != nil {
 		f.close(ctx, false, err)
 	}
@@ -322,8 +326,8 @@ func (f *flw) writeMsg(alsoClose bool, parts ...[]byte) (sent int, err error) {
 }
 
 func (f *flw) sendFlowMessage(ctx *context.T, wasOpened, alsoClose, finalPart bool, bkey, dkey uint64, payload [][]byte) error {
-	if werr := f.writeq.wait(ctx, &f.writeqEntry, flowPriority); werr != nil {
-		ctx.Infof("flow %p:%v failed to wait on writeq %p on conn %p: %v", f, f.id, f.writeq, f.conn, werr)
+	if err := f.writeq.wait(ctx, &f.writeqEntry, flowPriority); err != nil {
+		//ctx.Infof("Flow %d:(%p) failed to wait on writeq %p, entry %p on conn %v", f.id, f, f.writeq, &f.writeqEntry, err)
 		return io.EOF
 	}
 	// Actually write to the wire.  This is also where encryption

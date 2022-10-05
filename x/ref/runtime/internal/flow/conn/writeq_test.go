@@ -53,8 +53,10 @@ func addWriteq(wq *writeq, priority int, w ...*writeqEntry) {
 }
 
 func rmWriteq(wq *writeq, priority int, w ...*writeqEntry) {
+	wq.mu.Lock()
+	defer wq.mu.Unlock()
 	for i := range w {
-		wq.rmWriter(&w[i].writer, priority)
+		wq.rmWriterLocked(&w[i].writer, priority)
 	}
 }
 
@@ -90,7 +92,8 @@ func cmpWriteqEntries(t *testing.T, wq *writeq, priority int, active *writeqEntr
 
 func cmpWriteqNext(t *testing.T, wq *writeq, w *writeqEntry) {
 	_, _, line, _ := runtime.Caller(1)
-	if got, want := wq.nextLocked(), &w.writer; got != want {
+	nw, _ := wq.nextLocked()
+	if got, want := nw, &w.writer; got != want {
 		t.Errorf("line %v: next: got %v, want %v", line, got, want)
 	}
 }

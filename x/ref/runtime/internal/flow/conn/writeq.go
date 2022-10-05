@@ -158,13 +158,7 @@ func (q *writeq) sizeLocked() int {
 	return s
 }
 
-func (q *writeq) rmWriter(w *writer, p int) {
-	q.mu.Lock()
-	defer q.mu.Unlock()
-	if q.active == w {
-		q.active = nil
-		return
-	}
+func (q *writeq) rmWriterLocked(w *writer, p int) {
 	prv, nxt := w.prev, w.next
 	if head := q.activeWriters[p]; head == w {
 		if w == nxt {
@@ -202,31 +196,50 @@ func (q *writeq) addWriterLocked(w *writer, p int) bool {
 
 // nextLocked returns the next writer in the q by priority and LIFO
 // order. If a writer is found it is removed from the queue.
-func (q *writeq) nextLocked() *writer {
+func (q *writeq) nextLocked() (*writer, int) {
 	for p, head := range q.activeWriters {
 		if head != nil {
 			prv, nxt := head.prev, head.next
 			if nxt == head {
 				q.activeWriters[p] = nil
 				head.prev, head.next = nil, nil
-				return head
+				return head, p
 			}
 			q.activeWriters[p] = head.next
 			nxt.prev, prv.next = prv, nxt
 			head.prev, head.next = nil, nil
-			return head
+			return head, p
 		}
 	}
-	return nil
+	return nil, -1
 }
 
-func (q *writeq) signalWait(ctx *context.T, w *writer) error {
+func (q *writeq) handleCancel(w *writer, p int) {
+	q.mu.Lock()
+	defer q.mu.Unlock()
+	// The writer could be in the queue or active, but not both.
+	if q.active == w {
+		q.active = nil
+		// Replace the canceled writer with a new one, if there is one.
+		if head, _ := q.nextLocked(); head != nil {
+			// Make the item removed from the queue the active one and signal it.
+			q.active = head
+			q.active.notify <- struct{}{}
+		}
+		return
+	}
+	// It must be in the queue, so remove it.
+	q.rmWriterLocked(w, p)
+}
+
+func (q *writeq) signalWait(ctx *context.T, w *writer, p int) error {
 	if ctx == nil {
 		<-w.notify
 		return nil
 	}
 	select {
 	case <-ctx.Done():
+		q.handleCancel(w, p)
 		return ctx.Err()
 	case <-w.notify:
 	}
@@ -240,29 +253,21 @@ func (q *writeq) wait(ctx *context.T, w *writer, p int) error {
 			return fmt.Errorf("writer %p, priority %v already exists in the writeq", w, p)
 		}
 		q.mu.Unlock()
-		if err := q.signalWait(ctx, w); err != nil {
-			// Remove the writer with the error, which is a canceled
-			// or timedout context, from the writeq.
-			q.rmWriter(w, p)
-			return err
-		}
-		return nil
+		return q.signalWait(ctx, w, p)
 	}
 
-	head := q.nextLocked()
-	if head == nil {
-		q.active = w
+	if head, p := q.nextLocked(); head != nil {
+		// Make the item removed from the queue the active one and signal it.
+		q.active = head
+		q.active.notify <- struct{}{}
 		q.mu.Unlock()
-		return nil
+		return q.signalWait(ctx, w, p)
 	}
-	// Make the item removed from the queue the active one and signal it.
-	q.active = head
-	q.active.notify <- struct{}{}
+	q.active = w
+	// No need to signal the writer, just return immediately.
 	q.mu.Unlock()
-	if err := q.signalWait(ctx, w); err != nil {
-		q.clearActive(w)
-	}
 	return nil
+
 }
 
 func (q *writeq) clearActive(w *writer) {
@@ -279,7 +284,7 @@ func (q *writeq) done(w *writer) {
 	if q.active == w {
 		q.active = nil
 		w.next, w.prev = nil, nil
-		if head := q.nextLocked(); head != nil {
+		if head, _ := q.nextLocked(); head != nil {
 			// If there is a new active writer, signal it.
 			q.active = head
 			q.active.notify <- struct{}{}
