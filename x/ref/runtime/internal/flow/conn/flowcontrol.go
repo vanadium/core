@@ -117,9 +117,9 @@ func (fs *flowControlConnStats) init(bytesBufferedPerFlow uint64) {
 	fs.outstandingBorrowed = make(map[uint64]uint64)
 
 	// Assume at most 2^32 flows per connection.
-	bytesPerFlowId := binaryEncodeUintSize(2 ^ 32)
+	bytesPerFlowID := binaryEncodeUintSize(2 ^ 32)
 	bytesPerCounter := binaryEncodeUintSize(bytesBufferedPerFlow)
-	fs.releaseMessageLimit = int(bytesBufferedPerFlow) / (bytesPerFlowId + bytesPerCounter)
+	fs.releaseMessageLimit = int(bytesBufferedPerFlow) / (bytesPerFlowID + bytesPerCounter)
 }
 
 // configure must be called after the connection setup handshake is complete
