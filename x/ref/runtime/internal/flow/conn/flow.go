@@ -91,17 +91,8 @@ func (c *Conn) newFlowLocked(
 		writeq:           &c.writeq,
 		encapsulated:     c.IsEncapsulated(),
 	}
-	// It's important that this channel has a non-zero buffer since flows
-	// will be notifying themselve and if there's no buffer a deadlock will
-	// occur. The self notification is between the code that handles release
-	// messages to notify a flow-controlled writeMgs that it may potentially
-	// have tokens to spend on writes.
-	initWriter(&f.writeqEntry, 1)
-	//	if dialed {
-	//		f.writeqEntry.SetComment(fmt.Sprintf("flow %p, id %v: dialed", f, id))
-	//	} else {
-	//		f.writeqEntry.SetComment(fmt.Sprintf("flow %p, id %v: accepted", f, id))
-	//	}
+
+	initWriter(&f.writeqEntry)
 
 	f.flowControl.shared = &c.flowControl
 	f.flowControl.borrowing = dialed
@@ -463,10 +454,6 @@ func (f *flw) ID() uint64 {
 func (f *flw) setOpened() bool {
 	f.mu.Lock()
 	defer f.mu.Unlock()
-	return f.setOpenedLocked()
-}
-
-func (f *flw) setOpenedLocked() bool {
 	if f.opened {
 		return true
 	}
@@ -476,10 +463,8 @@ func (f *flw) setOpenedLocked() bool {
 }
 
 func (f *flw) close(ctx *context.T, closedRemotely bool, err error) {
-
-	log := f.ctx.V(2)
-
 	f.lock()
+	log := f.ctx.V(2)
 	closed := f.closed
 	f.closed = true
 	cancel := f.cancel

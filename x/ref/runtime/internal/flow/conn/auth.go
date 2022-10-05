@@ -43,12 +43,12 @@ func (c *Conn) dialHandshake(
 	}
 	rtt = rttend.Sub(rttstart)
 
-	c.lock()
+	c.mu.Lock()
 	// Note that the remoteBlessings and discharges are stored in data
 	// structures in the blessingsFlow implementation.
 	rBlessings := c.remoteBlessings
 	rDischarges := c.remoteDischarges
-	c.unlock()
+	c.mu.Unlock()
 
 	if rBlessings.IsZero() {
 		err = ErrAcceptorBlessingsMissing.Errorf(ctx, "dial: acceptor did not send blessings")
@@ -95,10 +95,10 @@ func (c *Conn) acceptHandshake(
 	if err != nil {
 		return rtt, err
 	}
-	c.lock()
+	c.mu.Lock()
 	c.remote = remoteEndpoint
 	c.blessingsFlow = newBlessingsFlow(c)
-	c.unlock()
+	c.mu.Unlock()
 	signedBinding, err := v23.GetPrincipal(ctx).Sign(append(authAcceptorTag, binding...))
 	if err != nil {
 		return rtt, err
@@ -239,17 +239,17 @@ func (c *Conn) readRemoteAuth(ctx *context.T, binding []byte, dialer bool) (time
 		// subsequet blessings received must have the same public key.
 		rpk := rBlessings.PublicKey()
 
-		c.lock()
+		c.mu.Lock()
 		c.rPublicKey = rpk
 		c.remoteBlessings = rBlessings
 		c.remoteDischarges = rDischarges
 		c.remoteValid = make(chan struct{})
-		c.unlock()
+		c.mu.Unlock()
 		c.blessingsFlow.setPublicKeyBinding(rpk)
 	}
 
-	c.lock()
-	defer c.unlock()
+	c.mu.Lock()
+	defer c.mu.Unlock()
 
 	if c.rPublicKey == nil {
 		return rttend, ErrNoPublicKey.Errorf(ctx, "conn.readRemoteAuth: no public key received")

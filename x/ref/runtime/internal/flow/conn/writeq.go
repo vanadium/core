@@ -88,17 +88,15 @@ type writer struct {
 	notify chan struct{}
 }
 
-// initWriters initializes the supplied writers, in particular creating a channel
-// for notificaions.
-func initWriters(writers []writer, chanSize int) {
-	for i := range writers {
-		initWriter(&writers[i], chanSize)
-	}
-}
-
-func initWriter(w *writer, chanSize int) {
+// initWriter initializes the supplied writers, in particular creating a channel
+// for notificaions. It's important that this channel has a non-zero buffer since
+// flows will be notifying themselve and if there's no buffer a deadlock will
+// occur. The self notification is between the code that handles release
+// messages to notify a flow-controlled writeMgs that it may potentially
+// have tokens to spend on writes.
+func initWriter(w *writer) {
 	w.prev, w.next = nil, nil
-	w.notify = make(chan struct{}, chanSize)
+	w.notify = make(chan struct{}, 1)
 }
 
 func (q *writeq) String() string {

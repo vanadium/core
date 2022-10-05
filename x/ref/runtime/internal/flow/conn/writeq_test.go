@@ -29,17 +29,6 @@ func newEntry() *writeqEntry {
 	return wqe
 }
 
-func listWQEntries(wq *writeq, p int) []*writer {
-	var r []*writer
-	for w := wq.activeWriters[p]; w != nil; w = w.next {
-		r = append(r, w)
-		if w.next == wq.activeWriters[p] {
-			break
-		}
-	}
-	return r
-}
-
 func (q *writeq) addWriter(w *writer, p int) bool {
 	q.mu.Lock()
 	defer q.mu.Unlock()
@@ -66,7 +55,20 @@ func (q *writeq) getActive() *writer {
 	return q.active
 }
 
+func listWQEntriesLocked(wq *writeq, p int) []*writer {
+	var r []*writer
+	for w := wq.activeWriters[p]; w != nil; w = w.next {
+		r = append(r, w)
+		if w.next == wq.activeWriters[p] {
+			break
+		}
+	}
+	return r
+}
+
 func cmpWriteqEntries(t *testing.T, wq *writeq, priority int, active *writeqEntry, w ...*writeqEntry) {
+	wq.mu.Lock()
+	defer wq.mu.Unlock()
 	_, _, line, _ := runtime.Caller(1)
 	if active == nil {
 		if got, want := wq.active, (*writer)(nil); got != want {
@@ -85,7 +87,7 @@ func cmpWriteqEntries(t *testing.T, wq *writeq, priority int, active *writeqEntr
 			wl[i] = &w[i].writer
 		}
 	}
-	if got, want := listWQEntries(wq, priority), wl; !reflect.DeepEqual(got, want) {
+	if got, want := listWQEntriesLocked(wq, priority), wl; !reflect.DeepEqual(got, want) {
 		t.Errorf("line %v: queue: got %v, want %v", line, got, want)
 	}
 }
@@ -302,7 +304,9 @@ func TestWriteqSimpleOrdering(t *testing.T) {
 	<-numChDone
 	// All goroutines are now blocked in writeq.wait, waiting
 	// in the order that they were created.
+	writerMu.Lock()
 	cmpWriteqEntries(t, wq, flowPriority, start, writers...)
+	writerMu.Unlock()
 
 	// Release the first writeq.wait
 	wq.done(&start.writer)
