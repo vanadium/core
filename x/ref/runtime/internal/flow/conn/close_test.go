@@ -397,7 +397,7 @@ func TestCounters(t *testing.T) {
 	runAndTest(500, 10, 3, 502)
 	// 60K connection setups/teardowns will ensure that the release message
 	// is fragmented.
-	runAndTest(60000, 10, 3, 10000)
+	runAndTest(60000, 10, 30, 10000)
 	// For larger packets, the connections end up using flow control
 	// tokens and hence not using 'borrowed' tokens.
 	runAndTest(100, 1024*100, 3, 5)
