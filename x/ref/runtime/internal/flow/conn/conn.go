@@ -762,7 +762,8 @@ func (c *Conn) internalCloseLocked(ctx *context.T, closedRemotely, closedWhileAc
 	}(c)
 }
 
-func (c *Conn) fragmentReleaseMessage(ctx *context.T, toRelease map[uint64]uint64, limit int) error {
+func (c *Conn) fragmentReleaseMessage(ctx *context.T, toRelease map[uint64]uint64) error {
+	limit := c.flowControl.releaseMessageLimit
 	if len(toRelease) < limit {
 		return c.sendMessageLocked(ctx, false, expressPriority, &message.Release{
 			Counters: toRelease,
@@ -811,7 +812,7 @@ func (c *Conn) sendRelease(ctx *context.T, fid, count uint64) {
 	var err error
 	if toRelease != nil {
 		delete(toRelease, invalidFlowID)
-		err = c.fragmentReleaseMessage(ctx, toRelease, 8000)
+		err = c.fragmentReleaseMessage(ctx, toRelease)
 	}
 	c.mu.Unlock()
 	if err != nil {
