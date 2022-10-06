@@ -90,41 +90,6 @@ func TestLargeWrite(t *testing.T) {
 	wg.Wait()
 }
 
-func TestManyLargeWrites(t *testing.T) {
-	defer goroutines.NoLeaks(t, leakWaitTime)()
-	ctx, shutdown := test.V23Init()
-	defer shutdown()
-	df, flows, cl := setupFlow(t, "local", "", ctx, ctx, true)
-	defer cl()
-
-	var wg sync.WaitGroup
-	wg.Add(2)
-
-	iterations := 200
-
-	writer := func(f flow.Flow) {
-		for i := 0; i < iterations; i++ {
-			doWrite(t, f, randData)
-		}
-	}
-	reader := func(f flow.Flow) {
-		for i := 0; i < iterations; i++ {
-			doRead(t, f, randData, nil)
-		}
-		wg.Done()
-	}
-
-	go writer(df)
-	go reader(df)
-
-	af := <-flows
-
-	go reader(af)
-	go writer(af)
-
-	wg.Wait()
-}
-
 func TestConnRTT(t *testing.T) {
 	defer goroutines.NoLeaks(t, leakWaitTime)()
 	payload := []byte{0}

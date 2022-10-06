@@ -18,7 +18,6 @@ import (
 	_ "v.io/x/ref/runtime/factories/fake"
 	"v.io/x/ref/runtime/protocols/debug"
 	"v.io/x/ref/test"
-	"v.io/x/ref/test/goroutines"
 )
 
 func block(c *Conn, p int) chan struct{} {
@@ -178,34 +177,4 @@ func TestOrdering(t *testing.T) {
 			t.Fatalf("Did not receive a message from each flow in round %d: %v", i, found)
 		}
 	}
-}
-
-func TestFlowControl(t *testing.T) {
-	defer goroutines.NoLeaks(t, leakWaitTime)()
-	ctx, shutdown := test.V23Init()
-	defer shutdown()
-	nflows := 10
-
-	for _, bytesBuffered := range []uint64{33, 396, 4093} {
-		dfs, flows, ac, dc := setupFlowsOpts(t, "local", "", ctx, ctx, true, nflows, Opts{BytesBuffered: bytesBuffered})
-		defer func() {
-			dc.Close(ctx, nil)
-			ac.Close(ctx, nil)
-		}()
-
-		var wg sync.WaitGroup
-		wg.Add(nflows * 2)
-
-		for i := 0; i < nflows; i++ {
-			go doWrite(t, dfs[i], randData)
-			go doRead(t, dfs[i], randData, &wg)
-		}
-		for i := 0; i < nflows; i++ {
-			af := <-flows
-			go doRead(t, af, randData, &wg)
-			go doWrite(t, af, randData)
-		}
-		wg.Wait()
-	}
-
 }
