@@ -181,7 +181,7 @@ func TestCancelWithFullBuffers(t *testing.T) {
 
 	// Fill up all the write buffers to ensure that cancelling works even when the stream
 	// is blocked.
-	if err := call.Send(make([]byte, conn.DefaultBytesBufferedPerFlow-2048)); err != nil {
+	if err := call.Send(make([]byte, conn.DefaultBytesBuffered-2048)); err != nil {
 		t.Fatal(err)
 	}
 	done := make(chan struct{})

@@ -13,11 +13,15 @@ import (
 	"testing"
 	"time"
 
+	v23 "v.io/v23"
+	"v.io/v23/naming"
 	"v.io/v23/verror"
 
 	"v.io/v23/context"
 	"v.io/v23/flow"
 	_ "v.io/x/ref/runtime/factories/fake"
+	"v.io/x/ref/runtime/internal/flow/flowtest"
+	"v.io/x/ref/runtime/internal/rpc/version"
 	"v.io/x/ref/test"
 	"v.io/x/ref/test/goroutines"
 )
@@ -27,7 +31,7 @@ const leakWaitTime = 500 * time.Millisecond
 var randData []byte
 
 func init() {
-	randData = make([]byte, 2*DefaultBytesBufferedPerFlow)
+	randData = make([]byte, 2*DefaultBytesBuffered)
 	if _, err := rand.Read(randData); err != nil {
 		panic("Could not read random data.")
 	}
@@ -64,7 +68,9 @@ func doRead(t *testing.T, f flow.Flow, want []byte, wg *sync.WaitGroup) {
 	if len(want) != 0 {
 		t.Errorf("got %d leftover bytes, expected 0.", len(want))
 	}
-	wg.Done()
+	if wg != nil {
+		wg.Done()
+	}
 }
 
 func TestLargeWrite(t *testing.T) {
@@ -124,18 +130,18 @@ func TestMinChannelTimeout(t *testing.T) {
 	defer dc.Close(ctx, nil)
 	defer ac.Close(ctx, nil)
 
-	if err := deadlineInAbout(dc, defaultChannelTimeout); err != nil {
+	if err := deadlineInAbout(dc, DefaultChannelTimeout); err != nil {
 		t.Error(err)
 	}
-	if err := deadlineInAbout(ac, defaultChannelTimeout); err != nil {
+	if err := deadlineInAbout(ac, DefaultChannelTimeout); err != nil {
 		t.Error(err)
 	}
 
 	df, af := oneFlow(t, ctx, dc, aflows, 0)
-	if err := deadlineInAbout(dc, defaultChannelTimeout); err != nil {
+	if err := deadlineInAbout(dc, DefaultChannelTimeout); err != nil {
 		t.Error(err)
 	}
-	if err := deadlineInAbout(ac, defaultChannelTimeout); err != nil {
+	if err := deadlineInAbout(ac, DefaultChannelTimeout); err != nil {
 		t.Error(err)
 	}
 	df.Close()
@@ -145,7 +151,7 @@ func TestMinChannelTimeout(t *testing.T) {
 	if err := deadlineInAbout(dc, 10*time.Minute); err != nil {
 		t.Error(err)
 	}
-	if err := deadlineInAbout(ac, defaultChannelTimeout); err != nil {
+	if err := deadlineInAbout(ac, DefaultChannelTimeout); err != nil {
 		t.Error(err)
 	}
 	df.Close()
@@ -156,19 +162,23 @@ func TestMinChannelTimeout(t *testing.T) {
 	if err := deadlineInAbout(dc, time.Minute); err != nil {
 		t.Error(err)
 	}
-	if err := deadlineInAbout(ac, defaultChannelTimeout); err != nil {
+	if err := deadlineInAbout(ac, DefaultChannelTimeout); err != nil {
 		t.Error(err)
 	}
 	df2.Close()
 	af2.Close()
 
 	// Setup new conns with a default channel timeout below the min.
-	dc, ac, derr, aerr = setupConnsWithTimeout(t, "local", "", ctx, ctx, dflows, aflows, nil, nil, 0, time.Minute, time.Second)
+	dc, ac, derr, aerr = setupConnsOpts(t, "local", "", ctx, ctx, dflows, aflows, nil, nil, Opts{
+		HandshakeTimeout: time.Minute,
+		ChannelTimeout:   time.Second,
+	})
 	if derr != nil || aerr != nil {
 		t.Fatal(derr, aerr)
 	}
 	defer dc.Close(ctx, nil)
 	defer ac.Close(ctx, nil)
+
 	// They should both start with the min value.
 	if err := deadlineInAbout(dc, time.Minute); err != nil {
 		t.Error(err)
@@ -200,7 +210,7 @@ func TestHandshakeDespiteCancel(t *testing.T) {
 	dctx, dcancel := context.WithTimeout(ctx, time.Minute)
 	dflows, aflows := make(chan flow.Flow, 1), make(chan flow.Flow, 1)
 	dcancel()
-	dc, ac, derr, aerr := setupConnsWithTimeout(t, "local", "", dctx, ctx, dflows, aflows, nil, nil, 1*time.Second, 4*time.Second, time.Second)
+	dc, ac, derr, aerr := setupConnsWithTimeout(t, "local", "", dctx, ctx, dflows, aflows, nil, nil, 1*time.Second, Opts{HandshakeTimeout: 4 * time.Second, ChannelTimeout: time.Second})
 	if aerr != nil {
 		t.Fatalf("setupConnsWithTimeout: unexpectedly failed: %v, %v", derr, aerr)
 	}
@@ -209,4 +219,59 @@ func TestHandshakeDespiteCancel(t *testing.T) {
 	}
 	dc.Close(ctx, nil)
 	ac.Close(ctx, nil)
+}
+
+func TestMTUNegotiation(t *testing.T) {
+	defer goroutines.NoLeaks(t, leakWaitTime)()
+	ctx, shutdown := test.V23Init()
+	defer shutdown()
+	network, address := "local", ":0"
+	versions := version.Supported
+
+	ridep := naming.Endpoint{Protocol: network, Address: address, RoutingID: naming.FixedRoutingID(191341)}
+	ep := naming.Endpoint{Protocol: network, Address: address}
+	dch := make(chan *Conn)
+	ach := make(chan *Conn)
+	derrch := make(chan error)
+	aerrch := make(chan error)
+
+	accept := func(mtu uint64, conn flow.Conn) {
+		dBlessings, _ := v23.GetPrincipal(ctx).BlessingStore().Default()
+		d, _, _, err := NewDialed(ctx, conn, ep, ep, versions, peerAuthorizer{dBlessings, nil}, nil, Opts{MTU: mtu})
+		dch <- d
+		derrch <- err
+	}
+	dial := func(mtu uint64, conn flow.Conn) {
+		a, err := NewAccepted(ctx, nil, conn, ridep, versions, nil, Opts{MTU: mtu})
+		ach <- a
+		aerrch <- err
+	}
+
+	testConn := func(dmtu, amtu, negotiated uint64) {
+		dmrw, amrw := flowtest.Pipe(t, ctx, network, address)
+
+		go dial(dmtu, dmrw)
+		go accept(amtu, amrw)
+
+		dconn := <-dch
+		aconn := <-ach
+		if derr, aerr := <-derrch, <-aerrch; derr != nil || aerr != nil {
+			t.Fatalf("dial: %v, accept: %v", derr, aerr)
+		}
+
+		if got, want := dconn.mtu, negotiated; got != want {
+			t.Errorf("got %v, want %v", got, want)
+		}
+
+		if got, want := aconn.mtu, negotiated; got != want {
+			t.Errorf("got %v, want %v", got, want)
+		}
+
+		dconn.Close(ctx, nil)
+		aconn.Close(ctx, nil)
+	}
+
+	testConn(4096, 8192, 4096)
+	testConn(8192, 1024, 1024)
+
 }

@@ -614,7 +614,7 @@ func newXFlowServer(flow flow.Flow, server *server) (*flowServer, error) {
 		ctx:        ctx,
 		server:     server,
 		disp:       server.disp,
-		flow:       conn.NewBufferingFlow(ctx, flow),
+		flow:       conn.NewBufferingFlow(ctx, flow, 0),
 		discharges: make(map[string]security.Discharge),
 	}
 	return fs, nil

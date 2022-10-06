@@ -289,10 +289,11 @@ func acceptor(errCh chan error, acceptCh chan flow.Flow, size int, close bool) {
 	errCh <- nil
 }
 
-func testCounters(t *testing.T, ctx *context.T, count int, dialClose, acceptClose bool, size int) (
+func testCountersOpts(t *testing.T, ctx *context.T, count int, dialClose, acceptClose bool, size int, opts Opts) (
 	dialRelease, dialBorrowed, acceptRelease, acceptBorrowed int) {
+
 	acceptCh := make(chan flow.Flow, 1)
-	dc, ac, derr, aerr := setupConns(t, "local", "", ctx, ctx, nil, acceptCh, nil, nil)
+	dc, ac, derr, aerr := setupConnsOpts(t, "local", "", ctx, ctx, nil, acceptCh, nil, nil, opts)
 	if derr != nil || aerr != nil {
 		t.Fatalf("setup: dial err: %v, accept err: %v", derr, aerr)
 	}
@@ -373,12 +374,12 @@ func TestCounters(t *testing.T) {
 		compare(acceptBorrowed, acceptApprox)
 	}
 
-	runAndTest := func(count, size, dialApprox, acceptApprox int) {
-		dialRelease, dialBorrowed, acceptRelease, acceptBorrowed = testCounters(t, ctx, count, true, false, size)
+	runAndTest := func(count, size, dialApprox, acceptApprox int, opts Opts) {
+		dialRelease, dialBorrowed, acceptRelease, acceptBorrowed = testCountersOpts(t, ctx, count, true, false, size, opts)
 		assert(dialApprox, acceptApprox)
-		dialRelease, dialBorrowed, acceptRelease, acceptBorrowed = testCounters(t, ctx, count, false, true, size)
+		dialRelease, dialBorrowed, acceptRelease, acceptBorrowed = testCountersOpts(t, ctx, count, false, true, size, opts)
 		assert(dialApprox, acceptApprox)
-		dialRelease, dialBorrowed, acceptRelease, acceptBorrowed = testCounters(t, ctx, count, true, true, size)
+		dialRelease, dialBorrowed, acceptRelease, acceptBorrowed = testCountersOpts(t, ctx, count, true, true, size, opts)
 		assert(dialApprox, acceptApprox)
 	}
 
@@ -394,11 +395,11 @@ func TestCounters(t *testing.T) {
 
 	// For small packets, all connections end up being 'borrowed' and hence
 	// their counters are kept around.
-	runAndTest(500, 10, 3, 502)
-	// 60K connection setups/teardowns will ensure that the release message
-	// is fragmented.
-	runAndTest(60000, 10, 3, 10000)
+	runAndTest(500, 10, 3, 502, Opts{})
+	// Smaller MTU, BytesBuffered and small messages ensure that the
+	// release message will need to be fragmented.
+	runAndTest(5000, 1, 3, 1000, Opts{BytesBuffered: 4096, MTU: 2048})
 	// For larger packets, the connections end up using flow control
 	// tokens and hence not using 'borrowed' tokens.
-	runAndTest(100, 1024*100, 3, 5)
+	runAndTest(100, 1024*100, 3, 5, Opts{})
 }

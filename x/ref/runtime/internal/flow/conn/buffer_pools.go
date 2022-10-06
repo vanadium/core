@@ -15,16 +15,19 @@ const (
 
 	// max of gcmTagSize (16) and box.Overhead (16)
 	maxCipherOverhead = 16
-
-	// The plaintext message pipe buffer needs to allow for the overhead
-	// of the message itself header fields as well as its payload.
-	plaintextBufferSize = defaultMtu + estimatedMessageOverhead
-
-	// The ciphertext buffer needs to allow for the cipher overhead also.
-	ciphertextBufferSize = plaintextBufferSize + maxCipherOverhead
 )
 
 var (
+
+	// The plaintext message pipe buffer needs to allow for the overhead
+	// of the message's header fields as well as its payload.
+	// Note that if a connection uses a larger MTU than the default (since
+	// it may specified/negoatiated) then extra allocations will take place.
+	plaintextBufferSize = DefaultMTU + estimatedMessageOverhead
+
+	// The ciphertext buffer needs to allow for the cipher overhead also.
+	ciphertextBufferSize = plaintextBufferSize + maxCipherOverhead
+
 	// intermediate buffers used by the message pipe for compression/decompression.
 	messagePipePool = sync.Pool{
 		New: func() interface{} {

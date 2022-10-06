@@ -157,7 +157,7 @@ func testManyMessages(t *testing.T, ctx *context.T, dialedPipe, acceptedPipe *me
 		t.Fatal(err)
 	}
 
-	for _, rxbuf := range [][]byte{nil, make([]byte, defaultMtu)} {
+	for _, rxbuf := range [][]byte{nil, make([]byte, DefaultMTU)} {
 
 		received, txErr, rxErr := runMany(ctx, dialedPipe, acceptedPipe, rxbuf, payload)
 
@@ -181,8 +181,8 @@ func runMany(ctx *context.T, dialedPipe, acceptedPipe *messagePipe, rxbuf, paylo
 		sent := 0
 		for sent < len(payload) {
 			payload := payload[sent:]
-			if len(payload) > defaultMtu {
-				payload = payload[:defaultMtu]
+			if len(payload) > DefaultMTU {
+				payload = payload[:DefaultMTU]
 			}
 			msg := &message.Data{ID: 1123, Payload: [][]byte{payload}}
 			err := dialedPipe.writeMsg(ctx, msg)
@@ -232,7 +232,7 @@ func enableEncryption(ctx *context.T, dialed, accepted *messagePipe, ks keyset, 
 }
 
 func testMessages(t *testing.T) []message.Message {
-	largePayload := make([]byte, 2*defaultMtu)
+	largePayload := make([]byte, 2*DefaultMTU)
 	_, err := io.ReadFull(rand.Reader, largePayload)
 	if err != nil {
 		t.Fatal(err)
@@ -403,7 +403,7 @@ func BenchmarkMessagePipe__RPC11__NewBuf__UseFramer____1KB(b *testing.B) {
 }
 
 func BenchmarkMessagePipe__RPC11__NewBuf__UseFramer____MTU(b *testing.B) {
-	benchmarkMessagePipe(b, false, defaultMtu, false, rpc11Keyset, version.RPCVersion11)
+	benchmarkMessagePipe(b, false, DefaultMTU, false, rpc11Keyset, version.RPCVersion11)
 }
 
 func BenchmarkMessagePipe__RPC11__UseBuf__UseFramer____1KB(b *testing.B) {
@@ -411,7 +411,7 @@ func BenchmarkMessagePipe__RPC11__UseBuf__UseFramer____1KB(b *testing.B) {
 }
 
 func BenchmarkMessagePipe__RPC11__UseBuf__UseFramer____MTU(b *testing.B) {
-	benchmarkMessagePipe(b, false, defaultMtu, true, rpc11Keyset, version.RPCVersion11)
+	benchmarkMessagePipe(b, false, DefaultMTU, true, rpc11Keyset, version.RPCVersion11)
 }
 
 func BenchmarkMessagePipe__RPC15__NewBuf__UseFramer____1KB(b *testing.B) {
@@ -419,7 +419,7 @@ func BenchmarkMessagePipe__RPC15__NewBuf__UseFramer____1KB(b *testing.B) {
 }
 
 func BenchmarkMessagePipe__RPC15__NewBuf__UseFramer____MTU(b *testing.B) {
-	benchmarkMessagePipe(b, false, defaultMtu, false, rpc15Keyset, version.RPCVersion15)
+	benchmarkMessagePipe(b, false, DefaultMTU, false, rpc15Keyset, version.RPCVersion15)
 }
 
 func BenchmarkMessagePipe__RPC15__UseBuf__UseFramer____1KB(b *testing.B) {
@@ -427,7 +427,7 @@ func BenchmarkMessagePipe__RPC15__UseBuf__UseFramer____1KB(b *testing.B) {
 }
 
 func BenchmarkMessagePipe__RPC15__UseBuf__UseFramer____MTU(b *testing.B) {
-	benchmarkMessagePipe(b, false, defaultMtu, true, rpc15Keyset, version.RPCVersion15)
+	benchmarkMessagePipe(b, false, DefaultMTU, true, rpc15Keyset, version.RPCVersion15)
 }
 
 func BenchmarkMessagePipe__RPC11__NewBuf__BypassFramer__1KB(b *testing.B) {
@@ -435,7 +435,7 @@ func BenchmarkMessagePipe__RPC11__NewBuf__BypassFramer__1KB(b *testing.B) {
 }
 
 func BenchmarkMessagePipe__RPC11__NewBuf__BypassFramer__MTU(b *testing.B) {
-	benchmarkMessagePipe(b, true, defaultMtu, false, rpc11Keyset, version.RPCVersion11)
+	benchmarkMessagePipe(b, true, DefaultMTU, false, rpc11Keyset, version.RPCVersion11)
 }
 
 func BenchmarkMessagePipe__RPC11__UseBuf__BypassFramer__1KB(b *testing.B) {
@@ -443,7 +443,7 @@ func BenchmarkMessagePipe__RPC11__UseBuf__BypassFramer__1KB(b *testing.B) {
 }
 
 func BenchmarkMessagePipe__RPC11__UseBuf__BypassFramer__MTU(b *testing.B) {
-	benchmarkMessagePipe(b, true, defaultMtu, true, rpc11Keyset, version.RPCVersion11)
+	benchmarkMessagePipe(b, true, DefaultMTU, true, rpc11Keyset, version.RPCVersion11)
 }
 
 func BenchmarkMessagePipe__RPC15__NewBuf__BypassFramer__1KB(b *testing.B) {
@@ -451,7 +451,7 @@ func BenchmarkMessagePipe__RPC15__NewBuf__BypassFramer__1KB(b *testing.B) {
 }
 
 func BenchmarkMessagePipe__RPC15__NewBuf__BypassFramer__MTU(b *testing.B) {
-	benchmarkMessagePipe(b, true, defaultMtu, false, rpc15Keyset, version.RPCVersion15)
+	benchmarkMessagePipe(b, true, DefaultMTU, false, rpc15Keyset, version.RPCVersion15)
 }
 
 func BenchmarkMessagePipe__RPC15__UseBuf__BypassFramer__1KB(b *testing.B) {
@@ -459,5 +459,5 @@ func BenchmarkMessagePipe__RPC15__UseBuf__BypassFramer__1KB(b *testing.B) {
 }
 
 func BenchmarkMessagePipe__RPC15__UseBuf__BypassFramer__MTU(b *testing.B) {
-	benchmarkMessagePipe(b, true, defaultMtu, true, rpc15Keyset, version.RPCVersion15)
+	benchmarkMessagePipe(b, true, DefaultMTU, true, rpc15Keyset, version.RPCVersion15)
 }

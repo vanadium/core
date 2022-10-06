@@ -39,7 +39,7 @@ func TestReadqRead(t *testing.T) {
 
 	rr := &readqRelease{}
 
-	r := newReadQ(rr.release)
+	r := newReadQ(DefaultBytesBuffered, rr.release)
 	r.put(ctx, mkBufs("one", "two"))       //nolint:errcheck
 	r.put(ctx, mkBufs("thre", "reallong")) //nolint:errcheck
 	r.close(ctx)
@@ -68,7 +68,7 @@ func TestReadqGet(t *testing.T) {
 
 	rr := &readqRelease{}
 
-	r := newReadQ(rr.release)
+	r := newReadQ(DefaultBytesBuffered, rr.release)
 	r.put(ctx, mkBufs("one", "two"))       //nolint:errcheck
 	r.put(ctx, mkBufs("thre", "reallong")) //nolint:errcheck
 	r.close(ctx)
@@ -96,7 +96,7 @@ func TestReadqMixed(t *testing.T) {
 
 	rr := &readqRelease{}
 
-	r := newReadQ(rr.release)
+	r := newReadQ(DefaultBytesBuffered, rr.release)
 	r.put(ctx, mkBufs("one", "two"))       //nolint:errcheck
 	r.put(ctx, mkBufs("thre", "reallong")) //nolint:errcheck
 	r.close(ctx)
@@ -142,7 +142,7 @@ func TestReadqQResize(t *testing.T) {
 
 	rr := &readqRelease{}
 
-	r := newReadQ(rr.release)
+	r := newReadQ(DefaultBytesBuffered, rr.release)
 
 	for i := 0; i < 100; i++ {
 		r.put(ctx, [][]byte{[]byte(fmt.Sprintf("%03v", i))})
@@ -178,5 +178,4 @@ func TestReadqQResize(t *testing.T) {
 			t.Errorf("got %v, want %v", got, want)
 		}
 	}
-
 }

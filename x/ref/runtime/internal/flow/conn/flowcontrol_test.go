@@ -132,7 +132,7 @@ func TestOrdering(t *testing.T) {
 	for _, f := range flows {
 		go func(fl flow.Flow) {
 			defer wg.Done()
-			if _, err := fl.WriteMsg(randData[:defaultMtu*nmessages]); err != nil {
+			if _, err := fl.WriteMsg(randData[:DefaultMTU*nmessages]); err != nil {
 				errCh <- err
 				return
 			}
@@ -141,12 +141,12 @@ func TestOrdering(t *testing.T) {
 		go func() {
 			defer wg.Done()
 			fl := <-accept
-			buf := make([]byte, defaultMtu*nmessages)
+			buf := make([]byte, DefaultMTU*nmessages)
 			if _, err := io.ReadFull(fl, buf); err != nil {
 				errCh <- err
 				return
 			}
-			if !bytes.Equal(buf, randData[:defaultMtu*nmessages]) {
+			if !bytes.Equal(buf, randData[:DefaultMTU*nmessages]) {
 				errCh <- fmt.Errorf("unequal data")
 				return
 			}

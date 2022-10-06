@@ -27,6 +27,13 @@ import (
 // network latency is very high, the initial size is chosen to handle the
 // most strenuous cases (eg. lots of connections with low concurrency).
 type readq struct {
+	bytesBufferedPerFlow uint64
+
+	// Called whenever data is read/removed from the queue with the number of
+	// bytes retured. It is intended to be used by flow control mechanisms
+	// that need to keep track of the amount of data read.
+	readCallback func(ctx *context.T, n int)
+
 	mu sync.Mutex
 	// circular buffer of added buffers
 	bufsBuiltin [initialReadqBufferSize][]byte
@@ -35,22 +42,19 @@ type readq struct {
 
 	closed bool // set when closed.
 
-	size   int           // total amount of buffered data
+	size   uint64        // total amount of buffered data
 	nbufs  int           // number of buffers
 	notify chan struct{} // used to notify any listeners when an empty readq has had data added to it.
 
-	// Called whenever data is read/removed from the queue with the number of
-	// bytes retured. It is intended to be used by flow control mechanisms
-	// that need to keep track of the amount of data read.
-	readCallback func(ctx *context.T, n int)
 }
 
 const initialReadqBufferSize = 40
 
-func newReadQ(readCallback func(ctx *context.T, n int)) *readq {
+func newReadQ(bytesBufferedPerFlow uint64, readCallback func(ctx *context.T, n int)) *readq {
 	rq := &readq{
-		notify:       make(chan struct{}, 1),
-		readCallback: readCallback,
+		bytesBufferedPerFlow: bytesBufferedPerFlow,
+		notify:               make(chan struct{}, 1),
+		readCallback:         readCallback,
 	}
 	rq.bufs = rq.bufsBuiltin[:]
 	return rq
@@ -73,8 +77,8 @@ func (r *readq) put(ctx *context.T, bufs [][]byte) error {
 		return nil
 	}
 
-	newSize := l + r.size
-	if newSize > DefaultBytesBufferedPerFlow {
+	newSize := uint64(l) + r.size
+	if newSize > r.bytesBufferedPerFlow {
 		return ErrCounterOverflow.Errorf(ctx, "a remote process has sent more data than allowed")
 	}
 	newBufs := r.nbufs + len(bufs)
@@ -131,7 +135,7 @@ func (r *readq) read(ctx *context.T, data []byte) (n int, err error) {
 			r.bufs[r.b] = nil // allow used buffer to be GC'ed
 			r.b = (r.b + 1) % len(r.bufs)
 		}
-		r.size -= n
+		r.size -= uint64(n)
 	}
 	r.mu.Unlock()
 	r.readCallback(ctx, n)
@@ -145,7 +149,7 @@ func (r *readq) get(ctx *context.T) (out []byte, err error) {
 		out = r.bufs[r.b]
 		r.bufs[r.b] = nil // allow used buffer to be GC'ed
 		r.b = (r.b + 1) % len(r.bufs)
-		r.size -= len(out)
+		r.size -= uint64(len(out))
 		r.nbufs--
 	}
 	r.mu.Unlock()

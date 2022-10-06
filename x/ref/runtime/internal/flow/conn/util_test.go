@@ -35,7 +35,15 @@ func setupConns(t *testing.T,
 	dctx, actx *context.T,
 	dflows, aflows chan<- flow.Flow,
 	dAuth, aAuth []security.BlessingPattern) (dialed, accepted *Conn, derr, aerr error) {
-	return setupConnsWithTimeout(t, network, address, dctx, actx, dflows, aflows, dAuth, aAuth, 0, time.Minute, 0)
+	return setupConnsOpts(t, network, address, dctx, actx, dflows, aflows, dAuth, aAuth, Opts{HandshakeTimeout: time.Minute})
+}
+
+func setupConnsOpts(t *testing.T,
+	network, address string,
+	dctx, actx *context.T,
+	dflows, aflows chan<- flow.Flow,
+	dAuth, aAuth []security.BlessingPattern, opts Opts) (dialed, accepted *Conn, derr, aerr error) {
+	return setupConnsWithTimeout(t, network, address, dctx, actx, dflows, aflows, dAuth, aAuth, 0, opts)
 }
 
 func setupConnsWithTimeout(t *testing.T,
@@ -44,8 +52,8 @@ func setupConnsWithTimeout(t *testing.T,
 	dflows, aflows chan<- flow.Flow,
 	dAuth, aAuth []security.BlessingPattern,
 	acceptdelay time.Duration,
-	handshakeTimeout time.Duration,
-	channelTimeout time.Duration) (dialed, accepted *Conn, derr, aerr error) {
+	opts Opts,
+) (dialed, accepted *Conn, derr, aerr error) {
 	dmrw, amrw := flowtest.Pipe(t, actx, network, address)
 	versions := version.Supported
 	if len(address) == 0 {
@@ -68,7 +76,7 @@ func setupConnsWithTimeout(t *testing.T,
 			dep = ridep
 		}
 		dBlessings, _ := v23.GetPrincipal(dctx).BlessingStore().Default()
-		d, _, _, err := NewDialed(dctx, dmrw, dep, ep, versions, peerAuthorizer{dBlessings, dAuth}, false, handshakeTimeout, channelTimeout, handler)
+		d, _, _, err := NewDialed(dctx, dmrw, dep, ep, versions, peerAuthorizer{dBlessings, dAuth}, handler, opts)
 		dch <- d
 		derrch <- err
 	}()
@@ -80,7 +88,7 @@ func setupConnsWithTimeout(t *testing.T,
 		if acceptdelay > 0 {
 			time.Sleep(acceptdelay)
 		}
-		a, err := NewAccepted(actx, aAuth, amrw, ridep, versions, time.Minute, channelTimeout, handler)
+		a, err := NewAccepted(actx, aAuth, amrw, ridep, versions, handler, opts)
 		ach <- a
 		aerrch <- err
 	}()
@@ -93,9 +101,13 @@ func setupFlow(t *testing.T, network, address string, dctx, actx *context.T, dia
 }
 
 func setupFlows(t *testing.T, network, address string, dctx, actx *context.T, dialFromDialer bool, n int) (dialed []flow.Flow, accepted <-chan flow.Flow, dc, ac *Conn) {
+	return setupFlowsOpts(t, network, address, dctx, actx, dialFromDialer, n, Opts{})
+}
+
+func setupFlowsOpts(t *testing.T, network, address string, dctx, actx *context.T, dialFromDialer bool, n int, opts Opts) (dialed []flow.Flow, accepted <-chan flow.Flow, dc, ac *Conn) {
 	dialed = make([]flow.Flow, n)
 	dflows, aflows := make(chan flow.Flow, n), make(chan flow.Flow, n)
-	d, a, derr, aerr := setupConns(t, network, address, dctx, actx, dflows, aflows, nil, nil)
+	d, a, derr, aerr := setupConnsOpts(t, network, address, dctx, actx, dflows, aflows, nil, nil, opts)
 	if derr != nil || aerr != nil {
 		t.Fatal(derr, aerr)
 	}

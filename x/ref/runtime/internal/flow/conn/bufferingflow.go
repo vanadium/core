@@ -29,11 +29,14 @@ type BufferingFlow struct {
 	buf *bytes.Buffer // Protected by mu.
 }
 
-func NewBufferingFlow(ctx *context.T, flw flow.Flow) *BufferingFlow {
+func NewBufferingFlow(ctx *context.T, flw flow.Flow, mtu uint64) *BufferingFlow {
 	b := &BufferingFlow{
 		Flow: flw,
 		buf:  bufferPool.Get().(*bytes.Buffer),
-		mtu:  defaultMtu,
+		mtu:  mtu,
+	}
+	if b.mtu == 0 {
+		b.mtu = DefaultMTU
 	}
 	b.buf.Reset()
 	if m, ok := flw.Conn().(MTUer); ok {
