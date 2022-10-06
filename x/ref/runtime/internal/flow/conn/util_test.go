@@ -35,15 +35,15 @@ func setupConns(t *testing.T,
 	dctx, actx *context.T,
 	dflows, aflows chan<- flow.Flow,
 	dAuth, aAuth []security.BlessingPattern) (dialed, accepted *Conn, derr, aerr error) {
-	return setupConnsWithTimeout(t, network, address, dctx, actx, dflows, aflows, dAuth, aAuth, 0, time.Minute, 0, DefaultBytesBufferedPerFlow())
+	return setupConnsOpts(t, network, address, dctx, actx, dflows, aflows, dAuth, aAuth, ConnOpts{HandshakeTimeout: time.Minute})
 }
 
-func setupConnsBytesBuffered(t *testing.T,
+func setupConnsOpts(t *testing.T,
 	network, address string,
 	dctx, actx *context.T,
 	dflows, aflows chan<- flow.Flow,
-	dAuth, aAuth []security.BlessingPattern, defaultBytesBufferedPerFlow uint64) (dialed, accepted *Conn, derr, aerr error) {
-	return setupConnsWithTimeout(t, network, address, dctx, actx, dflows, aflows, dAuth, aAuth, 0, time.Minute, 0, defaultBytesBufferedPerFlow)
+	dAuth, aAuth []security.BlessingPattern, opts ConnOpts) (dialed, accepted *Conn, derr, aerr error) {
+	return setupConnsWithTimeout(t, network, address, dctx, actx, dflows, aflows, dAuth, aAuth, 0, opts)
 }
 
 func setupConnsWithTimeout(t *testing.T,
@@ -52,9 +52,7 @@ func setupConnsWithTimeout(t *testing.T,
 	dflows, aflows chan<- flow.Flow,
 	dAuth, aAuth []security.BlessingPattern,
 	acceptdelay time.Duration,
-	handshakeTimeout time.Duration,
-	channelTimeout time.Duration,
-	defaultBytesBufferedPerFlow uint64,
+	opts ConnOpts,
 ) (dialed, accepted *Conn, derr, aerr error) {
 	dmrw, amrw := flowtest.Pipe(t, actx, network, address)
 	versions := version.Supported
@@ -78,7 +76,7 @@ func setupConnsWithTimeout(t *testing.T,
 			dep = ridep
 		}
 		dBlessings, _ := v23.GetPrincipal(dctx).BlessingStore().Default()
-		d, _, _, err := NewDialed(dctx, dmrw, dep, ep, versions, peerAuthorizer{dBlessings, dAuth}, false, handshakeTimeout, channelTimeout, defaultBytesBufferedPerFlow, handler)
+		d, _, _, err := NewDialed(dctx, dmrw, dep, ep, versions, peerAuthorizer{dBlessings, dAuth}, handler, opts)
 		dch <- d
 		derrch <- err
 	}()
@@ -90,7 +88,7 @@ func setupConnsWithTimeout(t *testing.T,
 		if acceptdelay > 0 {
 			time.Sleep(acceptdelay)
 		}
-		a, err := NewAccepted(actx, aAuth, amrw, ridep, versions, time.Minute, channelTimeout, defaultBytesBufferedPerFlow, handler)
+		a, err := NewAccepted(actx, aAuth, amrw, ridep, versions, handler, opts)
 		ach <- a
 		aerrch <- err
 	}()
@@ -103,13 +101,13 @@ func setupFlow(t *testing.T, network, address string, dctx, actx *context.T, dia
 }
 
 func setupFlows(t *testing.T, network, address string, dctx, actx *context.T, dialFromDialer bool, n int) (dialed []flow.Flow, accepted <-chan flow.Flow, dc, ac *Conn) {
-	return setupFlowsBytesBuffered(t, network, address, dctx, actx, dialFromDialer, n, DefaultBytesBufferedPerFlow())
+	return setupFlowsOpts(t, network, address, dctx, actx, dialFromDialer, n, ConnOpts{})
 }
 
-func setupFlowsBytesBuffered(t *testing.T, network, address string, dctx, actx *context.T, dialFromDialer bool, n int, bytesBuffered uint64) (dialed []flow.Flow, accepted <-chan flow.Flow, dc, ac *Conn) {
+func setupFlowsOpts(t *testing.T, network, address string, dctx, actx *context.T, dialFromDialer bool, n int, opts ConnOpts) (dialed []flow.Flow, accepted <-chan flow.Flow, dc, ac *Conn) {
 	dialed = make([]flow.Flow, n)
 	dflows, aflows := make(chan flow.Flow, n), make(chan flow.Flow, n)
-	d, a, derr, aerr := setupConnsBytesBuffered(t, network, address, dctx, actx, dflows, aflows, nil, nil, bytesBuffered)
+	d, a, derr, aerr := setupConnsOpts(t, network, address, dctx, actx, dflows, aflows, nil, nil, opts)
 	if derr != nil || aerr != nil {
 		t.Fatal(derr, aerr)
 	}

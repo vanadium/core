@@ -116,16 +116,16 @@ func (fs *flowControlConnStats) init(bytesBufferedPerFlow uint64) {
 	fs.lshared = 0
 	fs.outstandingBorrowed = make(map[uint64]uint64)
 
-	// Assume at most 2^32 flows per connection.
-	bytesPerFlowID := binaryEncodeUintSize(2 ^ 32)
-	bytesPerCounter := binaryEncodeUintSize(bytesBufferedPerFlow)
-	fs.releaseMessageLimit = int(bytesBufferedPerFlow) / (bytesPerFlowID + bytesPerCounter)
 }
 
 // configure must be called after the connection setup handshake is complete
 // and the mtu and shared tokens are known.
 func (fs *flowControlConnStats) configure(mtu, shared uint64) {
 	fs.mtu, fs.lshared = mtu, shared
+	// Assume at most 2^32 flows per connection.
+	bytesPerFlowID := binaryEncodeUintSize(2 ^ 32)
+	bytesPerCounter := binaryEncodeUintSize(mtu)
+	fs.releaseMessageLimit = int(mtu) / (bytesPerFlowID + bytesPerCounter)
 }
 
 func (fs *flowControlConnStats) lock() {

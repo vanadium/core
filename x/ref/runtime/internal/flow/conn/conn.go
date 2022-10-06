@@ -48,18 +48,13 @@ var minChannelTimeout = map[string]time.Duration{
 }
 
 const (
-	defaultMtu            = 1 << 16
-	defaultChannelTimeout = 30 * time.Minute
-	proxyOverhead         = 32
+	proxyOverhead = 32
+
+	defaultBytesBuffered    = 1 << 20
+	defaultMTU              = 1 << 16
+	defaultChannelTimeout   = 30 * time.Minute
+	defaultHandshakeTimeout = time.Minute
 )
-
-var defaultBytesBufferedPerFlow = 1 << 20
-
-// DefaultBytesBufferedPerFlow defines the default number
-// of bytes that can be buffered by a single flow.
-func DefaultBytesBufferedPerFlow() uint64 {
-	return uint64(defaultBytesBufferedPerFlow)
-}
 
 // A FlowHandler processes accepted flows.
 type FlowHandler interface {
@@ -137,6 +132,48 @@ type Conn struct {
 // Ensure that *Conn implements flow.ManagedConn.
 var _ flow.ManagedConn = &Conn{}
 
+type ConnOpts struct {
+	// Proxy controls whether the connection is for a proxy or a direct connection.
+	Proxy            bool
+	HandshakeTimeout time.Duration
+	ChannelTimeout   time.Duration
+
+	// MTU defines the MTU size to use for this connection. This may be reduced
+	// if the connection's peer requests a smaller MTU.
+	MTU uint64
+
+	// BytesBuffered defines the default number of bytes that can be buffered
+	// by a single flow before flow control is invoked.
+	BytesBuffered uint64
+}
+
+func (co *ConnOpts) initValues(protocol string) {
+
+	if co.ChannelTimeout == 0 {
+		co.ChannelTimeout = defaultChannelTimeout
+	}
+
+	if min := minChannelTimeout[protocol]; co.ChannelTimeout < min {
+		co.ChannelTimeout = min
+	}
+
+	if co.MTU == 0 {
+		co.MTU = defaultMTU
+	}
+
+	if co.BytesBuffered == 0 {
+		co.BytesBuffered = defaultBytesBuffered
+	}
+
+	if co.HandshakeTimeout == 0 {
+		co.HandshakeTimeout = defaultHandshakeTimeout
+	}
+
+	if co.ChannelTimeout == 0 {
+		co.ChannelTimeout = defaultChannelTimeout
+	}
+}
+
 // NewDialed dials a new Conn on the given conn. In the case when it is not
 // dialing a proxy, it can return an error indicating that the context was canceled
 // (verror.ErrCanceled) along with a handshake completes within the
@@ -151,15 +188,15 @@ func NewDialed( //nolint:gocyclo
 	local, remote naming.Endpoint,
 	versions version.RPCVersionRange,
 	auth flow.PeerAuthorizer,
-	proxy bool,
-	handshakeTimeout time.Duration,
-	channelTimeout time.Duration,
-	bytesBufferedPerFlow uint64,
-	handler FlowHandler) (c *Conn, names []string, rejected []security.RejectedBlessing, err error) {
+	handler FlowHandler,
+	opts ConnOpts,
+) (c *Conn, names []string, rejected []security.RejectedBlessing, err error) {
 
 	if _, err = version.CommonVersion(ctx, rpcversion.Supported, versions); err != nil {
 		return
 	}
+
+	opts.initValues(local.Protocol)
 
 	var remoteAddr net.Addr
 	if flowConn, ok := conn.(flow.Conn); ok {
@@ -168,12 +205,6 @@ func NewDialed( //nolint:gocyclo
 
 	dctx := ctx
 	ctx, cancel := context.WithRootCancel(ctx)
-	if channelTimeout == 0 {
-		channelTimeout = defaultChannelTimeout
-	}
-	if min := minChannelTimeout[local.Protocol]; channelTimeout < min {
-		channelTimeout = min
-	}
 
 	// If the conn is being built on an encapsulated flow, we must update the
 	// cancellation of the flow, to ensure that the conn doesn't get killed
@@ -194,9 +225,10 @@ func NewDialed( //nolint:gocyclo
 		lastUsedTime:         time.Now(),
 		cancel:               cancel,
 		activeWriters:        make([]writer, numPriorities),
-		acceptChannelTimeout: channelTimeout,
+		acceptChannelTimeout: opts.ChannelTimeout,
+		mtu:                  opts.MTU,
 	}
-	c.flowControl.init(bytesBufferedPerFlow)
+	c.flowControl.init(opts.BytesBuffered)
 	done := make(chan struct{})
 	var rtt time.Duration
 	c.loopWG.Add(1)
@@ -214,7 +246,7 @@ func NewDialed( //nolint:gocyclo
 		names, rejected, rtt, err = c.dialHandshake(ctx, versions, auth)
 	}()
 	var canceled bool
-	timer := time.NewTimer(handshakeTimeout)
+	timer := time.NewTimer(opts.HandshakeTimeout)
 	var ferr error
 	select {
 	case <-done:
@@ -222,7 +254,7 @@ func NewDialed( //nolint:gocyclo
 	case <-timer.C:
 		ferr = verror.ErrTimeout.Errorf(ctx, "timeout")
 	case <-dctx.Done():
-		if proxy {
+		if opts.Proxy {
 			ferr = verror.ErrCanceled.Errorf(ctx, "canceled")
 		} else {
 			// The context has been canceled, but let's give this connection
@@ -250,6 +282,7 @@ func NewDialed( //nolint:gocyclo
 		c.Close(ctx, ferr)
 		return nil, nil, nil, ferr
 	}
+
 	c.initializeHealthChecks(ctx, rtt)
 	// We send discharges asynchronously to prevent making a second RPC while
 	// trying to build up the connection for another. If the two RPCs happen to
@@ -285,26 +318,20 @@ func NewAccepted(
 	conn flow.MsgReadWriteCloser,
 	local naming.Endpoint,
 	versions version.RPCVersionRange,
-	handshakeTimeout time.Duration,
-	channelTimeout time.Duration,
-	bytesBufferedPerFlow uint64,
-	handler FlowHandler) (*Conn, error) {
+	handler FlowHandler,
+	opts ConnOpts) (*Conn, error) {
 
 	if _, err := version.CommonVersion(ctx, rpcversion.Supported, versions); err != nil {
 		return nil, err
 	}
+
+	opts.initValues(local.Protocol)
 
 	var remoteAddr net.Addr
 	if flowConn, ok := conn.(flow.Conn); ok {
 		remoteAddr = flowConn.RemoteAddr()
 	}
 	ctx, cancel := context.WithCancel(ctx)
-	if channelTimeout == 0 {
-		channelTimeout = defaultChannelTimeout
-	}
-	if min := minChannelTimeout[local.Protocol]; channelTimeout < min {
-		channelTimeout = min
-	}
 	c := &Conn{
 		mp:                   newMessagePipe(conn),
 		handler:              handler,
@@ -317,9 +344,10 @@ func NewAccepted(
 		lastUsedTime:         time.Now(),
 		cancel:               cancel,
 		activeWriters:        make([]writer, numPriorities),
-		acceptChannelTimeout: channelTimeout,
+		acceptChannelTimeout: opts.ChannelTimeout,
+		mtu:                  opts.MTU,
 	}
-	c.flowControl.init(bytesBufferedPerFlow)
+	c.flowControl.init(opts.BytesBuffered)
 	done := make(chan struct{}, 1)
 	var rtt time.Duration
 	var err error
@@ -337,7 +365,7 @@ func NewAccepted(
 			ctx, c.localBlessings, nil, "", nil)
 		rtt, err = c.acceptHandshake(ctx, versions, lAuthorizedPeers)
 	}()
-	timer := time.NewTimer(handshakeTimeout)
+	timer := time.NewTimer(opts.HandshakeTimeout)
 	var ferr error
 	select {
 	case <-done:

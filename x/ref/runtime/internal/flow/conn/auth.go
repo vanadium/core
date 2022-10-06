@@ -29,7 +29,7 @@ func (c *Conn) dialHandshake(
 	ctx *context.T,
 	versions version.RPCVersionRange,
 	auth flow.PeerAuthorizer) (names []string, rejected []security.RejectedBlessing, rtt time.Duration, err error) {
-	binding, remoteEndpoint, rttstart, err := c.setup(ctx, versions, true)
+	binding, remoteEndpoint, rttstart, err := c.setup(ctx, versions, true, c.mtu)
 	if err != nil {
 		return nil, nil, 0, err
 	}
@@ -93,7 +93,7 @@ func (c *Conn) acceptHandshake(
 	ctx *context.T,
 	versions version.RPCVersionRange,
 	authorizedPeers []security.BlessingPattern) (rtt time.Duration, err error) {
-	binding, remoteEndpoint, _, err := c.setup(ctx, versions, false)
+	binding, remoteEndpoint, _, err := c.setup(ctx, versions, false, c.mtu)
 	if err != nil {
 		return rtt, err
 	}
@@ -125,7 +125,7 @@ func (c *Conn) acceptHandshake(
 	return rtt, err
 }
 
-func (c *Conn) setup(ctx *context.T, versions version.RPCVersionRange, dialer bool) ([]byte, naming.Endpoint, time.Time, error) { //nolint:gocyclo
+func (c *Conn) setup(ctx *context.T, versions version.RPCVersionRange, dialer bool, mtu uint64) ([]byte, naming.Endpoint, time.Time, error) { //nolint:gocyclo
 	var rttstart time.Time
 	pk, sk, err := box.GenerateKey(rand.Reader)
 	if err != nil {
@@ -135,7 +135,7 @@ func (c *Conn) setup(ctx *context.T, versions version.RPCVersionRange, dialer bo
 		Versions:          versions,
 		PeerLocalEndpoint: c.local,
 		PeerNaClPublicKey: pk,
-		Mtu:               defaultMtu,
+		Mtu:               c.mtu,
 		SharedTokens:      c.flowControl.bytesBufferedPerFlow,
 	}
 	if !c.remote.IsZero() {
@@ -167,11 +167,21 @@ func (c *Conn) setup(ctx *context.T, versions version.RPCVersionRange, dialer bo
 	if c.local.IsZero() {
 		c.local = rSetup.PeerRemoteEndpoint
 	}
-	if rSetup.Mtu != 0 {
-		c.mtu = rSetup.Mtu
-	} else {
-		c.mtu = defaultMtu
+
+	if rSetup.Mtu == 0 {
+		rSetup.Mtu = mtu
 	}
+	if lSetup.Mtu == 0 {
+		lSetup.Mtu = mtu
+	}
+
+	// Pick the smaller of the two MTUs.
+	if rSetup.Mtu > lSetup.Mtu {
+		c.mtu = lSetup.Mtu
+	} else {
+		c.mtu = rSetup.Mtu
+	}
+
 	lshared := lSetup.SharedTokens
 	if rSetup.SharedTokens != 0 && rSetup.SharedTokens < lshared {
 		lshared = rSetup.SharedTokens
