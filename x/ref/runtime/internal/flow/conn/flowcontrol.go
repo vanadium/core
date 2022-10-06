@@ -23,7 +23,14 @@ import (
 // to guard access to it and to all of the flowControlFlowStats instances
 // in each flow.
 type flowControlConnStats struct {
+	// bytesBufferedPerFlow is the max number of bytes that can be sent
+	// before a flow control release message is required.
 	bytesBufferedPerFlow uint64
+
+	// releaseMessageLimit is the max number of release counters that can be
+	// sent in a single message taking into account the current
+	// bytesBufferedPerFlow value.
+	releaseMessageLimit int
 
 	mu sync.Mutex
 
@@ -79,18 +86,46 @@ type flowControlFlowStats struct {
 	borrowing bool
 }
 
+func binaryEncodeUintSize(v uint64) int {
+	switch {
+	case v <= 0x7f:
+		return 1
+	case v <= 0xff:
+		return 2
+	case v <= 0xffff:
+		return 3
+	case v <= 0xffffff:
+		return 4
+	case v <= 0xffffffff:
+		return 5
+	case v <= 0xffffffffff:
+		return 6
+	case v <= 0xffffffffffff:
+		return 7
+	case v <= 0xffffffffffffff:
+		return 8
+	default:
+		return 9
+	}
+}
+
 func (fs *flowControlConnStats) init(bytesBufferedPerFlow uint64) {
 	fs.toRelease = map[uint64]uint64{}
 	fs.borrowing = map[uint64]bool{}
 	fs.bytesBufferedPerFlow = bytesBufferedPerFlow
 	fs.lshared = 0
 	fs.outstandingBorrowed = make(map[uint64]uint64)
+
 }
 
 // configure must be called after the connection setup handshake is complete
 // and the mtu and shared tokens are known.
 func (fs *flowControlConnStats) configure(mtu, shared uint64) {
 	fs.mtu, fs.lshared = mtu, shared
+	// Assume at most 2^32 flows per connection.
+	bytesPerFlowID := binaryEncodeUintSize(2 ^ 32)
+	bytesPerCounter := binaryEncodeUintSize(mtu)
+	fs.releaseMessageLimit = int(mtu) / (bytesPerFlowID + bytesPerCounter)
 }
 
 func (fs *flowControlConnStats) lock() {

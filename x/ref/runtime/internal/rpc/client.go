@@ -624,7 +624,7 @@ var _ rpc.ClientCall = (*flowClient)(nil)
 var _ rpc.Stream = (*flowClient)(nil)
 
 func newFlowClient(ctx *context.T, removeStat func(), flow flow.Flow, typeEnc *vom.TypeEncoder, typeDec *vom.TypeDecoder) (*flowClient, error) {
-	bf := conn.NewBufferingFlow(ctx, flow)
+	bf := conn.NewBufferingFlow(ctx, flow, 0)
 	if _, err := bf.Write([]byte{dataFlow}); err != nil {
 		flow.Close()
 		removeStat()
