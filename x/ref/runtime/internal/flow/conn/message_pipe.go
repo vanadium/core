@@ -59,15 +59,15 @@ type messagePipe struct {
 	framer      framer.T
 	frameOffset int
 
-	// locks are required to serialize access to the cipher operations since
+	seal sealFunc
+	open openFunc
+
+	// locks are required to serialize access to the read/write operations since
 	// the messagePipe may be called by different goroutines when connections
 	// are being created or because of the need to send changed blessings
 	// asynchronously. Other than these cases there will be no lock
 	// contention.
-	sealMu sync.Mutex
-	seal   sealFunc
-	openMu sync.Mutex
-	open   openFunc
+	readMu, writeMu sync.Mutex
 }
 
 func (p *messagePipe) isEncapsulated() bool {
@@ -128,9 +128,7 @@ func (p *messagePipe) writeCiphertext(ctx *context.T, m message.Message, plainte
 	if err != nil {
 		return
 	}
-	p.sealMu.Lock()
 	wire, err = p.seal(ciphertextBuf[p.frameOffset:p.frameOffset], plaintext)
-	p.sealMu.Unlock()
 	framed = ciphertextBuf
 	return
 }
@@ -147,6 +145,8 @@ func (p *messagePipe) writeMsg(ctx *context.T, m message.Message) error {
 		message.ClearDisableEncryptionFlag(m)
 	}
 
+	p.writeMu.Lock()
+	defer p.writeMu.Unlock()
 	wire, framedWire, err := p.writeCiphertext(ctx, m, *plaintextBuf, *ciphertextBuf)
 	if err != nil {
 		return err
@@ -193,9 +193,7 @@ func (p *messagePipe) readClearText(ctx *context.T, plaintextBuf []byte) ([]byte
 	if err != nil {
 		return nil, err
 	}
-	p.openMu.Lock()
 	plaintext, ok := p.open(plaintextBuf[:0], ciphertext)
-	p.openMu.Unlock()
 	if !ok {
 		return nil, message.NewErrInvalidMsg(ctx, 0, uint64(len(ciphertext)), 0, nil)
 	}
@@ -203,10 +201,13 @@ func (p *messagePipe) readClearText(ctx *context.T, plaintextBuf []byte) ([]byte
 }
 
 func (p *messagePipe) readMsg(ctx *context.T, plaintextBuf []byte) (message.Message, error) {
+	p.readMu.Lock()
 	plaintext, err := p.readClearText(ctx, plaintextBuf)
 	if err != nil {
+		p.readMu.Unlock()
 		return nil, err
 	}
+	p.readMu.Unlock()
 	return p.readAnyMessage(ctx, plaintext)
 }
 
@@ -230,10 +231,13 @@ func (p *messagePipe) readAnyMessage(ctx *context.T, plaintext []byte) (message.
 }
 
 func (p *messagePipe) readDataMsg(ctx *context.T, plaintextBuf []byte, m *message.Data) (message.Message, error) {
+	p.readMu.Lock()
 	plaintext, err := p.readClearText(ctx, plaintextBuf)
 	if err != nil {
+		p.readMu.Unlock()
 		return nil, err
 	}
+	p.readMu.Unlock()
 	if ok, err := message.ReadData(ctx, plaintext, m); !ok {
 		if err != nil {
 			return nil, err

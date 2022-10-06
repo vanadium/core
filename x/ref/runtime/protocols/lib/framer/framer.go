@@ -21,9 +21,7 @@ const (
 
 type framer struct {
 	io.ReadWriteCloser
-	readFrame  [sizeBytes]byte
-	writeFrame [sizeBytes]byte
-	writeBuf   []byte
+	writeBuf []byte
 }
 
 // T represents the interface to a framer, see New, for a more complete
@@ -100,8 +98,9 @@ func (f *framer) WriteMsg(data ...[]byte) (int, error) {
 	if msgSize > maxPacketSize {
 		return 0, ErrLargerThan3ByteUInt.Errorf(nil, "integer too large to represent in %v bytes", sizeBytes)
 	}
-	write3ByteUint(f.writeFrame[:], msgSize)
-	if n, err := f.Write(f.writeFrame[:]); err != nil {
+	var writeFrame [sizeBytes]byte
+	write3ByteUint(writeFrame[:], msgSize)
+	if n, err := f.Write(writeFrame[:]); err != nil {
 		return n, err
 	}
 	written := 0
@@ -123,11 +122,12 @@ func (f *framer) ReadMsg() ([]byte, error) {
 // ReadMsg2 implements flow.MsgReadWriteCloser and will use
 // the supplied msg buffer if it is large enough.
 func (f *framer) ReadMsg2(msg []byte) ([]byte, error) {
+	var readFrame [sizeBytes]byte
 	// Read the message size.
-	if _, err := io.ReadFull(f, f.readFrame[:]); err != nil {
+	if _, err := io.ReadFull(f, readFrame[:]); err != nil {
 		return nil, err
 	}
-	msgSize := read3ByteUint(f.readFrame[:])
+	msgSize := read3ByteUint(readFrame[:])
 
 	// Read the message.
 	if msgSize > len(msg) {
