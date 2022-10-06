@@ -717,7 +717,7 @@ func (c *Conn) internalClose(ctx *context.T, closedRemotely, closedWhileAcceptin
 	c.mu.Unlock()
 }
 
-func (c *Conn) internalCloseLocked(ctx *context.T, closedRemotely, closedWhileAccepting bool, err error) {
+func (c *Conn) internalCloseLocked(ctx *context.T, closedRemotely, closedWhileAccepting bool, err error) { //nolint:gocyclo
 	debug := ctx.V(2)
 	if debug {
 		ctx.Infof("Closing connection: %v", err)
