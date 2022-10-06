@@ -243,7 +243,7 @@ func TestFlowControl(t *testing.T) {
 					t.Error(err)
 				}
 			}
-			fmt.Printf("done: #%v flows, buffered %#v bytes\n", nflows, bytesBuffered)
+			t.Logf("done: #%v flows, buffered %#v bytes\n", nflows, bytesBuffered)
 		}
 	}
 }

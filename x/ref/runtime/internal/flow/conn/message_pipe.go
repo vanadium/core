@@ -134,8 +134,6 @@ func (p *messagePipe) writeCiphertext(ctx *context.T, m message.Message, plainte
 }
 
 func (p *messagePipe) writeMsg(ctx *context.T, m message.Message) error {
-	p.writeMu.Lock()
-	defer p.writeMu.Unlock()
 	//debug.MessagePipe("%p: messagePipe.writeMsg:\t%v\n", p, debug.FormatMessage(m))
 	plaintextBuf := messagePipePool.Get().(*[]byte)
 	defer messagePipePool.Put(plaintextBuf)

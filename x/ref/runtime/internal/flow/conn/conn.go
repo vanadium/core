@@ -99,7 +99,7 @@ type Conn struct {
 	mtu           uint64
 
 	// The following fields for managing flow control and the writeq
-	// are locked indepdently.
+	// are locked independently.
 	flowControl flowControlConnStats
 
 	writeq writeq

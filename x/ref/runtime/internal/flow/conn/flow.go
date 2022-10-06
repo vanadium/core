@@ -46,8 +46,7 @@ type flw struct {
 	// opened indicates whether the flow has already been opened.  If false
 	// we need to send an open flow on the next write.  For accepted flows
 	// this will always be true.
-	opened   bool
-	openSent chan struct{}
+	opened bool
 
 	// tokenWait is set if a write is blocked waiting for flowcontrol
 	// tokens. When tokens become available the channel should be closed.
@@ -55,14 +54,6 @@ type flw struct {
 
 	// closed is true as soon as f.close has been called.
 	closed bool
-}
-
-func (f *flw) lock() {
-	f.mu.Lock()
-}
-
-func (f *flw) unlock() {
-	f.mu.Unlock()
 }
 
 // Ensure that *flw implements flow.Flow.
@@ -169,8 +160,8 @@ func (f *flw) Write(p []byte) (n int, err error) {
 }
 
 func (f *flw) currentContext() *context.T {
-	f.lock()
-	defer f.unlock()
+	f.mu.Lock()
+	defer f.mu.Unlock()
 	return f.ctx
 }
 
@@ -178,8 +169,8 @@ func (f *flw) currentContext() *context.T {
 // writer.  This allows the writer to then write more data to the wire.
 func (f *flw) releaseCounters(tokens uint64) {
 	ctx := f.currentContext()
-	f.lock()
-	defer f.unlock()
+	f.mu.Lock()
+	defer f.mu.Unlock()
 	f.flowControl.releaseCounters(ctx, tokens)
 	//debug.FlowControl("%p: flow.control: releaseCounters: for %p:%3v: #%v counters\n", f.conn, f, f.id, tokens)
 	// Broadcast to all flows blocked waiting for tokens that some may be availabe
@@ -203,11 +194,11 @@ func (f *flw) ensureTokens(ctx *context.T, debuglog bool, need int) (int, func(i
 		// (ie. the call to releaseCounters) as well as closing the channel
 		// used to notify the code below that more tokens may potentially
 		// be available.
-		f.lock()
+		f.mu.Lock()
 		avail, deduct := f.flowControl.tokens(ctx, f.encapsulated)
 		if avail >= need {
 			//debug.FlowControl("%p: flow.control: ensureTokens: done: flow %p:%3v avail: %v, need %v\n", f.conn, f, f.id, avail, need)
-			f.unlock()
+			f.mu.Unlock()
 			return avail, deduct, nil
 		}
 		// need to wait for tokens.
@@ -216,7 +207,7 @@ func (f *flw) ensureTokens(ctx *context.T, debuglog bool, need int) (int, func(i
 		}
 		//debug.FlowControl("%p: flow.control: ensureTokens: waiting: flow %p:%3v avail: %v, need %v: waiting for more\n", f.conn, f, f.id, avail, need)
 		ch := f.tokenWait
-		f.unlock()
+		f.mu.Unlock()
 		select {
 		case <-ctx.Done():
 			return 0, func(int) {}, ctx.Err()
@@ -364,8 +355,8 @@ func (f *flw) WriteMsgAndClose(parts ...[]byte) (int, error) {
 // TODO(mattr): update v23/flow documentation.
 // SetContext may not be called concurrently with other methods.
 func (f *flw) SetDeadlineContext(ctx *context.T, deadline time.Time) *context.T {
-	f.lock()
-	defer f.unlock()
+	f.mu.Lock()
+	defer f.mu.Unlock()
 
 	if f.closed {
 		// If the flow is already closed, don't allocate a new
@@ -463,12 +454,12 @@ func (f *flw) setOpened() bool {
 }
 
 func (f *flw) close(ctx *context.T, closedRemotely bool, err error) {
-	f.lock()
+	f.mu.Lock()
 	log := f.ctx.V(2)
 	closed := f.closed
 	f.closed = true
 	cancel := f.cancel
-	f.unlock()
+	f.mu.Unlock()
 
 	if !closed {
 		// delete the flow as soon as possible to ensure that flow control
