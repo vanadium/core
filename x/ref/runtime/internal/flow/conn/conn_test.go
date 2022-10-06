@@ -294,11 +294,11 @@ func TestMTUNegotiation(t *testing.T) {
 			t.Fatalf("dial: %v, accept: %v", derr, aerr)
 		}
 
-		if got, want := dconn.mtu, uint64(negotiated); got != want {
+		if got, want := dconn.mtu, negotiated; got != want {
 			t.Errorf("got %v, want %v", got, want)
 		}
 
-		if got, want := aconn.mtu, uint64(negotiated); got != want {
+		if got, want := aconn.mtu, negotiated; got != want {
 			t.Errorf("got %v, want %v", got, want)
 		}
 
