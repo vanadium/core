@@ -183,67 +183,72 @@ func TestFlowControl(t *testing.T) {
 	ctx, shutdown := test.V23Init()
 	defer shutdown()
 
-	for _, nflows := range []int{1, 2, 40, 200} {
-		for _, bytesBuffered := range []uint64{DefaultMTU, DefaultBytesBuffered} {
-			t.Logf("starting: #%v flows, buffered %#v bytes\n", nflows, bytesBuffered)
-			dfs, flows, ac, dc := setupFlowsOpts(t, "local", "", ctx, ctx, true, nflows, Opts{BytesBuffered: bytesBuffered})
+	for _, nflows := range []int{1, 2, 20, 100} {
+		for _, bytesBuffered := range []uint64{4096, DefaultBytesBuffered} {
+			for _, mtu := range []uint64{1024, DefaultMTU} {
 
-			defer func() {
-				dc.Close(ctx, nil)
-				ac.Close(ctx, nil)
-			}()
+				t.Logf("starting: #%v flows, buffered %#v bytes\n", nflows, bytesBuffered)
+				dfs, flows, ac, dc := setupFlowsOpts(t, "local", "", ctx, ctx, true, nflows, Opts{
+					MTU:           mtu,
+					BytesBuffered: bytesBuffered})
 
-			errs := make(chan error, nflows*4)
-			var wg sync.WaitGroup
-			wg.Add(nflows * 4)
-
-			for i := 0; i < nflows; i++ {
-				go func(i int) {
-					err := doWrite(dfs[i], randData)
-					if err != nil {
-						fmt.Printf("unexpected error: %v\n", err)
-					}
-					errs <- err
-					wg.Done()
-				}(i)
-				go func(i int) {
-					err := doRead(dfs[i], randData, nil)
-					if err != nil {
-						fmt.Printf("unexpected error: %v\n", err)
-					}
-					errs <- err
-					wg.Done()
-				}(i)
-			}
-			for i := 0; i < nflows; i++ {
-				af := <-flows
-				go func() {
-					err := doRead(af, randData, nil)
-					if err != nil {
-						fmt.Printf("unexpected error: %v\n", err)
-					}
-					errs <- err
-					wg.Done()
+				defer func() {
+					dc.Close(ctx, nil)
+					ac.Close(ctx, nil)
 				}()
-				go func() {
-					err := doWrite(af, randData)
-					if err != nil {
-						fmt.Printf("unexpected error: %v\n", err)
-					}
-					errs <- err
-					wg.Done()
-				}()
-			}
 
-			wg.Wait()
-			close(errs)
+				errs := make(chan error, nflows*4)
+				var wg sync.WaitGroup
+				wg.Add(nflows * 4)
 
-			for err := range errs {
-				if err != nil {
-					t.Error(err)
+				for i := 0; i < nflows; i++ {
+					go func(i int) {
+						err := doWrite(dfs[i], randData)
+						if err != nil {
+							fmt.Printf("unexpected error: %v\n", err)
+						}
+						errs <- err
+						wg.Done()
+					}(i)
+					go func(i int) {
+						err := doRead(dfs[i], randData, nil)
+						if err != nil {
+							fmt.Printf("unexpected error: %v\n", err)
+						}
+						errs <- err
+						wg.Done()
+					}(i)
 				}
+				for i := 0; i < nflows; i++ {
+					af := <-flows
+					go func() {
+						err := doRead(af, randData, nil)
+						if err != nil {
+							fmt.Printf("unexpected error: %v\n", err)
+						}
+						errs <- err
+						wg.Done()
+					}()
+					go func() {
+						err := doWrite(af, randData)
+						if err != nil {
+							fmt.Printf("unexpected error: %v\n", err)
+						}
+						errs <- err
+						wg.Done()
+					}()
+				}
+
+				wg.Wait()
+				close(errs)
+
+				for err := range errs {
+					if err != nil {
+						t.Error(err)
+					}
+				}
+				t.Logf("done: #%v flows, buffered %#v bytes\n", nflows, bytesBuffered)
 			}
-			t.Logf("done: #%v flows, buffered %#v bytes\n", nflows, bytesBuffered)
 		}
 	}
 }
