@@ -50,10 +50,10 @@ var minChannelTimeout = map[string]time.Duration{
 const (
 	proxyOverhead = 32
 
-	defaultBytesBuffered    = 1 << 20
-	defaultMTU              = 1 << 16
-	defaultChannelTimeout   = 30 * time.Minute
-	defaultHandshakeTimeout = time.Minute
+	DefaultBytesBuffered    = 1 << 20
+	DefaultMTU              = 1 << 16
+	DefaultChannelTimeout   = 30 * time.Minute
+	DefaultHandshakeTimeout = time.Minute
 )
 
 // A FlowHandler processes accepted flows.
@@ -132,11 +132,15 @@ type Conn struct {
 // Ensure that *Conn implements flow.ManagedConn.
 var _ flow.ManagedConn = &Conn{}
 
-type ConnOpts struct {
+type Opts struct {
 	// Proxy controls whether the connection is for a proxy or a direct connection.
-	Proxy            bool
+	Proxy bool
+
+	// HandshakeTimeout is the time allowed for establishing a connection to a peer.
 	HandshakeTimeout time.Duration
-	ChannelTimeout   time.Duration
+
+	// ChannelTimeout is the timeout used for healthchecks.
+	ChannelTimeout time.Duration
 
 	// MTU defines the MTU size to use for this connection. This may be reduced
 	// if the connection's peer requests a smaller MTU.
@@ -147,10 +151,10 @@ type ConnOpts struct {
 	BytesBuffered uint64
 }
 
-func (co *ConnOpts) initValues(protocol string) {
+func (co *Opts) initValues(protocol string) {
 
 	if co.ChannelTimeout == 0 {
-		co.ChannelTimeout = defaultChannelTimeout
+		co.ChannelTimeout = DefaultChannelTimeout
 	}
 
 	if min := minChannelTimeout[protocol]; co.ChannelTimeout < min {
@@ -158,19 +162,19 @@ func (co *ConnOpts) initValues(protocol string) {
 	}
 
 	if co.MTU == 0 {
-		co.MTU = defaultMTU
+		co.MTU = DefaultMTU
 	}
 
 	if co.BytesBuffered == 0 {
-		co.BytesBuffered = defaultBytesBuffered
+		co.BytesBuffered = DefaultBytesBuffered
 	}
 
 	if co.HandshakeTimeout == 0 {
-		co.HandshakeTimeout = defaultHandshakeTimeout
+		co.HandshakeTimeout = DefaultHandshakeTimeout
 	}
 
 	if co.ChannelTimeout == 0 {
-		co.ChannelTimeout = defaultChannelTimeout
+		co.ChannelTimeout = DefaultChannelTimeout
 	}
 }
 
@@ -189,7 +193,7 @@ func NewDialed( //nolint:gocyclo
 	versions version.RPCVersionRange,
 	auth flow.PeerAuthorizer,
 	handler FlowHandler,
-	opts ConnOpts,
+	opts Opts,
 ) (c *Conn, names []string, rejected []security.RejectedBlessing, err error) {
 
 	if _, err = version.CommonVersion(ctx, rpcversion.Supported, versions); err != nil {
@@ -319,7 +323,7 @@ func NewAccepted(
 	local naming.Endpoint,
 	versions version.RPCVersionRange,
 	handler FlowHandler,
-	opts ConnOpts) (*Conn, error) {
+	opts Opts) (*Conn, error) {
 
 	if _, err := version.CommonVersion(ctx, rpcversion.Supported, versions); err != nil {
 		return nil, err

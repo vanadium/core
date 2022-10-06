@@ -23,7 +23,7 @@ var (
 	// of the message's header fields as well as its payload.
 	// Note that if a connection uses a larger MTU than the default (since
 	// it may specified/negoatiated) then extra allocations will take place.
-	plaintextBufferSize = defaultMTU + estimatedMessageOverhead
+	plaintextBufferSize = DefaultMTU + estimatedMessageOverhead
 
 	// The ciphertext buffer needs to allow for the cipher overhead also.
 	ciphertextBufferSize = plaintextBufferSize + maxCipherOverhead

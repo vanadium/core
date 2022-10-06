@@ -581,10 +581,10 @@ func (m *manager) lnAcceptLoop(ctx *context.T, ln flow.Listener, local naming.En
 				flowConn,
 				local,
 				version.Supported,
-				handshakeTimeout,
-				m.acceptChannelTimeout,
-				conn.DefaultBytesBufferedPerFlow(),
-				fh)
+				fh,
+				conn.Opts{
+					HandshakeTimeout: handshakeTimeout,
+					ChannelTimeout:   m.acceptChannelTimeout})
 			if err != nil {
 				// We don't want probing from load balancers or Prometheus to cause
 				// the error log to be noisy so we skip logging an err in the following
@@ -704,10 +704,10 @@ func (h *proxyFlowHandler) HandleFlow(f flow.Flow) error {
 			f,
 			f.LocalEndpoint(),
 			version.Supported,
-			handshakeTimeout,
-			h.m.acceptChannelTimeout,
-			conn.DefaultBytesBufferedPerFlow(),
-			fh)
+			fh,
+			conn.Opts{
+				HandshakeTimeout: handshakeTimeout,
+				ChannelTimeout:   h.m.acceptChannelTimeout})
 		if err != nil {
 			h.m.ctx.Errorf("failed to create accepted conn: %v", err)
 		} else if err = h.m.cache.InsertWithRoutingID(c, false); err != nil {
@@ -976,11 +976,8 @@ func (m *manager) dialConn(
 		remote,
 		version.Supported,
 		auth,
-		false,
-		handshakeTimeout,
-		0,
-		conn.DefaultBytesBufferedPerFlow(),
 		fh,
+		conn.Opts{HandshakeTimeout: handshakeTimeout},
 	)
 	if errors.Is(err, verror.ErrCanceled) {
 		// If the connection was canceled, it may still be dialed, so
@@ -1019,11 +1016,8 @@ func (m *manager) dialProxyConn(
 		remote,
 		version.Supported,
 		auth,
-		true,
-		handshakeTimeout,
-		0,
-		conn.DefaultBytesBufferedPerFlow(),
 		fh,
+		conn.Opts{Proxy: true, HandshakeTimeout: handshakeTimeout},
 	)
 	if err != nil {
 		return nil, names, rejected, iflow.MaybeWrapError(flow.ErrDialFailed, ctx, err)

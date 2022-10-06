@@ -289,7 +289,7 @@ func acceptor(errCh chan error, acceptCh chan flow.Flow, size int, close bool) {
 	errCh <- nil
 }
 
-func testCountersOpts(t *testing.T, ctx *context.T, count int, dialClose, acceptClose bool, size int, opts ConnOpts) (
+func testCountersOpts(t *testing.T, ctx *context.T, count int, dialClose, acceptClose bool, size int, opts Opts) (
 	dialRelease, dialBorrowed, acceptRelease, acceptBorrowed int) {
 
 	acceptCh := make(chan flow.Flow, 1)
@@ -374,7 +374,7 @@ func TestCounters(t *testing.T) {
 		compare(acceptBorrowed, acceptApprox)
 	}
 
-	runAndTest := func(count, size, dialApprox, acceptApprox int, opts ConnOpts) {
+	runAndTest := func(count, size, dialApprox, acceptApprox int, opts Opts) {
 		dialRelease, dialBorrowed, acceptRelease, acceptBorrowed = testCountersOpts(t, ctx, count, true, false, size, opts)
 		assert(dialApprox, acceptApprox)
 		dialRelease, dialBorrowed, acceptRelease, acceptBorrowed = testCountersOpts(t, ctx, count, false, true, size, opts)
@@ -395,11 +395,11 @@ func TestCounters(t *testing.T) {
 
 	// For small packets, all connections end up being 'borrowed' and hence
 	// their counters are kept around.
-	runAndTest(500, 10, 3, 502, ConnOpts{})
+	runAndTest(500, 10, 3, 502, Opts{})
 	// Smaller MTU, BytesBuffered and small messages ensure that the
 	// release message will need to be fragmented.
-	runAndTest(5000, 1, 3, 1000, ConnOpts{BytesBuffered: 4096, MTU: 2048})
+	runAndTest(5000, 1, 3, 1000, Opts{BytesBuffered: 4096, MTU: 2048})
 	// For larger packets, the connections end up using flow control
 	// tokens and hence not using 'borrowed' tokens.
-	runAndTest(100, 1024*100, 3, 5, ConnOpts{})
+	runAndTest(100, 1024*100, 3, 5, Opts{})
 }

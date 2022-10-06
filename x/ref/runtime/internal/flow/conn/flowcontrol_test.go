@@ -187,7 +187,7 @@ func TestFlowControl(t *testing.T) {
 	nflows := 10
 
 	for _, bytesBuffered := range []uint64{33, 396, 4093} {
-		dfs, flows, ac, dc := setupFlowsOpts(t, "local", "", ctx, ctx, true, nflows, ConnOpts{BytesBuffered: bytesBuffered})
+		dfs, flows, ac, dc := setupFlowsOpts(t, "local", "", ctx, ctx, true, nflows, Opts{BytesBuffered: bytesBuffered})
 		defer func() {
 			dc.Close(ctx, nil)
 			ac.Close(ctx, nil)

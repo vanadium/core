@@ -200,7 +200,7 @@ func TestMinChannelTimeout(t *testing.T) {
 	af2.Close()
 
 	// Setup new conns with a default channel timeout below the min.
-	dc, ac, derr, aerr = setupConnsOpts(t, "local", "", ctx, ctx, dflows, aflows, nil, nil, ConnOpts{
+	dc, ac, derr, aerr = setupConnsOpts(t, "local", "", ctx, ctx, dflows, aflows, nil, nil, Opts{
 		HandshakeTimeout: time.Minute,
 		ChannelTimeout:   time.Second,
 	})
@@ -241,7 +241,7 @@ func TestHandshakeDespiteCancel(t *testing.T) {
 	dctx, dcancel := context.WithTimeout(ctx, time.Minute)
 	dflows, aflows := make(chan flow.Flow, 1), make(chan flow.Flow, 1)
 	dcancel()
-	dc, ac, derr, aerr := setupConnsWithTimeout(t, "local", "", dctx, ctx, dflows, aflows, nil, nil, 1*time.Second, ConnOpts{HandshakeTimeout: 4 * time.Second, ChannelTimeout: time.Second})
+	dc, ac, derr, aerr := setupConnsWithTimeout(t, "local", "", dctx, ctx, dflows, aflows, nil, nil, 1*time.Second, Opts{HandshakeTimeout: 4 * time.Second, ChannelTimeout: time.Second})
 	if aerr != nil {
 		t.Fatalf("setupConnsWithTimeout: unexpectedly failed: %v, %v", derr, aerr)
 	}

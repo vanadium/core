@@ -35,14 +35,14 @@ func setupConns(t *testing.T,
 	dctx, actx *context.T,
 	dflows, aflows chan<- flow.Flow,
 	dAuth, aAuth []security.BlessingPattern) (dialed, accepted *Conn, derr, aerr error) {
-	return setupConnsOpts(t, network, address, dctx, actx, dflows, aflows, dAuth, aAuth, ConnOpts{HandshakeTimeout: time.Minute})
+	return setupConnsOpts(t, network, address, dctx, actx, dflows, aflows, dAuth, aAuth, Opts{HandshakeTimeout: time.Minute})
 }
 
 func setupConnsOpts(t *testing.T,
 	network, address string,
 	dctx, actx *context.T,
 	dflows, aflows chan<- flow.Flow,
-	dAuth, aAuth []security.BlessingPattern, opts ConnOpts) (dialed, accepted *Conn, derr, aerr error) {
+	dAuth, aAuth []security.BlessingPattern, opts Opts) (dialed, accepted *Conn, derr, aerr error) {
 	return setupConnsWithTimeout(t, network, address, dctx, actx, dflows, aflows, dAuth, aAuth, 0, opts)
 }
 
@@ -52,7 +52,7 @@ func setupConnsWithTimeout(t *testing.T,
 	dflows, aflows chan<- flow.Flow,
 	dAuth, aAuth []security.BlessingPattern,
 	acceptdelay time.Duration,
-	opts ConnOpts,
+	opts Opts,
 ) (dialed, accepted *Conn, derr, aerr error) {
 	dmrw, amrw := flowtest.Pipe(t, actx, network, address)
 	versions := version.Supported
@@ -101,10 +101,10 @@ func setupFlow(t *testing.T, network, address string, dctx, actx *context.T, dia
 }
 
 func setupFlows(t *testing.T, network, address string, dctx, actx *context.T, dialFromDialer bool, n int) (dialed []flow.Flow, accepted <-chan flow.Flow, dc, ac *Conn) {
-	return setupFlowsOpts(t, network, address, dctx, actx, dialFromDialer, n, ConnOpts{})
+	return setupFlowsOpts(t, network, address, dctx, actx, dialFromDialer, n, Opts{})
 }
 
-func setupFlowsOpts(t *testing.T, network, address string, dctx, actx *context.T, dialFromDialer bool, n int, opts ConnOpts) (dialed []flow.Flow, accepted <-chan flow.Flow, dc, ac *Conn) {
+func setupFlowsOpts(t *testing.T, network, address string, dctx, actx *context.T, dialFromDialer bool, n int, opts Opts) (dialed []flow.Flow, accepted <-chan flow.Flow, dc, ac *Conn) {
 	dialed = make([]flow.Flow, n)
 	dflows, aflows := make(chan flow.Flow, n), make(chan flow.Flow, n)
 	d, a, derr, aerr := setupConnsOpts(t, network, address, dctx, actx, dflows, aflows, nil, nil, opts)

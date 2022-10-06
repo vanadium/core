@@ -35,6 +35,9 @@ func NewBufferingFlow(ctx *context.T, flw flow.Flow, mtu uint64) *BufferingFlow 
 		buf:  bufferPool.Get().(*bytes.Buffer),
 		mtu:  mtu,
 	}
+	if b.mtu == 0 {
+		b.mtu = DefaultMTU
+	}
 	b.buf.Reset()
 	if m, ok := flw.Conn().(MTUer); ok {
 		b.mtu = m.MTU()
