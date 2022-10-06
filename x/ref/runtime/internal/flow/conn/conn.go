@@ -50,9 +50,13 @@ var minChannelTimeout = map[string]time.Duration{
 const (
 	proxyOverhead = 32
 
-	DefaultBytesBuffered    = 1 << 20
-	DefaultMTU              = 1 << 16
-	DefaultChannelTimeout   = 30 * time.Minute
+	// DefaultBytesBuffered is the default value used for Opts.BytesBuffered
+	DefaultBytesBuffered = 1 << 20
+	// DefaultMTU is the default value used for Opts.MTU
+	DefaultMTU = 1 << 16
+	// DefaultChannelTimeout is the default value used for Opts.ChannelTimeout
+	DefaultChannelTimeout = 30 * time.Minute
+	// DefaultHandshakeTimeout is the default value used for Opts.HandshakeTimeout
 	DefaultHandshakeTimeout = time.Minute
 )
 

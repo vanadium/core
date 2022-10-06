@@ -27,7 +27,7 @@ const leakWaitTime = 500 * time.Millisecond
 var randData []byte
 
 func init() {
-	randData = make([]byte, 2*defaultBytesBuffered)
+	randData = make([]byte, 2*DefaultBytesBuffered)
 	if _, err := rand.Read(randData); err != nil {
 		panic("Could not read random data.")
 	}
@@ -161,18 +161,18 @@ func TestMinChannelTimeout(t *testing.T) {
 	defer dc.Close(ctx, nil)
 	defer ac.Close(ctx, nil)
 
-	if err := deadlineInAbout(dc, defaultChannelTimeout); err != nil {
+	if err := deadlineInAbout(dc, DefaultChannelTimeout); err != nil {
 		t.Error(err)
 	}
-	if err := deadlineInAbout(ac, defaultChannelTimeout); err != nil {
+	if err := deadlineInAbout(ac, DefaultChannelTimeout); err != nil {
 		t.Error(err)
 	}
 
 	df, af := oneFlow(t, ctx, dc, aflows, 0)
-	if err := deadlineInAbout(dc, defaultChannelTimeout); err != nil {
+	if err := deadlineInAbout(dc, DefaultChannelTimeout); err != nil {
 		t.Error(err)
 	}
-	if err := deadlineInAbout(ac, defaultChannelTimeout); err != nil {
+	if err := deadlineInAbout(ac, DefaultChannelTimeout); err != nil {
 		t.Error(err)
 	}
 	df.Close()
@@ -182,7 +182,7 @@ func TestMinChannelTimeout(t *testing.T) {
 	if err := deadlineInAbout(dc, 10*time.Minute); err != nil {
 		t.Error(err)
 	}
-	if err := deadlineInAbout(ac, defaultChannelTimeout); err != nil {
+	if err := deadlineInAbout(ac, DefaultChannelTimeout); err != nil {
 		t.Error(err)
 	}
 	df.Close()
@@ -193,7 +193,7 @@ func TestMinChannelTimeout(t *testing.T) {
 	if err := deadlineInAbout(dc, time.Minute); err != nil {
 		t.Error(err)
 	}
-	if err := deadlineInAbout(ac, defaultChannelTimeout); err != nil {
+	if err := deadlineInAbout(ac, DefaultChannelTimeout); err != nil {
 		t.Error(err)
 	}
 	df2.Close()
