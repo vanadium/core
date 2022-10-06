@@ -65,7 +65,7 @@ func doRead(f flow.Flow, want []byte, wg *sync.WaitGroup) error {
 		want = want[len(got):]
 	}
 	if len(want) != 0 {
-		return fmt.Errorf("got %d leftover bytes, expected 0.", len(want))
+		return fmt.Errorf("got %d leftover bytes, expected 0", len(want))
 	}
 	if wg != nil {
 		wg.Done()
