@@ -127,38 +127,6 @@ func (q *writeq) stringLocked() string {
 	return out.String()
 }
 
-func (q *writeq) isPresentLocked(w *writer) bool {
-	for _, h := range q.activeWriters {
-		if h != nil {
-			for c := h; c != nil; c = c.next {
-				if c.next == h {
-					break
-				}
-				if c == w {
-					return true
-				}
-			}
-		}
-	}
-	return false
-}
-
-func (q *writeq) sizeLocked() int {
-	s := 0
-	for _, h := range q.activeWriters {
-		if h != nil {
-			s++
-			for c := h; c != nil; c = c.next {
-				if c.next == h {
-					break
-				}
-				s++
-			}
-		}
-	}
-	return s
-}
-
 func (q *writeq) rmWriterLocked(w *writer, p int) {
 	prv, nxt := w.prev, w.next
 	if head := q.activeWriters[p]; head == w {
@@ -269,14 +237,6 @@ func (q *writeq) wait(ctx *context.T, w *writer, p int) error {
 	q.mu.Unlock()
 	return nil
 
-}
-
-func (q *writeq) clearActive(w *writer) {
-	q.mu.Lock()
-	defer q.mu.Unlock()
-	if q.active == w {
-		q.active = nil
-	}
 }
 
 func (q *writeq) done(w *writer) {
