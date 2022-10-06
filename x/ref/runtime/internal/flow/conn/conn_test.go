@@ -82,9 +82,10 @@ func TestLargeWrite(t *testing.T) {
 
 	errs := make(chan error, 4)
 	var wg sync.WaitGroup
-	wg.Add(2)
+	wg.Add(4)
 	go func() {
 		errs <- doWrite(df, randData)
+		wg.Done()
 	}()
 	go func() {
 		errs <- doRead(df, randData, &wg)
@@ -95,6 +96,7 @@ func TestLargeWrite(t *testing.T) {
 	}()
 	go func() {
 		errs <- doWrite(af, randData)
+		wg.Done()
 	}()
 	wg.Wait()
 	close(errs)
@@ -115,12 +117,13 @@ func TestManyLargeWrites(t *testing.T) {
 	iterations := 200
 	errs := make(chan error, iterations*44)
 	var wg sync.WaitGroup
-	wg.Add(2)
+	wg.Add(4)
 
 	writer := func(f flow.Flow) {
 		for i := 0; i < iterations; i++ {
 			errs <- doWrite(f, randData)
 		}
+		wg.Done()
 	}
 	reader := func(f flow.Flow) {
 		for i := 0; i < iterations; i++ {
