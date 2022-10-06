@@ -184,16 +184,13 @@ func (c *Conn) handleHealthCheckRequest(ctx *context.T) error {
 }
 
 func (c *Conn) handleRelease(ctx *context.T, msg *message.Release) error {
-	//debug.FlowControl("%p: flow.control: conn: handleRelease: %v\n", c, debug.FormatCounters(msg.Counters))
 	for fid, val := range msg.Counters {
 		c.mu.Lock()
 		f := c.flows[fid]
 		c.mu.Unlock()
 		if f != nil {
-			//debug.FlowControl("%p: flow.control: conn: flow exits: %p:%3v, #%v counters\n", c, f, fid, val)
 			f.releaseCounters(val)
 		} else {
-			//debug.FlowControl("%p: flow.control: conn: flow closed: %3v, #%v counters\n", c, fid, val)
 			c.flowControl.releaseOutstandingBorrowed(fid, val)
 		}
 	}
