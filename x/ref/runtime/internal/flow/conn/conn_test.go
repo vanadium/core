@@ -13,11 +13,15 @@ import (
 	"testing"
 	"time"
 
+	v23 "v.io/v23"
+	"v.io/v23/naming"
 	"v.io/v23/verror"
 
 	"v.io/v23/context"
 	"v.io/v23/flow"
 	_ "v.io/x/ref/runtime/factories/fake"
+	"v.io/x/ref/runtime/internal/flow/flowtest"
+	"v.io/x/ref/runtime/internal/rpc/version"
 	"v.io/x/ref/test"
 	"v.io/x/ref/test/goroutines"
 )
@@ -250,4 +254,59 @@ func TestHandshakeDespiteCancel(t *testing.T) {
 	}
 	dc.Close(ctx, nil)
 	ac.Close(ctx, nil)
+}
+
+func TestMTUNegotiation(t *testing.T) {
+	defer goroutines.NoLeaks(t, leakWaitTime)()
+	ctx, shutdown := test.V23Init()
+	defer shutdown()
+	network, address := "local", ":0"
+	versions := version.Supported
+
+	ridep := naming.Endpoint{Protocol: network, Address: address, RoutingID: naming.FixedRoutingID(191341)}
+	ep := naming.Endpoint{Protocol: network, Address: address}
+	dch := make(chan *Conn)
+	ach := make(chan *Conn)
+	derrch := make(chan error)
+	aerrch := make(chan error)
+
+	accept := func(mtu uint64, conn flow.Conn) {
+		dBlessings, _ := v23.GetPrincipal(ctx).BlessingStore().Default()
+		d, _, _, err := NewDialed(ctx, conn, ep, ep, versions, peerAuthorizer{dBlessings, nil}, nil, Opts{MTU: mtu})
+		dch <- d
+		derrch <- err
+	}
+	dial := func(mtu uint64, conn flow.Conn) {
+		a, err := NewAccepted(ctx, nil, conn, ridep, versions, nil, Opts{MTU: mtu})
+		ach <- a
+		aerrch <- err
+	}
+
+	testConn := func(dmtu, amtu, negotiated uint64) {
+		dmrw, amrw := flowtest.Pipe(t, ctx, network, address)
+
+		go dial(dmtu, dmrw)
+		go accept(amtu, amrw)
+
+		dconn := <-dch
+		aconn := <-ach
+		if derr, aerr := <-derrch, <-aerrch; derr != nil || aerr != nil {
+			t.Fatalf("dial: %v, accept: %v", derr, aerr)
+		}
+
+		if got, want := dconn.mtu, uint64(negotiated); got != want {
+			t.Errorf("got %v, want %v", got, want)
+		}
+
+		if got, want := aconn.mtu, uint64(negotiated); got != want {
+			t.Errorf("got %v, want %v", got, want)
+		}
+
+		dconn.Close(ctx, nil)
+		aconn.Close(ctx, nil)
+	}
+
+	testConn(4096, 8192, 4096)
+	testConn(8192, 1024, 1024)
+
 }
