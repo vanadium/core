@@ -48,12 +48,12 @@ type flw struct {
 	// this will always be true.
 	opened bool
 
+	// closed is true as soon as f.close has been called.
+	closed bool
+
 	// tokenWait is set if a write is blocked waiting for flowcontrol
 	// tokens. When tokens become available the channel should be closed.
 	tokenWait chan struct{}
-
-	// closed is true as soon as f.close has been called.
-	closed bool
 }
 
 // Ensure that *flw implements flow.Flow.
@@ -94,9 +94,11 @@ func (c *Conn) newFlowLocked(
 	f.q = newReadQ(f.flowControl.shared.bytesBufferedPerFlow, f.sendRelease)
 
 	f.ctx, f.cancel = context.WithCancel(ctx)
+
 	if !f.opened {
 		c.unopenedFlows.Add(1)
 	}
+
 	c.flows[id] = f
 	c.healthCheckNewFlowLocked(ctx, channelTimeout)
 	return f
@@ -168,12 +170,11 @@ func (f *flw) currentContext() *context.T {
 // releaseCounters releases some counters from a remote reader to the local
 // writer.  This allows the writer to then write more data to the wire.
 func (f *flw) releaseCounters(tokens uint64) {
-	ctx := f.currentContext()
 	f.mu.Lock()
 	defer f.mu.Unlock()
+	ctx := f.ctx
 	f.flowControl.releaseCounters(ctx, tokens)
-	//debug.FlowControl("%p: flow.control: releaseCounters: for %p:%3v: #%v counters\n", f.conn, f, f.id, tokens)
-	// Broadcast to all flows blocked waiting for tokens that some may be availabe
+	// Broadcast to all flows blocked waiting for tokens that some may be available
 	// now.
 	close(f.tokenWait)
 	f.tokenWait = make(chan struct{})
@@ -197,7 +198,6 @@ func (f *flw) ensureTokens(ctx *context.T, debuglog bool, need int) (int, func(i
 		f.mu.Lock()
 		avail, deduct := f.flowControl.tokens(ctx, f.encapsulated)
 		if avail >= need {
-			//debug.FlowControl("%p: flow.control: ensureTokens: done: flow %p:%3v avail: %v, need %v\n", f.conn, f, f.id, avail, need)
 			f.mu.Unlock()
 			return avail, deduct, nil
 		}
@@ -205,7 +205,6 @@ func (f *flw) ensureTokens(ctx *context.T, debuglog bool, need int) (int, func(i
 		if debuglog {
 			ctx.Infof("Deactivating write on flow %d(%p) due to lack of tokens", f.id, f)
 		}
-		//debug.FlowControl("%p: flow.control: ensureTokens: waiting: flow %p:%3v avail: %v, need %v: waiting for more\n", f.conn, f, f.id, avail, need)
 		ch := f.tokenWait
 		f.mu.Unlock()
 		select {
@@ -213,7 +212,6 @@ func (f *flw) ensureTokens(ctx *context.T, debuglog bool, need int) (int, func(i
 			return 0, func(int) {}, ctx.Err()
 		case <-ch:
 		}
-		//debug.FlowControl("%p: flow.control: ensureTokens: updated: flow %p:%3v avail: %v, need %v: waiting for more\n", f.conn, f, f.id, avail, need)
 	}
 }
 
@@ -236,7 +234,7 @@ func (f *flw) writeMsg(alsoClose bool, parts ...[]byte) (sent int, err error) {
 		return 0, err
 	}
 
-	debug := f.ctx.V(2)
+	debug := ctx.V(2)
 	if debug {
 		ctx.Infof("starting write on flow %d(%p)", f.id, f)
 	}
@@ -249,8 +247,11 @@ func (f *flw) writeMsg(alsoClose bool, parts ...[]byte) (sent int, err error) {
 
 	f.markUsed()
 
-	for len(parts) > 0 {
+	f.mu.Lock()
+	wasOpened := f.opened
+	f.mu.Unlock()
 
+	for len(parts) > 0 {
 		// We're prepared to send at least 1 byte under any circumstance.
 		need := 1
 		if f.noEncrypt || f.noFragment {
@@ -264,12 +265,14 @@ func (f *flw) writeMsg(alsoClose bool, parts ...[]byte) (sent int, err error) {
 			need = totalSize
 		}
 
-		wasOpened := f.setOpened()
 		if wasOpened {
 			tokens, deduct, terr := f.ensureTokens(ctx, debug, need)
 			parts, tosend, size = popFront(parts, tosend[:0], tokens)
 			deduct(size)
-			err = terr
+			if terr != nil {
+				err = terr
+				break
+			}
 		}
 
 		err = f.sendFlowMessage(ctx, wasOpened, alsoClose, len(parts) == 0, bkey, dkey, tosend)
@@ -277,15 +280,19 @@ func (f *flw) writeMsg(alsoClose bool, parts ...[]byte) (sent int, err error) {
 			break
 		}
 		sent += size
+
+		if !wasOpened {
+			f.conn.unopenedFlows.Done()
+			wasOpened = true
+			f.mu.Lock()
+			f.opened = true
+			f.mu.Unlock()
+		}
 	}
 
 	if debug {
 		f.ctx.Infof("finishing write on %d(%p): %v", f.id, f, err)
 	}
-
-	//if err != nil {
-	//	fmt.Printf("flow.writeMsg: canceled %p (%v)\n", &f.writeqEntry, err)
-	//}
 
 	if alsoClose || err != nil {
 		f.close(ctx, false, err)
@@ -295,7 +302,6 @@ func (f *flw) writeMsg(alsoClose bool, parts ...[]byte) (sent int, err error) {
 
 func (f *flw) sendFlowMessage(ctx *context.T, wasOpened, alsoClose, finalPart bool, bkey, dkey uint64, payload [][]byte) error {
 	if err := f.writeq.wait(ctx, &f.writeqEntry, flowPriority); err != nil {
-		//ctx.Infof("Flow %d:(%p) failed to wait on writeq %p, entry %p on conn %v", f.id, f, f.writeq, &f.writeqEntry, err)
 		return io.EOF
 	}
 	// Actually write to the wire.  This is also where encryption
@@ -357,13 +363,11 @@ func (f *flw) WriteMsgAndClose(parts ...[]byte) (int, error) {
 func (f *flw) SetDeadlineContext(ctx *context.T, deadline time.Time) *context.T {
 	f.mu.Lock()
 	defer f.mu.Unlock()
-
 	if f.closed {
 		// If the flow is already closed, don't allocate a new
 		// context, we might end up leaking it.
 		return ctx
 	}
-
 	if f.cancel != nil {
 		f.cancel()
 	}
@@ -455,49 +459,56 @@ func (f *flw) setOpened() bool {
 
 func (f *flw) close(ctx *context.T, closedRemotely bool, err error) {
 	f.mu.Lock()
-	log := f.ctx.V(2)
-	closed := f.closed
-	f.closed = true
+	wasOpened, wasClosed := f.opened, f.closed
+	f.opened, f.closed = true, true
 	cancel := f.cancel
 	f.mu.Unlock()
 
-	if !closed {
-		// delete the flow as soon as possible to ensure that flow control
-		// releases are handled appropriately for a closed/closing flow.
-		// From this point on, all flow control updates are handled as per
-		// a closed flow.
-		f.conn.deleteFlow(f.id)
-
-		f.q.close(ctx)
-		if log {
-			ctx.Infof("closing %d(%p): %v", f.id, f, err)
-		}
-		cancel()
-		// After cancel has been called no new writes will begin for this
-		// flow.  There may be a write in progress, but it must finish
-		// before another writer gets to use the channel.  Therefore we
-		// can simply use sendMessage to send the close flow message.
-
-		wasopened := f.setOpened()
-		if wasopened && !closedRemotely && (f.conn.state() != Closing) {
-			// Note: If the conn is closing there is no point in trying to
-			// send the flow close message as it will fail.  This is racy
-			// with the connection closing, but there are no ill-effects
-			// other than spamming the logs a little so it's OK.
-			serr := f.conn.sendMessage(ctx, false, expressPriority, &message.Data{
-				ID:    f.id,
-				Flags: message.CloseFlag,
-			})
-			if serr != nil && log {
-				ctx.Infof("could not send close flow message: %v: close error (if any): %v", serr, err)
-			}
-		}
-		// update flow control state now that we're guaranteed to no longer
-		// send any messages. Messages may still arrive if the flow is closed
-		// locally but not remotely, but they will be handled appropriately
-		// with regard to flow control.
-		f.flowControl.handleFlowClose(closedRemotely, f.conn.state() < Closing)
+	if wasClosed {
+		return
 	}
+
+	if !wasOpened {
+		f.conn.unopenedFlows.Done()
+	}
+
+	// delete the flow as soon as possible to ensure that flow control
+	// releases are handled appropriately for a closed/closing flow.
+	// From this point on, all flow control updates are handled as per
+	// a closed flow.
+	f.conn.deleteFlow(f.id)
+
+	f.q.close(ctx)
+
+	log := ctx.V(2)
+	if log {
+		ctx.Infof("closing %d(%p): %v", f.id, f, err)
+	}
+
+	cancel()
+	// After cancel has been called no new writes will begin for this
+	// flow.  There may be a write in progress, but it must finish
+	// before another writer gets to use the channel.  Therefore we
+	// can simply use sendMessage to send the close flow message.
+
+	if wasOpened && !closedRemotely && (f.conn.state() != Closing) {
+		// Note: If the conn is closing there is no point in trying to
+		// send the flow close message as it will fail.  This is racy
+		// with the connection closing, but there are no ill-effects
+		// other than spamming the logs a little so it's OK.
+		serr := f.conn.sendMessage(ctx, false, expressPriority, &message.Data{
+			ID:    f.id,
+			Flags: message.CloseFlag,
+		})
+		if serr != nil && log {
+			ctx.Infof("could not send close flow message: %v: close error (if any): %v", serr, err)
+		}
+	}
+	// update flow control state now that we're guaranteed to no longer
+	// send any messages. Messages may still arrive if the flow is closed
+	// locally but not remotely, but they will be handled appropriately
+	// with regard to flow control.
+	f.flowControl.handleFlowClose(closedRemotely, f.conn.state() < Closing)
 }
 
 // Close marks the flow as closed. After Close is called, new data cannot be
