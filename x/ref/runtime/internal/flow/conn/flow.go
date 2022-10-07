@@ -82,8 +82,12 @@ func (c *Conn) newFlowLocked(
 		writeq:           &c.writeq,
 		encapsulated:     c.IsEncapsulated(),
 	}
-
-	initWriter(&f.writeqEntry)
+	// It's important that this channel has a non-zero buffer since flows will
+	// be notifying themselve and if there's no buffer a deadlock will occur.
+	// The self notification is between the code that handles release
+	// messages to notify a flow-controlled writeMgs that it may potentially
+	// have tokens to spend on writes.
+	f.writeqEntry.notify = make(chan struct{}, 1)
 
 	f.flowControl.shared = &c.flowControl
 	f.flowControl.borrowing = dialed
@@ -315,10 +319,10 @@ func (f *flw) sendFlowMessage(ctx *context.T, wasOpened, alsoClose, finalPart bo
 		flags |= message.DisableEncryptionFlag
 	}
 	if wasOpened {
-		d := message.Data{ID: f.id, Flags: flags, Payload: payload}
-		err = f.conn.mp.writeMsg(ctx, &d)
+		d := &message.Data{ID: f.id, Flags: flags, Payload: payload}
+		err = f.conn.mp.writeMsg(ctx, d)
 	} else {
-		d := message.OpenFlow{
+		d := &message.OpenFlow{
 			ID:              f.id,
 			InitialCounters: f.flowControl.shared.bytesBufferedPerFlow,
 			BlessingsKey:    bkey,
@@ -326,7 +330,7 @@ func (f *flw) sendFlowMessage(ctx *context.T, wasOpened, alsoClose, finalPart bo
 			Flags:           flags,
 			Payload:         payload,
 		}
-		err = f.conn.mp.writeMsg(ctx, &d)
+		err = f.conn.mp.writeMsg(ctx, d)
 	}
 	f.writeq.done(&f.writeqEntry)
 	return err

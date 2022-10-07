@@ -88,17 +88,6 @@ type writer struct {
 	notify chan struct{}
 }
 
-// initWriter initializes the supplied writers, in particular creating a channel
-// for notificaions. It's important that this channel has a non-zero buffer since
-// flows will be notifying themselve and if there's no buffer a deadlock will
-// occur. The self notification is between the code that handles release
-// messages to notify a flow-controlled writeMgs that it may potentially
-// have tokens to spend on writes.
-func initWriter(w *writer) {
-	w.prev, w.next = nil, nil
-	w.notify = make(chan struct{}, 1)
-}
-
 func (q *writeq) String() string {
 	q.mu.Lock()
 	defer q.mu.Unlock()
@@ -106,17 +95,17 @@ func (q *writeq) String() string {
 }
 
 func (q *writeq) stringLocked() string {
-	out := strings.Builder{}
+	out := &strings.Builder{}
 	if q.active == nil {
-		fmt.Fprintf(&out, "writeq(%p): idle\n", q)
+		fmt.Fprintf(out, "writeq(%p): idle\n", q)
 	} else {
-		fmt.Fprintf(&out, "writeq(%p): active: %v\n", q, q.active)
+		fmt.Fprintf(out, "writeq(%p): active: %v\n", q, q.active)
 	}
 	for p, h := range q.activeWriters {
 		if h != nil {
-			fmt.Fprintf(&out, "\t%v: ", p)
+			fmt.Fprintf(out, "\t%v: ", p)
 			for w := h; w != nil; w = w.next {
-				fmt.Fprintf(&out, "%v ", w)
+				fmt.Fprintf(out, "%v ", w)
 				if w.next == h {
 					break
 				}

@@ -92,7 +92,7 @@ func newBlessingsFlow(conn blessingsCon) *blessingsFlow {
 	b.encBuf = writeBuffer{conn: conn, wr: &b.writer, buf: make([]byte, 0, 4096)}
 	b.dec = vom.NewDecoder(&b.decBuf)
 	b.enc = vom.NewEncoder(&b.encBuf)
-	initWriter(&b.writer)
+	b.writer.notify = make(chan struct{})
 	return b
 }
 
