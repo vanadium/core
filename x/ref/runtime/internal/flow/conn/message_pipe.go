@@ -184,6 +184,8 @@ func (p *messagePipe) writeMsg(ctx *context.T, m message.Message) error {
 }
 
 func (p *messagePipe) readClearText(ctx *context.T, plaintextBuf []byte) ([]byte, error) {
+	p.readMu.Lock()
+	defer p.readMu.Unlock()
 	if p.open == nil {
 		return p.rw.ReadMsg2(plaintextBuf)
 	}
@@ -231,13 +233,10 @@ func (p *messagePipe) readAnyMessage(ctx *context.T, plaintext []byte) (message.
 }
 
 func (p *messagePipe) readDataMsg(ctx *context.T, plaintextBuf []byte, m *message.Data) (message.Message, error) {
-	p.readMu.Lock()
 	plaintext, err := p.readClearText(ctx, plaintextBuf)
 	if err != nil {
-		p.readMu.Unlock()
 		return nil, err
 	}
-	p.readMu.Unlock()
 	if ok, err := message.ReadData(ctx, plaintext, m); !ok {
 		if err != nil {
 			return nil, err
