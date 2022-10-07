@@ -203,13 +203,10 @@ func (p *messagePipe) readClearText(ctx *context.T, plaintextBuf []byte) ([]byte
 }
 
 func (p *messagePipe) readMsg(ctx *context.T, plaintextBuf []byte) (message.Message, error) {
-	p.readMu.Lock()
 	plaintext, err := p.readClearText(ctx, plaintextBuf)
 	if err != nil {
-		p.readMu.Unlock()
 		return nil, err
 	}
-	p.readMu.Unlock()
 	return p.readAnyMessage(ctx, plaintext)
 }
 
