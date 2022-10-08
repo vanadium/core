@@ -123,8 +123,8 @@ func (fs *flowControlConnStats) init(bytesBufferedPerFlow uint64) {
 func (fs *flowControlConnStats) configure(mtu, shared uint64) {
 	fs.mtu, fs.lshared = mtu, shared
 	// Assume at most 2^32 flows per connection.
-	bytesPerFlowID := binaryEncodeUintSize(2 ^ 32)
-	bytesPerCounter := binaryEncodeUintSize(mtu)
+	bytesPerFlowID := binaryEncodeUintSize(1 << 32)
+	bytesPerCounter := binaryEncodeUintSize(fs.bytesBufferedPerFlow)
 	fs.releaseMessageLimit = int(mtu) / (bytesPerFlowID + bytesPerCounter)
 }
 
