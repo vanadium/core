@@ -5,8 +5,11 @@
 package conn
 
 import (
+	"fmt"
 	"io"
 	"net"
+	"os"
+	"runtime"
 	"sync"
 	"time"
 
@@ -15,6 +18,7 @@ import (
 	"v.io/v23/flow/message"
 	"v.io/v23/naming"
 	"v.io/v23/security"
+	"v.io/x/lib/vlog"
 )
 
 type flw struct {
@@ -109,7 +113,7 @@ func (c *Conn) newFlowLocked(
 }
 
 func (f *flw) sendRelease(ctx *context.T, n int) {
-	f.conn.sendRelease(ctx, f.id, uint64(n))
+	f.conn.sendRelease(ctx, f, f.id, uint64(n))
 }
 
 // disableEncrytion should not be called concurrently with Write* methods.
@@ -192,6 +196,11 @@ func (f *flw) releaseCounters(tokens uint64) {
 // some become available from the peer end of the connection via a release
 // message containing tokens for this flow.
 func (f *flw) ensureTokens(ctx *context.T, debuglog bool, need int) (int, func(int), error) {
+
+	if need > int(f.conn.mtu) {
+		fmt.Fprintf(os.Stderr, "ASKING FOR MORE THAN MTU..... %v > %v\n", need, f.conn.mtu)
+		vlog.InfoStack(true)
+	}
 	for {
 		// The critical region needs to capture both reading tokens and
 		// setting up to wait for new ones. Similarly, releaseCounters
@@ -214,6 +223,12 @@ func (f *flw) ensureTokens(ctx *context.T, debuglog bool, need int) (int, func(i
 		select {
 		case <-ctx.Done():
 			return 0, func(int) {}, ctx.Err()
+		case <-time.After(10 * time.Second):
+			fmt.Fprintf(os.Stderr, "flow.control: flow: %p: %v: timeout waiting for flow control: need %v\n", f, f.id, need)
+			buf := make([]byte, 1024*1024)
+			n := runtime.Stack(buf, true)
+			fmt.Fprintf(os.Stderr, "All Goroutines: %s\n", buf[:n])
+			panic("oops")
 		case <-ch:
 		}
 	}
@@ -263,7 +278,7 @@ func (f *flw) writeMsg(alsoClose bool, parts ...[]byte) (sent int, err error) {
 			// for higher level flows. In this case we don't want to fragment the
 			// writes of the higher level flows, we want to transmit their messages
 			// whole. Similarly if noFragment is set we prefer to wait and not
-			// to send a partial write based on the available tokens. This is only
+			// send a partial write based on the available tokens. This is only
 			// required by proxies which need to pass on messages without
 			// refragmenting.
 			need = totalSize

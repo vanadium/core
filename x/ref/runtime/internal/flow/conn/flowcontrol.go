@@ -5,6 +5,8 @@
 package conn
 
 import (
+	"fmt"
+	"os"
 	"sync"
 
 	"v.io/v23/context"
@@ -198,6 +200,9 @@ func (fs *flowControlFlowStats) releaseCounters(ctx *context.T, tokens uint64) {
 	debug := ctx.V(2)
 	fs.shared.lock()
 	defer fs.shared.unlock()
+
+	orig := fs.released
+
 	fs.borrowing = false
 	if fs.borrowed > 0 {
 		n := tokens
@@ -215,6 +220,10 @@ func (fs *flowControlFlowStats) releaseCounters(ctx *context.T, tokens uint64) {
 	if debug {
 		ctx.Infof("Tokens release to %d(%p): %d => %d", fs.id, tokens, fs.released)
 	}
+
+	if fs.id == 10 {
+		fmt.Fprintf(os.Stderr, "flow.control: releaseCounters: flow %v, released tokens %v + %v -> %v\n", fs.id, orig, tokens, fs.released)
+	}
 }
 
 // tokens returns the number of tokens this flow can send right now.
@@ -229,12 +238,16 @@ func (fs *flowControlFlowStats) tokens(ctx *context.T, encapsulated bool) (int, 
 	// when forwarding the message. This means we must reduce our mtu to ensure
 	// that dialer framing reaches the acceptor without being truncated by the
 	// proxy.
+
 	if encapsulated {
 		max -= proxyOverhead
 	}
 	if fs.borrowing {
 		if fs.shared.lshared < max {
 			max = fs.shared.lshared
+		}
+		if fs.id == 10 || fs.id == 11 {
+			fmt.Fprintf(os.Stderr, "flow.control: tokens: flow %v, encapsulated: %v: returning borrowing: max %v\n", fs.id, encapsulated, max)
 		}
 		return int(max), func(used int) {
 			fs.shared.lock()
@@ -248,6 +261,9 @@ func (fs *flowControlFlowStats) tokens(ctx *context.T, encapsulated bool) (int, 
 	}
 	if fs.released < max {
 		max = fs.released
+	}
+	if fs.id == 10 || fs.id == 11 {
+		fmt.Fprintf(os.Stderr, "flow.control: tokens: flow %v, encapsulated: %v: returning released max %v\n", fs.id, encapsulated, max)
 	}
 	return int(max), func(used int) {
 		fs.shared.lock()

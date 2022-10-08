@@ -7,6 +7,7 @@ package conn
 import (
 	"fmt"
 	"net"
+	"os"
 	"sync"
 	"time"
 
@@ -19,6 +20,7 @@ import (
 	"v.io/v23/security"
 	"v.io/v23/verror"
 	slib "v.io/x/ref/lib/security"
+	"v.io/x/ref/runtime/internal/flow/conn/debug"
 	rpcversion "v.io/x/ref/runtime/internal/rpc/version"
 )
 
@@ -807,6 +809,7 @@ func (c *Conn) deleteFlow(fid uint64) {
 func (c *Conn) fragmentReleaseMessage(ctx *context.T, toRelease map[uint64]uint64) error {
 	limit := c.flowControl.releaseMessageLimit
 	if len(toRelease) < limit {
+		fmt.Fprintf(os.Stderr, "fragmentReleaseMessage: one shot: %v < %v\n", len(toRelease), limit)
 		return c.sendMessage(ctx, false, expressPriority, &message.Release{
 			Counters: toRelease,
 		})
@@ -814,6 +817,9 @@ func (c *Conn) fragmentReleaseMessage(ctx *context.T, toRelease map[uint64]uint6
 	for {
 		var send, remaining map[uint64]uint64
 		rem := len(toRelease) - limit
+
+		fmt.Fprintf(os.Stderr, "fragmentReleaseMessage: fragment: %v .. %v .. %v\n", len(toRelease), limit, rem)
+
 		if rem <= 0 {
 			send = toRelease
 		} else {
@@ -842,7 +848,7 @@ func (c *Conn) fragmentReleaseMessage(ctx *context.T, toRelease map[uint64]uint6
 	return nil
 }
 
-func (c *Conn) sendRelease(ctx *context.T, fid, count uint64) {
+func (c *Conn) sendRelease(ctx *context.T, f *flw, fid, count uint64) {
 	c.mu.Lock()
 	_, ok := c.flows[fid]
 	c.mu.Unlock()
@@ -853,9 +859,9 @@ func (c *Conn) sendRelease(ctx *context.T, fid, count uint64) {
 		c.flowControl.incrementToRelease(fid, count)
 	}
 	toRelease := c.flowControl.createReleaseMessageContents(fid, count)
-	/*if count != 0 {
-		fmt.Printf("flow.control: %p: sendRelease: flow %v, count %v: all %p: %v (ok: %v)\n", c, fid, count, toRelease, toRelease, ok)
-	}*/
+	if count != 0 && len(toRelease) > 0 {
+		fmt.Fprintf(os.Stderr, "flow.control: %p: sendRelease: flow %p: %v, count %v: # counters: %v (ok: %v): %v\n", c, f, fid, count, len(toRelease), ok, debug.FormatCounters(toRelease))
+	}
 	var err error
 	if toRelease != nil {
 		delete(toRelease, invalidFlowID)
