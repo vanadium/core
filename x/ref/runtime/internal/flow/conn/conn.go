@@ -466,8 +466,8 @@ func (c *Conn) MTU() uint64 {
 // The RTT will be updated with the receipt of every healthCheckResponse, so
 // this overestimate doesn't remain for long when the channel timeout is low.
 func (c *Conn) RTT() time.Duration {
-	defer c.mu.Unlock()
 	c.mu.Lock()
+	defer c.mu.Unlock()
 	rtt := c.hcstate.lastRTT
 	if !c.hcstate.requestSent.IsZero() {
 		if waitRTT := time.Since(c.hcstate.requestSent); waitRTT > rtt {
@@ -535,8 +535,8 @@ func (c *Conn) healthCheckNewFlowLocked(ctx *context.T, timeout time.Duration) {
 }
 
 func (c *Conn) healthCheckCloseDeadline() time.Time {
-	defer c.mu.Unlock()
 	c.mu.Lock()
+	defer c.mu.Unlock()
 	return c.hcstate.closeDeadline
 }
 
@@ -567,9 +567,8 @@ func (c *Conn) Dial(ctx *context.T, blessings security.Blessings, discharges map
 		// encoding of the publicKey can never error out.
 		blessings, _ = security.NamelessBlessing(v23.GetPrincipal(ctx).PublicKey())
 	}
-	defer c.mu.Unlock()
 	c.mu.Lock()
-
+	defer c.mu.Unlock()
 	// It may happen that in the case of bidirectional RPC the dialer of the connection
 	// has sent blessings,  but not yet discharges.  In this case we will wait for them
 	// to send the discharges before allowing a bidirectional flow dial.
@@ -654,8 +653,8 @@ func (c *Conn) CommonVersion() version.RPCVersion { return c.version }
 
 // LastUsed returns the time at which the Conn had bytes read or written on it.
 func (c *Conn) LastUsed() time.Time {
-	defer c.mu.Unlock()
 	c.mu.Lock()
+	defer c.mu.Unlock()
 	return c.lastUsedTime
 }
 
@@ -663,8 +662,8 @@ func (c *Conn) LastUsed() time.Time {
 // it is in lame duck mode indicating that new flows should not be dialed on this
 // conn.
 func (c *Conn) RemoteLameDuck() bool {
-	defer c.mu.Unlock()
 	c.mu.Lock()
+	defer c.mu.Unlock()
 	return c.remoteLameDuck
 }
 
@@ -689,8 +688,8 @@ func (c *Conn) Close(ctx *context.T, err error) {
 // CloseIfIdle closes the connection if the conn has been idle for idleExpiry,
 // returning true if it closed it.
 func (c *Conn) CloseIfIdle(ctx *context.T, idleExpiry time.Duration) bool {
-	defer c.mu.Unlock()
 	c.mu.Lock()
+	defer c.mu.Unlock()
 	if c.isIdleLocked(ctx, idleExpiry) {
 		c.internalCloseLocked(ctx, false, false, ErrIdleConnKilled.Errorf(ctx, "connection killed because idle expiry was reached"))
 		return true
@@ -699,8 +698,8 @@ func (c *Conn) CloseIfIdle(ctx *context.T, idleExpiry time.Duration) bool {
 }
 
 func (c *Conn) IsIdle(ctx *context.T, idleExpiry time.Duration) bool {
-	defer c.mu.Unlock()
 	c.mu.Lock()
+	defer c.mu.Unlock()
 	return c.isIdleLocked(ctx, idleExpiry)
 }
 
@@ -713,8 +712,8 @@ func (c *Conn) isIdleLocked(ctx *context.T, idleExpiry time.Duration) bool {
 }
 
 func (c *Conn) HasActiveFlows() bool {
-	defer c.mu.Unlock()
 	c.mu.Lock()
+	defer c.mu.Unlock()
 	return c.hasActiveFlowsLocked()
 }
 
@@ -1027,8 +1026,8 @@ func (c *Conn) sendMessageLocked(
 }
 
 func (c *Conn) DebugString() string {
-	defer c.mu.Unlock()
 	c.mu.Lock()
+	defer c.mu.Unlock()
 	return fmt.Sprintf(`
 Remote:
   Endpoint   %v
