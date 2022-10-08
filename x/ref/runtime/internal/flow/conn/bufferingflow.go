@@ -12,8 +12,6 @@ import (
 	"v.io/v23/flow"
 )
 
-var bufferPool = sync.Pool{New: func() interface{} { return &bytes.Buffer{} }}
-
 type MTUer interface {
 	MTU() uint64
 }

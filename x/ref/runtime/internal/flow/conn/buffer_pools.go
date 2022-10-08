@@ -5,6 +5,7 @@
 package conn
 
 import (
+	"bytes"
 	"sync"
 )
 
@@ -28,7 +29,8 @@ var (
 	// The ciphertext buffer needs to allow for the cipher overhead also.
 	ciphertextBufferSize = plaintextBufferSize + maxCipherOverhead
 
-	// intermediate buffers used by the message pipe for compression/decompression.
+	// messagePipePool is used by messagePipe for the intermediate
+	// buffers used for compression/decompression.
 	messagePipePool = sync.Pool{
 		New: func() interface{} {
 			b := make([]byte, ciphertextBufferSize)
@@ -37,4 +39,7 @@ var (
 			return &b
 		},
 	}
+
+	// bufferPool is used by BufferingFlow.
+	bufferPool = sync.Pool{New: func() interface{} { return &bytes.Buffer{} }}
 )
