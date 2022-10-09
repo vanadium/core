@@ -93,7 +93,7 @@ func (c *Conn) newFlowLocked(
 	f.flowControl.borrowing = dialed
 	f.flowControl.id = id
 
-	f.tokenWait = make(chan struct{})
+	f.tokenWait = make(chan struct{}, 1)
 
 	f.q = newReadQ(f.flowControl.shared.bytesBufferedPerFlow, f.sendRelease)
 
@@ -178,10 +178,11 @@ func (f *flw) releaseCounters(tokens uint64) {
 	defer f.mu.Unlock()
 	ctx := f.ctx
 	f.flowControl.releaseCounters(ctx, tokens)
-	// Broadcast to all flows blocked waiting for tokens that some may be available
-	// now.
-	close(f.tokenWait)
-	f.tokenWait = make(chan struct{})
+	// Unblock the current flow if it's waiting for tokens.
+	select {
+	case f.tokenWait <- struct{}{}:
+	default:
+	}
 	if ctx.V(2) {
 		ctx.Infof("Activated writing flow %d(%p) now that we have tokens.", f.id, f)
 	}
@@ -200,9 +201,8 @@ func (f *flw) ensureTokens(ctx *context.T, debuglog bool, need int) (int, func(i
 		// The critical region needs to capture both reading tokens and
 		// setting up to wait for new ones. Similarly, releaseCounters
 		// above needs to lock access to updating the available tokens
-		// (ie. the call to releaseCounters) as well as closing the channel
-		// used to notify the code below that more tokens may potentially
-		// be available.
+		// (ie. the call to releaseCounters) as well as signaling the channel
+		// used to notify the code below that more tokens may be available.
 		f.mu.Lock()
 		avail, deduct := f.flowControl.tokens(ctx, f.encapsulated)
 		if avail >= need {
@@ -225,16 +225,6 @@ func (f *flw) ensureTokens(ctx *context.T, debuglog bool, need int) (int, func(i
 
 func (f *flw) writeMsg(alsoClose bool, parts ...[]byte) (sent int, err error) {
 	ctx := f.currentContext()
-	select {
-	// Catch cancellations early.  If we caught a cancel when waiting
-	// our turn below it's possible that we were notified simultaneously.
-	// Then the notify channel will be full and we would deadlock
-	// notifying ourselves.
-	case <-ctx.Done():
-		f.close(ctx, false, ctx.Err())
-		return 0, io.EOF
-	default:
-	}
 
 	// TODO: don't send blessings more than once.
 	bkey, dkey, err := f.conn.blessingsFlow.send(ctx, f.localBlessings, f.localDischarges, nil)
@@ -304,6 +294,10 @@ func (f *flw) writeMsg(alsoClose bool, parts ...[]byte) (sent int, err error) {
 
 	if alsoClose || err != nil {
 		f.close(ctx, false, err)
+		// Translate context cancelation or timeout into io.EOF
+		if err == context.Canceled || err == context.DeadlineExceeded {
+			err = io.EOF
+		}
 	}
 	return sent, err
 }
