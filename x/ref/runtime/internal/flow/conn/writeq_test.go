@@ -274,19 +274,23 @@ func TestWriteqSimpleOrdering(t *testing.T) {
 
 	// Test simple FIFO ordering and invariants.
 
-	for i := 0; i < nworkers; i++ {
+	// Create nworkers+1 goroutines, the last of which will close the
+	// channel so that the write queue can be examined.
+	for i := 0; i <= nworkers; i++ {
 		wr := newEntry()
 		go func(w *writeqEntry, id int) {
 			n := <-numCh
-			if n >= (nworkers - 1) {
+			if n >= nworkers {
+				// All of the prior goroutines are blocked in their
+				// invocation of wq.wait. Closing this channle allows
+				// the code below to inspect the writeq.
 				close(numChDone)
+				return
 			}
 			writerMu.Lock()
 			writers[n] = wr
 			writerMu.Unlock()
-			go func() {
-				numCh <- n + 1
-			}()
+			numCh <- n + 1
 			wq.wait(nil, &w.writer, flowPriority)
 			active := wq.getActive()
 			if active != &w.writer {
@@ -294,7 +298,6 @@ func TestWriteqSimpleOrdering(t *testing.T) {
 			}
 			time.Sleep(time.Duration(rand.Int31n(100)) * time.Millisecond)
 			wq.done(&w.writer)
-
 			doneCh <- wr
 			wg.Done()
 		}(wr, i+1)
@@ -465,12 +468,12 @@ func TestWriteqContextCancel(t *testing.T) {
 				errCh <- err
 				return
 			}
-			time.Sleep(time.Duration(rand.Int31n(100)) * time.Nanosecond)
+			time.Sleep(time.Duration(rand.Int31n(200)) * time.Nanosecond)
 			wq.done(&shared.writer)
 
 		}(i)
 		go func() {
-			time.Sleep(time.Duration(rand.Int31n(500)) * time.Nanosecond)
+			time.Sleep(time.Duration(rand.Int31n(100)) * time.Nanosecond)
 			cancel()
 		}()
 	}
