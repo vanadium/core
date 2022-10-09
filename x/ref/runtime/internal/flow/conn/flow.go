@@ -5,11 +5,8 @@
 package conn
 
 import (
-	"fmt"
 	"io"
 	"net"
-	"os"
-	"runtime"
 	"sync"
 	"time"
 
@@ -18,7 +15,6 @@ import (
 	"v.io/v23/flow/message"
 	"v.io/v23/naming"
 	"v.io/v23/security"
-	"v.io/x/lib/vlog"
 )
 
 type flw struct {
@@ -196,10 +192,9 @@ func (f *flw) releaseCounters(tokens uint64) {
 // some become available from the peer end of the connection via a release
 // message containing tokens for this flow.
 func (f *flw) ensureTokens(ctx *context.T, debuglog bool, need int) (int, func(int), error) {
-
 	if need > int(f.conn.mtu) {
-		fmt.Fprintf(os.Stderr, "ASKING FOR MORE THAN MTU..... %v > %v\n", need, f.conn.mtu)
-		vlog.InfoStack(true)
+		ctx.Info("Write on flow %d(%p) needs more tokens than the mtu size (%v > %v)", f.id, f, need, f.conn.mtu)
+		return 0, func(int) {}, io.EOF
 	}
 	for {
 		// The critical region needs to capture both reading tokens and
@@ -223,12 +218,9 @@ func (f *flw) ensureTokens(ctx *context.T, debuglog bool, need int) (int, func(i
 		select {
 		case <-ctx.Done():
 			return 0, func(int) {}, ctx.Err()
-		case <-time.After(10 * time.Second):
-			fmt.Fprintf(os.Stderr, "flow.control: flow: %p: %v: timeout waiting for flow control: need %v\n", f, f.id, need)
-			buf := make([]byte, 1024*1024)
-			n := runtime.Stack(buf, true)
-			fmt.Fprintf(os.Stderr, "All Goroutines: %s\n", buf[:n])
-			panic("oops")
+		case <-time.After(f.channelTimeout):
+			ctx.Info("Write on flow %d(%p) timeout out waiting for flow control tokens", f.id, f)
+			return 0, func(int) {}, io.EOF
 		case <-ch:
 		}
 	}

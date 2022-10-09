@@ -5,9 +5,7 @@
 package conn
 
 import (
-	"fmt"
 	"math"
-	"os"
 	"time"
 
 	"v.io/v23/context"
@@ -190,7 +188,6 @@ func (c *Conn) handleRelease(ctx *context.T, msg *message.Release) error {
 		c.mu.Lock()
 		f := c.flows[fid]
 		c.mu.Unlock()
-		fmt.Fprintf(os.Stderr, "flow.control: flow %p: %v: handlRelease: val %v\n", f, fid, val)
 		if f != nil {
 			f.releaseCounters(val)
 		} else {

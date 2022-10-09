@@ -8,13 +8,10 @@ import (
 	"bytes"
 	"fmt"
 	"math/rand"
-	"os"
-	"runtime"
 	"testing"
 	"time"
 
 	"v.io/v23/context"
-	"v.io/v23/verror"
 	"v.io/v23/vtrace"
 	"v.io/x/ref/runtime/internal/rpc/benchmark"
 	tbm "v.io/x/ref/test/benchmark"
@@ -75,18 +72,12 @@ func CallEcho(b *testing.B, ctx *context.T, address string, iterations, payloadS
 		b.StartTimer()
 		start := time.Now()
 
-		//fmt.Fprintf(os.Stderr, "calling echo... %4v .. %4v\n", i, iterations)
 		r, err := stub.Echo(ictx, payload)
-		//fmt.Fprintf(os.Stderr, "called echo... %4v .. %4v\n", i, iterations)
 
 		elapsed := time.Since(start)
 		b.StopTimer()
 		span.Finish(err)
 		if err != nil {
-			fmt.Fprintf(os.Stderr, "Verr: %s\n", verror.DebugString(err))
-			buf := make([]byte, 32*1024)
-			n := runtime.Stack(buf, true)
-			fmt.Fprintf(os.Stderr, "All Goroutines: %s\n", buf[:n])
 			ictx.Fatalf("Echo failed: %v", err)
 		}
 		if !bytes.Equal(r, payload) {
@@ -96,7 +87,6 @@ func CallEcho(b *testing.B, ctx *context.T, address string, iterations, payloadS
 			stats.Add(elapsed)
 		}
 	}
-	fmt.Fprintf(os.Stderr, "called echo... done  %4v\n", iterations)
 	b.SetBytes(int64((written * 2) / iterations)) // 2 for round trip of each payload.
 }
 
