@@ -223,6 +223,21 @@ func (f *flw) ensureTokens(ctx *context.T, debuglog bool, need int) (int, func(i
 	}
 }
 
+func (f *flw) writeMsgDone(ctx *context.T, sent int, alsoClose bool, err error) (int, error) {
+	if alsoClose || err != nil {
+		if err != nil && ctx.V(2) {
+			f.ctx.Infof("finishing write on %d(%p): failed: %v", f.id, f, err)
+		}
+		f.close(ctx, false, err)
+		// Translate context cancelation or timeout into io.EOF
+		if err == context.Canceled || err == context.DeadlineExceeded {
+			return sent, io.EOF
+		}
+		return sent, err
+	}
+	return sent, nil
+}
+
 func (f *flw) writeMsg(alsoClose bool, parts ...[]byte) (sent int, err error) {
 	ctx := f.currentContext()
 
@@ -264,50 +279,40 @@ func (f *flw) writeMsg(alsoClose bool, parts ...[]byte) (sent int, err error) {
 		}
 
 		if wasOpened {
-			tokens, deduct, terr := f.ensureTokens(ctx, debug, need)
+			tokens, deduct, err := f.ensureTokens(ctx, debug, need)
 			parts, tosend, size = popFront(parts, tosend[:0], tokens)
 			deduct(size)
-			if terr != nil {
-				err = terr
-				break
+			if err != nil {
+				return f.writeMsgDone(ctx, sent, alsoClose, err)
 			}
 		}
 
 		err = f.sendFlowMessage(ctx, wasOpened, alsoClose, len(parts) == 0, bkey, dkey, tosend)
 		if err != nil {
-			break
+			return f.writeMsgDone(ctx, sent, alsoClose, err)
 		}
 		sent += size
 
 		if !wasOpened {
-			f.conn.unopenedFlows.Done()
 			wasOpened = true
+			f.conn.unopenedFlows.Done()
 			f.mu.Lock()
 			f.opened = true
 			f.mu.Unlock()
 		}
 	}
-
 	if debug {
-		f.ctx.Infof("finishing write on %d(%p): %v", f.id, f, err)
+		f.ctx.Infof("finishing write on %d(%p)", f.id, f)
 	}
-
-	if alsoClose || err != nil {
-		f.close(ctx, false, err)
-		// Translate context cancelation or timeout into io.EOF
-		if err == context.Canceled || err == context.DeadlineExceeded {
-			err = io.EOF
-		}
-	}
-	return sent, err
+	return f.writeMsgDone(ctx, sent, alsoClose, err)
 }
 
 func (f *flw) sendFlowMessage(ctx *context.T, wasOpened, alsoClose, finalPart bool, bkey, dkey uint64, payload [][]byte) error {
 	if err := f.writeq.wait(ctx, &f.writeqEntry, flowPriority); err != nil {
 		return io.EOF
 	}
-	// Actually write to the wire.  This is also where encryption
-	// happens, so this part can be slow.
+	// Actually write to the wire.  This is also where encryption happens,
+	// so this part can be slow.
 	var err error
 	var flags uint64
 	if alsoClose && finalPart {
@@ -445,20 +450,6 @@ func (f *flw) ID() uint64 {
 	return f.id
 }
 
-// setOpened ensures that on exit f.opened is true and if necessary
-// (ie. f.opened was false on entry) it will call Done on the unopenedFlows
-// waitgroup.
-func (f *flw) setOpened() bool {
-	f.mu.Lock()
-	defer f.mu.Unlock()
-	if f.opened {
-		return true
-	}
-	f.conn.unopenedFlows.Done()
-	f.opened = true
-	return false
-}
-
 func (f *flw) close(ctx *context.T, closedRemotely bool, err error) {
 	f.mu.Lock()
 	wasOpened, wasClosed := f.opened, f.closed
@@ -470,15 +461,15 @@ func (f *flw) close(ctx *context.T, closedRemotely bool, err error) {
 		return
 	}
 
-	if !wasOpened {
-		f.conn.unopenedFlows.Done()
-	}
-
 	// delete the flow as soon as possible to ensure that flow control
 	// releases are handled appropriately for a closed/closing flow.
 	// From this point on, all flow control updates are handled as per
 	// a closed flow.
 	f.conn.deleteFlow(f.id)
+
+	if !wasOpened {
+		f.conn.unopenedFlows.Done()
+	}
 
 	f.q.close(ctx)
 

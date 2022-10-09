@@ -88,11 +88,13 @@ func TestLargeWrite(t *testing.T) {
 		wg.Done()
 	}()
 	go func() {
-		errs <- doRead(df, randData, &wg)
+		errs <- doRead(df, randData, nil)
+		wg.Done()
 	}()
 	af := <-flows
 	go func() {
-		errs <- doRead(af, randData, &wg)
+		errs <- doRead(af, randData, nil)
+		wg.Done()
 	}()
 	go func() {
 		errs <- doWrite(af, randData)
