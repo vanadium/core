@@ -218,9 +218,6 @@ func (f *flw) ensureTokens(ctx *context.T, debuglog bool, need int) (int, func(i
 		select {
 		case <-ctx.Done():
 			return 0, func(int) {}, ctx.Err()
-		case <-time.After(f.channelTimeout):
-			ctx.Info("Write on flow %d(%p) timeout out waiting for flow control tokens", f.id, f)
-			return 0, func(int) {}, io.EOF
 		case <-ch:
 		}
 	}
