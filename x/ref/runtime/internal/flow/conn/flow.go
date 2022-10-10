@@ -333,11 +333,6 @@ func (f *flw) sendOpenFlowMessage(ctx *context.T, alsoClose, finalPart bool, pay
 	}
 	err = f.conn.mp.writeMsg(ctx, d)
 	f.writeq.done(&f.writeqEntry)
-	/*	if len(payload) > 0 {
-			fmt.Fprintf(os.Stderr, "openflow: %v %v %v\n", bkey, dkey, len(payload[0]))
-		} else {
-			fmt.Fprintf(os.Stderr, "openflow: %v %v no payload\n", bkey, dkey)
-		}*/
 	return err
 }
 
