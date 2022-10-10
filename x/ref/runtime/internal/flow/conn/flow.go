@@ -193,10 +193,6 @@ func (f *flw) releaseCounters(tokens uint64) {
 // some become available from the peer end of the connection via a release
 // message containing tokens for this flow.
 func (f *flw) ensureTokens(ctx *context.T, debuglog bool, need int) (int, func(int), error) {
-	if need > int(f.conn.mtu) {
-		ctx.Info("Write on flow %d(%p) needs more tokens than the mtu size (%v > %v)", f.id, f, need, f.conn.mtu)
-		return 0, func(int) {}, io.EOF
-	}
 	for {
 		// The critical region needs to capture both reading tokens and
 		// setting up to wait for new ones. Similarly, releaseCounters
@@ -210,11 +206,11 @@ func (f *flw) ensureTokens(ctx *context.T, debuglog bool, need int) (int, func(i
 			return avail, deduct, nil
 		}
 		// need to wait for tokens.
+		ch := f.tokenWait
+		f.mu.Unlock()
 		if debuglog {
 			ctx.Infof("Deactivating write on flow %d(%p) due to lack of tokens", f.id, f)
 		}
-		ch := f.tokenWait
-		f.mu.Unlock()
 		select {
 		case <-ctx.Done():
 			return 0, func(int) {}, ctx.Err()
@@ -240,12 +236,6 @@ func (f *flw) writeMsgDone(ctx *context.T, sent int, alsoClose bool, err error) 
 
 func (f *flw) writeMsg(alsoClose bool, parts ...[]byte) (sent int, err error) {
 	ctx := f.currentContext()
-
-	// TODO: don't send blessings more than once.
-	bkey, dkey, err := f.conn.blessingsFlow.send(ctx, f.localBlessings, f.localDischarges, nil)
-	if err != nil {
-		return 0, err
-	}
 
 	debug := ctx.V(2)
 	if debug {
@@ -278,26 +268,33 @@ func (f *flw) writeMsg(alsoClose bool, parts ...[]byte) (sent int, err error) {
 			// refragmenting.
 			need = totalSize
 		}
-
 		if wasOpened {
+			// Send a data message, possibly having to wait for flow control
+			// tokens before doing so.
 			tokens, deduct, err := f.ensureTokens(ctx, debug, need)
-			parts, tosend, size = popFront(parts, tosend[:0], tokens)
-			deduct(size)
 			if err != nil {
 				return f.writeMsgDone(ctx, sent, alsoClose, err)
 			}
+			parts, tosend, size = popFront(parts, tosend[:0], tokens)
+			deduct(size)
+			if err := f.sendDataMessage(ctx, alsoClose, len(parts) == 0, tosend); err != nil {
+				return f.writeMsgDone(ctx, sent, alsoClose, err)
+			}
+			sent += size
+			continue
 		}
-
-		err = f.sendFlowMessage(ctx, wasOpened, alsoClose, len(parts) == 0, bkey, dkey, tosend)
-		if err != nil {
+		// Send an open message, use any available flow control tokens, but
+		// do not wait for any to be available. This ensures that an openFlow
+		// message will always be sent, if it can't include a payload.
+		avail, deduct := f.flowControl.tokens(ctx, f.encapsulated)
+		parts, tosend, size = popFront(parts, tosend[:0], avail)
+		deduct(size)
+		if err := f.handleOpenFlow(ctx, alsoClose, len(parts) == 0, tosend); err != nil {
 			return f.writeMsgDone(ctx, sent, alsoClose, err)
 		}
 		sent += size
-
-		if !wasOpened {
-			wasOpened = true
-			f.conn.unopenedFlows.Done()
-		}
+		wasOpened = true
+		f.conn.unopenedFlows.Done()
 	}
 	if debug {
 		f.ctx.Infof("finishing write on %d(%p)", f.id, f)
@@ -305,13 +302,7 @@ func (f *flw) writeMsg(alsoClose bool, parts ...[]byte) (sent int, err error) {
 	return f.writeMsgDone(ctx, sent, alsoClose, err)
 }
 
-func (f *flw) sendFlowMessage(ctx *context.T, wasOpened, alsoClose, finalPart bool, bkey, dkey uint64, payload [][]byte) error {
-	if err := f.writeq.wait(ctx, &f.writeqEntry, flowPriority); err != nil {
-		return io.EOF
-	}
-	// Actually write to the wire.  This is also where encryption happens,
-	// so this part can be slow.
-	var err error
+func (f *flw) messageFlags(alsoClose, finalPart bool) uint64 {
 	var flags uint64
 	if alsoClose && finalPart {
 		flags |= message.CloseFlag
@@ -319,22 +310,42 @@ func (f *flw) sendFlowMessage(ctx *context.T, wasOpened, alsoClose, finalPart bo
 	if f.noEncrypt {
 		flags |= message.DisableEncryptionFlag
 	}
-	if wasOpened {
-		d := &message.Data{ID: f.id, Flags: flags, Payload: payload}
-		err = f.conn.mp.writeMsg(ctx, d)
-	} else {
-		d := &message.OpenFlow{
-			ID:              f.id,
-			InitialCounters: f.flowControl.shared.bytesBufferedPerFlow,
-			BlessingsKey:    bkey,
-			DischargeKey:    dkey,
-			Flags:           flags,
-			Payload:         payload,
-		}
-		err = f.conn.mp.writeMsg(ctx, d)
+	return flags
+}
+
+func (f *flw) handleOpenFlow(ctx *context.T, alsoClose, finalPart bool, payload [][]byte) error {
+	bkey, dkey, err := f.conn.blessingsFlow.send(ctx, f.localBlessings, f.localDischarges, nil)
+	if err != nil {
+		return err
 	}
-	f.writeq.done(&f.writeqEntry)
-	return err
+	flags := f.messageFlags(alsoClose, finalPart)
+	if err := f.writeq.wait(ctx, &f.writeqEntry, flowPriority); err != nil {
+		return io.EOF
+	}
+	defer f.writeq.done(&f.writeqEntry)
+	// Actually write to the wire.  This is also where encryption happens,
+	// so this part can be slow.
+	d := &message.OpenFlow{
+		ID:              f.id,
+		InitialCounters: f.flowControl.shared.bytesBufferedPerFlow,
+		BlessingsKey:    bkey,
+		DischargeKey:    dkey,
+		Flags:           flags,
+		Payload:         payload,
+	}
+	return f.conn.mp.writeMsg(ctx, d)
+}
+
+func (f *flw) sendDataMessage(ctx *context.T, alsoClose, finalPart bool, payload [][]byte) error {
+	flags := f.messageFlags(alsoClose, finalPart)
+	if err := f.writeq.wait(ctx, &f.writeqEntry, flowPriority); err != nil {
+		return io.EOF
+	}
+	defer f.writeq.done(&f.writeqEntry)
+	// Actually write to the wire.  This is also where encryption happens,
+	// so this part can be slow.
+	d := &message.Data{ID: f.id, Flags: flags, Payload: payload}
+	return f.conn.mp.writeMsg(ctx, d)
 }
 
 // WriteMsg is like Write, but allows writing more than one buffer at a time.
@@ -459,7 +470,7 @@ func (f *flw) close(ctx *context.T, closedRemotely bool, err error) {
 		return
 	}
 
-	// delete the flow as soon as possible to ensure that flow control
+	// Delete the flow as soon as possible to ensure that flow control
 	// releases are handled appropriately for a closed/closing flow.
 	// From this point on, all flow control updates are handled as per
 	// a closed flow.
@@ -495,7 +506,7 @@ func (f *flw) close(ctx *context.T, closedRemotely bool, err error) {
 			ctx.Infof("could not send close flow message: %v: close error (if any): %v", serr, err)
 		}
 	}
-	// update flow control state now that we're guaranteed to no longer
+	// Update flow control state now that we're guaranteed to no longer
 	// send any messages. Messages may still arrive if the flow is closed
 	// locally but not remotely, but they will be handled appropriately
 	// with regard to flow control.

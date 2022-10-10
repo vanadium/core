@@ -184,9 +184,8 @@ func TestFlowControl(t *testing.T) {
 	defer shutdown()
 
 	for _, nflows := range []int{1, 2, 20, 100} {
-		for _, bytesBuffered := range []uint64{4096, DefaultBytesBuffered} {
+		for _, bytesBuffered := range []uint64{DefaultMTU, DefaultBytesBuffered} {
 			for _, mtu := range []uint64{1024, DefaultMTU} {
-
 				t.Logf("starting: #%v flows, buffered %#v bytes\n", nflows, bytesBuffered)
 				dfs, flows, ac, dc := setupFlowsOpts(t, "local", "", ctx, ctx, true, nflows, Opts{
 					MTU:           mtu,
@@ -205,7 +204,7 @@ func TestFlowControl(t *testing.T) {
 					go func(i int) {
 						err := doWrite(dfs[i], randData)
 						if err != nil {
-							fmt.Printf("unexpected error: %v\n", err)
+							fmt.Printf("dial: doWrite: flow: %v/%v, mtu: %v, buffered: %v, unexpected error: %v\n", i, nflows, mtu, bytesBuffered, err)
 						}
 						errs <- err
 						wg.Done()
@@ -213,7 +212,7 @@ func TestFlowControl(t *testing.T) {
 					go func(i int) {
 						err := doRead(dfs[i], randData, nil)
 						if err != nil {
-							fmt.Printf("unexpected error: %v\n", err)
+							fmt.Printf("dial: doRead: flow: %v/%v, mtu: %v, buffered: %v, unexpected error: %v\n", i, nflows, mtu, bytesBuffered, err)
 						}
 						errs <- err
 						wg.Done()
@@ -221,22 +220,22 @@ func TestFlowControl(t *testing.T) {
 				}
 				for i := 0; i < nflows; i++ {
 					af := <-flows
-					go func() {
+					go func(i int) {
 						err := doRead(af, randData, nil)
 						if err != nil {
-							fmt.Printf("unexpected error: %v\n", err)
+							fmt.Printf("accept: doRead: flow: %v/%v, mtu: %v, buffered: %v, unexpected error: %v\n", i, nflows, mtu, bytesBuffered, err)
 						}
 						errs <- err
 						wg.Done()
-					}()
-					go func() {
+					}(i)
+					go func(i int) {
 						err := doWrite(af, randData)
 						if err != nil {
-							fmt.Printf("unexpected error: %v\n", err)
+							fmt.Printf("accept: doWrite: flow: %v/%v, mtu: %v, buffered: %v, unexpected error: %v\n", i, nflows, mtu, bytesBuffered, err)
 						}
 						errs <- err
 						wg.Done()
-					}()
+					}(i)
 				}
 
 				wg.Wait()

@@ -79,7 +79,7 @@ func (r *readq) put(ctx *context.T, bufs [][]byte) error {
 
 	newSize := uint64(l) + r.size
 	if newSize > r.bytesBufferedPerFlow {
-		return ErrCounterOverflow.Errorf(ctx, "a remote process has sent more data than allowed")
+		return ErrCounterOverflow.Errorf(ctx, "a remote process has sent more data than allowed: max bytes buffered is %v, current buffered is %v + received: %v", r.bytesBufferedPerFlow, r.size, l)
 	}
 	newBufs := r.nbufs + len(bufs)
 	r.reserveLocked(newBufs)
