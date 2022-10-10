@@ -57,7 +57,6 @@ func TestGet(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	close(wait)
 
 	if len(gs) < 4 {
 		t.Errorf("Got %d goroutines, expected at least 4", len(gs))
@@ -98,6 +97,8 @@ func TestGet(t *testing.T) {
 	} else if len(c.Stack) < 1 {
 		t.Errorf("got %d expected at least 1: %s", len(c.Stack), Format(c))
 	}
+	// Allow goroutines to exit so that the NoLeaks test succeeds.
+	close(wait)
 }
 
 func TestFormat(t *testing.T) {
