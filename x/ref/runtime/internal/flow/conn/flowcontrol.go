@@ -220,7 +220,7 @@ func (fs *flowControlFlowStats) releaseCounters(ctx *context.T, tokens uint64) {
 // tokens returns the number of tokens this flow can send right now.
 // It is bounded by the channel mtu, the released counters, and possibly
 // the number of shared counters for the conn if we are sending on a just
-// dialed flow.
+// dialed flow. It will never return more than mtu bytes as being available.
 func (fs *flowControlFlowStats) tokens(ctx *context.T, encapsulated bool) (int, func(int)) {
 	fs.shared.lock()
 	defer fs.shared.unlock()
@@ -229,6 +229,7 @@ func (fs *flowControlFlowStats) tokens(ctx *context.T, encapsulated bool) (int, 
 	// when forwarding the message. This means we must reduce our mtu to ensure
 	// that dialer framing reaches the acceptor without being truncated by the
 	// proxy.
+
 	if encapsulated {
 		max -= proxyOverhead
 	}

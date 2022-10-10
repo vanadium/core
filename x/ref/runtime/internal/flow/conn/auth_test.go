@@ -378,15 +378,12 @@ func TestChangedDefaultBlessings(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	_, _ = bkey, dkey
-	acceptorConn.mu.Lock()
-	if err := acceptorConn.sendMessageLocked(ctx, true, expressPriority, &message.Auth{
+	if err := acceptorConn.sendMessage(ctx, true, expressPriority, &message.Auth{
 		BlessingsKey: bkey,
 		DischargeKey: dkey,
 	}); err != nil {
 		t.Fatal(err)
 	}
-	acceptorConn.mu.Unlock()
 	<-waitForClose
 	dialerConn := df1.Conn().(*Conn)
 	if got, want := dialerConn.Status(), Closed; got != want {

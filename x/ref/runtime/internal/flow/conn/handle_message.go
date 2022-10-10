@@ -137,9 +137,7 @@ func (c *Conn) handleEnterLameDuck(ctx *context.T, msg *message.EnterLameDuck) e
 		// We only want to send the lame duck acknowledgment after all outstanding
 		// OpenFlows are sent.
 		c.unopenedFlows.Wait()
-		c.mu.Lock()
-		err := c.sendMessageLocked(ctx, true, expressPriority, &message.AckLameDuck{})
-		c.mu.Unlock()
+		err := c.sendMessage(ctx, true, expressPriority, &message.AckLameDuck{})
 		if err != nil {
 			c.Close(ctx, ErrSend.Errorf(ctx, "failure sending release message to %v: %v", c.remote.String(), err))
 		}
@@ -158,8 +156,8 @@ func (c *Conn) handleAckLameDuck(ctx *context.T, msg *message.AckLameDuck) error
 }
 
 func (c *Conn) handleHealthCheckResponse(ctx *context.T) error {
-	defer c.mu.Unlock()
 	c.mu.Lock()
+	defer c.mu.Unlock()
 	if c.status < Closing {
 		timeout := c.acceptChannelTimeout
 		for _, f := range c.flows {
@@ -181,17 +179,16 @@ func (c *Conn) handleHealthCheckResponse(ctx *context.T) error {
 }
 
 func (c *Conn) handleHealthCheckRequest(ctx *context.T) error {
-	c.mu.Lock()
-	defer c.mu.Unlock()
-	c.sendMessageLocked(ctx, true, expressPriority, &message.HealthCheckResponse{})
+	c.sendMessage(ctx, true, expressPriority, &message.HealthCheckResponse{})
 	return nil
 }
 
 func (c *Conn) handleRelease(ctx *context.T, msg *message.Release) error {
-	c.mu.Lock()
-	defer c.mu.Unlock()
 	for fid, val := range msg.Counters {
-		if f := c.flows[fid]; f != nil {
+		c.mu.Lock()
+		f := c.flows[fid]
+		c.mu.Unlock()
+		if f != nil {
 			f.releaseCounters(val)
 		} else {
 			c.flowControl.releaseOutstandingBorrowed(fid, val)

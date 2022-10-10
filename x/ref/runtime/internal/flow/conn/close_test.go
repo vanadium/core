@@ -340,13 +340,12 @@ func testCountersOpts(t *testing.T, ctx *context.T, count int, dialClose, accept
 	if err := <-errCh; err != nil {
 		t.Fatal(err)
 	}
-
-	dc.mu.Lock()
+	dc.flowControl.lock()
 	dialRelease, dialBorrowed = len(dc.flowControl.toRelease), len(dc.flowControl.borrowing)
-	dc.mu.Unlock()
-	ac.mu.Lock()
+	dc.flowControl.unlock()
+	ac.flowControl.lock()
 	acceptRelease, acceptBorrowed = len(ac.flowControl.toRelease), len(ac.flowControl.borrowing)
-	ac.mu.Unlock()
+	ac.flowControl.unlock()
 	ac.Close(ctx, nil)
 	dc.Close(ctx, nil)
 	return
@@ -361,17 +360,17 @@ func TestCounters(t *testing.T) {
 	var dialRelease, dialBorrowed, acceptRelease, acceptBorrowed int
 
 	assert := func(dialApprox, acceptApprox int) {
-		compare := func(got, want int) {
+		compare := func(msg string, got, want int) {
 			if got > want {
 				_, _, l1, _ := runtime.Caller(3)
 				_, _, l2, _ := runtime.Caller(2)
-				t.Errorf("line: %v:%v, got %v, want %v", l1, l2, got, want)
+				t.Errorf("line: %v:%v:%v: got %v, want %v", l1, l2, msg, got, want)
 			}
 		}
-		compare(dialRelease, dialApprox)
-		compare(dialBorrowed, dialApprox)
-		compare(acceptRelease, acceptApprox)
-		compare(acceptBorrowed, acceptApprox)
+		compare("dialRelease", dialRelease, dialApprox)
+		compare("dialBorrowed", dialBorrowed, dialApprox)
+		compare("acceptRelease", acceptRelease, acceptApprox)
+		compare("acceptBorrowed", acceptBorrowed, acceptApprox)
 	}
 
 	runAndTest := func(count, size, dialApprox, acceptApprox int, opts Opts) {

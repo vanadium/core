@@ -74,9 +74,7 @@ func (c *Conn) dialHandshake(
 	if lAuth.BlessingsKey, _, err = c.blessingsFlow.send(ctx, c.localBlessings, nil, nil); err != nil {
 		return names, rejected, rtt, err
 	}
-	c.mu.Lock()
-	err = c.sendMessageLocked(ctx, true, expressPriority, lAuth)
-	c.mu.Unlock()
+	err = c.sendMessage(ctx, true, expressPriority, lAuth)
 	return names, rejected, rtt, err
 }
 
@@ -97,8 +95,10 @@ func (c *Conn) acceptHandshake(
 	if err != nil {
 		return rtt, err
 	}
+	c.mu.Lock()
 	c.remote = remoteEndpoint
 	c.blessingsFlow = newBlessingsFlow(c)
+	c.mu.Unlock()
 	signedBinding, err := v23.GetPrincipal(ctx).Sign(append(authAcceptorTag, binding...))
 	if err != nil {
 		return rtt, err
@@ -113,10 +113,8 @@ func (c *Conn) acceptHandshake(
 		return rtt, err
 	}
 
-	c.mu.Lock()
 	rttstart := time.Now()
-	err = c.sendMessageLocked(ctx, true, expressPriority, lAuth)
-	c.mu.Unlock()
+	err = c.sendMessage(ctx, true, expressPriority, lAuth)
 	if err != nil {
 		return rtt, err
 	}
@@ -143,10 +141,8 @@ func (c *Conn) setup(ctx *context.T, versions version.RPCVersionRange, dialer bo
 	}
 	ch := make(chan error, 1)
 	go func() {
-		c.mu.Lock()
 		rttstart = time.Now()
-		ch <- c.sendMessageLocked(ctx, true, expressPriority, lSetup)
-		c.mu.Unlock()
+		ch <- c.sendMessage(ctx, true, expressPriority, lSetup)
 	}()
 	msg, err := c.mp.readMsg(ctx, nil)
 	if err != nil {
@@ -191,9 +187,7 @@ func (c *Conn) setup(ctx *context.T, versions version.RPCVersionRange, dialer bo
 	if rSetup.PeerNaClPublicKey == nil {
 		return nil, naming.Endpoint{}, rttstart, ErrMissingSetupOption.Errorf(ctx, "conn.setup: missing required setup option: peerNaClPublicKey")
 	}
-	c.mu.Lock()
 	binding, err := c.mp.enableEncryption(ctx, pk, sk, rSetup.PeerNaClPublicKey, c.version)
-	c.mu.Unlock()
 	if err != nil {
 		return nil, naming.Endpoint{}, rttstart, err
 	}

@@ -18,28 +18,8 @@ import (
 	_ "v.io/x/ref/runtime/factories/fake"
 	"v.io/x/ref/runtime/protocols/debug"
 	"v.io/x/ref/test"
+	"v.io/x/ref/test/goroutines"
 )
-
-func block(c *Conn, p int) chan struct{} {
-	w := &singleMessageWriter{writeCh: make(chan struct{}), p: p}
-	w.next, w.prev = w, w
-	ready, unblock := make(chan struct{}), make(chan struct{})
-	c.mu.Lock()
-	c.activateWriterLocked(w)
-	c.notifyNextWriterLocked(w)
-	c.mu.Unlock()
-	go func() {
-		<-w.writeCh
-		close(ready)
-		<-unblock
-		c.mu.Lock()
-		c.deactivateWriterLocked(w)
-		c.notifyNextWriterLocked(w)
-		c.mu.Unlock()
-	}()
-	<-ready
-	return unblock
-}
 
 func waitFor(f func() bool) {
 	t := time.NewTicker(10 * time.Millisecond)
@@ -51,19 +31,36 @@ func waitFor(f func() bool) {
 	}
 }
 
+func block(ctx *context.T, c *Conn, p int) chan struct{} {
+	w := writer{notify: make(chan struct{}, 1)}
+	ready, unblock := make(chan struct{}), make(chan struct{})
+	go func() {
+		waitForWriters(ctx, c, 0)
+		c.writeq.wait(nil, &w, p)
+		close(ready)
+		<-unblock
+		c.writeq.done(&w)
+	}()
+	<-ready
+	return unblock
+}
+
 func waitForWriters(ctx *context.T, conn *Conn, num int) {
 	waitFor(func() bool {
-		conn.mu.Lock()
+		conn.writeq.mu.Lock()
 		count := 0
-		for _, w := range conn.activeWriters {
+		if conn.writeq.active != nil {
+			count++
+		}
+		for _, w := range conn.writeq.activeWriters {
 			if w != nil {
 				count++
-				for _, n := w.neighbors(); n != w; _, n = n.neighbors() {
+				for n := w.next; n != w; n = n.next {
 					count++
 				}
 			}
 		}
-		conn.mu.Unlock()
+		conn.writeq.mu.Unlock()
 		return count >= num
 	})
 }
@@ -104,7 +101,7 @@ func TestOrdering(t *testing.T) {
 	// flows finish writing because the flows' writes will become blocked from
 	// counter exhaustion.
 	// 4*4*2^16 == 2^20 so it's the perfect number.
-	const nflows = 4
+	const nflows = 2
 	const nmessages = 4
 
 	ctx, shutdown := test.V23Init()
@@ -116,19 +113,11 @@ func TestOrdering(t *testing.T) {
 	})
 	flows, accept, dc, ac := setupFlows(t, "debug", "local/", ctx, fctx, true, nflows)
 
-	unblock := block(dc, 0)
 	var wg sync.WaitGroup
 	wg.Add(2 * nflows)
-	errCh := make(chan error, len(flows)*2)
-	defer func() {
-		wg.Wait()
-		close(errCh)
-		for err := range errCh {
-			if err != nil {
-				t.Fatal(err)
-			}
-		}
-	}()
+	errCh := make(chan error, 2*nflows)
+	unblock := block(ctx, dc, flowPriority)
+
 	for _, f := range flows {
 		go func(fl flow.Flow) {
 			defer wg.Done()
@@ -153,13 +142,15 @@ func TestOrdering(t *testing.T) {
 			errCh <- nil
 		}()
 	}
+
 	waitForWriters(ctx, dc, nflows+1)
+	close(unblock)
+	wg.Wait()
+
 	// Now close the conn which will send a teardown message, but only after
 	// the other flows finish their current write.
 	go dc.Close(ctx, nil)
 	defer func() { <-dc.Closed(); <-ac.Closed() }()
-
-	close(unblock)
 
 	// OK now we expect all the flows to write interleaved messages.
 	for i := 0; i < nmessages; i++ {
@@ -171,10 +162,93 @@ func TestOrdering(t *testing.T) {
 				found[msg.ID] = true
 			case *message.Data:
 				found[msg.ID] = true
+			case *message.TearDown:
 			}
 		}
 		if len(found) != nflows {
 			t.Fatalf("Did not receive a message from each flow in round %d: %v", i, found)
+		}
+	}
+
+	close(errCh)
+	for err := range errCh {
+		if err != nil {
+			t.Fatal(err)
+		}
+	}
+}
+
+func TestFlowControl(t *testing.T) {
+	defer goroutines.NoLeaks(t, leakWaitTime)()
+	ctx, shutdown := test.V23Init()
+	defer shutdown()
+
+	for _, nflows := range []int{1, 2, 20, 100} {
+		for _, bytesBuffered := range []uint64{4096, DefaultBytesBuffered} {
+			for _, mtu := range []uint64{1024, DefaultMTU} {
+
+				t.Logf("starting: #%v flows, buffered %#v bytes\n", nflows, bytesBuffered)
+				dfs, flows, ac, dc := setupFlowsOpts(t, "local", "", ctx, ctx, true, nflows, Opts{
+					MTU:           mtu,
+					BytesBuffered: bytesBuffered})
+
+				defer func() {
+					dc.Close(ctx, nil)
+					ac.Close(ctx, nil)
+				}()
+
+				errs := make(chan error, nflows*4)
+				var wg sync.WaitGroup
+				wg.Add(nflows * 4)
+
+				for i := 0; i < nflows; i++ {
+					go func(i int) {
+						err := doWrite(dfs[i], randData)
+						if err != nil {
+							fmt.Printf("unexpected error: %v\n", err)
+						}
+						errs <- err
+						wg.Done()
+					}(i)
+					go func(i int) {
+						err := doRead(dfs[i], randData, nil)
+						if err != nil {
+							fmt.Printf("unexpected error: %v\n", err)
+						}
+						errs <- err
+						wg.Done()
+					}(i)
+				}
+				for i := 0; i < nflows; i++ {
+					af := <-flows
+					go func() {
+						err := doRead(af, randData, nil)
+						if err != nil {
+							fmt.Printf("unexpected error: %v\n", err)
+						}
+						errs <- err
+						wg.Done()
+					}()
+					go func() {
+						err := doWrite(af, randData)
+						if err != nil {
+							fmt.Printf("unexpected error: %v\n", err)
+						}
+						errs <- err
+						wg.Done()
+					}()
+				}
+
+				wg.Wait()
+				close(errs)
+
+				for err := range errs {
+					if err != nil {
+						t.Error(err)
+					}
+				}
+				t.Logf("done: #%v flows, buffered %#v bytes\n", nflows, bytesBuffered)
+			}
 		}
 	}
 }

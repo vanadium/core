@@ -44,33 +44,33 @@ func trunc(b []byte) []byte {
 	return b
 }
 
-func doWrite(t *testing.T, f flow.Flow, data []byte) {
+func doWrite(f flow.Flow, data []byte) error {
 	mid := len(data) / 2
 	wrote, err := f.WriteMsg(data[:mid], data[mid:])
 	if err != nil || wrote != len(data) {
-		t.Errorf("Unexpected result for write: %d, %v wanted %d, nil", wrote, err, len(data))
+		return fmt.Errorf("Unexpected result for write: %d, %v wanted %d, nil", wrote, err, len(data))
 	}
+	return nil
 }
 
-func doRead(t *testing.T, f flow.Flow, want []byte, wg *sync.WaitGroup) {
+func doRead(f flow.Flow, want []byte, wg *sync.WaitGroup) error {
 	for read := 0; len(want) > 0; read++ {
 		got, err := f.ReadMsg()
 		if err != nil && err != io.EOF {
-			t.Errorf("Unexpected error: %v", err)
-			break
+			return fmt.Errorf("Unexpected error: %v", err)
 		}
 		if !bytes.Equal(got, want[:len(got)]) {
-			t.Errorf("On read %d got: %v want %v", read, trunc(got), trunc(want))
-			break
+			return fmt.Errorf("On read %d got: %v want %v", read, trunc(got), trunc(want))
 		}
 		want = want[len(got):]
 	}
 	if len(want) != 0 {
-		t.Errorf("got %d leftover bytes, expected 0.", len(want))
+		return fmt.Errorf("got %d leftover bytes, expected 0", len(want))
 	}
 	if wg != nil {
 		wg.Done()
 	}
+	return nil
 }
 
 func TestLargeWrite(t *testing.T) {
@@ -80,14 +80,75 @@ func TestLargeWrite(t *testing.T) {
 	df, flows, cl := setupFlow(t, "local", "", ctx, ctx, true)
 	defer cl()
 
+	errs := make(chan error, 4)
 	var wg sync.WaitGroup
-	wg.Add(2)
-	go doWrite(t, df, randData)
-	go doRead(t, df, randData, &wg)
+	wg.Add(4)
+	go func() {
+		errs <- doWrite(df, randData)
+		wg.Done()
+	}()
+	go func() {
+		errs <- doRead(df, randData, nil)
+		wg.Done()
+	}()
 	af := <-flows
-	go doRead(t, af, randData, &wg)
-	go doWrite(t, af, randData)
+	go func() {
+		errs <- doRead(af, randData, nil)
+		wg.Done()
+	}()
+	go func() {
+		errs <- doWrite(af, randData)
+		wg.Done()
+	}()
 	wg.Wait()
+	close(errs)
+	for err := range errs {
+		if err != nil {
+			t.Error(err)
+		}
+	}
+}
+
+func TestManyLargeWrites(t *testing.T) {
+	defer goroutines.NoLeaks(t, leakWaitTime)()
+	ctx, shutdown := test.V23Init()
+	defer shutdown()
+	df, flows, cl := setupFlow(t, "local", "", ctx, ctx, true)
+	defer cl()
+
+	iterations := 200
+	errs := make(chan error, iterations*44)
+	var wg sync.WaitGroup
+	wg.Add(4)
+
+	writer := func(f flow.Flow) {
+		for i := 0; i < iterations; i++ {
+			errs <- doWrite(f, randData)
+		}
+		wg.Done()
+	}
+	reader := func(f flow.Flow) {
+		for i := 0; i < iterations; i++ {
+			errs <- doRead(f, randData, nil)
+		}
+		wg.Done()
+	}
+
+	go writer(df)
+	go reader(df)
+
+	af := <-flows
+
+	go reader(af)
+	go writer(af)
+
+	wg.Wait()
+	close(errs)
+	for err := range errs {
+		if err != nil {
+			t.Error(err)
+		}
+	}
 }
 
 func TestConnRTT(t *testing.T) {
@@ -98,7 +159,13 @@ func TestConnRTT(t *testing.T) {
 	df, flows, cl := setupFlow(t, "local", "", ctx, ctx, true)
 	defer cl()
 
-	go doWrite(t, df, payload)
+	errs := make(chan error, 1)
+	var wg sync.WaitGroup
+	wg.Add(1)
+	go func() {
+		errs <- doWrite(df, payload)
+		wg.Done()
+	}()
 	af := <-flows
 
 	if df.Conn().RTT() == 0 {
@@ -106,6 +173,13 @@ func TestConnRTT(t *testing.T) {
 	}
 	if af.Conn().RTT() == 0 {
 		t.Errorf("accepted conn's RTT should be non-zero")
+	}
+	wg.Wait()
+	close(errs)
+	for err := range errs {
+		if err != nil {
+			t.Error(err)
+		}
 	}
 }
 
