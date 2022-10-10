@@ -454,30 +454,39 @@ func TestWriteqContextCancel(t *testing.T) {
 
 	nworkers := 1000
 	var done sync.WaitGroup
+	var waiters sync.WaitGroup
+	startCancel := make(chan struct{})
+
 	errCh := make(chan error, nworkers)
 	done.Add(nworkers * 2)
+	waiters.Add(nworkers)
+
+	wq.wait(ctx, &fe1.writer, expressPriority)
 
 	// Need to use a largish number of goroutines to exercise all of the
 	// paths in writeq.wait.
 	for i := 0; i < nworkers; i++ {
 		ctx, cancel := context.WithCancel(rctx)
 		go func(i int) {
+			waiters.Done()
 			defer done.Done()
 			shared := newEntry()
 			if err := wq.wait(ctx, &shared.writer, flowPriority); err != nil {
 				errCh <- err
 				return
 			}
-			time.Sleep(time.Duration(rand.Int31n(200)) * time.Nanosecond)
-			wq.done(&shared.writer)
 		}(i)
 		go func(cancel func()) {
+			<-startCancel
 			defer done.Done()
 			time.Sleep(time.Duration(rand.Int31n(100)) * time.Nanosecond)
 			cancel()
 		}(cancel)
 	}
 
+	waiters.Wait()
+	wq.done(&fe1.writer)
+	close(startCancel)
 	done.Wait()
 	close(errCh)
 	nerrors := 0
