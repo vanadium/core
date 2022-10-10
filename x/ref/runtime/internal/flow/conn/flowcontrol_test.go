@@ -220,22 +220,22 @@ func TestFlowControl(t *testing.T) {
 				}
 				for i := 0; i < nflows; i++ {
 					af := <-flows
-					go func() {
+					go func(i int) {
 						err := doRead(af, randData, nil)
 						if err != nil {
 							fmt.Printf("accept: doRead: flow: %v/%v, mtu: %v, buffered: %v, unexpected error: %v\n", i, nflows, mtu, bytesBuffered, err)
 						}
 						errs <- err
 						wg.Done()
-					}()
-					go func() {
+					}(i)
+					go func(i int) {
 						err := doWrite(af, randData)
 						if err != nil {
 							fmt.Printf("accept: doWrite: flow: %v/%v, mtu: %v, buffered: %v, unexpected error: %v\n", i, nflows, mtu, bytesBuffered, err)
 						}
 						errs <- err
 						wg.Done()
-					}()
+					}(i)
 				}
 
 				wg.Wait()
