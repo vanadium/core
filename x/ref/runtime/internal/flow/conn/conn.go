@@ -18,6 +18,7 @@ import (
 	"v.io/v23/rpc/version"
 	"v.io/v23/security"
 	"v.io/v23/verror"
+	"v.io/x/lib/vlog"
 	slib "v.io/x/ref/lib/security"
 	rpcversion "v.io/x/ref/runtime/internal/rpc/version"
 )
@@ -142,7 +143,7 @@ type Opts struct {
 	BytesBuffered uint64
 }
 
-func (co *Opts) initValues(protocol string) {
+func (co *Opts) initValues(protocol string) error {
 
 	if co.ChannelTimeout == 0 {
 		co.ChannelTimeout = DefaultChannelTimeout
@@ -167,6 +168,11 @@ func (co *Opts) initValues(protocol string) {
 	if co.ChannelTimeout == 0 {
 		co.ChannelTimeout = DefaultChannelTimeout
 	}
+
+	if co.MTU > co.BytesBuffered {
+		return fmt.Errorf("MTU %v is larger than bytes buffered per flow: %v\n", co.MTU, co.BytesBuffered)
+	}
+	return nil
 }
 
 // NewDialed dials a new Conn on the given conn. In the case when it is not
@@ -191,7 +197,9 @@ func NewDialed( //nolint:gocyclo
 		return
 	}
 
-	opts.initValues(local.Protocol)
+	if err = opts.initValues(local.Protocol); err != nil {
+		return
+	}
 
 	var remoteAddr net.Addr
 	if flowConn, ok := conn.(flow.Conn); ok {
@@ -320,7 +328,9 @@ func NewAccepted(
 		return nil, err
 	}
 
-	opts.initValues(local.Protocol)
+	if err := opts.initValues(local.Protocol); err != nil {
+		return nil, err
+	}
 
 	var remoteAddr net.Addr
 	if flowConn, ok := conn.(flow.Conn); ok {
@@ -882,6 +892,9 @@ func (c *Conn) readLoop(ctx *context.T) {
 		if err = c.handleAnyMessage(ctx, msg); err != nil {
 			break
 		}
+	}
+	if err != nil && verror.ErrorID(err) == ErrCounterOverflow.ID {
+		vlog.Infof("conn.readLoop: unexpected error: %v", err)
 	}
 	c.internalClose(ctx, false, false, err)
 }
