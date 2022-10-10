@@ -262,6 +262,7 @@ func (f *flw) writeMsg(alsoClose bool, parts ...[]byte) (sent int, err error) {
 
 	f.mu.Lock()
 	wasOpened := f.opened
+	f.opened = true
 	f.mu.Unlock()
 
 	for len(parts) > 0 {
@@ -296,9 +297,6 @@ func (f *flw) writeMsg(alsoClose bool, parts ...[]byte) (sent int, err error) {
 		if !wasOpened {
 			wasOpened = true
 			f.conn.unopenedFlows.Done()
-			f.mu.Lock()
-			f.opened = true
-			f.mu.Unlock()
 		}
 	}
 	if debug {
