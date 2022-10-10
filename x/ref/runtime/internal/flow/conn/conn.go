@@ -170,7 +170,8 @@ func (co *Opts) initValues(protocol string) error {
 	}
 
 	if co.MTU > co.BytesBuffered {
-		return fmt.Errorf("mtu of: %v, is larger than bytes buffered per flow: %v\n", co.MTU, co.BytesBuffered)
+		d
+		return fmt.Errorf("mtu of: %v, is larger than bytes buffered per flow: %v", co.MTU, co.BytesBuffered)
 	}
 	return nil
 }
