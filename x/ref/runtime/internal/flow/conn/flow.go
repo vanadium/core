@@ -272,7 +272,6 @@ func (f *flw) writeMsg(alsoClose bool, parts ...[]byte) (sent int, err error) {
 			// refragmenting.
 			need = totalSize
 		}
-
 		if wasOpened {
 			tokens, deduct, err := f.ensureTokens(ctx, debug, need)
 			parts, tosend, size = popFront(parts, tosend[:0], tokens)
@@ -292,6 +291,7 @@ func (f *flw) writeMsg(alsoClose bool, parts ...[]byte) (sent int, err error) {
 		if err := f.sendOpenFlowMessage(ctx, alsoClose, len(parts) == 0, tosend); err != nil {
 			return f.writeMsgDone(ctx, sent, alsoClose, err)
 		}
+		sent += size
 		wasOpened = true
 		f.conn.unopenedFlows.Done()
 	}
@@ -333,6 +333,11 @@ func (f *flw) sendOpenFlowMessage(ctx *context.T, alsoClose, finalPart bool, pay
 	}
 	err = f.conn.mp.writeMsg(ctx, d)
 	f.writeq.done(&f.writeqEntry)
+	/*	if len(payload) > 0 {
+			fmt.Fprintf(os.Stderr, "openflow: %v %v %v\n", bkey, dkey, len(payload[0]))
+		} else {
+			fmt.Fprintf(os.Stderr, "openflow: %v %v no payload\n", bkey, dkey)
+		}*/
 	return err
 }
 
