@@ -241,12 +241,6 @@ func (f *flw) writeMsgDone(ctx *context.T, sent int, alsoClose bool, err error) 
 func (f *flw) writeMsg(alsoClose bool, parts ...[]byte) (sent int, err error) {
 	ctx := f.currentContext()
 
-	// TODO: don't send blessings more than once.
-	bkey, dkey, err := f.conn.blessingsFlow.send(ctx, f.localBlessings, f.localDischarges, nil)
-	if err != nil {
-		return 0, err
-	}
-
 	debug := ctx.V(2)
 	if debug {
 		ctx.Infof("starting write on flow %d(%p)", f.id, f)
@@ -286,18 +280,20 @@ func (f *flw) writeMsg(alsoClose bool, parts ...[]byte) (sent int, err error) {
 			if err != nil {
 				return f.writeMsgDone(ctx, sent, alsoClose, err)
 			}
+			if err := f.sendDataMessage(ctx, alsoClose, len(parts) == 0, tosend); err != nil {
+				return f.writeMsgDone(ctx, sent, alsoClose, err)
+			}
+			sent += size
+			continue
 		}
-
-		err = f.sendFlowMessage(ctx, wasOpened, alsoClose, len(parts) == 0, bkey, dkey, tosend)
-		if err != nil {
+		avail, deduct := f.flowControl.tokens(ctx, f.encapsulated)
+		parts, tosend, size = popFront(parts, tosend[:0], avail)
+		deduct(size)
+		if err := f.sendOpenFlowMessage(ctx, alsoClose, len(parts) == 0, tosend); err != nil {
 			return f.writeMsgDone(ctx, sent, alsoClose, err)
 		}
-		sent += size
-
-		if !wasOpened {
-			wasOpened = true
-			f.conn.unopenedFlows.Done()
-		}
+		wasOpened = true
+		f.conn.unopenedFlows.Done()
 	}
 	if debug {
 		f.ctx.Infof("finishing write on %d(%p)", f.id, f)
@@ -305,13 +301,7 @@ func (f *flw) writeMsg(alsoClose bool, parts ...[]byte) (sent int, err error) {
 	return f.writeMsgDone(ctx, sent, alsoClose, err)
 }
 
-func (f *flw) sendFlowMessage(ctx *context.T, wasOpened, alsoClose, finalPart bool, bkey, dkey uint64, payload [][]byte) error {
-	if err := f.writeq.wait(ctx, &f.writeqEntry, flowPriority); err != nil {
-		return io.EOF
-	}
-	// Actually write to the wire.  This is also where encryption happens,
-	// so this part can be slow.
-	var err error
+func (f *flw) messageFlags(alsoClose, finalPart bool) uint64 {
 	var flags uint64
 	if alsoClose && finalPart {
 		flags |= message.CloseFlag
@@ -319,20 +309,42 @@ func (f *flw) sendFlowMessage(ctx *context.T, wasOpened, alsoClose, finalPart bo
 	if f.noEncrypt {
 		flags |= message.DisableEncryptionFlag
 	}
-	if wasOpened {
-		d := &message.Data{ID: f.id, Flags: flags, Payload: payload}
-		err = f.conn.mp.writeMsg(ctx, d)
-	} else {
-		d := &message.OpenFlow{
-			ID:              f.id,
-			InitialCounters: f.flowControl.shared.bytesBufferedPerFlow,
-			BlessingsKey:    bkey,
-			DischargeKey:    dkey,
-			Flags:           flags,
-			Payload:         payload,
-		}
-		err = f.conn.mp.writeMsg(ctx, d)
+	return flags
+}
+
+func (f *flw) sendOpenFlowMessage(ctx *context.T, alsoClose, finalPart bool, payload [][]byte) error {
+	bkey, dkey, err := f.conn.blessingsFlow.send(ctx, f.localBlessings, f.localDischarges, nil)
+	if err != nil {
+		return err
 	}
+	flags := f.messageFlags(alsoClose, finalPart)
+	if err := f.writeq.wait(ctx, &f.writeqEntry, flowPriority); err != nil {
+		return io.EOF
+	}
+	// Actually write to the wire.  This is also where encryption happens,
+	// so this part can be slow.
+	d := &message.OpenFlow{
+		ID:              f.id,
+		InitialCounters: f.flowControl.shared.bytesBufferedPerFlow,
+		BlessingsKey:    bkey,
+		DischargeKey:    dkey,
+		Flags:           flags,
+		Payload:         payload,
+	}
+	err = f.conn.mp.writeMsg(ctx, d)
+	f.writeq.done(&f.writeqEntry)
+	return err
+}
+
+func (f *flw) sendDataMessage(ctx *context.T, alsoClose, finalPart bool, payload [][]byte) error {
+	flags := f.messageFlags(alsoClose, finalPart)
+	if err := f.writeq.wait(ctx, &f.writeqEntry, flowPriority); err != nil {
+		return io.EOF
+	}
+	// Actually write to the wire.  This is also where encryption happens,
+	// so this part can be slow.
+	d := &message.Data{ID: f.id, Flags: flags, Payload: payload}
+	err := f.conn.mp.writeMsg(ctx, d)
 	f.writeq.done(&f.writeqEntry)
 	return err
 }
