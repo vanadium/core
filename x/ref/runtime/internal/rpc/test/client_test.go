@@ -505,6 +505,7 @@ func TestTimeoutResponse(t *testing.T) {
 		ctx, cancel := context.WithTimeout(ctx, timeout)
 		defer cancel()
 		ctx, span := vtrace.WithNewTrace(ctx, "TestTimeoutResponse", nil)
+		span.Annotatef("TestTimeoutResponse: timeout of %v", timeout)
 		vtrace.ForceCollect(ctx, 0)
 		err := v23.GetClient(ctx).Call(ctx, name, "Sleep", nil, nil)
 		if got, want := verror.ErrorID(err), verror.ErrTimeout.ID; got != want {
@@ -645,6 +646,7 @@ func TestCallback(t *testing.T) {
 func TestStreamTimeout(t *testing.T) {
 	_, ctx, name, cleanup := testInit(t, true)
 	defer cleanup()
+	ctx.Infof("TestStreamTimeout")
 
 	runner := func(ctx *context.T, timeout time.Duration) error {
 		// Establish a connection before attempting to set a short timeout
@@ -659,7 +661,9 @@ func TestStreamTimeout(t *testing.T) {
 		var cancel context.CancelFunc
 		ctx, cancel = context.WithTimeout(ctx, timeout)
 		defer cancel()
-		ctx, span := vtrace.WithNewTrace(ctx, "TestTimeoutResponse", nil)
+		ctx, span := vtrace.WithNewTrace(ctx, "TestStreamTimeout", nil)
+		span.Annotatef("TestStreamTimeout: timeout of %v", timeout)
+
 		vtrace.ForceCollect(ctx, 0)
 		call, err := v23.GetClient(ctx).StartCall(ctx, name, "Source", []interface{}{want})
 		if err != nil {
