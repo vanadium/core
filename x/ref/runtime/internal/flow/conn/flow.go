@@ -288,7 +288,7 @@ func (f *flw) writeMsg(alsoClose bool, parts ...[]byte) (sent int, err error) {
 		avail, deduct := f.flowControl.tokens(ctx, f.encapsulated)
 		parts, tosend, size = popFront(parts, tosend[:0], avail)
 		deduct(size)
-		if err := f.sendOpenFlowMessage(ctx, alsoClose, len(parts) == 0, tosend); err != nil {
+		if err := f.handleOpenFlow(ctx, alsoClose, len(parts) == 0, tosend); err != nil {
 			return f.writeMsgDone(ctx, sent, alsoClose, err)
 		}
 		sent += size
@@ -312,7 +312,7 @@ func (f *flw) messageFlags(alsoClose, finalPart bool) uint64 {
 	return flags
 }
 
-func (f *flw) sendOpenFlowMessage(ctx *context.T, alsoClose, finalPart bool, payload [][]byte) error {
+func (f *flw) handleOpenFlow(ctx *context.T, alsoClose, finalPart bool, payload [][]byte) error {
 	bkey, dkey, err := f.conn.blessingsFlow.send(ctx, f.localBlessings, f.localDischarges, nil)
 	if err != nil {
 		return err
