@@ -455,7 +455,7 @@ func TestWriteqContextCancel(t *testing.T) {
 	nworkers := 1000
 	var done sync.WaitGroup
 	errCh := make(chan error, nworkers)
-	done.Add(nworkers)
+	done.Add(nworkers * 2)
 
 	// Need to use a largish number of goroutines to exercise all of the
 	// paths in writeq.wait.
@@ -470,12 +470,12 @@ func TestWriteqContextCancel(t *testing.T) {
 			}
 			time.Sleep(time.Duration(rand.Int31n(200)) * time.Nanosecond)
 			wq.done(&shared.writer)
-
 		}(i)
-		go func() {
+		go func(cancel func()) {
+			defer done.Done()
 			time.Sleep(time.Duration(rand.Int31n(100)) * time.Nanosecond)
 			cancel()
-		}()
+		}(cancel)
 	}
 
 	done.Wait()
