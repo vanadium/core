@@ -195,6 +195,47 @@ func TestData(t *testing.T) {
 		})
 }
 
+func TestDataReuse(t *testing.T) {
+	ctx, shutdown := test.V23Init()
+	defer shutdown()
+	m := &message.Data{ID: 1123, Flags: message.CloseFlag, Payload: [][]byte{[]byte("fake payload")}}
+	buf := make([]byte, 0, 1024)
+	buf, err := message.Append(ctx, m, buf)
+	if err != nil {
+		t.Fatal(err)
+	}
+	var rm message.Data
+	message.ReadData(ctx, buf, &rm)
+	if got, want := rm.ID, uint64(1123); got != want {
+		t.Errorf("got %v, want %v", got, want)
+	}
+	if got, want := rm.Flags, uint64(message.CloseFlag); got != want {
+		t.Errorf("got %v, want %v", got, want)
+	}
+	if got, want := string(rm.Payload[0]), "fake payload"; got != want {
+		t.Errorf("got %v, want %v", got, want)
+	}
+
+	m = &message.Data{ID: 1124}
+	buf = make([]byte, 0, 1024)
+	buf, err = message.Append(ctx, m, buf)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	message.ReadData(ctx, buf, &rm)
+	if got, want := rm.ID, uint64(1124); got != want {
+		t.Errorf("got %v, want %v", got, want)
+	}
+	if got, want := rm.Flags, uint64(0); got != want {
+		t.Errorf("got %v, want %v", got, want)
+	}
+	if got, want := len(rm.Payload), 0; got != want {
+		t.Errorf("got %v, want %v", got, want)
+	}
+
+}
+
 func TestPlaintextPayloads(t *testing.T) {
 
 	encrypted := []message.Message{
