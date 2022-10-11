@@ -5,7 +5,6 @@
 package conn
 
 import (
-	"bytes"
 	"sync"
 )
 
@@ -39,7 +38,4 @@ var (
 			return &b
 		},
 	}
-
-	// bufferPool is used by BufferingFlow.
-	bufferPool = sync.Pool{New: func() interface{} { return &bytes.Buffer{} }}
 )

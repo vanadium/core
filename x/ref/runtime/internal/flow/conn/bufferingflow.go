@@ -5,7 +5,6 @@
 package conn
 
 import (
-	"bytes"
 	"sync"
 
 	"v.io/v23/context"
@@ -16,58 +15,71 @@ type MTUer interface {
 	MTU() uint64
 }
 
-// BufferingFlow wraps a Flow and buffers all its writes.  It only truly writes to the
-// underlying flow when the buffered data exceeds the MTU of the underlying channel, or
-// Flush, Close, or WriteMsgAndClose is called.
+// BufferingFlow wraps a Flow and buffers all its writes.  It writes to the
+// underlying channel when buffering new data would exceed the MTU of the
+// underlying channel or when one of Flush, Close or Note that it will never fragment a single payload
+// over multiple writes to that channel.
 type BufferingFlow struct {
 	flow.Flow
-	mtu uint64
+	lf  *flw
+	mtu int
 
-	mu  sync.Mutex
-	buf *bytes.Buffer // Protected by mu.
+	mu      sync.Mutex
+	storage [DefaultMTU]byte
+	buf     []byte
 }
 
-func NewBufferingFlow(ctx *context.T, flw flow.Flow, mtu uint64) *BufferingFlow {
+func NewBufferingFlow(ctx *context.T, f flow.Flow) *BufferingFlow {
 	b := &BufferingFlow{
-		Flow: flw,
-		buf:  bufferPool.Get().(*bytes.Buffer),
-		mtu:  mtu,
+		Flow: f,
+		mtu:  DefaultMTU,
 	}
-	if b.mtu == 0 {
-		b.mtu = DefaultMTU
+	if m, ok := f.Conn().(MTUer); ok {
+		b.mtu = int(m.MTU())
 	}
-	b.buf.Reset()
-	if m, ok := flw.Conn().(MTUer); ok {
-		b.mtu = m.MTU()
+	b.buf = b.storage[:0]
+	if lf, ok := f.(*flw); ok {
+		b.lf = lf
 	}
-	b.buf.Grow(int(b.mtu))
 	return b
 }
 
 // Write buffers data until the underlying channels MTU is reached at which point
 // it calls Write on the wrapped Flow.
 func (b *BufferingFlow) Write(data []byte) (int, error) {
-	return b.WriteMsg(data)
+	b.mu.Lock()
+	defer b.mu.Unlock()
+	return b.writeLocked(data)
+}
+
+func (b *BufferingFlow) write(data []byte) (int, error) {
+	if b.lf != nil {
+		return b.lf.Write(b.buf)
+	}
+	return b.lf.Write(b.buf)
+}
+
+func (b *BufferingFlow) writeLocked(data []byte) (int, error) {
+	l := len(data)
+	if len(b.buf)+l < b.mtu {
+		b.buf = append(b.buf, data...)
+		return l, nil
+	}
+	n, err := b.write(b.buf)
+	b.buf = b.storage[:0]
+	b.buf = append(b.buf, data...)
+	return n + len(b.buf), err
 }
 
 // WriteMsg buffers data until the underlying channels MTU is reached at which point
 // it calls WriteMsg on the wrapped Flow.
 func (b *BufferingFlow) WriteMsg(data ...[]byte) (int, error) {
-	defer b.mu.Unlock()
 	b.mu.Lock()
-	if b.buf == nil {
-		return b.Flow.WriteMsg(data...)
-	}
+	defer b.mu.Unlock()
 	wrote := 0
 	for _, d := range data {
-		if l := b.buf.Len(); l > 0 && uint64(l+len(d)) > b.mtu {
-			if _, err := b.Flow.WriteMsg(b.buf.Bytes()); err != nil {
-				return wrote, err
-			}
-			b.buf.Reset()
-		}
-		cur, err := b.buf.Write(d)
-		wrote += cur
+		n, err := b.writeLocked(d)
+		wrote += n
 		if err != nil {
 			return wrote, err
 		}
@@ -77,14 +89,15 @@ func (b *BufferingFlow) WriteMsg(data ...[]byte) (int, error) {
 
 // Close flushes the already written data and then closes the underlying Flow.
 func (b *BufferingFlow) Close() error {
-	defer b.mu.Unlock()
 	b.mu.Lock()
-	if b.buf == nil {
-		return b.Flow.Close()
+	defer b.mu.Unlock()
+	var err error
+	if b.lf != nil {
+		_, err = b.lf.WriteMsgAndClose(b.buf)
+	} else {
+		_, err = b.Flow.WriteMsgAndClose(b.buf)
 	}
-	_, err := b.Flow.WriteMsgAndClose(b.buf.Bytes())
-	bufferPool.Put(b.buf)
-	b.buf = nil
+	b.buf = b.storage[:0]
 	return err
 }
 
@@ -92,9 +105,6 @@ func (b *BufferingFlow) Close() error {
 func (b *BufferingFlow) WriteMsgAndClose(data ...[]byte) (int, error) {
 	defer b.mu.Unlock()
 	b.mu.Lock()
-	if b.buf == nil {
-		return b.Flow.WriteMsgAndClose(data...)
-	}
 	wrote, err := b.WriteMsg(data...)
 	if err != nil {
 		return wrote, err
@@ -103,13 +113,10 @@ func (b *BufferingFlow) WriteMsgAndClose(data ...[]byte) (int, error) {
 }
 
 // Flush writes all buffered data to the underlying Flow.
-func (b *BufferingFlow) Flush() (err error) {
-	defer b.mu.Unlock()
+func (b *BufferingFlow) Flush() error {
 	b.mu.Lock()
-	if b.buf != nil && b.buf.Len() > 0 {
-		byts := b.buf.Bytes()
-		_, err = b.Flow.WriteMsg(byts)
-		b.buf.Reset()
-	}
+	defer b.mu.Unlock()
+	_, err := b.write(b.buf)
+	b.buf = b.storage[:0]
 	return err
 }
