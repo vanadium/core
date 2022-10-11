@@ -40,6 +40,7 @@ func NewBufferingFlow(ctx *context.T, flw flow.Flow, mtu uint64) *BufferingFlow 
 	if m, ok := flw.Conn().(MTUer); ok {
 		b.mtu = m.MTU()
 	}
+	b.buf.Grow(int(b.mtu))
 	return b
 }
 

@@ -234,7 +234,7 @@ func (f *flw) writeMsgDone(ctx *context.T, sent int, alsoClose bool, err error) 
 	return sent, nil
 }
 
-func (f *flw) writeMsg(alsoClose bool, parts ...[]byte) (sent int, err error) {
+func (f *flw) writeMsg(alsoClose bool, parts [][]byte) (sent int, err error) {
 	ctx := f.currentContext()
 
 	debug := ctx.V(2)
@@ -355,14 +355,14 @@ func (f *flw) sendDataMessage(ctx *context.T, alsoClose, finalPart bool, payload
 // Write, WriteMsg, and WriteMsgAndClose should not be called concurrently
 // with themselves or each other.
 func (f *flw) WriteMsg(parts ...[]byte) (int, error) {
-	return f.writeMsg(false, parts...)
+	return f.writeMsg(false, parts)
 }
 
 // WriteMsgAndClose performs WriteMsg and then closes the flow.
 // Write, WriteMsg, and WriteMsgAndClose should not be called concurrently
 // with themselves or each other.
 func (f *flw) WriteMsgAndClose(parts ...[]byte) (int, error) {
-	return f.writeMsg(true, parts...)
+	return f.writeMsg(true, parts)
 }
 
 // SetContext sets the context associated with the flow.  Typically this is
