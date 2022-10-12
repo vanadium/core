@@ -971,7 +971,7 @@ func (c *Conn) sendMessage(
 	// from many different flows concurrently to send flow control
 	// release messages.
 	var w writer
-	w.notify = make(chan struct{})
+	w.notify = make(chan struct{}, 1)
 	if err := c.writeq.wait(cctx, &w, priority); err != nil {
 		return err
 	}
