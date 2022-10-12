@@ -66,10 +66,10 @@ func (b *BufferingFlow) writeLocked(data []byte) (int, error) {
 		b.buf = append(b.buf, data...)
 		return l, nil
 	}
-	n, err := b.write(b.buf)
+	_, err := b.write(b.buf)
 	b.buf = b.storage[:0]
 	b.buf = append(b.buf, data...)
-	return n + len(b.buf), err
+	return l, err
 }
 
 // WriteMsg buffers data until the underlying channels MTU is reached at which point
