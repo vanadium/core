@@ -85,7 +85,16 @@ type writer struct {
 	// to be sent and head.prev points to the last item to be sent.
 	prev, next *writer
 
+	close  bool
 	notify chan struct{}
+}
+
+func (w *writer) signal() {
+	if w.close {
+		close(w.notify)
+		return
+	}
+	w.notify <- struct{}{}
 }
 
 func (q *writeq) String() string {
@@ -182,7 +191,7 @@ func (q *writeq) handleCancel(w *writer, p int) {
 			// Make the item removed from the queue the active one and signal it.
 			q.active = head
 			q.mu.Unlock()
-			q.active.notify <- struct{}{}
+			head.signal()
 			return
 		}
 		q.mu.Unlock()
@@ -221,7 +230,7 @@ func (q *writeq) wait(ctx *context.T, w *writer, p int) error {
 		// Make the item removed from the queue the active one and signal it.
 		q.active = head
 		q.mu.Unlock()
-		head.notify <- struct{}{}
+		head.signal()
 		return q.signalWait(ctx, w, p)
 	}
 	q.active = w
@@ -240,7 +249,7 @@ func (q *writeq) done(w *writer) {
 			// If there is a new active writer, signal it.
 			q.active = head
 			q.mu.Unlock()
-			head.notify <- struct{}{}
+			head.signal()
 			return
 		}
 	}
