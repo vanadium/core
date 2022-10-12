@@ -17,8 +17,8 @@ type MTUer interface {
 
 // BufferingFlow wraps a Flow and buffers all its writes.  It writes to the
 // underlying channel when buffering new data would exceed the MTU of the
-// underlying channel or when one of Flush, Close or Note that it will never fragment a single payload
-// over multiple writes to that channel.
+// underlying channel or when one of Flush, Close or Note that it will never
+// fragment a single payload over multiple writes to that channel.
 type BufferingFlow struct {
 	flow.Flow
 	lf  *flw
@@ -29,6 +29,7 @@ type BufferingFlow struct {
 	buf     []byte
 }
 
+// NewBufferingFlow creates a new instance of BufferingFlow.
 func NewBufferingFlow(ctx *context.T, f flow.Flow) *BufferingFlow {
 	b := &BufferingFlow{
 		Flow: f,
@@ -56,7 +57,7 @@ func (b *BufferingFlow) write(data []byte) (int, error) {
 	if b.lf != nil {
 		return b.lf.Write(b.buf)
 	}
-	return b.lf.Write(b.buf)
+	return b.Flow.Write(b.buf)
 }
 
 func (b *BufferingFlow) writeLocked(data []byte) (int, error) {
