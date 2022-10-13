@@ -24,10 +24,8 @@ jobs:
       - run:
           name: test
           command: |
-            go mod download
             go test -race -timeout=15m ./...
             cd x/ref/examples
-            go mod download
             go test -race ./...
 
   test-linux-integration:
@@ -86,7 +84,7 @@ jobs:
     steps:
       - checkout
       - run:
-          name: lint
+          name: vulnerabilities
           command: |
             go install golang.org/x/vuln/cmd/govulncheck@latest
             govulncheck ./...
