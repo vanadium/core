@@ -21,7 +21,7 @@ func FormatMessage(m message.Message) string {
 	out.WriteString(reflect.TypeOf(m).String())
 	switch msg := m.(type) {
 	case *message.Data:
-		out.WriteString(fmt.Sprintf("flow: %3v", msg.ID))
+		out.WriteString(fmt.Sprintf(": flow: %3v", msg.ID))
 		if len(msg.Payload) > 0 {
 			out.WriteString(fmt.Sprintf(": flags: %02x, #%v bytes", msg.Flags, len(msg.Payload[0])))
 		} else {
@@ -30,7 +30,7 @@ func FormatMessage(m message.Message) string {
 	case *message.Release:
 		out.WriteString(FormatCounters(msg.Counters))
 	case *message.OpenFlow:
-		out.WriteString(fmt.Sprintf("flow: %3v", msg.ID))
+		out.WriteString(fmt.Sprintf(": flow: %3v", msg.ID))
 		if len(msg.Payload) > 0 {
 			out.WriteString(fmt.Sprintf(": flags: %02x, #%v bytes", msg.Flags, len(msg.Payload[0])))
 		} else {
