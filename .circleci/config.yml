@@ -24,8 +24,10 @@ jobs:
       - run:
           name: test
           command: |
+            go mod download
             go test -race -timeout=15m ./...
             cd x/ref/examples
+            go mod download
             go test -race ./...
 
   test-linux-integration:
