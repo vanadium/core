@@ -5,6 +5,7 @@ orbs:
 jobs:
   test-linux:
     resource_class: large
+    parallelism: 4
     parameters:
       go:
         type: string
@@ -24,7 +25,7 @@ jobs:
       - run:
           name: test
           command: |
-            go test -race -timeout=15m ./...
+            go test -race -timeout=15m $(go list ./... | circleci tests split --split-by=timings)
             cd x/ref/examples
             go test -race ./...
 
