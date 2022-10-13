@@ -648,6 +648,7 @@ func (m *Data) read(ctx *context.T, orig []byte) error {
 	if m.Flags, data, valid = readVarUint64(data); !valid {
 		return NewErrInvalidMsg(ctx, dataType, uint64(len(orig)), 1, nil)
 	}
+	m.Payload = nil
 	if m.Flags&DisableEncryptionFlag == 0 && len(data) > 0 {
 		m.Payload = [][]byte{data}
 	}
