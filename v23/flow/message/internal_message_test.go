@@ -165,11 +165,11 @@ func TestErrInvalidMessage(t *testing.T) {
 func ExposeSetAuthMessageType(m Auth, ecdsa, ed25519, rsa bool) Auth {
 	switch {
 	case ecdsa:
-		m.signatureType = authType
+		m.signatureType = AuthType
 	case ed25519:
-		m.signatureType = authED25519Type
+		m.signatureType = AuthED25519Type
 	case rsa:
-		m.signatureType = authRSAType
+		m.signatureType = AuthRSAType
 	}
 	return m
 }

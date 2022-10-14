@@ -158,14 +158,6 @@ func (p *messagePipe) writeCiphertext(ctx *context.T, fn serialize, plaintextBuf
 	return err
 }
 
-func payloadSize(parts [][]byte) int {
-	s := 0
-	for _, p := range parts {
-		s += len(p)
-	}
-	return s
-}
-
 func (p *messagePipe) getBuffers() (*[]byte, *[]byte) {
 	return messagePipePool.Get().(*[]byte), messagePipePool.Get().(*[]byte)
 }
