@@ -123,17 +123,17 @@ func testMessageEncryption(t *testing.T, ctx *context.T, protocol string, ks key
 			bufCh <- buf
 			// clear out the unencrypted payloads.
 			switch msg := m.(type) {
-			case *message.Data:
+			case message.Data:
 				if msg.Flags&message.DisableEncryptionFlag != 0 {
 					out.ReadMsg()
 				}
-			case *message.OpenFlow:
+			case message.OpenFlow:
 				if msg.Flags&message.DisableEncryptionFlag != 0 {
 					out.ReadMsg()
 				}
 			}
 		}(m)
-		if err := dialedPipe.writeMsg(ctx, m); err != nil {
+		if err := writeToMessagePipe(ctx, dialedPipe, m); err != nil {
 			t.Fatal(err)
 		}
 		if err := <-errCh; err != nil {
@@ -184,8 +184,8 @@ func runMany(ctx *context.T, dialedPipe, acceptedPipe *messagePipe, rxbuf, paylo
 			if len(payload) > DefaultMTU {
 				payload = payload[:DefaultMTU]
 			}
-			msg := &message.Data{ID: 1123, Payload: [][]byte{payload}}
-			err := dialedPipe.writeMsg(ctx, msg)
+			msg := message.Data{ID: 1123, Payload: [][]byte{payload}}
+			err := dialedPipe.writeData(ctx, msg)
 			if err != nil {
 				errCh <- err
 				return
@@ -203,7 +203,7 @@ func runMany(ctx *context.T, dialedPipe, acceptedPipe *messagePipe, rxbuf, paylo
 				return
 			}
 			m = m.Copy()
-			received = append(received, m.(*message.Data).Payload[0]...)
+			received = append(received, m.(message.Data).Payload[0]...)
 			if len(received) == len(payload) {
 				break
 			}
@@ -248,7 +248,7 @@ func testMessages(t *testing.T) []message.Message {
 		t.Fatal(err)
 	}
 	return []message.Message{
-		&message.OpenFlow{
+		message.OpenFlow{
 			ID:              23,
 			InitialCounters: 1 << 20,
 			BlessingsKey:    42,
@@ -256,37 +256,50 @@ func testMessages(t *testing.T) []message.Message {
 			Flags:           message.CloseFlag,
 			Payload:         [][]byte{[]byte("fake payload")},
 		},
-		&message.OpenFlow{ID: 23, InitialCounters: 1 << 20, BlessingsKey: 42, DischargeKey: 55},
-		&message.OpenFlow{ID: 23, Flags: message.DisableEncryptionFlag,
+		message.OpenFlow{ID: 23, InitialCounters: 1 << 20, BlessingsKey: 42, DischargeKey: 55},
+		message.OpenFlow{ID: 23, Flags: message.DisableEncryptionFlag,
 			InitialCounters: 1 << 18, BlessingsKey: 42, DischargeKey: 55,
 			Payload: [][]byte{[]byte("fake payload")},
 		},
 
-		&message.Setup{Versions: version.RPCVersionRange{Min: 3, Max: 5}},
-		&message.Setup{
+		message.Setup{Versions: version.RPCVersionRange{Min: 3, Max: 5}},
+		message.Setup{
 			Versions: version.RPCVersionRange{Min: 3, Max: 5},
 			PeerNaClPublicKey: &[32]byte{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13,
 				14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31},
 			PeerRemoteEndpoint: ep1,
 			PeerLocalEndpoint:  ep2,
 		},
-		&message.Setup{
+		message.Setup{
 			Versions:     version.RPCVersionRange{Min: 3, Max: 5},
 			Mtu:          1 << 16,
 			SharedTokens: 1 << 20,
 		},
-		&message.Data{ID: 1123, Flags: message.CloseFlag, Payload: [][]byte{[]byte("fake payload")}},
-		&message.Data{ID: 1123, Flags: message.CloseFlag, Payload: [][]byte{largePayload}},
+		message.Data{ID: 1123, Flags: message.CloseFlag, Payload: [][]byte{[]byte("fake payload")}},
+		message.Data{ID: 1123, Flags: message.CloseFlag, Payload: [][]byte{largePayload}},
 
-		&message.Data{},
-		&message.Data{ID: 1123, Flags: message.DisableEncryptionFlag, Payload: [][]byte{[]byte("fake payload")}},
-		&message.Data{ID: 1123, Flags: message.DisableEncryptionFlag, Payload: [][]byte{largePayload}},
+		message.Data{},
+		message.Data{ID: 1123, Flags: message.DisableEncryptionFlag, Payload: [][]byte{[]byte("fake payload")}},
+		message.Data{ID: 1123, Flags: message.DisableEncryptionFlag, Payload: [][]byte{largePayload}},
 	}
 }
 
 func testMessageRoundTrip(t *testing.T, ctx *context.T, dialed, accepted *messagePipe) {
 	for _, m := range testMessages(t) {
 		messageRoundTrip(t, ctx, dialed, accepted, m)
+	}
+}
+
+func writeToMessagePipe(ctx *context.T, mp *messagePipe, m message.Message) error {
+	switch msg := m.(type) {
+	case message.Data:
+		return mp.writeData(ctx, msg)
+	case message.OpenFlow:
+		return mp.writeOpenFlow(ctx, msg)
+	case message.Release:
+		return mp.writeRelease(ctx, msg)
+	default:
+		return mp.writeMsg(ctx, m.Append)
 	}
 }
 
@@ -307,14 +320,13 @@ func messageRoundTrip(t *testing.T, ctx *context.T, dialed, accepted *messagePip
 	}
 
 	go reader(accepted)
-	err = dialed.writeMsg(ctx, m)
+	writeToMessagePipe(ctx, dialed, m)
 	assert()
 	err = <-errCh
 	assert()
 	acceptedMessage := <-msgCh
-
 	go reader(dialed)
-	err = accepted.writeMsg(ctx, acceptedMessage)
+	err = writeToMessagePipe(ctx, accepted, acceptedMessage)
 	assert()
 	err = <-errCh
 	assert()
@@ -323,7 +335,7 @@ func messageRoundTrip(t *testing.T, ctx *context.T, dialed, accepted *messagePip
 	// Mimic the handling of plaintext playloads.
 	if message.ExpectsPlaintextPayload(m) {
 		pl, _ := message.PlaintextPayload(m)
-		message.SetPlaintextPayload(m, pl[0], true)
+		m = message.SetPlaintextPayload(m, pl[0], true)
 	}
 
 	if got, want := acceptedMessage, m; !reflect.DeepEqual(got, want) {
@@ -341,7 +353,7 @@ func runMessagePipeBenchmark(b *testing.B, ctx *context.T, dialed, accepted *mes
 
 	go func() {
 		for i := 0; i < b.N; i++ {
-			if err := dialed.writeMsg(ctx, &msg); err != nil {
+			if err := dialed.writeData(ctx, msg); err != nil {
 				errCh <- err
 				return
 			}

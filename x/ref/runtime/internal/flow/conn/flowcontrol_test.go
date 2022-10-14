@@ -76,11 +76,11 @@ func (r *readConn) ReadMsg() ([]byte, error) {
 	if len(b) > 0 {
 		m, _ := message.Read(r.ctx, b)
 		switch msg := m.(type) {
-		case *message.OpenFlow:
+		case message.OpenFlow:
 			if msg.ID > 1 { // Ignore the blessings flow.
 				r.ch <- m
 			}
-		case *message.Data:
+		case message.Data:
 			if msg.ID > 1 { // Ignore the blessings flow.
 				r.ch <- m
 			}
@@ -158,11 +158,11 @@ func TestOrdering(t *testing.T) {
 		for j := 0; j < nflows; j++ {
 			m := <-ch
 			switch msg := m.(type) {
-			case *message.OpenFlow:
+			case message.OpenFlow:
 				found[msg.ID] = true
-			case *message.Data:
+			case message.Data:
 				found[msg.ID] = true
-			case *message.TearDown:
+			case message.TearDown:
 			}
 		}
 		if len(found) != nflows {

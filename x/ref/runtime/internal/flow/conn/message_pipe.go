@@ -118,13 +118,15 @@ func usedOurBuffer(x, y []byte) bool {
 	return &x[0:cap(x)][cap(x)-1] == &y[0:cap(y)][cap(y)-1]
 }
 
-func (p *messagePipe) writeCiphertext(ctx *context.T, m message.Message, plaintextBuf, ciphertextBuf []byte) (wire, framed []byte, err error) {
+type serialize func(ctx *context.T, buf []byte) ([]byte, error)
+
+func (p *messagePipe) createCiphertext(ctx *context.T, fn serialize, plaintextBuf, ciphertextBuf []byte) (wire, framed []byte, err error) {
 	if p.seal == nil {
-		wire, err = m.Append(ctx, plaintextBuf[p.frameOffset:p.frameOffset])
+		wire, err = fn(ctx, plaintextBuf[p.frameOffset:p.frameOffset])
 		framed = plaintextBuf
 		return
 	}
-	plaintext, err := m.Append(ctx, plaintextBuf[:0])
+	plaintext, err := fn(ctx, plaintextBuf[:0])
 	if err != nil {
 		return
 	}
@@ -133,54 +135,96 @@ func (p *messagePipe) writeCiphertext(ctx *context.T, m message.Message, plainte
 	return
 }
 
-func (p *messagePipe) writeMsg(ctx *context.T, m message.Message) error {
-	plaintextBuf := messagePipePool.Get().(*[]byte)
-	defer messagePipePool.Put(plaintextBuf)
-
-	ciphertextBuf := messagePipePool.Get().(*[]byte)
-	defer messagePipePool.Put(ciphertextBuf)
-
-	plaintextPayload, ok := message.PlaintextPayload(m)
-	if ok && len(plaintextPayload) == 0 {
-		message.ClearDisableEncryptionFlag(m)
-	}
-
-	p.writeMu.Lock()
-	defer p.writeMu.Unlock()
-	wire, framedWire, err := p.writeCiphertext(ctx, m, *plaintextBuf, *ciphertextBuf)
+func (p *messagePipe) writeCiphertext(ctx *context.T, fn serialize, plaintextBuf, ciphertextBuf []byte) error {
+	wire, framedWire, err := p.createCiphertext(ctx, fn, plaintextBuf, ciphertextBuf)
 	if err != nil {
 		return err
 	}
-
 	if p.frameOffset > 0 && usedOurBuffer(framedWire, wire) {
 		// Write the frame size directly into the buffer we allocated and then
 		// write out that buffer in a single write operation.
 		if err := p.framer.PutSize(framedWire[:p.frameOffset], len(wire)); err != nil {
 			return err
 		}
-		if _, err = p.framer.Write(framedWire[:len(wire)+p.frameOffset]); err != nil {
+		if _, err := p.framer.Write(framedWire[:len(wire)+p.frameOffset]); err != nil {
 			return err
 		}
-	} else {
-		// NOTE that in the case where p.frameOffset > 0 but the returned buffer
-		// differs from the one passed in, p.frameOffset bytes are wasted in the
-		// buffers used here.
-		if _, err = p.rw.WriteMsg(wire); err != nil {
-			return err
-		}
+		return nil
 	}
+	// NOTE that in the case where p.frameOffset > 0 but the returned buffer
+	// differs from the one passed in, p.frameOffset bytes are wasted in the
+	// buffers used here.
+	_, err = p.rw.WriteMsg(wire)
+	return err
+}
 
-	// Handle plaintext payloads which are not serialized by message.Append
-	// above and are instead written separately in the clear.
-	if plaintextPayload != nil {
-		if _, err = p.rw.WriteMsg(plaintextPayload...); err != nil {
+func payloadSize(parts [][]byte) int {
+	s := 0
+	for _, p := range parts {
+		s += len(p)
+	}
+	return s
+}
+
+func (p *messagePipe) getBuffers() (*[]byte, *[]byte) {
+	return messagePipePool.Get().(*[]byte), messagePipePool.Get().(*[]byte)
+}
+
+func (p *messagePipe) putBuffers(ptext, ctext *[]byte) {
+	messagePipePool.Put(ptext)
+	messagePipePool.Put(ctext)
+}
+
+// Handle plaintext payloads which are not serialized by message.Append
+// above and are instead written separately in the clear.
+func (p *messagePipe) handlePlaintextPayload(flags uint64, payload [][]byte) error {
+	if flags&message.DisableEncryptionFlag != 0 {
+		if _, err := p.rw.WriteMsg(payload...); err != nil {
 			return err
 		}
-	}
-	if ctx.V(2) {
-		ctx.Infof("Wrote low-level message: %T: %v", m, m)
 	}
 	return nil
+}
+
+func (p *messagePipe) writeData(ctx *context.T, m message.Data) error {
+	plaintextBuf, ciphertextBuf := p.getBuffers()
+	defer p.putBuffers(plaintextBuf, ciphertextBuf)
+	p.writeMu.Lock()
+	defer p.writeMu.Unlock()
+	if err := p.writeCiphertext(ctx, m.Append, *plaintextBuf, *ciphertextBuf); err != nil {
+		return err
+	}
+	if ctx.V(2) {
+		defer ctx.Infof("Wrote low-level message: %T: %v", m, m)
+	}
+	return p.handlePlaintextPayload(m.Flags, m.Payload)
+}
+
+func (p *messagePipe) writeOpenFlow(ctx *context.T, m message.OpenFlow) error {
+	plaintextBuf, ciphertextBuf := p.getBuffers()
+	defer p.putBuffers(plaintextBuf, ciphertextBuf)
+	p.writeMu.Lock()
+	defer p.writeMu.Unlock()
+	if err := p.writeCiphertext(ctx, m.Append, *plaintextBuf, *ciphertextBuf); err != nil {
+		return err
+	}
+	return p.handlePlaintextPayload(m.Flags, m.Payload)
+}
+
+func (p *messagePipe) writeRelease(ctx *context.T, m message.Release) error {
+	plaintextBuf, ciphertextBuf := p.getBuffers()
+	defer p.putBuffers(plaintextBuf, ciphertextBuf)
+	p.writeMu.Lock()
+	defer p.writeMu.Unlock()
+	return p.writeCiphertext(ctx, m.Append, *plaintextBuf, *ciphertextBuf)
+}
+
+func (p *messagePipe) writeMsg(ctx *context.T, fn serialize) error {
+	plaintextBuf, ciphertextBuf := p.getBuffers()
+	defer p.putBuffers(plaintextBuf, ciphertextBuf)
+	p.writeMu.Lock()
+	defer p.writeMu.Unlock()
+	return p.writeCiphertext(ctx, fn, *plaintextBuf, *ciphertextBuf)
 }
 
 func (p *messagePipe) readClearText(ctx *context.T, plaintextBuf []byte) ([]byte, error) {

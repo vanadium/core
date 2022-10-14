@@ -67,14 +67,14 @@ func (c *Conn) dialHandshake(
 	if err != nil {
 		return names, rejected, rtt, err
 	}
-	lAuth := &message.Auth{ChannelBinding: signedBinding}
+	lAuth := message.Auth{ChannelBinding: signedBinding}
 	// The client sends its blessings without any blessing-pattern encryption to the
 	// server as it has already authorized the server. Thus the 'peers' argument to
 	// blessingsFlow.send is nil.
 	if lAuth.BlessingsKey, _, err = c.blessingsFlow.send(ctx, c.localBlessings, nil, nil); err != nil {
 		return names, rejected, rtt, err
 	}
-	err = c.sendMessage(ctx, true, expressPriority, lAuth)
+	err = c.sendAuthMessage(ctx, lAuth)
 	return names, rejected, rtt, err
 }
 
@@ -103,7 +103,7 @@ func (c *Conn) acceptHandshake(
 	if err != nil {
 		return rtt, err
 	}
-	lAuth := &message.Auth{
+	lAuth := message.Auth{
 		ChannelBinding: signedBinding,
 	}
 
@@ -114,7 +114,7 @@ func (c *Conn) acceptHandshake(
 	}
 
 	rttstart := time.Now()
-	err = c.sendMessage(ctx, true, expressPriority, lAuth)
+	err = c.sendAuthMessage(ctx, lAuth)
 	if err != nil {
 		return rtt, err
 	}
@@ -142,7 +142,7 @@ func (c *Conn) setup(ctx *context.T, versions version.RPCVersionRange, dialer bo
 	ch := make(chan error, 1)
 	go func() {
 		rttstart = time.Now()
-		ch <- c.sendMessage(ctx, true, expressPriority, lSetup)
+		ch <- c.sendSetupMessage(ctx, lSetup)
 	}()
 	msg, err := c.mp.readMsg(ctx, nil)
 	if err != nil {

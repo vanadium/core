@@ -325,15 +325,14 @@ func (f *flw) handleOpenFlow(ctx *context.T, alsoClose, finalPart bool, payload 
 	defer f.writeq.done(&f.writeqEntry)
 	// Actually write to the wire.  This is also where encryption happens,
 	// so this part can be slow.
-	d := message.OpenFlow{
+	return f.conn.mp.writeOpenFlow(ctx, message.OpenFlow{
 		ID:              f.id,
 		InitialCounters: f.flowControl.shared.bytesBufferedPerFlow,
 		BlessingsKey:    bkey,
 		DischargeKey:    dkey,
 		Flags:           flags,
 		Payload:         payload,
-	}
-	return f.conn.mp.writeMsg(ctx, d)
+	})
 }
 
 func (f *flw) sendDataMessage(ctx *context.T, alsoClose, finalPart bool, payload [][]byte) error {
@@ -344,8 +343,7 @@ func (f *flw) sendDataMessage(ctx *context.T, alsoClose, finalPart bool, payload
 	defer f.writeq.done(&f.writeqEntry)
 	// Actually write to the wire.  This is also where encryption happens,
 	// so this part can be slow.
-	d := message.Data{ID: f.id, Flags: flags, Payload: payload}
-	return f.conn.mp.writeMsg(ctx, d)
+	return f.conn.mp.writeData(ctx, message.Data{ID: f.id, Flags: flags, Payload: payload})
 }
 
 // WriteMsg is like Write, but allows writing more than one buffer at a time.
@@ -498,10 +496,12 @@ func (f *flw) close(ctx *context.T, closedRemotely bool, err error) {
 		// send the flow close message as it will fail.  This is racy
 		// with the connection closing, but there are no ill-effects
 		// other than spamming the logs a little so it's OK.
-		serr := f.conn.sendMessage(ctx, false, expressPriority, &message.Data{
+
+		serr := f.conn.sendDataMessage(ctx, false, expressPriority, message.Data{
 			ID:    f.id,
 			Flags: message.CloseFlag,
 		})
+
 		if serr != nil && log {
 			ctx.Infof("could not send close flow message: %v: close error (if any): %v", serr, err)
 		}

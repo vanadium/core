@@ -441,7 +441,7 @@ func (c *Conn) blessingsLoop(
 		c.localDischarges = dis
 		c.localValid = valid
 		c.mu.Unlock()
-		err = c.sendMessage(ctx, true, expressPriority, message.Auth{
+		err = c.sendAuthMessage(ctx, message.Auth{
 			BlessingsKey: bkey,
 			DischargeKey: dkey,
 		})
@@ -486,7 +486,7 @@ func (c *Conn) newHealthChecksLocked(ctx *context.T, firstRTT time.Duration) *he
 		lastRTT:       firstRTT,
 	}
 	requestTimer := time.AfterFunc(c.acceptChannelTimeout/2, func() {
-		c.sendMessage(ctx, true, expressPriority, message.HealthCheckRequest{})
+		c.sendHealthCheckMessage(ctx, true)
 		c.mu.Lock()
 		h.requestSent = time.Now()
 		c.mu.Unlock()
@@ -547,7 +547,7 @@ func (c *Conn) EnterLameDuck(ctx *context.T) chan struct{} {
 	}
 	c.mu.Unlock()
 	if enterLameDuck {
-		err := c.sendMessage(ctx, false, expressPriority, message.EnterLameDuck{})
+		err := c.sendLameDuckMessage(ctx, false, true)
 		if err != nil {
 			c.Close(ctx, ErrSend.Errorf(ctx, "failure sending release message to %v: %v", c.remote.String(), err))
 		}
@@ -761,9 +761,7 @@ func (c *Conn) internalCloseLocked(ctx *context.T, closedRemotely, closedWhileAc
 			if err != nil {
 				msg = err.Error()
 			}
-			cerr := c.sendMessage(ctx, false, tearDownPriority, message.TearDown{
-				Message: msg,
-			})
+			cerr := c.sendTearDownMessage(ctx, msg)
 			if cerr != nil {
 				ctx.VI(2).Infof("Error sending tearDown on connection to %s: %v", c.remote, cerr)
 			}
@@ -817,7 +815,7 @@ func (c *Conn) deleteFlow(fid uint64) {
 func (c *Conn) fragmentReleaseMessage(ctx *context.T, toRelease map[uint64]uint64) error {
 	limit := c.flowControl.releaseMessageLimit
 	if len(toRelease) < limit {
-		return c.sendMessage(ctx, false, expressPriority, message.Release{
+		return c.sendReleaseMessage(ctx, false, expressPriority, message.Release{
 			Counters: toRelease,
 		})
 	}
@@ -839,7 +837,7 @@ func (c *Conn) fragmentReleaseMessage(ctx *context.T, toRelease map[uint64]uint6
 				i++
 			}
 		}
-		if err := c.sendMessage(ctx, false, expressPriority, message.Release{
+		if err := c.sendReleaseMessage(ctx, false, expressPriority, message.Release{
 			Counters: send,
 		}); err != nil {
 			return err
@@ -938,24 +936,14 @@ func (c *Conn) writeEncodedBlessings(ctx *context.T, w *writer, data []byte) err
 		return err
 	}
 	// TODO(cnicolaou): what about fragmentation and flow control here?
-	err := c.mp.writeMsg(ctx, message.Data{
+	err := c.mp.writeData(ctx, message.Data{
 		ID:      blessingsFlowID,
 		Payload: [][]byte{data}})
 	c.writeq.done(w)
 	return err
 }
 
-// sendMessage sends a single message on the conn with the given priority.
-// It should never be called with the conn lock held since it may block.
-// if cancelWithContext is true, then this write attempt will fail when the context
-// is canceled.  Otherwise context cancellation will have no effect and this call
-// will block until the message is sent.
-func (c *Conn) sendMessage(
-	ctx *context.T,
-	cancelWithContext bool,
-	priority int,
-	m message.Message) error {
-
+func newWriterAndCancel(ctx *context.T, cancelWithContext bool) (*context.T, *writer) {
 	var cctx *context.T
 	if cancelWithContext {
 		cctx = ctx
@@ -963,13 +951,99 @@ func (c *Conn) sendMessage(
 	// We need a new writer for call to sendMessage since it can be called
 	// from many different flows concurrently to send flow control
 	// release messages.
-	var w writer
-	w.close = true
-	w.notify = make(chan struct{})
-	if err := c.writeq.wait(cctx, &w, priority); err != nil {
+	return cctx, &writer{
+		close:  true,
+		notify: make(chan struct{}),
+	}
+}
+
+func (c *Conn) sendDataMessage(
+	ctx *context.T,
+	cancelWithContext bool,
+	priority int,
+	m message.Data) error {
+	cctx, w := newWriterAndCancel(ctx, cancelWithContext)
+	if err := c.writeq.wait(cctx, w, priority); err != nil {
 		return err
 	}
-	err := c.mp.writeMsg(ctx, m)
-	c.writeq.done(&w)
-	return err
+	defer c.writeq.done(w)
+	return c.mp.writeData(ctx, m)
+}
+
+func (c *Conn) sendReleaseMessage(
+	ctx *context.T,
+	cancelWithContext bool,
+	priority int,
+	m message.Release) error {
+	cctx, w := newWriterAndCancel(ctx, cancelWithContext)
+	if err := c.writeq.wait(cctx, w, priority); err != nil {
+		return err
+	}
+	defer c.writeq.done(w)
+	return c.mp.writeRelease(ctx, m)
+}
+
+func (c *Conn) sendAuthMessage(ctx *context.T, m message.Auth) error {
+	cctx, w := newWriterAndCancel(ctx, true)
+	if err := c.writeq.wait(cctx, w, expressPriority); err != nil {
+		return err
+	}
+	defer c.writeq.done(w)
+	return c.mp.writeMsg(ctx, m.Append)
+}
+
+func (c *Conn) sendSetupMessage(
+	ctx *context.T,
+	m message.Setup) error {
+	cctx, w := newWriterAndCancel(ctx, true)
+	if err := c.writeq.wait(cctx, w, expressPriority); err != nil {
+		return err
+	}
+	defer c.writeq.done(w)
+	return c.mp.writeMsg(ctx, m.Append)
+}
+
+func (c *Conn) sendHealthCheckMessage(
+	ctx *context.T,
+	request bool) error {
+	cctx, w := newWriterAndCancel(ctx, true)
+	if err := c.writeq.wait(cctx, w, expressPriority); err != nil {
+		return err
+	}
+	defer c.writeq.done(w)
+	if request {
+		var m message.HealthCheckRequest
+		return c.mp.writeMsg(ctx, m.Append)
+	}
+	var m message.HealthCheckResponse
+	return c.mp.writeMsg(ctx, m.Append)
+}
+
+func (c *Conn) sendLameDuckMessage(
+	ctx *context.T,
+	cancelWithContext bool,
+	enterLameDuck bool) error {
+	cctx, w := newWriterAndCancel(ctx, cancelWithContext)
+	if err := c.writeq.wait(cctx, w, expressPriority); err != nil {
+		return err
+	}
+	defer c.writeq.done(w)
+	if enterLameDuck {
+		var m message.EnterLameDuck
+		return c.mp.writeMsg(ctx, m.Append)
+	}
+	var m message.AckLameDuck
+	return c.mp.writeMsg(ctx, m.Append)
+}
+
+func (c *Conn) sendTearDownMessage(
+	ctx *context.T,
+	msg string) error {
+	cctx, w := newWriterAndCancel(ctx, false)
+	if err := c.writeq.wait(cctx, w, tearDownPriority); err != nil {
+		return err
+	}
+	defer c.writeq.done(w)
+	var m = message.TearDown{Message: msg}
+	return c.mp.writeMsg(ctx, m.Append)
 }
