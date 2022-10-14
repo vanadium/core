@@ -4,29 +4,41 @@
 
 package message
 
-import (
-	"v.io/v23/context"
-)
-
+/*
 // ReadData reads a Data message from the supplied buffer if one is present,
 // returning true and the error for parsing the contents of the buffer. If
 // the buffer does not contain a Data message then false is returned.
-func ReadData(ctx *context.T, from []byte, to *Data) (bool, error) {
+func ReadData(ctx *context.T, from []byte) (Data, bool, error) {
+	var m Data
 	if len(from) == 0 || from[0] != dataType {
-		return false, nil
+		return m, false, nil
 	}
-	return true, to.read(ctx, from[1:])
+	msg, err := m.Read(ctx, from[1:])
+	return m, true, err
 }
+*/
 
 // SetPlaintextDataPayload is used to associate a payload that was sent in
 // the clear (following a message with the DisableEncryptionFlag flag set) with
 // the immediately preceding received message. The 'nocopy' parameter indicates
 // whether a subsequent call to CopyBuffers needs to copy the payload.
-func SetPlaintextDataPayload(msg *Data, payload []byte, nocopy bool) {
+func SetPlaintextDataPayload(msg Data, payload []byte, nocopy bool) Message {
 	msg.Payload = [][]byte{payload}
 	msg.nocopy = nocopy
+	return msg
 }
 
+// SetPlaintextOpenFlowPayload is used to associate a payload that was sent in
+// the clear (following a message with the DisableEncryptionFlag flag set) with
+// the immediately preceding received message. The 'nocopy' parameter indicates
+// whether a subsequent call to CopyBuffers needs to copy the payload.
+func SetPlaintextOpenFlowPayload(msg *Data, payload []byte, nocopy bool) Message {
+	msg.Payload = [][]byte{payload}
+	msg.nocopy = nocopy
+	return msg
+}
+
+/*
 // ReadSetup reads a Setup message from the supplied buffer if one is present,
 // returning true and the error for parsing the contents of the buffer. If
 // the buffer does not contain a Setup message then false is returned.
@@ -36,3 +48,4 @@ func ReadSetup(ctx *context.T, from []byte, to *Setup) (bool, error) {
 	}
 	return true, to.read(ctx, from[1:])
 }
+*/

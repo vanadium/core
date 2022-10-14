@@ -120,11 +120,11 @@ func usedOurBuffer(x, y []byte) bool {
 
 func (p *messagePipe) writeCiphertext(ctx *context.T, m message.Message, plaintextBuf, ciphertextBuf []byte) (wire, framed []byte, err error) {
 	if p.seal == nil {
-		wire, err = message.Append(ctx, m, plaintextBuf[p.frameOffset:p.frameOffset])
+		wire, err = m.Append(ctx, plaintextBuf[p.frameOffset:p.frameOffset])
 		framed = plaintextBuf
 		return
 	}
-	plaintext, err := message.Append(ctx, m, plaintextBuf[:0])
+	plaintext, err := m.Append(ctx, plaintextBuf[:0])
 	if err != nil {
 		return
 	}
@@ -221,7 +221,7 @@ func (p *messagePipe) readAnyMessage(ctx *context.T, plaintext []byte) (message.
 			return nil, err
 		}
 		// nocopy is set to true since the buffer was newly allocated here.
-		message.SetPlaintextPayload(m, payload, true)
+		m = message.SetPlaintextPayload(m, payload, true)
 	}
 	if ctx.V(2) {
 		ctx.Infof("Read low-level message: %T: %v", m, m)
@@ -229,6 +229,7 @@ func (p *messagePipe) readAnyMessage(ctx *context.T, plaintext []byte) (message.
 	return m, err
 }
 
+/*
 func (p *messagePipe) readDataMsg(ctx *context.T, plaintextBuf []byte, m *message.Data) (message.Message, error) {
 	plaintext, err := p.readClearText(ctx, plaintextBuf)
 	if err != nil {
@@ -252,3 +253,4 @@ func (p *messagePipe) readDataMsg(ctx *context.T, plaintextBuf []byte, m *messag
 	}
 	return nil, nil
 }
+*/

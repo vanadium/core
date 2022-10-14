@@ -129,7 +129,7 @@ func (c *Conn) setup(ctx *context.T, versions version.RPCVersionRange, dialer bo
 	if err != nil {
 		return nil, naming.Endpoint{}, rttstart, err
 	}
-	lSetup := &message.Setup{
+	lSetup := message.Setup{
 		Versions:          versions,
 		PeerLocalEndpoint: c.local,
 		PeerNaClPublicKey: pk,
@@ -149,7 +149,7 @@ func (c *Conn) setup(ctx *context.T, versions version.RPCVersionRange, dialer bo
 		<-ch
 		return nil, naming.Endpoint{}, rttstart, ErrRecv.Errorf(ctx, "conn.setup: recv: %v", err)
 	}
-	rSetup, valid := msg.(*message.Setup)
+	rSetup, valid := msg.(message.Setup)
 	if !valid {
 		<-ch
 		return nil, naming.Endpoint{}, rttstart, ErrUnexpectedMsg.Errorf(ctx, "conn.setup: unexpected message type: %T", msg)
@@ -199,17 +199,17 @@ func (c *Conn) setup(ctx *context.T, versions version.RPCVersionRange, dialer bo
 		// the Setup message to a lower-security version.)
 		// We always put the dialer first in the binding.
 		if dialer {
-			if binding, err = message.Append(ctx, lSetup, nil); err != nil {
+			if binding, err = lSetup.Append(ctx, nil); err != nil {
 				return nil, naming.Endpoint{}, rttstart, err
 			}
-			if binding, err = message.Append(ctx, rSetup, binding); err != nil {
+			if binding, err = rSetup.Append(ctx, binding); err != nil {
 				return nil, naming.Endpoint{}, rttstart, err
 			}
 		} else {
-			if binding, err = message.Append(ctx, rSetup, nil); err != nil {
+			if binding, err = rSetup.Append(ctx, nil); err != nil {
 				return nil, naming.Endpoint{}, rttstart, err
 			}
-			if binding, err = message.Append(ctx, lSetup, binding); err != nil {
+			if binding, err = lSetup.Append(ctx, binding); err != nil {
 				return nil, naming.Endpoint{}, rttstart, err
 			}
 		}

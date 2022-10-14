@@ -441,7 +441,7 @@ func (c *Conn) blessingsLoop(
 		c.localDischarges = dis
 		c.localValid = valid
 		c.mu.Unlock()
-		err = c.sendMessage(ctx, true, expressPriority, &message.Auth{
+		err = c.sendMessage(ctx, true, expressPriority, message.Auth{
 			BlessingsKey: bkey,
 			DischargeKey: dkey,
 		})
@@ -486,7 +486,7 @@ func (c *Conn) newHealthChecksLocked(ctx *context.T, firstRTT time.Duration) *he
 		lastRTT:       firstRTT,
 	}
 	requestTimer := time.AfterFunc(c.acceptChannelTimeout/2, func() {
-		c.sendMessage(ctx, true, expressPriority, &message.HealthCheckRequest{})
+		c.sendMessage(ctx, true, expressPriority, message.HealthCheckRequest{})
 		c.mu.Lock()
 		h.requestSent = time.Now()
 		c.mu.Unlock()
@@ -547,7 +547,7 @@ func (c *Conn) EnterLameDuck(ctx *context.T) chan struct{} {
 	}
 	c.mu.Unlock()
 	if enterLameDuck {
-		err := c.sendMessage(ctx, false, expressPriority, &message.EnterLameDuck{})
+		err := c.sendMessage(ctx, false, expressPriority, message.EnterLameDuck{})
 		if err != nil {
 			c.Close(ctx, ErrSend.Errorf(ctx, "failure sending release message to %v: %v", c.remote.String(), err))
 		}
@@ -761,7 +761,7 @@ func (c *Conn) internalCloseLocked(ctx *context.T, closedRemotely, closedWhileAc
 			if err != nil {
 				msg = err.Error()
 			}
-			cerr := c.sendMessage(ctx, false, tearDownPriority, &message.TearDown{
+			cerr := c.sendMessage(ctx, false, tearDownPriority, message.TearDown{
 				Message: msg,
 			})
 			if cerr != nil {
@@ -817,7 +817,7 @@ func (c *Conn) deleteFlow(fid uint64) {
 func (c *Conn) fragmentReleaseMessage(ctx *context.T, toRelease map[uint64]uint64) error {
 	limit := c.flowControl.releaseMessageLimit
 	if len(toRelease) < limit {
-		return c.sendMessage(ctx, false, expressPriority, &message.Release{
+		return c.sendMessage(ctx, false, expressPriority, message.Release{
 			Counters: toRelease,
 		})
 	}
@@ -839,7 +839,7 @@ func (c *Conn) fragmentReleaseMessage(ctx *context.T, toRelease map[uint64]uint6
 				i++
 			}
 		}
-		if err := c.sendMessage(ctx, false, expressPriority, &message.Release{
+		if err := c.sendMessage(ctx, false, expressPriority, message.Release{
 			Counters: send,
 		}); err != nil {
 			return err
@@ -876,18 +876,11 @@ func (c *Conn) sendRelease(ctx *context.T, f *flw, fid, count uint64) {
 func (c *Conn) readLoop(ctx *context.T) {
 	defer c.loopWG.Done()
 	var err error
-	var dataMsg message.Data
 	for {
-		msg, rerr := c.mp.readDataMsg(ctx, nil, &dataMsg)
+		msg, rerr := c.mp.readMsg(ctx, nil)
 		if rerr != nil {
 			err = ErrRecv.Errorf(ctx, "error reading from: %v: %v", c.remote.String(), rerr)
 			break
-		}
-		if msg == nil {
-			if err = c.handleData(ctx, &dataMsg); err != nil {
-				break
-			}
-			continue
 		}
 		if err = c.handleAnyMessage(ctx, msg); err != nil {
 			break
@@ -945,7 +938,7 @@ func (c *Conn) writeEncodedBlessings(ctx *context.T, w *writer, data []byte) err
 		return err
 	}
 	// TODO(cnicolaou): what about fragmentation and flow control here?
-	err := c.mp.writeMsg(ctx, &message.Data{
+	err := c.mp.writeMsg(ctx, message.Data{
 		ID:      blessingsFlowID,
 		Payload: [][]byte{data}})
 	c.writeq.done(w)

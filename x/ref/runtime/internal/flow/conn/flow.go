@@ -325,7 +325,7 @@ func (f *flw) handleOpenFlow(ctx *context.T, alsoClose, finalPart bool, payload 
 	defer f.writeq.done(&f.writeqEntry)
 	// Actually write to the wire.  This is also where encryption happens,
 	// so this part can be slow.
-	d := &message.OpenFlow{
+	d := message.OpenFlow{
 		ID:              f.id,
 		InitialCounters: f.flowControl.shared.bytesBufferedPerFlow,
 		BlessingsKey:    bkey,
@@ -344,7 +344,7 @@ func (f *flw) sendDataMessage(ctx *context.T, alsoClose, finalPart bool, payload
 	defer f.writeq.done(&f.writeqEntry)
 	// Actually write to the wire.  This is also where encryption happens,
 	// so this part can be slow.
-	d := &message.Data{ID: f.id, Flags: flags, Payload: payload}
+	d := message.Data{ID: f.id, Flags: flags, Payload: payload}
 	return f.conn.mp.writeMsg(ctx, d)
 }
 

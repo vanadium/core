@@ -391,7 +391,8 @@ func (m *manager) ProxyListen(ctx *context.T, name string, ep naming.Endpoint) (
 	m.ls.proxyFlows[k] = f
 	serverNames := m.ls.serverNames
 	m.ls.mu.Unlock()
-	w, err := message.Append(ctx, &message.ProxyServerRequest{}, nil)
+	var msg message.ProxyServerRequest
+	w, err := msg.Append(ctx, nil)
 	if err != nil {
 		m.updateProxyEndpoints(nil, name, err, k)
 		return nil, err
@@ -488,9 +489,9 @@ func (m *manager) readProxyResponse(ctx *context.T, f flow.Flow) ([]naming.Endpo
 		return nil, iflow.MaybeWrapError(flow.ErrBadArg, ctx, err)
 	}
 	switch m := msg.(type) {
-	case *message.ProxyResponse:
+	case message.ProxyResponse:
 		return m.Endpoints, nil
-	case *message.ProxyErrorResponse:
+	case message.ProxyErrorResponse:
 		f.Close()
 		return nil, errProxyResponse.Errorf(ctx, "proxy returned: %v", m.Error)
 	default:

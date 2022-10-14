@@ -202,7 +202,7 @@ func runMany(ctx *context.T, dialedPipe, acceptedPipe *messagePipe, rxbuf, paylo
 				errCh <- err
 				return
 			}
-			message.CopyBuffers(m)
+			m = m.Copy()
 			received = append(received, m.(*message.Data).Payload[0]...)
 			if len(received) == len(payload) {
 				break
