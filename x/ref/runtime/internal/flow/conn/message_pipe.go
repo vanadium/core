@@ -194,9 +194,6 @@ func (p *messagePipe) writeData(ctx *context.T, m message.Data) error {
 	if err := p.writeCiphertext(ctx, m.Append, *plaintextBuf, *ciphertextBuf); err != nil {
 		return err
 	}
-	if ctx.V(2) {
-		defer ctx.Infof("Wrote low-level message: %T: %v", m, m)
-	}
 	return p.handlePlaintextPayload(m.Flags, m.Payload)
 }
 
@@ -251,24 +248,55 @@ func (p *messagePipe) readMsg(ctx *context.T, plaintextBuf []byte) (message.Mess
 	if err != nil {
 		return nil, err
 	}
+	if len(plaintext) == 0 {
+		return nil, message.NewErrInvalidMsg(ctx, message.InvalidType, 0, 0, nil)
+	}
 	return p.readAnyMessage(ctx, plaintext)
 }
 
 func (p *messagePipe) readAnyMessage(ctx *context.T, plaintext []byte) (message.Message, error) {
-	m, err := message.Read(ctx, plaintext)
+	msgType, from := plaintext[0], plaintext[1:]
+	switch msgType {
+	case message.DataType:
+		return p.handleData(ctx, from)
+	case message.OpenFlowType:
+		return p.handleOpenFlow(ctx, from)
+	}
+	return message.Read(ctx, plaintext)
+}
+
+func (p *messagePipe) handleData(ctx *context.T, from []byte) (message.Message, error) {
+	m, err := message.Data{}.Read(ctx, from)
 	if err != nil {
 		return nil, err
 	}
-	if message.ExpectsPlaintextPayload(m) {
-		payload, err := p.rw.ReadMsg2(nil)
-		if err != nil {
-			return nil, err
-		}
-		// nocopy is set to true since the buffer was newly allocated here.
-		m = message.SetPlaintextPayload(m, payload, true)
+	msg := m.(message.Data)
+	if msg.Flags&message.DisableEncryptionFlag == 0 {
+		return m, nil
 	}
-	if ctx.V(2) {
-		ctx.Infof("Read low-level message: %T: %v", m, m)
+	payload, err := p.rw.ReadMsg2(nil)
+	if err != nil {
+		return nil, err
 	}
-	return m, err
+	msg.Payload = [][]byte{payload}
+	msg = msg.SetNoCopy(true)
+	return msg, nil
+}
+
+func (p *messagePipe) handleOpenFlow(ctx *context.T, from []byte) (message.Message, error) {
+	m, err := message.OpenFlow{}.Read(ctx, from)
+	if err != nil {
+		return nil, err
+	}
+	msg := m.(message.OpenFlow)
+	if msg.Flags&message.DisableEncryptionFlag == 0 {
+		return m, nil
+	}
+	payload, err := p.rw.ReadMsg2(nil)
+	if err != nil {
+		return nil, err
+	}
+	msg.Payload = [][]byte{payload}
+	msg = msg.SetNoCopy(true)
+	return msg, nil
 }

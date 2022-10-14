@@ -37,54 +37,41 @@ import (
 )
 
 // Read reads a message contained in the byte slice 'from'.
-func Read(ctx *context.T, from []byte) (Message, error) { //nolint:gocyclo
+func Read(ctx *context.T, from []byte) (Message, error) {
 	if len(from) == 0 {
-		return nil, NewErrInvalidMsg(ctx, invalidType, 0, 0, nil)
+		return nil, NewErrInvalidMsg(ctx, InvalidType, 0, 0, nil)
 	}
 	msgType, from := from[0], from[1:]
 	switch msgType {
-	case dataType:
-		var m Data
-		return m.Read(ctx, from)
-	case setupType:
-		var m Setup
-		return m.Read(ctx, from)
-	case authType, authED25519Type, authRSAType:
+	case DataType:
+		return Data{}.Read(ctx, from)
+	case SetupType:
+		return Setup{}.Read(ctx, from)
+	case AuthType, AuthED25519Type, AuthRSAType:
 		var m = Auth{signatureType: msgType}
 		return m.Read(ctx, from)
-	case openFlowType:
-		var m OpenFlow
-		return m.Read(ctx, from)
-	case releaseType:
-		var m Release
-		return m.Read(ctx, from)
-	case healthCheckRequestType:
-		var m HealthCheckRequest
-		return m.Read(ctx, from)
-	case healthCheckResponseType:
-		var m HealthCheckResponse
-		return m.Read(ctx, from)
-	case tearDownType:
-		var m TearDown
-		return m.Read(ctx, from)
-	case enterLameDuckType:
-		var m EnterLameDuck
-		return m.Read(ctx, from)
-	case ackLameDuckType:
-		var m AckLameDuck
-		return m.Read(ctx, from)
-	case multiProxyType:
-		var m MultiProxyRequest
-		return m.Read(ctx, from)
-	case proxyServerType:
-		var m ProxyServerRequest
-		return m.Read(ctx, from)
-	case proxyResponseType:
-		var m = ProxyResponse{}
-		return m.Read(ctx, from)
-	case proxyErrorReponseType:
-		var m = ProxyErrorResponse{}
-		return m.Read(ctx, from)
+	case OpenFlowType:
+		return OpenFlow{}.Read(ctx, from)
+	case ReleaseType:
+		return Release{}.Read(ctx, from)
+	case HealthCheckRequestType:
+		return HealthCheckRequest{}.Read(ctx, from)
+	case HealthCheckResponseType:
+		return HealthCheckResponse{}.Read(ctx, from)
+	case TearDownType:
+		return TearDown{}.Read(ctx, from)
+	case EnterLameDuckType:
+		return EnterLameDuck{}.Read(ctx, from)
+	case AckLameDuckType:
+		return AckLameDuck{}.Read(ctx, from)
+	case MultiProxyType:
+		return MultiProxyRequest{}.Read(ctx, from)
+	case ProxyServerType:
+		return ProxyServerRequest{}.Read(ctx, from)
+	case ProxyResponseType:
+		return ProxyResponse{}.Read(ctx, from)
+	case ProxyErrorReponseType:
+		return ProxyErrorResponse{}.Read(ctx, from)
 	default:
 		return nil, ErrUnknownMsg.Errorf(ctx, "unknown message type: %02x", msgType)
 	}
@@ -101,75 +88,6 @@ func FlowID(m interface{}) uint64 {
 	default:
 		return 0
 	}
-}
-
-// PlaintextPayload returns the payload for messages which have the
-// DisableEncryptionFlag set and the value of that flag.
-// PlaintextPayload should only be called on messages that have been created
-// using the Append function of this package to obtain the payload to be
-// written separately to the oroginal message.
-// If the DisableEncryptionFlag is set, but the payload is of zero length,
-// then the flag must be cleared so that the receiver knows not to expect
-// a separate frame. This is a backwards compatible change.
-func PlaintextPayload(m Message) ([][]byte, bool) {
-	switch msg := m.(type) {
-	case Data:
-		if msg.Flags&DisableEncryptionFlag != 0 {
-			return msg.Payload, true
-		}
-	case OpenFlow:
-		if msg.Flags&DisableEncryptionFlag != 0 {
-			return msg.Payload, true
-		}
-	}
-	return nil, false
-}
-
-// ClearDisableEncryptionFlag clears the DisableEncryptionFlag encryption
-// flag.
-func ClearDisableEncryptionFlag(m Message) Message {
-	switch msg := m.(type) {
-	case Data:
-		msg.Flags &^= DisableEncryptionFlag
-		return msg
-	case OpenFlow:
-		msg.Flags &^= DisableEncryptionFlag
-		return msg
-	}
-	return m
-}
-
-// ExpectsPlaintextPayload returns true if a mesage has a DisableEncryptionFlag
-// set, false if it is not set or not supported by the message.
-// ExpectsPlaintextPayload should be called after the Read function from
-// this package to determine if a subsequent plaintext message frame should
-// be read.
-func ExpectsPlaintextPayload(m Message) bool {
-	switch msg := m.(type) {
-	case Data:
-		return msg.Flags&DisableEncryptionFlag != 0
-	case OpenFlow:
-		return msg.Flags&DisableEncryptionFlag != 0
-	}
-	return false
-}
-
-// SetPlaintextPayload is used to associate a payload that was sent in the clear
-// (following a message with the DisableEncryptionFlag flag set) with the
-// immediately preceding received message. The 'nocopy' parameter indicates
-// whether a subsequent call to Copy needs to copy the payloadMessage .
-func SetPlaintextPayload(m Message, payload []byte, nocopy bool) Message {
-	switch msg := m.(type) {
-	case Data:
-		msg.Payload = [][]byte{payload}
-		msg.nocopy = nocopy
-		return msg
-	case OpenFlow:
-		msg.Payload = [][]byte{payload}
-		msg.nocopy = nocopy
-		return msg
-	}
-	return m
 }
 
 // Message is implemented by all low-level messages defined by this package.
@@ -194,23 +112,23 @@ type Message interface {
 // This is important for the RPC transition.  The old system had
 // messages that started from zero and worked their way up.
 const (
-	invalidType = 0x7f - iota
-	setupType
-	tearDownType
-	enterLameDuckType
-	ackLameDuckType
-	authType
-	openFlowType
-	releaseType
-	dataType
-	multiProxyType
-	proxyServerType
-	proxyResponseType
-	healthCheckRequestType
-	healthCheckResponseType
-	proxyErrorReponseType
-	authED25519Type
-	authRSAType
+	InvalidType = 0x7f - iota
+	SetupType
+	TearDownType
+	EnterLameDuckType
+	AckLameDuckType
+	AuthType
+	OpenFlowType
+	ReleaseType
+	DataType
+	MultiProxyType
+	ProxyServerType
+	ProxyResponseType
+	HealthCheckRequestType
+	HealthCheckResponseType
+	ProxyErrorReponseType
+	AuthED25519Type
+	AuthRSAType
 )
 
 // setup options.
@@ -282,7 +200,7 @@ func readSetupOption(ctx *context.T, orig []byte) (opt uint64, p, d []byte, err 
 }
 
 func (m Setup) Append(ctx *context.T, data []byte) ([]byte, error) {
-	data = append(data, setupType)
+	data = append(data, SetupType)
 	data = writeVarUint64(uint64(m.Versions.Min), data)
 	data = writeVarUint64(uint64(m.Versions.Max), data)
 	if m.PeerNaClPublicKey != nil {
@@ -316,11 +234,11 @@ func (m Setup) Read(ctx *context.T, orig []byte) (Message, error) {
 		v     uint64
 	)
 	if v, data, valid = readVarUint64(data); !valid {
-		return Setup{}, NewErrInvalidMsg(ctx, setupType, uint64(len(orig)), 0, nil)
+		return Setup{}, NewErrInvalidMsg(ctx, SetupType, uint64(len(orig)), 0, nil)
 	}
 	m.Versions.Min = version.RPCVersion(v)
 	if v, data, valid = readVarUint64(data); !valid {
-		return Setup{}, NewErrInvalidMsg(ctx, setupType, uint64(len(orig)), 1, nil)
+		return Setup{}, NewErrInvalidMsg(ctx, SetupType, uint64(len(orig)), 1, nil)
 	}
 	m.Versions.Max = version.RPCVersion(v)
 	for field := uint64(2); len(data) > 0; field++ {
@@ -330,7 +248,7 @@ func (m Setup) Read(ctx *context.T, orig []byte) (Message, error) {
 			err     error
 		)
 		if opt, payload, data, err = readSetupOption(ctx, data); err != nil {
-			return Setup{}, NewErrInvalidMsg(ctx, setupType, uint64(len(orig)), field, err)
+			return Setup{}, NewErrInvalidMsg(ctx, SetupType, uint64(len(orig)), field, err)
 		}
 		switch opt {
 		case peerNaClPublicKeyOption:
@@ -356,7 +274,7 @@ func (m Setup) Read(ctx *context.T, orig []byte) (Message, error) {
 			m.uninterpretedOptions = append(m.uninterpretedOptions, option{opt, payload})
 		}
 		if err != nil {
-			return Setup{}, NewErrInvalidMsg(ctx, setupType, uint64(len(orig)), field, err)
+			return Setup{}, NewErrInvalidMsg(ctx, SetupType, uint64(len(orig)), field, err)
 		}
 	}
 	return m, nil
@@ -385,7 +303,7 @@ type TearDown struct {
 }
 
 func (m TearDown) Append(ctx *context.T, data []byte) ([]byte, error) {
-	data = append(data, tearDownType)
+	data = append(data, TearDownType)
 	return append(data, []byte(m.Message)...), nil
 }
 
@@ -404,7 +322,7 @@ func (m TearDown) String() string { return m.Message }
 type EnterLameDuck struct{}
 
 func (m EnterLameDuck) Append(ctx *context.T, data []byte) ([]byte, error) {
-	return append(data, enterLameDuckType), nil
+	return append(data, EnterLameDuckType), nil
 }
 
 func (m EnterLameDuck) Read(ctx *context.T, data []byte) (Message, error) {
@@ -418,7 +336,7 @@ func (m EnterLameDuck) Copy() Message { return m }
 type AckLameDuck struct{}
 
 func (m AckLameDuck) Append(ctx *context.T, data []byte) ([]byte, error) {
-	return append(data, ackLameDuckType), nil
+	return append(data, AckLameDuckType), nil
 }
 
 func (m AckLameDuck) Read(ctx *context.T, data []byte) (Message, error) {
@@ -445,15 +363,15 @@ func (m Auth) appendCommon(data []byte) []byte {
 func (m Auth) Append(ctx *context.T, data []byte) ([]byte, error) {
 	switch {
 	case len(m.ChannelBinding.Ed25519) > 0:
-		data = append(data, authED25519Type)
+		data = append(data, AuthED25519Type)
 		data = m.appendCommon(data)
 		data = appendLenBytes(m.ChannelBinding.Ed25519, data)
 	case len(m.ChannelBinding.Rsa) > 0:
-		data = append(data, authRSAType)
+		data = append(data, AuthRSAType)
 		data = m.appendCommon(data)
 		data = appendLenBytes(m.ChannelBinding.Rsa, data)
 	default:
-		data = append(data, authType)
+		data = append(data, AuthType)
 		data = m.appendCommon(data)
 		data = appendLenBytes(m.ChannelBinding.R, data)
 		data = appendLenBytes(m.ChannelBinding.S, data)
@@ -465,36 +383,36 @@ func (m Auth) Read(ctx *context.T, orig []byte) (Message, error) {
 	var data, tmp []byte
 	var valid bool
 	if m.BlessingsKey, data, valid = readVarUint64(orig); !valid {
-		return Auth{}, NewErrInvalidMsg(ctx, openFlowType, uint64(len(orig)), 0, nil)
+		return Auth{}, NewErrInvalidMsg(ctx, OpenFlowType, uint64(len(orig)), 0, nil)
 	}
 	if m.BlessingsKey == 0 {
-		return Auth{}, ErrMissingBlessings.Errorf(ctx, "%02x: message received with no blessings", openFlowType)
+		return Auth{}, ErrMissingBlessings.Errorf(ctx, "%02x: message received with no blessings", OpenFlowType)
 	}
 	if m.DischargeKey, data, valid = readVarUint64(data); !valid {
-		return Auth{}, NewErrInvalidMsg(ctx, openFlowType, uint64(len(orig)), 1, nil)
+		return Auth{}, NewErrInvalidMsg(ctx, OpenFlowType, uint64(len(orig)), 1, nil)
 	}
 	if m.ChannelBinding.Purpose, data, valid = readLenBytes(data); !valid {
-		return Auth{}, NewErrInvalidMsg(ctx, openFlowType, uint64(len(orig)), 2, nil)
+		return Auth{}, NewErrInvalidMsg(ctx, OpenFlowType, uint64(len(orig)), 2, nil)
 	}
 	if tmp, data, valid = readLenBytes(data); !valid {
-		return Auth{}, NewErrInvalidMsg(ctx, openFlowType, uint64(len(orig)), 3, nil)
+		return Auth{}, NewErrInvalidMsg(ctx, OpenFlowType, uint64(len(orig)), 3, nil)
 	}
 	m.ChannelBinding.Hash = security.Hash(tmp)
 	switch m.signatureType {
-	case authType:
+	case AuthType:
 		if m.ChannelBinding.R, data, valid = readLenBytes(data); !valid {
-			return Auth{}, NewErrInvalidMsg(ctx, openFlowType, uint64(len(orig)), 4, nil)
+			return Auth{}, NewErrInvalidMsg(ctx, OpenFlowType, uint64(len(orig)), 4, nil)
 		}
 		if m.ChannelBinding.S, _, _ = readLenBytes(data); !valid {
-			return Auth{}, NewErrInvalidMsg(ctx, openFlowType, uint64(len(orig)), 5, nil)
+			return Auth{}, NewErrInvalidMsg(ctx, OpenFlowType, uint64(len(orig)), 5, nil)
 		}
-	case authED25519Type:
+	case AuthED25519Type:
 		if m.ChannelBinding.Ed25519, _, _ = readLenBytes(data); !valid {
-			return Auth{}, NewErrInvalidMsg(ctx, openFlowType, uint64(len(orig)), 4, nil)
+			return Auth{}, NewErrInvalidMsg(ctx, OpenFlowType, uint64(len(orig)), 4, nil)
 		}
-	case authRSAType:
+	case AuthRSAType:
 		if m.ChannelBinding.Rsa, _, _ = readLenBytes(data); !valid {
-			return Auth{}, NewErrInvalidMsg(ctx, openFlowType, uint64(len(orig)), 4, nil)
+			return Auth{}, NewErrInvalidMsg(ctx, OpenFlowType, uint64(len(orig)), 4, nil)
 		}
 	}
 	return m, nil
@@ -503,14 +421,19 @@ func (m Auth) Read(ctx *context.T, orig []byte) (Message, error) {
 func (m Auth) Copy() Message {
 	m.ChannelBinding.Purpose = copyBytes(m.ChannelBinding.Purpose)
 	switch m.signatureType {
-	case authType:
+	case AuthType:
 		m.ChannelBinding.R = copyBytes(m.ChannelBinding.R)
 		m.ChannelBinding.S = copyBytes(m.ChannelBinding.S)
-	case authED25519Type:
+	case AuthED25519Type:
 		m.ChannelBinding.Ed25519 = copyBytes(m.ChannelBinding.Ed25519)
-	case authRSAType:
+	case AuthRSAType:
 		m.ChannelBinding.Rsa = copyBytes(m.ChannelBinding.Rsa)
 	}
+	return m
+}
+
+func (m Auth) SetSignatureType(sigType byte) Auth {
+	m.signatureType = sigType
 	return m
 }
 
@@ -525,7 +448,7 @@ type OpenFlow struct {
 }
 
 func (m OpenFlow) Append(ctx *context.T, data []byte) ([]byte, error) {
-	data = append(data, openFlowType)
+	data = append(data, OpenFlowType)
 	data = writeVarUint64(m.ID, data)
 	data = writeVarUint64(m.InitialCounters, data)
 	data = writeVarUint64(m.BlessingsKey, data)
@@ -545,22 +468,22 @@ func (m OpenFlow) Read(ctx *context.T, orig []byte) (Message, error) {
 		valid bool
 	)
 	if m.ID, data, valid = readVarUint64(orig); !valid {
-		return OpenFlow{}, NewErrInvalidMsg(ctx, openFlowType, uint64(len(orig)), 0, nil)
+		return OpenFlow{}, NewErrInvalidMsg(ctx, OpenFlowType, uint64(len(orig)), 0, nil)
 	}
 	if m.InitialCounters, data, valid = readVarUint64(data); !valid {
-		return OpenFlow{}, NewErrInvalidMsg(ctx, openFlowType, uint64(len(orig)), 1, nil)
+		return OpenFlow{}, NewErrInvalidMsg(ctx, OpenFlowType, uint64(len(orig)), 1, nil)
 	}
 	if m.BlessingsKey, data, valid = readVarUint64(data); !valid {
-		return OpenFlow{}, NewErrInvalidMsg(ctx, openFlowType, uint64(len(orig)), 2, nil)
+		return OpenFlow{}, NewErrInvalidMsg(ctx, OpenFlowType, uint64(len(orig)), 2, nil)
 	}
 	if m.BlessingsKey == 0 {
-		return OpenFlow{}, ErrMissingBlessings.Errorf(ctx, "%02x: message received with no blessings", openFlowType)
+		return OpenFlow{}, ErrMissingBlessings.Errorf(ctx, "%02x: message received with no blessings", OpenFlowType)
 	}
 	if m.DischargeKey, data, valid = readVarUint64(data); !valid {
-		return OpenFlow{}, NewErrInvalidMsg(ctx, openFlowType, uint64(len(orig)), 3, nil)
+		return OpenFlow{}, NewErrInvalidMsg(ctx, OpenFlowType, uint64(len(orig)), 3, nil)
 	}
 	if m.Flags, data, valid = readVarUint64(data); !valid {
-		return OpenFlow{}, NewErrInvalidMsg(ctx, dataType, uint64(len(orig)), 1, nil)
+		return OpenFlow{}, NewErrInvalidMsg(ctx, DataType, uint64(len(orig)), 1, nil)
 	}
 	if m.Flags&DisableEncryptionFlag == 0 && len(data) > 0 {
 		m.Payload = [][]byte{data}
@@ -576,6 +499,13 @@ func (m OpenFlow) Copy() Message {
 		m.Payload[i] = copyBytes(v)
 	}
 	return m
+}
+
+// SetNoCopy is used to indicate whether a subsequent call to Copy
+// needs to copy the payload.
+func (msg OpenFlow) SetNoCopy(nocopy bool) OpenFlow {
+	msg.nocopy = nocopy
+	return msg
 }
 
 func (m OpenFlow) String() string {
@@ -596,7 +526,7 @@ type Release struct {
 }
 
 func (m Release) Append(ctx *context.T, data []byte) ([]byte, error) {
-	data = append(data, releaseType)
+	data = append(data, ReleaseType)
 	for fid, val := range m.Counters {
 		data = writeVarUint64(fid, data)
 		data = writeVarUint64(val, data)
@@ -616,10 +546,10 @@ func (m Release) Read(ctx *context.T, orig []byte) (Message, error) {
 	m.Counters = map[uint64]uint64{}
 	for len(data) > 0 {
 		if fid, data, valid = readVarUint64(data); !valid {
-			return Release{}, NewErrInvalidMsg(ctx, releaseType, uint64(len(orig)), n, nil)
+			return Release{}, NewErrInvalidMsg(ctx, ReleaseType, uint64(len(orig)), n, nil)
 		}
 		if val, data, valid = readVarUint64(data); !valid {
-			return Release{}, NewErrInvalidMsg(ctx, releaseType, uint64(len(orig)), n+1, nil)
+			return Release{}, NewErrInvalidMsg(ctx, ReleaseType, uint64(len(orig)), n+1, nil)
 		}
 		m.Counters[fid] = val
 		n += 2
@@ -642,7 +572,7 @@ type Data struct {
 }
 
 func (m Data) Append(ctx *context.T, data []byte) ([]byte, error) {
-	data = append(data, dataType)
+	data = append(data, DataType)
 	data = writeVarUint64(m.ID, data)
 	data = writeVarUint64(m.Flags, data)
 	if m.Flags&DisableEncryptionFlag == 0 {
@@ -657,10 +587,10 @@ func (m Data) Read(ctx *context.T, orig []byte) (Message, error) {
 	var data []byte
 	var valid bool
 	if m.ID, data, valid = readVarUint64(orig); !valid {
-		return Data{}, NewErrInvalidMsg(ctx, dataType, uint64(len(orig)), 0, nil)
+		return Data{}, NewErrInvalidMsg(ctx, DataType, uint64(len(orig)), 0, nil)
 	}
 	if m.Flags, data, valid = readVarUint64(data); !valid {
-		return Data{}, NewErrInvalidMsg(ctx, dataType, uint64(len(orig)), 1, nil)
+		return Data{}, NewErrInvalidMsg(ctx, DataType, uint64(len(orig)), 1, nil)
 	}
 	m.Payload = nil
 	if m.Flags&DisableEncryptionFlag == 0 && len(data) > 0 {
@@ -679,6 +609,13 @@ func (m Data) Copy() Message {
 	return m
 }
 
+// SetNoCopy is used to indicate whether a subsequent call to Copy
+// needs to copy the payload.
+func (msg Data) SetNoCopy(nocopy bool) Data {
+	msg.nocopy = nocopy
+	return msg
+}
+
 func (m *Data) String() string {
 	return fmt.Sprintf("ID:%d Flags:0x%x Payload:(%d bytes in %d slices)", m.ID, m.Flags, payloadSize(m.Payload), len(m.Payload))
 }
@@ -687,7 +624,7 @@ func (m *Data) String() string {
 type MultiProxyRequest struct{}
 
 func (m MultiProxyRequest) Append(ctx *context.T, data []byte) ([]byte, error) {
-	return append(data, multiProxyType), nil
+	return append(data, MultiProxyType), nil
 }
 
 func (m MultiProxyRequest) Read(ctx *context.T, orig []byte) (Message, error) {
@@ -700,7 +637,7 @@ func (m MultiProxyRequest) Copy() Message { return m }
 type ProxyServerRequest struct{}
 
 func (m ProxyServerRequest) Append(ctx *context.T, data []byte) ([]byte, error) {
-	return append(data, proxyServerType), nil
+	return append(data, ProxyServerType), nil
 }
 
 func (m ProxyServerRequest) Read(ctx *context.T, orig []byte) (Message, error) {
@@ -717,7 +654,7 @@ type ProxyResponse struct {
 }
 
 func (m ProxyResponse) Append(ctx *context.T, data []byte) ([]byte, error) {
-	data = append(data, proxyResponseType)
+	data = append(data, ProxyResponseType)
 	for _, ep := range m.Endpoints {
 		data = appendLenString(ep.String(), data)
 	}
@@ -736,11 +673,11 @@ func (m ProxyResponse) Read(ctx *context.T, orig []byte) (Message, error) {
 	m.Endpoints = make([]naming.Endpoint, 0, len(data))
 	for i := 0; len(data) > 0; i++ {
 		if epBytes, data, valid = readLenBytes(data); !valid {
-			return ProxyResponse{}, NewErrInvalidMsg(ctx, proxyResponseType, uint64(len(orig)), uint64(i), nil)
+			return ProxyResponse{}, NewErrInvalidMsg(ctx, ProxyResponseType, uint64(len(orig)), uint64(i), nil)
 		}
 		ep, err := naming.ParseEndpoint(string(epBytes))
 		if err != nil {
-			return ProxyResponse{}, NewErrInvalidMsg(ctx, proxyResponseType, uint64(len(orig)), uint64(i), err)
+			return ProxyResponse{}, NewErrInvalidMsg(ctx, ProxyResponseType, uint64(len(orig)), uint64(i), err)
 		}
 		m.Endpoints = append(m.Endpoints, ep)
 	}
@@ -765,7 +702,7 @@ type ProxyErrorResponse struct {
 }
 
 func (m ProxyErrorResponse) Append(ctx *context.T, data []byte) ([]byte, error) {
-	data = append(data, proxyErrorReponseType)
+	data = append(data, ProxyErrorReponseType)
 	data = append(data, []byte(m.Error)...)
 	return data, nil
 }
@@ -785,7 +722,7 @@ func (m ProxyErrorResponse) String() string {
 type HealthCheckRequest struct{}
 
 func (m HealthCheckRequest) Append(ctx *context.T, data []byte) ([]byte, error) {
-	return append(data, healthCheckRequestType), nil
+	return append(data, HealthCheckRequestType), nil
 }
 
 func (m HealthCheckRequest) Read(ctx *context.T, data []byte) (Message, error) {
@@ -798,7 +735,7 @@ func (m HealthCheckRequest) Copy() Message { return m }
 type HealthCheckResponse struct{}
 
 func (m HealthCheckResponse) Append(ctx *context.T, data []byte) ([]byte, error) {
-	return append(data, healthCheckResponseType), nil
+	return append(data, HealthCheckResponseType), nil
 }
 
 func (m HealthCheckResponse) Read(ctx *context.T, data []byte) (Message, error) {

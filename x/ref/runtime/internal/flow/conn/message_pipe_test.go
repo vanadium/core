@@ -333,9 +333,18 @@ func messageRoundTrip(t *testing.T, ctx *context.T, dialed, accepted *messagePip
 	responseMessage := <-msgCh
 
 	// Mimic the handling of plaintext playloads.
-	if message.ExpectsPlaintextPayload(m) {
-		pl, _ := message.PlaintextPayload(m)
-		m = message.SetPlaintextPayload(m, pl[0], true)
+	switch msg := m.(type) {
+	case message.Data:
+		if msg.Flags&message.DisableEncryptionFlag == 0 {
+			break
+		}
+		m = msg.SetNoCopy(true)
+
+	case message.OpenFlow:
+		if msg.Flags&message.DisableEncryptionFlag == 0 {
+			break
+		}
+		m = msg.SetNoCopy(true)
 	}
 
 	if got, want := acceptedMessage, m; !reflect.DeepEqual(got, want) {

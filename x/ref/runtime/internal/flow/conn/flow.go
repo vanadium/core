@@ -277,7 +277,7 @@ func (f *flw) writeMsg(alsoClose bool, parts [][]byte) (sent int, err error) {
 			}
 			parts, tosend, size = popFront(parts, tosend[:0], tokens)
 			deduct(size)
-			if err := f.sendDataMessage(ctx, alsoClose, len(parts) == 0, tosend); err != nil {
+			if err := f.sendDataMessage(ctx, flowPriority, alsoClose, len(parts) == 0, tosend); err != nil {
 				return f.writeMsgDone(ctx, sent, alsoClose, err)
 			}
 			sent += size
@@ -335,9 +335,9 @@ func (f *flw) handleOpenFlow(ctx *context.T, alsoClose, finalPart bool, payload 
 	})
 }
 
-func (f *flw) sendDataMessage(ctx *context.T, alsoClose, finalPart bool, payload [][]byte) error {
+func (f *flw) sendDataMessage(ctx *context.T, priority int, alsoClose, finalPart bool, payload [][]byte) error {
 	flags := f.messageFlags(alsoClose, finalPart)
-	if err := f.writeq.wait(ctx, &f.writeqEntry, flowPriority); err != nil {
+	if err := f.writeq.wait(ctx, &f.writeqEntry, priority); err != nil {
 		return io.EOF
 	}
 	defer f.writeq.done(&f.writeqEntry)
@@ -496,11 +496,7 @@ func (f *flw) close(ctx *context.T, closedRemotely bool, err error) {
 		// send the flow close message as it will fail.  This is racy
 		// with the connection closing, but there are no ill-effects
 		// other than spamming the logs a little so it's OK.
-
-		// serr := f.conn.sendDataCloseMessage(ctx, f.id)
-		serr := f.sendDataMessage(ctx, true, true, nil)
-
-		if serr != nil && log {
+		if serr := f.sendDataMessage(ctx, expressPriority, true, true, nil); serr != nil && log {
 			ctx.Infof("could not send close flow message: %v: close error (if any): %v", serr, err)
 		}
 	}
