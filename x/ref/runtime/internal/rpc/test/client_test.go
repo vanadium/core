@@ -400,7 +400,7 @@ func (c *closeConn) ReadMsg() ([]byte, error) {
 	buf, err := c.Conn.ReadMsg()
 	if err == nil {
 		if m, err := message.Read(c.ctx, buf); err == nil {
-			if _, ok := m.(*message.Data); ok {
+			if _, ok := m.(message.Data); ok {
 				c.Conn.Close()
 				c.wg.Done()
 				return nil, io.EOF

@@ -103,7 +103,9 @@ type Conn struct {
 	// are locked independently.
 	flowControl flowControlConnStats
 
-	writeq writeq
+	writeq                                       writeq
+	releaseSender, authSender, setupSender       messageSender
+	healthSender, lameDuckSender, teardownSender messageSender
 
 	mu sync.Mutex // All the variables below here are protected by mu.
 
@@ -119,6 +121,19 @@ type Conn struct {
 	flows                             map[uint64]*flw
 	hcstate                           *healthCheckState
 	acceptChannelTimeout              time.Duration
+}
+
+type messageSender struct {
+	sync.Mutex
+	writer
+}
+
+func (ms *messageSender) wait(ctx *context.T, q *writeq) (*writer, error) {
+	w := &ms.writer
+	if err := q.wait(nil, w, expressPriority); err != nil {
+		return nil, err
+	}
+	return w, nil
 }
 
 // Ensure that *Conn implements flow.ManagedConn.
@@ -231,6 +246,7 @@ func NewDialed( //nolint:gocyclo
 		mtu:                  opts.MTU,
 	}
 
+	c.initWriters()
 	c.flowControl.init(opts.BytesBuffered)
 	done := make(chan struct{})
 	var rtt time.Duration
@@ -352,6 +368,7 @@ func NewAccepted(
 		mtu:                  opts.MTU,
 	}
 
+	c.initWriters()
 	c.flowControl.init(opts.BytesBuffered)
 	done := make(chan struct{}, 1)
 	var rtt time.Duration
@@ -400,6 +417,12 @@ func NewAccepted(
 	c.lastUsedTime = time.Now()
 	c.mu.Unlock()
 	return c, nil
+}
+
+func (c *Conn) initWriters() {
+	c.releaseSender.notify = make(chan struct{})
+	c.authSender.notify = make(chan struct{})
+	c.setupSender.notify = make(chan struct{})
 }
 
 func (c *Conn) blessingsLoop(
@@ -815,9 +838,7 @@ func (c *Conn) deleteFlow(fid uint64) {
 func (c *Conn) fragmentReleaseMessage(ctx *context.T, toRelease map[uint64]uint64) error {
 	limit := c.flowControl.releaseMessageLimit
 	if len(toRelease) < limit {
-		return c.sendReleaseMessage(ctx, false, expressPriority, message.Release{
-			Counters: toRelease,
-		})
+		return c.sendReleaseMessage(ctx, message.Release{Counters: toRelease})
 	}
 	for {
 		var send, remaining map[uint64]uint64
@@ -837,9 +858,7 @@ func (c *Conn) fragmentReleaseMessage(ctx *context.T, toRelease map[uint64]uint6
 				i++
 			}
 		}
-		if err := c.sendReleaseMessage(ctx, false, expressPriority, message.Release{
-			Counters: send,
-		}); err != nil {
+		if err := c.sendReleaseMessage(ctx, message.Release{Counters: send}); err != nil {
 			return err
 		}
 		if remaining == nil {
@@ -943,40 +962,13 @@ func (c *Conn) writeEncodedBlessings(ctx *context.T, w *writer, data []byte) err
 	return err
 }
 
-func newWriterAndCancel(ctx *context.T, cancelWithContext bool) (*context.T, *writer) {
-	var cctx *context.T
-	if cancelWithContext {
-		cctx = ctx
-	}
-	// We need a new writer for call to sendMessage since it can be called
-	// from many different flows concurrently to send flow control
-	// release messages.
-	return cctx, &writer{
-		close:  true,
-		notify: make(chan struct{}),
-	}
-}
-
-func (c *Conn) sendDataMessage(
-	ctx *context.T,
-	cancelWithContext bool,
-	priority int,
-	m message.Data) error {
-	cctx, w := newWriterAndCancel(ctx, cancelWithContext)
-	if err := c.writeq.wait(cctx, w, priority); err != nil {
-		return err
-	}
-	defer c.writeq.done(w)
-	return c.mp.writeData(ctx, m)
-}
-
 func (c *Conn) sendReleaseMessage(
 	ctx *context.T,
-	cancelWithContext bool,
-	priority int,
 	m message.Release) error {
-	cctx, w := newWriterAndCancel(ctx, cancelWithContext)
-	if err := c.writeq.wait(cctx, w, priority); err != nil {
+	c.releaseSender.Lock()
+	defer c.releaseSender.Unlock()
+	w, err := c.releaseSender.wait(nil, &c.writeq)
+	if err != nil {
 		return err
 	}
 	defer c.writeq.done(w)
@@ -984,8 +976,10 @@ func (c *Conn) sendReleaseMessage(
 }
 
 func (c *Conn) sendAuthMessage(ctx *context.T, m message.Auth) error {
-	cctx, w := newWriterAndCancel(ctx, true)
-	if err := c.writeq.wait(cctx, w, expressPriority); err != nil {
+	c.authSender.Lock()
+	defer c.authSender.Unlock()
+	w, err := c.authSender.wait(ctx, &c.writeq)
+	if err != nil {
 		return err
 	}
 	defer c.writeq.done(w)
@@ -995,8 +989,10 @@ func (c *Conn) sendAuthMessage(ctx *context.T, m message.Auth) error {
 func (c *Conn) sendSetupMessage(
 	ctx *context.T,
 	m message.Setup) error {
-	cctx, w := newWriterAndCancel(ctx, true)
-	if err := c.writeq.wait(cctx, w, expressPriority); err != nil {
+	c.setupSender.Lock()
+	defer c.setupSender.Unlock()
+	w, err := c.setupSender.wait(ctx, &c.writeq)
+	if err != nil {
 		return err
 	}
 	defer c.writeq.done(w)
@@ -1006,8 +1002,13 @@ func (c *Conn) sendSetupMessage(
 func (c *Conn) sendHealthCheckMessage(
 	ctx *context.T,
 	request bool) error {
-	cctx, w := newWriterAndCancel(ctx, true)
-	if err := c.writeq.wait(cctx, w, expressPriority); err != nil {
+	c.healthSender.Lock()
+	defer c.healthSender.Unlock()
+	if c.healthSender.notify == nil {
+		c.healthSender.notify = make(chan struct{})
+	}
+	w, err := c.healthSender.wait(ctx, &c.writeq)
+	if err != nil {
 		return err
 	}
 	defer c.writeq.done(w)
@@ -1019,12 +1020,24 @@ func (c *Conn) sendHealthCheckMessage(
 	return c.mp.writeMsg(ctx, m.Append)
 }
 
+func cancelContext(ctx *context.T, cancelWithContext bool) *context.T {
+	if cancelWithContext {
+		return ctx
+	}
+	return nil
+}
+
 func (c *Conn) sendLameDuckMessage(
 	ctx *context.T,
 	cancelWithContext bool,
 	enterLameDuck bool) error {
-	cctx, w := newWriterAndCancel(ctx, cancelWithContext)
-	if err := c.writeq.wait(cctx, w, expressPriority); err != nil {
+	c.lameDuckSender.Lock()
+	defer c.lameDuckSender.Unlock()
+	if c.lameDuckSender.notify == nil {
+		c.lameDuckSender.notify = make(chan struct{})
+	}
+	w, err := c.lameDuckSender.wait(cancelContext(ctx, cancelWithContext), &c.writeq)
+	if err != nil {
 		return err
 	}
 	defer c.writeq.done(w)
@@ -1039,8 +1052,13 @@ func (c *Conn) sendLameDuckMessage(
 func (c *Conn) sendTearDownMessage(
 	ctx *context.T,
 	msg string) error {
-	cctx, w := newWriterAndCancel(ctx, false)
-	if err := c.writeq.wait(cctx, w, tearDownPriority); err != nil {
+	c.teardownSender.Lock()
+	defer c.teardownSender.Unlock()
+	if c.teardownSender.notify == nil {
+		c.teardownSender.notify = make(chan struct{})
+	}
+	w, err := c.teardownSender.wait(nil, &c.writeq)
+	if err != nil {
 		return err
 	}
 	defer c.writeq.done(w)

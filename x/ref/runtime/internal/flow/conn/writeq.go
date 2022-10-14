@@ -217,9 +217,11 @@ func (q *writeq) signalWait(ctx *context.T, w *writer, p int) error {
 }
 
 func (q *writeq) wait(ctx *context.T, w *writer, p int) error {
+	// NOTE: ctx may be nil.
 	q.mu.Lock()
 	if q.active != nil {
 		if !q.addWriterLocked(w, p) || w == q.active {
+			q.mu.Unlock()
 			return fmt.Errorf("writer %p, priority %v already exists in the writeq", w, p)
 		}
 		q.mu.Unlock()

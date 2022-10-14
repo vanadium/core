@@ -247,14 +247,14 @@ func (p *Proxy) handleConnection(ctx *context.T, f flow.Flow) {
 	}
 
 	switch m := msg.(type) {
-	case *message.Setup:
-		err = p.startRouting(ctx, f, m)
+	case message.Setup:
+		err = p.startRouting(ctx, f, &m)
 		if err == nil {
 			ctx.VI(1).Infof("Routing client flow from %v", f.RemoteEndpoint())
 		} else {
 			ctx.Errorf("failed to handle incoming client flow from %v: %v", f.RemoteEndpoint(), err)
 		}
-	case *message.MultiProxyRequest:
+	case message.MultiProxyRequest:
 		p.mu.Lock()
 		err = p.replyToProxyLocked(ctx, f)
 		if err == nil {
@@ -264,7 +264,7 @@ func (p *Proxy) handleConnection(ctx *context.T, f flow.Flow) {
 			ctx.Errorf("failed to multi-proxy proxy at %v: %v", f.RemoteEndpoint(), err)
 		}
 		p.mu.Unlock()
-	case *message.ProxyServerRequest:
+	case message.ProxyServerRequest:
 		p.mu.Lock()
 		stats := p.statsForLocked(f.RemoteEndpoint())
 		stats.requests.Incr(1)
@@ -396,7 +396,7 @@ func (p *Proxy) replyToServerLocked(ctx *context.T, f flow.Flow) error {
 	if err := p.authorizeFlow(ctx, f); err != nil {
 		if f.Conn().CommonVersion() >= version.RPCVersion13 {
 			//nolint:errcheck
-			writeMessage(ctx, &message.ProxyErrorResponse{Error: err.Error()}, f)
+			writeMessage(ctx, message.ProxyErrorResponse{Error: err.Error()}, f)
 		}
 		return err
 	}
@@ -405,11 +405,11 @@ func (p *Proxy) replyToServerLocked(ctx *context.T, f flow.Flow) error {
 	if err != nil {
 		if f.Conn().CommonVersion() >= version.RPCVersion13 {
 			//nolint:errcheck
-			writeMessage(ctx, &message.ProxyErrorResponse{Error: err.Error()}, f)
+			writeMessage(ctx, message.ProxyErrorResponse{Error: err.Error()}, f)
 		}
 		return err
 	}
-	return writeMessage(ctx, &message.ProxyResponse{Endpoints: eps}, f)
+	return writeMessage(ctx, message.ProxyResponse{Endpoints: eps}, f)
 }
 
 func (p *Proxy) authorizeFlow(ctx *context.T, f flow.Flow) error {
@@ -434,11 +434,11 @@ func (p *Proxy) replyToProxyLocked(ctx *context.T, f flow.Flow) error {
 	if err != nil {
 		if f.Conn().CommonVersion() >= version.RPCVersion13 {
 			//nolint:errcheck
-			writeMessage(ctx, &message.ProxyErrorResponse{Error: err.Error()}, f)
+			writeMessage(ctx, message.ProxyErrorResponse{Error: err.Error()}, f)
 		}
 		return err
 	}
-	return writeMessage(ctx, &message.ProxyResponse{Endpoints: eps}, f)
+	return writeMessage(ctx, message.ProxyResponse{Endpoints: eps}, f)
 }
 
 func (p *Proxy) returnEndpointsLocked(ctx *context.T, rid naming.RoutingID, route string) ([]naming.Endpoint, error) {
@@ -531,7 +531,7 @@ func (p *Proxy) proxyListen(ctx *context.T, name string, ep naming.Endpoint) err
 		return err
 	}
 	// Send a byte telling the acceptor that we are a proxy.
-	if err := writeMessage(ctx, &message.MultiProxyRequest{}, f); err != nil {
+	if err := writeMessage(ctx, message.MultiProxyRequest{}, f); err != nil {
 		return err
 	}
 	for {

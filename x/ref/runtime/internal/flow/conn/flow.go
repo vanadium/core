@@ -497,10 +497,8 @@ func (f *flw) close(ctx *context.T, closedRemotely bool, err error) {
 		// with the connection closing, but there are no ill-effects
 		// other than spamming the logs a little so it's OK.
 
-		serr := f.conn.sendDataMessage(ctx, false, expressPriority, message.Data{
-			ID:    f.id,
-			Flags: message.CloseFlag,
-		})
+		// serr := f.conn.sendDataCloseMessage(ctx, f.id)
+		serr := f.sendDataMessage(ctx, true, true, nil)
 
 		if serr != nil && log {
 			ctx.Infof("could not send close flow message: %v: close error (if any): %v", serr, err)

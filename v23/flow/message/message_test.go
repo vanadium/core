@@ -152,8 +152,8 @@ func TestMissingBlessings(t *testing.T) {
 	ctx, shutdown := v23.Init()
 	defer shutdown()
 	cases := []message.Message{
-		&message.OpenFlow{},
-		&message.Auth{},
+		message.OpenFlow{},
+		message.Auth{},
 	}
 	for _, m := range cases {
 		encoded, err := m.Append(ctx, nil)
@@ -198,7 +198,7 @@ func TestData(t *testing.T) {
 func TestDataReuse(t *testing.T) {
 	ctx, shutdown := test.V23Init()
 	defer shutdown()
-	m := &message.Data{ID: 1123, Flags: message.CloseFlag, Payload: [][]byte{[]byte("fake payload")}}
+	m := message.Data{ID: 1123, Flags: message.CloseFlag, Payload: [][]byte{[]byte("fake payload")}}
 	buf := make([]byte, 0, 1024)
 	buf, err := m.Append(ctx, buf)
 	if err != nil {
@@ -219,7 +219,7 @@ func TestDataReuse(t *testing.T) {
 		t.Errorf("got %v, want %v", got, want)
 	}
 
-	m = &message.Data{ID: 1124}
+	m = message.Data{ID: 1124}
 	buf = make([]byte, 0, 1024)
 	buf, err = m.Append(ctx, buf)
 	if err != nil {
