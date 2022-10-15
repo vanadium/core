@@ -183,9 +183,14 @@ func TestFlowControl(t *testing.T) {
 	ctx, shutdown := test.V23Init()
 	defer shutdown()
 
-	for _, nflows := range []int{1, 2, 20, 100} {
-		for _, bytesBuffered := range []uint64{DefaultMTU, DefaultBytesBuffered} {
-			for _, mtu := range []uint64{1024, DefaultMTU} {
+	randData = make([]byte, 10*1024*1024)
+	/*if _, err := rand.Read(randData); err != nil {
+		panic("Could not read random data.")
+	}*/
+
+	for _, nflows := range []int{ /*1,*/ 5 /*20, 100*/} {
+		for _, bytesBuffered := range []uint64{DefaultMTU /*DefaultBytesBuffered*/} {
+			for _, mtu := range []uint64{ /*1024,*/ DefaultMTU} {
 				t.Logf("starting: #%v flows, buffered %#v bytes\n", nflows, bytesBuffered)
 				dfs, flows, ac, dc := setupFlowsOpts(t, "local", "", ctx, ctx, true, nflows, Opts{
 					MTU:           mtu,

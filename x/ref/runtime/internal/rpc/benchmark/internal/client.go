@@ -8,11 +8,13 @@ import (
 	"bytes"
 	"fmt"
 	"math/rand"
+	"os"
 	"testing"
 	"time"
 
 	"v.io/v23/context"
 	"v.io/v23/vtrace"
+	"v.io/x/lib/vlog"
 	"v.io/x/ref/runtime/internal/rpc/benchmark"
 	tbm "v.io/x/ref/test/benchmark"
 )
@@ -72,12 +74,15 @@ func CallEcho(b *testing.B, ctx *context.T, address string, iterations, payloadS
 		b.StartTimer()
 		start := time.Now()
 
+		fmt.Fprintf(os.Stderr, "------------ start %v start -----------\n", i)
 		r, err := stub.Echo(ictx, payload)
+		fmt.Fprintf(os.Stderr, "------------  done %v done  -----------\n", i)
 
 		elapsed := time.Since(start)
 		b.StopTimer()
 		span.Finish(err)
 		if err != nil {
+			vlog.InfoStack(true)
 			ictx.Fatalf("Echo failed: %v", err)
 		}
 		if !bytes.Equal(r, payload) {

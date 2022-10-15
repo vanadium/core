@@ -5,8 +5,10 @@
 package conn
 
 import (
+	"fmt"
 	"io"
 	"net"
+	"os"
 	"sync"
 	"time"
 
@@ -192,7 +194,7 @@ func (f *flw) releaseCounters(tokens uint64) {
 // to send the current message, and if there are none, it will wait until
 // some become available from the peer end of the connection via a release
 // message containing tokens for this flow.
-func (f *flw) ensureTokens(ctx *context.T, debuglog bool, need int) (int, func(int), error) {
+func (f *flw) ensureTokens(ctx *context.T, debuglog bool, need int) (bool, int, error) {
 	for {
 		// The critical region needs to capture both reading tokens and
 		// setting up to wait for new ones. Similarly, releaseCounters
@@ -200,10 +202,10 @@ func (f *flw) ensureTokens(ctx *context.T, debuglog bool, need int) (int, func(i
 		// (ie. the call to releaseCounters) as well as signaling the channel
 		// used to notify the code below that more tokens may be available.
 		f.mu.Lock()
-		avail, deduct := f.flowControl.tokens(ctx, f.encapsulated)
+		borrowed, avail := f.flowControl.tokens(ctx, f.encapsulated)
 		if avail >= need {
 			f.mu.Unlock()
-			return avail, deduct, nil
+			return borrowed, avail, nil
 		}
 		// need to wait for tokens.
 		ch := f.tokenWait
@@ -213,7 +215,7 @@ func (f *flw) ensureTokens(ctx *context.T, debuglog bool, need int) (int, func(i
 		}
 		select {
 		case <-ctx.Done():
-			return 0, func(int) {}, ctx.Err()
+			return false, 0, ctx.Err()
 		case <-ch:
 		}
 	}
@@ -255,6 +257,8 @@ func (f *flw) writeMsg(alsoClose bool, parts [][]byte) (sent int, err error) {
 	f.opened = true
 	f.mu.Unlock()
 
+	var totalBorrowed int
+
 	for len(parts) > 0 {
 		// We're prepared to send at least 1 byte under any circumstance.
 		need := 1
@@ -271,28 +275,37 @@ func (f *flw) writeMsg(alsoClose bool, parts [][]byte) (sent int, err error) {
 		if wasOpened {
 			// Send a data message, possibly having to wait for flow control
 			// tokens before doing so.
-			tokens, deduct, err := f.ensureTokens(ctx, debug, need)
+			borrowed, avail, err := f.ensureTokens(ctx, debug, need)
 			if err != nil {
 				return f.writeMsgDone(ctx, sent, alsoClose, err)
 			}
-			parts, tosend, size = popFront(parts, tosend[:0], tokens)
-			deduct(size)
+			parts, tosend, size = popFront(parts, tosend[:0], avail)
+			f.flowControl.returnTokens(ctx, borrowed, avail-size)
 			if err := f.sendDataMessage(ctx, alsoClose, len(parts) == 0, tosend); err != nil {
 				return f.writeMsgDone(ctx, sent, alsoClose, err)
 			}
 			sent += size
+			if borrowed {
+				totalBorrowed += avail - size
+			}
+			fmt.Fprintf(os.Stderr, "%p: %v: writeMsg: data: avail %v, unused %v: sent %8v / %8v (borrowed: %v, %v, %v, %v)\n", f, f.id, avail, avail-size, sent, totalSize, borrowed, totalBorrowed, f.flowControl.borrowed, f.flowControl.shared.lshared)
 			continue
 		}
 		// Send an open message, use any available flow control tokens, but
 		// do not wait for any to be available. This ensures that an openFlow
 		// message will always be sent, if it can't include a payload.
-		avail, deduct := f.flowControl.tokens(ctx, f.encapsulated)
+		borrowed, avail := f.flowControl.tokens(ctx, f.encapsulated)
 		parts, tosend, size = popFront(parts, tosend[:0], avail)
-		deduct(size)
 		if err := f.handleOpenFlow(ctx, alsoClose, len(parts) == 0, tosend); err != nil {
 			return f.writeMsgDone(ctx, sent, alsoClose, err)
 		}
+		f.flowControl.returnTokens(ctx, borrowed, avail-size)
 		sent += size
+		if borrowed {
+			totalBorrowed += avail - size
+		}
+		fmt.Fprintf(os.Stderr, "%p: %v: writeMsg: open: avail %v, unused %v: sent %8v / %8v (borrowed: %v, %v, %v, %v)\n", f, f.id, avail, avail-size, sent, totalSize, borrowed, totalBorrowed, f.flowControl.borrowed, f.flowControl.shared.lshared)
+
 		wasOpened = true
 		f.conn.unopenedFlows.Done()
 	}
@@ -460,6 +473,7 @@ func (f *flw) ID() uint64 {
 }
 
 func (f *flw) close(ctx *context.T, closedRemotely bool, err error) {
+	//	fmt.Fprintf(os.Stderr, "%p: %v: close\n", f, f.id)
 	f.mu.Lock()
 	wasOpened, wasClosed := f.opened, f.closed
 	f.opened, f.closed = true, true
