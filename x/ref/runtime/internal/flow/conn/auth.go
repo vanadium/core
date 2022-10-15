@@ -182,6 +182,7 @@ func (c *Conn) setup(ctx *context.T, versions version.RPCVersionRange, dialer bo
 	if rSetup.SharedTokens != 0 && rSetup.SharedTokens < lshared {
 		lshared = rSetup.SharedTokens
 	}
+
 	c.flowControl.configure(c.mtu, lshared)
 
 	if rSetup.PeerNaClPublicKey == nil {

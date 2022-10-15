@@ -7,6 +7,7 @@ package conn
 import (
 	"fmt"
 	"net"
+	"os"
 	"sync"
 	"time"
 
@@ -838,6 +839,7 @@ func (c *Conn) deleteFlow(fid uint64) {
 func (c *Conn) fragmentReleaseMessage(ctx *context.T, toRelease map[uint64]uint64) error {
 	limit := c.flowControl.releaseMessageLimit
 	if len(toRelease) < limit {
+		fmt.Fprintf(os.Stderr, "sendRelease: %v\n", toRelease)
 		return c.sendReleaseMessage(ctx, message.Release{Counters: toRelease})
 	}
 	for {

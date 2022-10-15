@@ -183,9 +183,9 @@ func TestFlowControl(t *testing.T) {
 	ctx, shutdown := test.V23Init()
 	defer shutdown()
 
-	for _, nflows := range []int{1, 2, 20, 100} {
-		for _, bytesBuffered := range []uint64{DefaultMTU, DefaultBytesBuffered} {
-			for _, mtu := range []uint64{1024, DefaultMTU} {
+	for _, nflows := range []int{ /*1,*/ 2 /*20, 100*/} {
+		for _, bytesBuffered := range []uint64{DefaultMTU /*DefaultBytesBuffered*/} {
+			for _, mtu := range []uint64{ /*1024,*/ DefaultMTU} {
 				t.Logf("starting: #%v flows, buffered %#v bytes\n", nflows, bytesBuffered)
 				dfs, flows, ac, dc := setupFlowsOpts(t, "local", "", ctx, ctx, true, nflows, Opts{
 					MTU:           mtu,

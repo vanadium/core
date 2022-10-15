@@ -243,7 +243,7 @@ func TestDataReuse(t *testing.T) {
 
 }
 
-func PlaintextPayload(m message.Message) ([][]byte, bool) {
+func plaintextPayload(m message.Message) ([][]byte, bool) {
 	switch msg := m.(type) {
 	case message.Data:
 		if msg.Flags&message.DisableEncryptionFlag != 0 {
@@ -257,7 +257,7 @@ func PlaintextPayload(m message.Message) ([][]byte, bool) {
 	return nil, false
 }
 
-func SetPlaintextPayload(m message.Message, payload []byte, nocopy bool) message.Message {
+func setPlaintextPayload(m message.Message, payload []byte, nocopy bool) message.Message {
 	switch msg := m.(type) {
 	case message.Data:
 		msg.Payload = [][]byte{payload}
@@ -271,7 +271,7 @@ func SetPlaintextPayload(m message.Message, payload []byte, nocopy bool) message
 	return m
 }
 
-func ExpectsPlaintextPayload(m message.Message) bool {
+func expectsPlaintextPayload(m message.Message) bool {
 	switch msg := m.(type) {
 	case message.Data:
 		return msg.Flags&message.DisableEncryptionFlag != 0
@@ -281,7 +281,7 @@ func ExpectsPlaintextPayload(m message.Message) bool {
 	return false
 }
 
-func ClearDisableEncryptionFlag(m message.Message) message.Message {
+func clearDisableEncryptionFlag(m message.Message) message.Message {
 	switch msg := m.(type) {
 	case message.Data:
 		msg.Flags &^= message.DisableEncryptionFlag
@@ -300,7 +300,7 @@ func TestPlaintextPayloads(t *testing.T) {
 		message.OpenFlow{Flags: message.CloseFlag, Payload: [][]byte{[]byte("fake payload")}},
 	}
 	for _, m := range encrypted {
-		payload, ok := PlaintextPayload(m)
+		payload, ok := plaintextPayload(m)
 		if got, want := ok, false; got != want {
 			t.Errorf("got %v, want %v", got, want)
 		}
@@ -318,7 +318,7 @@ func TestPlaintextPayloads(t *testing.T) {
 		},
 	}
 	for _, m := range disabled {
-		payload, ok := PlaintextPayload(m)
+		payload, ok := plaintextPayload(m)
 		if got, want := ok, true; got != want {
 			t.Errorf("got %v, want %v", got, want)
 		}
@@ -327,24 +327,23 @@ func TestPlaintextPayloads(t *testing.T) {
 		}
 
 		newPayload := []byte("hello")
-		m = SetPlaintextPayload(m, newPayload, false)
+		m = setPlaintextPayload(m, newPayload, false)
 		m = m.Copy()
 		copy(newPayload, []byte("world"))
-		p, _ := PlaintextPayload(m)
+		p, _ := plaintextPayload(m)
 		if got, want := string(p[0]), "hello"; got != want {
 			t.Errorf("got %v, want %v", got, want)
 		}
 
-		m = SetPlaintextPayload(m, newPayload, true)
+		m = setPlaintextPayload(m, newPayload, true)
 		m = m.Copy()
 		// nocopy is true, so the buffer will be shared and
 		// can be overwritten here.
 		copy(newPayload, []byte("world"))
-		p, _ = PlaintextPayload(m)
+		p, _ = plaintextPayload(m)
 		if got, want := string(p[0]), "world"; got != want {
 			t.Errorf("got %v, want %v", got, want)
 		}
-
 	}
 
 	empty := []message.Message{
@@ -353,22 +352,22 @@ func TestPlaintextPayloads(t *testing.T) {
 	}
 
 	for _, m := range empty {
-		payload, ok := PlaintextPayload(m)
+		payload, ok := plaintextPayload(m)
 		if got, want := ok, true; got != want {
 			t.Errorf("got %v, want %v", got, want)
 		}
 		if payload != nil {
 			t.Errorf("unexpected payload")
 		}
-		if got, want := ExpectsPlaintextPayload(m), true; got != want {
+		if got, want := expectsPlaintextPayload(m), true; got != want {
 			t.Errorf("got %v, want %v", got, want)
 		}
-		m = ClearDisableEncryptionFlag(m)
-		_, ok = PlaintextPayload(m)
+		m = clearDisableEncryptionFlag(m)
+		_, ok = plaintextPayload(m)
 		if got, want := ok, false; got != want {
 			t.Errorf("got %v, want %v", got, want)
 		}
-		if got, want := ExpectsPlaintextPayload(m), false; got != want {
+		if got, want := expectsPlaintextPayload(m), false; got != want {
 			t.Errorf("got %v, want %v", got, want)
 		}
 	}
