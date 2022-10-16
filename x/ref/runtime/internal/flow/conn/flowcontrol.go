@@ -130,14 +130,6 @@ func (fs *flowControlConnStats) configure(mtu, shared uint64) {
 	fs.releaseMessageLimit = int(mtu) / (bytesPerFlowID + bytesPerCounter)
 }
 
-func (fs *flowControlConnStats) lock() {
-	fs.mu.Lock()
-}
-
-func (fs *flowControlConnStats) unlock() {
-	fs.mu.Unlock()
-}
-
 // newCounters creates a new entry for the specific flow id.
 func (fs *flowControlConnStats) newCounters(fid uint64) {
 	fs.mu.Lock()
@@ -151,6 +143,52 @@ func (fs *flowControlConnStats) incrementToRelease(fid, count uint64) {
 	fs.mu.Lock()
 	defer fs.mu.Unlock()
 	fs.toRelease[fid] += count
+}
+
+func (fs *flowControlConnStats) incShared(msg string, fid, count uint64) {
+	o := fs.lshared
+	fs.lshared += count
+	if fs.lshared > DefaultBytesBuffered {
+		fmt.Fprintf(os.Stderr, "%p: %v: %s OOR incshared: %v + %v -> %v\n", fs, fid, msg, o, count, fs.lshared)
+	} else {
+		fmt.Fprintf(os.Stderr, "%p: %v: %s incshared: %v + %v -> %v\n", fs, fid, msg, o, count, fs.lshared)
+	}
+}
+
+func (fs *flowControlConnStats) decShared(msg string, fid, count uint64) {
+	o := fs.lshared
+	fs.lshared -= count
+	if fs.lshared > DefaultBytesBuffered {
+		fmt.Fprintf(os.Stderr, "%p: %v: %s OOR decshared: %v - %v -> %v\n", fs, fid, msg, o, count, fs.lshared)
+	} else {
+		fmt.Fprintf(os.Stderr, "%p: %v: %s decshared: %v - %v -> %v\n", fs, fid, msg, o, count, fs.lshared)
+	}
+}
+
+func (fs *flowControlFlowStats) incBorrowed(msg string, count uint64) {
+	o := fs.borrowed
+	fs.borrowed += count
+	if fs.borrowed > DefaultBytesBuffered {
+		fmt.Fprintf(os.Stderr, "%p: %v: %s OOR incborrowed: %v + %v -> %v\n", fs, fs.id, msg, o, count, fs.borrowed)
+	} else {
+		fmt.Fprintf(os.Stderr, "%p: %v: %s incborrowed: %v + %v -> %v\n", fs, fs.id, msg, o, count, fs.borrowed)
+	}
+}
+
+func (fs *flowControlFlowStats) decDorrowed(msg string, count uint64) {
+	o := fs.borrowed
+	fs.borrowed -= count
+	if fs.borrowed > DefaultBytesBuffered {
+		fmt.Fprintf(os.Stderr, "%p: %v: %s OOR decborrowed: %v - %v -> %v\n", fs, fs.id, msg, o, count, fs.borrowed)
+	} else {
+		fmt.Fprintf(os.Stderr, "%p: %v: %s decborrowed: %v - %v -> %v\n", fs, fs.id, msg, o, count, fs.borrowed)
+	}
+}
+
+func (fs *flowControlConnStats) getShared() uint64 {
+	fs.mu.Lock()
+	defer fs.mu.Unlock()
+	return fs.lshared
 }
 
 // createReleaseMessageContents creates the data to be sent in a release
@@ -179,8 +217,8 @@ func (fs *flowControlConnStats) createReleaseMessageContents(fid, count uint64) 
 // from the peer. This is required to ensure that borrowed tokens are returned
 // to the shared pool.
 func (fs *flowControlConnStats) releaseOutstandingBorrowed(fid, val uint64) {
-	fs.lock()
-	defer fs.unlock()
+	fs.mu.Lock()
+	defer fs.mu.Unlock()
 	borrowed := fs.outstandingBorrowed[fid]
 	released := val
 	if borrowed == 0 {
@@ -202,8 +240,8 @@ func (fs *flowControlConnStats) releaseOutstandingBorrowed(fid, val uint64) {
 
 func (fs *flowControlFlowStats) releaseCounters(ctx *context.T, tokens uint64) {
 	debug := ctx.V(2)
-	fs.shared.lock()
-	defer fs.shared.unlock()
+	fs.shared.mu.Lock()
+	defer fs.shared.mu.Unlock()
 	fs.borrowing = false
 	if fs.borrowed > 0 {
 		n := tokens
@@ -214,12 +252,8 @@ func (fs *flowControlFlowStats) releaseCounters(ctx *context.T, tokens uint64) {
 			ctx.Infof("Returning %d/%d tokens borrowed by %d shared: %d", n, tokens, fs.id, fs.shared.lshared)
 		}
 		tokens -= n
-		fs.borrowed -= n
-		o := fs.shared.lshared
-		fs.shared.lshared += n
-		if fs.shared.lshared > DefaultBytesBuffered {
-			fmt.Fprintf(os.Stderr, "%p: %v: releaseCounters: lshared: %v + %v -> %v\n", fs, fs.id, o, n, fs.shared.lshared)
-		}
+		fs.decDorrowed("releaseCounters", n)
+		fs.shared.incShared("releaseCounters", 0, n)
 	}
 
 	fs.released += tokens
@@ -228,17 +262,17 @@ func (fs *flowControlFlowStats) releaseCounters(ctx *context.T, tokens uint64) {
 	}
 }
 
-// tokens returns the number of tokens this flow can send right now.
+// getTokens returns the number of tokens this flow can send right now.
 // It is bounded by the channel mtu, the released counters, and possibly
 // the number of shared counters for the conn if we are sending on a just
 // dialed flow. It will never return more than mtu bytes as being available.
 // It will immediately deduct the tokens returned and the caller must
 // return any unused tokens via the returnTokens method.
-func (fs *flowControlFlowStats) tokens(ctx *context.T, encapsulated bool) (bool, int) {
-	fs.shared.lock()
-	defer fs.shared.unlock()
-	//fmt.Fprintf(os.Stderr, "%p: %v: tokens: start: released %v: borrowing %v\n", fs, fs.id, fs.released, fs.borrowing)
-	//defer fmt.Fprintf(os.Stderr, "%p: %v: tokens: done: released %v: borrowing %v\n", fs, fs.id, fs.released, fs.borrowing)
+func (fs *flowControlFlowStats) getTokens(ctx *context.T, encapsulated bool) (bool, int) {
+	fs.shared.mu.Lock()
+	defer fs.shared.mu.Unlock()
+	//fmt.Fprintf(os.Stderr, "%p: %v: getTokens: start: released %v: borrowing %v\n", fs, fs.id, fs.released, fs.borrowing)
+	//defer fmt.Fprintf(os.Stderr, "%p: %v: getTokens: done: released %v: borrowing %v\n", fs, fs.id, fs.released, fs.borrowing)
 	max := fs.shared.mtu
 	// When	our flow is proxied (i.e. encapsulated), the proxy has added overhead
 	// when forwarding the message. This means we must reduce our mtu to ensure
@@ -251,15 +285,8 @@ func (fs *flowControlFlowStats) tokens(ctx *context.T, encapsulated bool) (bool,
 		if fs.shared.lshared < max {
 			max = fs.shared.lshared
 		}
-		o := fs.shared.lshared
-		ob := fs.borrowed
-
-		fs.shared.lshared -= max
-		fs.borrowed += max
-		if fs.shared.lshared < 0 {
-			fmt.Fprintf(os.Stderr, "%p: %v: tokens: shared: %v - %v -> %v: borrowed: %v + %v -> %v\n", fs, fs.id, o, max, fs.shared.lshared, ob, max, fs.borrowed)
-			panic("xxx")
-		}
+		fs.shared.decShared("getTokens", fs.id, max)
+		fs.incBorrowed("getTokens", max)
 		return true, int(max)
 	}
 	if fs.released < max {
@@ -273,20 +300,16 @@ func (fs *flowControlFlowStats) returnTokens(ctx *context.T, borrowed bool, unus
 	if unused == 0 {
 		return
 	}
-	fs.updateTokens(ctx, borrowed, unused)
+	fs.updateReturnedTokens(ctx, borrowed, unused)
 	return
 }
 
-func (fs *flowControlFlowStats) updateTokens(ctx *context.T, borrowed bool, unused int) {
-	fs.shared.lock()
-	defer fs.shared.unlock()
+func (fs *flowControlFlowStats) updateReturnedTokens(ctx *context.T, borrowed bool, unused int) {
+	fs.shared.mu.Lock()
+	defer fs.shared.mu.Unlock()
 	if borrowed {
-		o := fs.shared.lshared
-		fs.shared.lshared += uint64(unused)
-		if fs.shared.lshared > DefaultBytesBuffered {
-			fmt.Fprintf(os.Stderr, "%p: %v: updateTokens: lshared: %v + %v -> %v\n", fs, fs.id, o, fs.borrowed, fs.shared.lshared)
-		}
-		fs.borrowed -= uint64(unused)
+		fs.shared.incShared("updateReturnedTokens", fs.id, uint64(unused))
+		fs.decDorrowed("updateReturnedTokens", uint64(unused))
 		if ctx.V(2) {
 			ctx.Infof("returned %d unused borrowed tokens on flow %d, total: %d left: %d", unused, fs.id, fs.borrowed, fs.shared.lshared)
 		}
@@ -300,18 +323,14 @@ func (fs *flowControlFlowStats) updateTokens(ctx *context.T, borrowed bool, unus
 }
 
 func (fs *flowControlFlowStats) handleFlowClose(closedRemotely, notConnClosing bool) {
-	fs.shared.lock()
-	defer fs.shared.unlock()
+	fs.shared.mu.Lock()
+	defer fs.shared.mu.Unlock()
 	fid := fs.id
 	if closedRemotely {
 		// When the other side closes a flow, it implicitly releases all the
 		// counters used by that flow.  That means we should release the shared
 		// counter to be used on other new flows.
-		o := fs.shared.lshared
-		fs.shared.lshared += fs.borrowed
-		if fs.shared.lshared > DefaultBytesBuffered {
-			fmt.Fprintf(os.Stderr, "%p: %v: handleFlowClose: lshared: %v + %v -> %v\n", fs, fs.id, o, fs.borrowed, fs.shared.lshared)
-		}
+		fs.shared.incShared("handleFlowClose", fs.id, fs.borrowed)
 		fs.borrowed = 0
 	} else if fs.borrowed > 0 && notConnClosing {
 		fs.shared.outstandingBorrowed[fid] = fs.borrowed

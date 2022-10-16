@@ -126,7 +126,6 @@ func (r *readq) moveqLocked(to [][]byte) {
 
 func (r *readq) read(ctx *context.T, data []byte) (n int, err error) {
 	r.mu.Lock()
-	o := r.size
 	if err = r.waitLocked(ctx); err == nil {
 		err = nil
 		buf := r.bufs[r.b]
@@ -142,7 +141,6 @@ func (r *readq) read(ctx *context.T, data []byte) (n int, err error) {
 		r.size -= uint64(n)
 	}
 	r.mu.Unlock()
-	fmt.Fprintf(os.Stderr, "%p: readq: read: releasing: %v - %v -> %v\n", r, o, n, r.size)
 	r.readCallback(ctx, n)
 	return
 }
@@ -157,7 +155,6 @@ func (r *readq) get(ctx *context.T) (out []byte, err error) {
 		r.nbufs--
 	}
 	r.mu.Unlock()
-	fmt.Fprintf(os.Stderr, "%p: readq: get: releasing: %v\n", r, len(out))
 	r.readCallback(ctx, len(out))
 	return
 }

@@ -340,12 +340,12 @@ func testCountersOpts(t *testing.T, ctx *context.T, count int, dialClose, accept
 	if err := <-errCh; err != nil {
 		t.Fatal(err)
 	}
-	dc.flowControl.lock()
+	dc.flowControl.mu.Lock()
 	dialRelease, dialBorrowed = len(dc.flowControl.toRelease), len(dc.flowControl.borrowing)
-	dc.flowControl.unlock()
-	ac.flowControl.lock()
+	dc.flowControl.mu.Unlock()
+	ac.flowControl.mu.Lock()
 	acceptRelease, acceptBorrowed = len(ac.flowControl.toRelease), len(ac.flowControl.borrowing)
-	ac.flowControl.unlock()
+	ac.flowControl.mu.Unlock()
 	ac.Close(ctx, nil)
 	dc.Close(ctx, nil)
 	return
