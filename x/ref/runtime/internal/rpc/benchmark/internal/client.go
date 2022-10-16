@@ -8,7 +8,6 @@ import (
 	"bytes"
 	"fmt"
 	"math/rand"
-	"os"
 	"testing"
 	"time"
 
@@ -74,9 +73,7 @@ func CallEcho(b *testing.B, ctx *context.T, address string, iterations, payloadS
 		b.StartTimer()
 		start := time.Now()
 
-		fmt.Fprintf(os.Stderr, "------------ start %v start -----------\n", i)
 		r, err := stub.Echo(ictx, payload)
-		fmt.Fprintf(os.Stderr, "------------  done %v done  -----------\n", i)
 
 		elapsed := time.Since(start)
 		b.StopTimer()

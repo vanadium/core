@@ -5,8 +5,6 @@
 package conn
 
 import (
-	"fmt"
-	"os"
 	"sync"
 
 	"v.io/v23/context"
@@ -145,6 +143,7 @@ func (fs *flowControlConnStats) incrementToRelease(fid, count uint64) {
 	fs.toRelease[fid] += count
 }
 
+/*
 func (fs *flowControlConnStats) incShared(msg string, fid, count uint64) {
 	o := fs.lshared
 	fs.lshared += count
@@ -189,7 +188,7 @@ func (fs *flowControlConnStats) getShared() uint64 {
 	fs.mu.Lock()
 	defer fs.mu.Unlock()
 	return fs.lshared
-}
+}*/
 
 // createReleaseMessageContents creates the data to be sent in a release
 // message to this connection's peer.
@@ -226,11 +225,12 @@ func (fs *flowControlConnStats) releaseOutstandingBorrowed(fid, val uint64) {
 	} else if borrowed < released {
 		released = borrowed
 	}
-	o := fs.lshared
 	fs.lshared += released
-	if fs.lshared > DefaultBytesBuffered {
-		fmt.Fprintf(os.Stderr, "%p: releaseCounters: lshared: %v + %v -> %v\n", fs, o, released, fs.lshared)
-	}
+
+	//	o := fs.lshared
+	//	if fs.lshared > DefaultBytesBuffered {
+	//		fmt.Fprintf(os.Stderr, "%p: releaseCounters: lshared: %v + %v -> %v\n", fs, o, released, fs.lshared)
+	//	}
 	if released == borrowed {
 		delete(fs.outstandingBorrowed, fid)
 	} else {
@@ -252,8 +252,10 @@ func (fs *flowControlFlowStats) releaseCounters(ctx *context.T, tokens uint64) {
 			ctx.Infof("Returning %d/%d tokens borrowed by %d shared: %d", n, tokens, fs.id, fs.shared.lshared)
 		}
 		tokens -= n
-		fs.decDorrowed("releaseCounters", n)
-		fs.shared.incShared("releaseCounters", 0, n)
+		fs.shared.lshared += n
+		fs.borrowed -= n
+		//		fs.decDorrowed("releaseCounters", n)
+		//		fs.shared.incShared("releaseCounters", 0, n)
 	}
 
 	fs.released += tokens
@@ -285,8 +287,10 @@ func (fs *flowControlFlowStats) getTokens(ctx *context.T, encapsulated bool) (bo
 		if fs.shared.lshared < max {
 			max = fs.shared.lshared
 		}
-		fs.shared.decShared("getTokens", fs.id, max)
-		fs.incBorrowed("getTokens", max)
+		fs.shared.lshared -= max
+		fs.borrowed += max
+		//		fs.shared.decShared("getTokens", fs.id, max)
+		//		fs.incBorrowed("getTokens", max)
 		return true, int(max)
 	}
 	if fs.released < max {
@@ -308,15 +312,11 @@ func (fs *flowControlFlowStats) updateReturnedTokens(ctx *context.T, borrowed bo
 	fs.shared.mu.Lock()
 	defer fs.shared.mu.Unlock()
 	if borrowed {
-		fs.shared.incShared("updateReturnedTokens", fs.id, uint64(unused))
-		fs.decDorrowed("updateReturnedTokens", uint64(unused))
-		if ctx.V(2) {
-			ctx.Infof("returned %d unused borrowed tokens on flow %d, total: %d left: %d", unused, fs.id, fs.borrowed, fs.shared.lshared)
-		}
+		fs.shared.lshared += uint64(unused)
+		fs.borrowed -= uint64(unused)
+		//		fs.shared.incShared("updateReturnedTokens", fs.id, uint64(unused))
+		//		fs.decDorrowed("updateReturnedTokens", uint64(unused))
 		return
-	}
-	if ctx.V(2) {
-		ctx.Infof("flow %d returned %d unused tokens, %d left", fs.id, unused, fs.released)
 	}
 	fs.released += uint64(unused)
 	return
@@ -330,7 +330,8 @@ func (fs *flowControlFlowStats) handleFlowClose(closedRemotely, notConnClosing b
 		// When the other side closes a flow, it implicitly releases all the
 		// counters used by that flow.  That means we should release the shared
 		// counter to be used on other new flows.
-		fs.shared.incShared("handleFlowClose", fs.id, fs.borrowed)
+		fs.shared.lshared += fs.borrowed
+		//		fs.shared.incShared("handleFlowClose", fs.id, fs.borrowed)
 		fs.borrowed = 0
 	} else if fs.borrowed > 0 && notConnClosing {
 		fs.shared.outstandingBorrowed[fid] = fs.borrowed

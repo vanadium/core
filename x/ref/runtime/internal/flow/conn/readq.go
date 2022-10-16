@@ -5,9 +5,7 @@
 package conn
 
 import (
-	"fmt"
 	"io"
-	"os"
 	"sync"
 
 	"v.io/v23/context"
@@ -80,7 +78,6 @@ func (r *readq) put(ctx *context.T, bufs [][]byte) error {
 	}
 
 	newSize := uint64(l) + r.size
-	fmt.Fprintf(os.Stderr, "%p: readq: put: %v + %v -> %v (overflow %v)\n", r, r.size, l, newSize, newSize > r.bytesBufferedPerFlow)
 	if newSize > r.bytesBufferedPerFlow {
 		return ErrCounterOverflow.Errorf(ctx, "a remote process has sent more data than allowed: max bytes buffered is %v, current buffered is %v + received: %v", r.bytesBufferedPerFlow, r.size, l)
 	}

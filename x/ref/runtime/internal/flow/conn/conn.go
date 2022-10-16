@@ -7,7 +7,6 @@ package conn
 import (
 	"fmt"
 	"net"
-	"os"
 	"sync"
 	"time"
 
@@ -819,7 +818,6 @@ func (c *Conn) deleteFlow(fid uint64) {
 func (c *Conn) fragmentReleaseMessage(ctx *context.T, toRelease map[uint64]uint64) error {
 	limit := c.flowControl.releaseMessageLimit
 	if len(toRelease) < limit {
-		fmt.Fprintf(os.Stderr, "%p: sendRelease: %v\n", c, toRelease)
 		return c.sendMessage(ctx, false, expressPriority, &message.Release{
 			Counters: toRelease,
 		})
@@ -842,7 +840,6 @@ func (c *Conn) fragmentReleaseMessage(ctx *context.T, toRelease map[uint64]uint6
 				i++
 			}
 		}
-		fmt.Fprintf(os.Stderr, "%p: sendRelease: fragmented: %v\n", c, toRelease)
 		if err := c.sendMessage(ctx, false, expressPriority, &message.Release{
 			Counters: send,
 		}); err != nil {
