@@ -953,6 +953,7 @@ LastUsed:    %v
 
 func (c *Conn) writeEncodedBlessings(ctx *context.T, w *writer, data []byte) error {
 	if err := c.writeq.wait(ctx, w, flowPriority); err != nil {
+		ctx.Infof("writeq.wait: error %v", err)
 		return err
 	}
 	// TODO(cnicolaou): what about fragmentation and flow control here?
@@ -970,6 +971,7 @@ func (c *Conn) sendReleaseMessage(
 	defer c.releaseSender.Unlock()
 	w, err := c.releaseSender.wait(nil, &c.writeq)
 	if err != nil {
+		ctx.Infof("writeq.wait: error %v", err)
 		return err
 	}
 	defer c.writeq.done(w)
@@ -981,6 +983,7 @@ func (c *Conn) sendAuthMessage(ctx *context.T, m message.Auth) error {
 	defer c.authSender.Unlock()
 	w, err := c.authSender.wait(ctx, &c.writeq)
 	if err != nil {
+		ctx.Infof("writeq.wait: error %v", err)
 		return err
 	}
 	defer c.writeq.done(w)
@@ -994,6 +997,7 @@ func (c *Conn) sendSetupMessage(
 	defer c.setupSender.Unlock()
 	w, err := c.setupSender.wait(ctx, &c.writeq)
 	if err != nil {
+		ctx.Infof("writeq.wait: error %v", err)
 		return err
 	}
 	defer c.writeq.done(w)
@@ -1014,6 +1018,7 @@ func (c *Conn) sendHealthCheckMessage(
 	allocChannel(&c.healthSender)
 	w, err := c.healthSender.wait(ctx, &c.writeq)
 	if err != nil {
+		ctx.Infof("writeq.wait: error %v", err)
 		return err
 	}
 	defer c.writeq.done(w)
@@ -1041,6 +1046,7 @@ func (c *Conn) sendLameDuckMessage(
 	allocChannel(&c.lameDuckSender)
 	w, err := c.lameDuckSender.wait(cancelContext(ctx, cancelWithContext), &c.writeq)
 	if err != nil {
+		ctx.Infof("writeq.wait: error %v", err)
 		return err
 	}
 	defer c.writeq.done(w)
@@ -1060,6 +1066,7 @@ func (c *Conn) sendTearDownMessage(
 	allocChannel(&c.teardownSender)
 	w, err := c.teardownSender.wait(nil, &c.writeq)
 	if err != nil {
+		ctx.Infof("writeq.wait: error %v", err)
 		return err
 	}
 	defer c.writeq.done(w)
