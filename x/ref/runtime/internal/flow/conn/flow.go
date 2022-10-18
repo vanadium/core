@@ -277,7 +277,6 @@ func (f *flw) writeMsg(alsoClose bool, parts [][]byte) (sent int, err error) {
 		f.flowControl.lockForTokens()
 		borrowed, _, avail := f.flowControl.getTokensLocked(ctx, f.encapsulated)
 		parts, tosend, size = popFront(parts, tosend[:0], avail)
-
 		f.flowControl.returnTokensLocked(ctx, borrowed, avail-size)
 		f.flowControl.unlockForTokens()
 
@@ -314,6 +313,7 @@ func (f *flw) handleOpenFlow(ctx *context.T, alsoClose, finalPart bool, payload 
 	}
 	flags := f.messageFlags(alsoClose, finalPart)
 	if err := f.writeq.wait(ctx, &f.writeqEntry, flowPriority); err != nil {
+		ctx.Infof("writeq.wait: error %v", err)
 		return io.EOF
 	}
 	defer f.writeq.done(&f.writeqEntry)
@@ -332,6 +332,7 @@ func (f *flw) handleOpenFlow(ctx *context.T, alsoClose, finalPart bool, payload 
 func (f *flw) sendDataMessage(ctx *context.T, priority int, alsoClose, finalPart bool, payload [][]byte) error {
 	flags := f.messageFlags(alsoClose, finalPart)
 	if err := f.writeq.wait(ctx, &f.writeqEntry, priority); err != nil {
+		ctx.Infof("writeq.wait: error %v", err)
 		return io.EOF
 	}
 	defer f.writeq.done(&f.writeqEntry)
