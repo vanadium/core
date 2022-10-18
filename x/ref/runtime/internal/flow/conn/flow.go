@@ -265,7 +265,7 @@ func (f *flw) writeMsg(alsoClose bool, parts [][]byte) (sent int, err error) {
 			if err != nil {
 				return f.writeMsgDone(ctx, sent, alsoClose, err)
 			}
-			if err := f.sendDataMessage(ctx, alsoClose, len(parts) == 0, tosend); err != nil {
+			if err := f.sendDataMessage(ctx, flowPriority, alsoClose, len(parts) == 0, tosend); err != nil {
 				return f.writeMsgDone(ctx, sent, alsoClose, err)
 			}
 			sent += size

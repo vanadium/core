@@ -183,7 +183,7 @@ func (c *Conn) handleHealthCheckRequest(ctx *context.T) error {
 	return nil
 }
 
-func (c *Conn) handleRelease(ctx *context.T, msg *message.Release) error {
+func (c *Conn) handleRelease(ctx *context.T, msg message.Release) error {
 	c.flowControl.handleRelease(ctx, c, msg.Counters)
 	return nil
 }
