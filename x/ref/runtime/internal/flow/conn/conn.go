@@ -1000,14 +1000,18 @@ func (c *Conn) sendSetupMessage(
 	return c.mp.writeMsg(ctx, m.Append)
 }
 
+func allocChannel(ms *messageSender) {
+	if ms.notify == nil {
+		ms.notify = make(chan struct{})
+	}
+}
+
 func (c *Conn) sendHealthCheckMessage(
 	ctx *context.T,
 	request bool) error {
 	c.healthSender.Lock()
 	defer c.healthSender.Unlock()
-	if c.healthSender.notify == nil {
-		c.healthSender.notify = make(chan struct{})
-	}
+	allocChannel(&c.healthSender)
 	w, err := c.healthSender.wait(ctx, &c.writeq)
 	if err != nil {
 		return err
@@ -1034,9 +1038,7 @@ func (c *Conn) sendLameDuckMessage(
 	enterLameDuck bool) error {
 	c.lameDuckSender.Lock()
 	defer c.lameDuckSender.Unlock()
-	if c.lameDuckSender.notify == nil {
-		c.lameDuckSender.notify = make(chan struct{})
-	}
+	allocChannel(&c.lameDuckSender)
 	w, err := c.lameDuckSender.wait(cancelContext(ctx, cancelWithContext), &c.writeq)
 	if err != nil {
 		return err
@@ -1055,9 +1057,7 @@ func (c *Conn) sendTearDownMessage(
 	msg string) error {
 	c.teardownSender.Lock()
 	defer c.teardownSender.Unlock()
-	if c.teardownSender.notify == nil {
-		c.teardownSender.notify = make(chan struct{})
-	}
+	allocChannel(&c.teardownSender)
 	w, err := c.teardownSender.wait(nil, &c.writeq)
 	if err != nil {
 		return err
