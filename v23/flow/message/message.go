@@ -72,9 +72,8 @@ func Read(ctx *context.T, from []byte) (Message, error) {
 		return ProxyResponse{}.Read(ctx, from)
 	case ProxyErrorReponseType:
 		return ProxyErrorResponse{}.Read(ctx, from)
-	default:
-		return nil, ErrUnknownMsg.Errorf(ctx, "unknown message type: %02x", msgType)
 	}
+	return nil, ErrUnknownMsg.Errorf(ctx, "unknown message type: %02x", msgType)
 }
 
 // FlowID returns the id of the flow this message is associated with for
@@ -503,9 +502,9 @@ func (m OpenFlow) Copy() Message {
 
 // SetNoCopy is used to indicate whether a subsequent call to Copy
 // needs to copy the payload.
-func (msg OpenFlow) SetNoCopy(nocopy bool) OpenFlow {
-	msg.nocopy = nocopy
-	return msg
+func (m OpenFlow) SetNoCopy(nocopy bool) OpenFlow {
+	m.nocopy = nocopy
+	return m
 }
 
 func (m OpenFlow) String() string {
@@ -611,9 +610,9 @@ func (m Data) Copy() Message {
 
 // SetNoCopy is used to indicate whether a subsequent call to Copy
 // needs to copy the payload.
-func (msg Data) SetNoCopy(nocopy bool) Data {
-	msg.nocopy = nocopy
-	return msg
+func (m Data) SetNoCopy(nocopy bool) Data {
+	m.nocopy = nocopy
+	return m
 }
 
 func (m *Data) String() string {
