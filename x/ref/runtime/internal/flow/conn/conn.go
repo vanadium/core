@@ -594,7 +594,8 @@ func (c *Conn) Dial(ctx *context.T, blessings security.Blessings, discharges map
 		remote,
 		true,
 		channelTimeout,
-		sideChannel)
+		sideChannel,
+		0)
 	return flw, nil
 }
 
@@ -676,7 +677,6 @@ func (c *Conn) Status() Status {
 
 // Close shuts down a conn.
 func (c *Conn) Close(ctx *context.T, err error) {
-	//	fmt.Fprintf(os.Stderr, "%p: close conn\n", c)
 	c.internalClose(ctx, false, false, err)
 	<-c.closed
 }

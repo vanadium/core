@@ -67,7 +67,8 @@ func (c *Conn) newFlowLocked(
 	remote naming.Endpoint,
 	dialed bool,
 	channelTimeout time.Duration,
-	sideChannel bool) *flw {
+	sideChannel bool,
+	initialCounters uint64) *flw {
 	f := &flw{
 		id:               id,
 		conn:             c,
@@ -92,6 +93,9 @@ func (c *Conn) newFlowLocked(
 	f.flowControl.shared = &c.flowControl
 	f.flowControl.borrowing = dialed
 	f.flowControl.id = id
+	if initialCounters != 0 {
+		f.flowControl.releaseCountersLocked(initialCounters)
+	}
 
 	f.tokenWait = make(chan struct{}, 1)
 
@@ -171,23 +175,6 @@ func (f *flw) currentContext() *context.T {
 	return f.ctx
 }
 
-// releaseCounters releases some counters from a remote reader to the local
-// writer.  This allows the writer to then write more data to the wire.
-func (f *flw) releaseCounters(tokens uint64) {
-	f.mu.Lock()
-	defer f.mu.Unlock()
-	ctx := f.ctx
-	f.flowControl.releaseCounters(ctx, tokens)
-	// Unblock the current flow if it's waiting for tokens.
-	select {
-	case f.tokenWait <- struct{}{}:
-	default:
-	}
-	if ctx.V(2) {
-		ctx.Infof("Activated writing flow %d(%p) now that we have tokens.", f.id, f)
-	}
-}
-
 // ensureTokens ensures that there are sufficient flow control tokens available
 // to send the current message, and if there are none, it will wait until
 // some become available from the peer end of the connection via a release
@@ -200,25 +187,23 @@ func (f *flw) ensureTokens(ctx *context.T, need int, parts [][]byte, tosend [][]
 		// above needs to lock access to updating the available tokens
 		// (ie. the call to releaseCounters) as well as signaling the channel
 		// used to notify the code below that more tokens may be available.
-		f.mu.Lock()
-		borrowed, avail := f.flowControl.getTokens(ctx, f.encapsulated)
+		f.flowControl.lockForTokens()
+		borrowed, borrowedNotification, avail := f.flowControl.getTokensLocked(ctx, f.encapsulated)
 		if avail >= need {
 			parts, tosend, size := popFront(parts, tosend[:0], avail)
-			//fmt.Fprintf(os.Stderr, "%p: %v: writeMsg: ensureTokens: borrowed %v, avail %v, need %v, size %v, unused %v (%v - %v)\n", f, f.id, borrowed, avail, need, size, avail-size, f.flowControl.borrowed, f.flowControl.shared.getShared())
-			f.flowControl.returnTokens(ctx, borrowed, avail-size)
-			f.mu.Unlock()
+			f.flowControl.returnTokensLocked(ctx, borrowed, avail-size)
+			f.flowControl.unlockForTokens()
 			return parts, tosend, size, nil
 		}
-		//fmt.Fprintf(os.Stderr, "%p: %v: writeMsg: ensureTokens: insufficient/wait: borrowed %v, avail %v  (%v - %v)\n", f, f.id, borrowed, avail, f.flowControl.borrowed, f.flowControl.shared.getShared())
-
 		// need to wait for tokens, but first return any tokens that were available.
-		f.flowControl.returnTokens(ctx, borrowed, avail)
+		f.flowControl.returnTokensLocked(ctx, borrowed, avail)
 		ch := f.tokenWait
-		f.mu.Unlock()
+		f.flowControl.unlockForTokens()
 		select {
 		case <-ctx.Done():
 			return nil, nil, 0, ctx.Err()
 		case <-ch:
+		case <-borrowedNotification:
 		}
 	}
 }
@@ -289,14 +274,12 @@ func (f *flw) writeMsg(alsoClose bool, parts [][]byte) (sent int, err error) {
 		// Send an open message, use any available flow control tokens, but
 		// do not wait for any to be available. This ensures that an openFlow
 		// message will always be sent, if it can't include a payload.
-		f.mu.Lock()
-		borrowed, avail := f.flowControl.getTokens(ctx, f.encapsulated)
+		f.flowControl.lockForTokens()
+		borrowed, _, avail := f.flowControl.getTokensLocked(ctx, f.encapsulated)
 		parts, tosend, size = popFront(parts, tosend[:0], avail)
 
-		//fmt.Fprintf(os.Stderr, "%p: %v: writeMsg: open: avail %v, size %v, unused %v (%v - %v)\n", f, f.id, avail, size, avail-size, f.flowControl.borrowed, f.flowControl.shared.getShared())
-
-		f.flowControl.returnTokens(ctx, borrowed, avail-size)
-		f.mu.Unlock()
+		f.flowControl.returnTokensLocked(ctx, borrowed, avail-size)
+		f.flowControl.unlockForTokens()
 
 		if err := f.handleOpenFlow(ctx, alsoClose, len(parts) == 0, tosend); err != nil {
 			return f.writeMsgDone(ctx, sent, alsoClose, err)

@@ -104,8 +104,8 @@ func (c *Conn) handleOpenFlow(ctx *context.T, msg *message.OpenFlow) error {
 		c.remote,
 		false,
 		c.acceptChannelTimeout,
-		sideChannel)
-	f.releaseCounters(msg.InitialCounters)
+		sideChannel,
+		msg.InitialCounters)
 	c.flowControl.newCounters(msg.ID)
 	c.mu.Unlock()
 
@@ -184,16 +184,7 @@ func (c *Conn) handleHealthCheckRequest(ctx *context.T) error {
 }
 
 func (c *Conn) handleRelease(ctx *context.T, msg *message.Release) error {
-	for fid, val := range msg.Counters {
-		c.mu.Lock()
-		f := c.flows[fid]
-		c.mu.Unlock()
-		if f != nil {
-			f.releaseCounters(val)
-		} else {
-			c.flowControl.releaseOutstandingBorrowed(fid, val)
-		}
-	}
+	c.flowControl.handleRelease(ctx, c, msg.Counters)
 	return nil
 }
 
