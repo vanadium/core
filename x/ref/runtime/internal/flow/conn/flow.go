@@ -67,7 +67,8 @@ func (c *Conn) newFlowLocked(
 	remote naming.Endpoint,
 	dialed bool,
 	channelTimeout time.Duration,
-	sideChannel bool) *flw {
+	sideChannel bool,
+	initialCounters uint64) *flw {
 	f := &flw{
 		id:               id,
 		conn:             c,
@@ -92,6 +93,9 @@ func (c *Conn) newFlowLocked(
 	f.flowControl.shared = &c.flowControl
 	f.flowControl.borrowing = dialed
 	f.flowControl.id = id
+	if initialCounters != 0 {
+		f.flowControl.releaseCountersLocked(initialCounters)
+	}
 
 	f.tokenWait = make(chan struct{}, 1)
 
@@ -171,50 +175,35 @@ func (f *flw) currentContext() *context.T {
 	return f.ctx
 }
 
-// releaseCounters releases some counters from a remote reader to the local
-// writer.  This allows the writer to then write more data to the wire.
-func (f *flw) releaseCounters(tokens uint64) {
-	f.mu.Lock()
-	defer f.mu.Unlock()
-	ctx := f.ctx
-	f.flowControl.releaseCounters(ctx, tokens)
-	// Unblock the current flow if it's waiting for tokens.
-	select {
-	case f.tokenWait <- struct{}{}:
-	default:
-	}
-	if ctx.V(2) {
-		ctx.Infof("Activated writing flow %d(%p) now that we have tokens.", f.id, f)
-	}
-}
-
 // ensureTokens ensures that there are sufficient flow control tokens available
 // to send the current message, and if there are none, it will wait until
 // some become available from the peer end of the connection via a release
 // message containing tokens for this flow.
-func (f *flw) ensureTokens(ctx *context.T, debuglog bool, need int) (int, func(int), error) {
+func (f *flw) ensureTokens(ctx *context.T, need int, parts [][]byte, tosend [][]byte) ([][]byte, [][]byte, int, error) {
+
 	for {
 		// The critical region needs to capture both reading tokens and
 		// setting up to wait for new ones. Similarly, releaseCounters
 		// above needs to lock access to updating the available tokens
 		// (ie. the call to releaseCounters) as well as signaling the channel
 		// used to notify the code below that more tokens may be available.
-		f.mu.Lock()
-		avail, deduct := f.flowControl.tokens(ctx, f.encapsulated)
+		f.flowControl.lockForTokens()
+		borrowed, borrowedNotification, avail := f.flowControl.getTokensLocked(ctx, f.encapsulated)
 		if avail >= need {
-			f.mu.Unlock()
-			return avail, deduct, nil
+			parts, tosend, size := popFront(parts, tosend[:0], avail)
+			f.flowControl.returnTokensLocked(ctx, borrowed, avail-size)
+			f.flowControl.unlockForTokens()
+			return parts, tosend, size, nil
 		}
-		// need to wait for tokens.
+		// need to wait for tokens, but first return any tokens that were available.
+		f.flowControl.returnTokensLocked(ctx, borrowed, avail)
 		ch := f.tokenWait
-		f.mu.Unlock()
-		if debuglog {
-			ctx.Infof("Deactivating write on flow %d(%p) due to lack of tokens", f.id, f)
-		}
+		f.flowControl.unlockForTokens()
 		select {
 		case <-ctx.Done():
-			return 0, func(int) {}, ctx.Err()
+			return nil, nil, 0, ctx.Err()
 		case <-ch:
+		case <-borrowedNotification:
 		}
 	}
 }
@@ -255,28 +244,27 @@ func (f *flw) writeMsg(alsoClose bool, parts [][]byte) (sent int, err error) {
 	f.opened = true
 	f.mu.Unlock()
 
+	// We're prepared to send at least 1 byte under any circumstance.
+	need := 1
+	if f.noEncrypt || f.noFragment {
+		// Note that if f.noEncrypt is set we're actually acting as a conn
+		// for higher level flows. In this case we don't want to fragment the
+		// writes of the higher level flows, we want to transmit their messages
+		// whole. Similarly if noFragment is set we prefer to wait and not
+		// send a partial write based on the available tokens. This is only
+		// required by proxies which need to pass on messages without
+		// refragmenting.
+		need = totalSize
+	}
+
 	for len(parts) > 0 {
-		// We're prepared to send at least 1 byte under any circumstance.
-		need := 1
-		if f.noEncrypt || f.noFragment {
-			// Note that if f.noEncrypt is set we're actually acting as a conn
-			// for higher level flows. In this case we don't want to fragment the
-			// writes of the higher level flows, we want to transmit their messages
-			// whole. Similarly if noFragment is set we prefer to wait and not
-			// send a partial write based on the available tokens. This is only
-			// required by proxies which need to pass on messages without
-			// refragmenting.
-			need = totalSize
-		}
 		if wasOpened {
 			// Send a data message, possibly having to wait for flow control
 			// tokens before doing so.
-			tokens, deduct, err := f.ensureTokens(ctx, debug, need)
+			parts, tosend, size, err = f.ensureTokens(ctx, need, parts, tosend)
 			if err != nil {
 				return f.writeMsgDone(ctx, sent, alsoClose, err)
 			}
-			parts, tosend, size = popFront(parts, tosend[:0], tokens)
-			deduct(size)
 			if err := f.sendDataMessage(ctx, alsoClose, len(parts) == 0, tosend); err != nil {
 				return f.writeMsgDone(ctx, sent, alsoClose, err)
 			}
@@ -286,13 +274,19 @@ func (f *flw) writeMsg(alsoClose bool, parts [][]byte) (sent int, err error) {
 		// Send an open message, use any available flow control tokens, but
 		// do not wait for any to be available. This ensures that an openFlow
 		// message will always be sent, if it can't include a payload.
-		avail, deduct := f.flowControl.tokens(ctx, f.encapsulated)
+		f.flowControl.lockForTokens()
+		borrowed, _, avail := f.flowControl.getTokensLocked(ctx, f.encapsulated)
 		parts, tosend, size = popFront(parts, tosend[:0], avail)
-		deduct(size)
+
+		f.flowControl.returnTokensLocked(ctx, borrowed, avail-size)
+		f.flowControl.unlockForTokens()
+
 		if err := f.handleOpenFlow(ctx, alsoClose, len(parts) == 0, tosend); err != nil {
 			return f.writeMsgDone(ctx, sent, alsoClose, err)
 		}
+
 		sent += size
+
 		wasOpened = true
 		f.conn.unopenedFlows.Done()
 	}

@@ -178,6 +178,16 @@ func TestOrdering(t *testing.T) {
 	}
 }
 
+func testInvariants(dc, ac *Conn) error {
+	if _, _, err := flowControlBorrowedInvariant(dc); err != nil {
+		return fmt.Errorf("dial: flowcontrol invariant: %v", err)
+	}
+	if _, _, err := flowControlBorrowedInvariant(ac); err != nil {
+		return fmt.Errorf("accept: flowcontrol invariant: %v", err)
+	}
+	return nil
+}
+
 func TestFlowControl(t *testing.T) {
 	defer goroutines.NoLeaks(t, leakWaitTime)()
 	ctx, shutdown := test.V23Init()
@@ -187,16 +197,18 @@ func TestFlowControl(t *testing.T) {
 		for _, bytesBuffered := range []uint64{DefaultMTU, DefaultBytesBuffered} {
 			for _, mtu := range []uint64{1024, DefaultMTU} {
 				t.Logf("starting: #%v flows, buffered %#v bytes\n", nflows, bytesBuffered)
-				dfs, flows, ac, dc := setupFlowsOpts(t, "local", "", ctx, ctx, true, nflows, Opts{
+				dfs, flows, dc, ac := setupFlowsOpts(t, "local", "", ctx, ctx, true, nflows, Opts{
 					MTU:           mtu,
 					BytesBuffered: bytesBuffered})
 
 				defer func() {
 					dc.Close(ctx, nil)
 					ac.Close(ctx, nil)
+					<-dc.Closed()
+					<-ac.Closed()
 				}()
 
-				errs := make(chan error, nflows*4)
+				errs := make(chan error, nflows*4*2)
 				var wg sync.WaitGroup
 				wg.Add(nflows * 4)
 
@@ -207,6 +219,7 @@ func TestFlowControl(t *testing.T) {
 							fmt.Printf("dial: doWrite: flow: %v/%v, mtu: %v, buffered: %v, unexpected error: %v\n", i, nflows, mtu, bytesBuffered, err)
 						}
 						errs <- err
+						errs <- testInvariants(dc, ac)
 						wg.Done()
 					}(i)
 					go func(i int) {
@@ -215,6 +228,7 @@ func TestFlowControl(t *testing.T) {
 							fmt.Printf("dial: doRead: flow: %v/%v, mtu: %v, buffered: %v, unexpected error: %v\n", i, nflows, mtu, bytesBuffered, err)
 						}
 						errs <- err
+						errs <- testInvariants(dc, ac)
 						wg.Done()
 					}(i)
 				}
@@ -226,6 +240,7 @@ func TestFlowControl(t *testing.T) {
 							fmt.Printf("accept: doRead: flow: %v/%v, mtu: %v, buffered: %v, unexpected error: %v\n", i, nflows, mtu, bytesBuffered, err)
 						}
 						errs <- err
+						errs <- testInvariants(dc, ac)
 						wg.Done()
 					}(i)
 					go func(i int) {
@@ -234,12 +249,22 @@ func TestFlowControl(t *testing.T) {
 							fmt.Printf("accept: doWrite: flow: %v/%v, mtu: %v, buffered: %v, unexpected error: %v\n", i, nflows, mtu, bytesBuffered, err)
 						}
 						errs <- err
+						errs <- testInvariants(dc, ac)
 						wg.Done()
 					}(i)
 				}
 
 				wg.Wait()
+				for i := 0; i < nflows; i++ {
+					if err := dfs[i].Close(); err != nil {
+						t.Error(err)
+					}
+				}
 				close(errs)
+
+				if err := testInvariants(dc, ac); err != nil {
+					t.Error(err)
+				}
 
 				for err := range errs {
 					if err != nil {
@@ -250,4 +275,121 @@ func TestFlowControl(t *testing.T) {
 			}
 		}
 	}
+}
+
+func readFromFlows(accept <-chan flow.Flow, sent, need int) (int, error) {
+	trx := 0
+	for {
+		af := <-accept
+		rx := 0
+		for {
+			buf, err := af.ReadMsg()
+			if err != nil {
+				if err != io.EOF {
+					return rx, err
+				}
+				return trx, nil
+			}
+			rx += len(buf)
+			if rx >= sent {
+				break
+			}
+		}
+		trx += rx
+		if trx >= need {
+			return trx, nil
+		}
+	}
+}
+
+func TestFlowControlBorrowing(t *testing.T) {
+	defer goroutines.NoLeaks(t, leakWaitTime)()
+	ctx, shutdown := test.V23Init()
+	defer shutdown()
+
+	borrowedInvariant := func(c *Conn) (totalBorrowed, shared uint64) {
+		totalBorrowed, shared, err := flowControlBorrowedInvariant(c)
+		if err != nil {
+			t.Fatal(err)
+		}
+		return
+	}
+	releasedInvariant := func(a, b *Conn) {
+		if err := flowControlReleasedInvariant(a, b); err != nil {
+			t.Fatal(err)
+		}
+		if err := flowControlReleasedInvariant(b, a); err != nil {
+			t.Fatal(err)
+		}
+	}
+
+	nflows := 100
+	bytesBuffered := uint64(10000)
+	mtu := uint64(1024)
+
+	for _, numFlowsBeforeStarvation := range []int{2, 3, 7} {
+		flows, accept, dc, ac := setupFlowsOpts(t, "local", "", ctx, ctx, true, nflows, Opts{
+			MTU:           mtu,
+			BytesBuffered: bytesBuffered})
+
+		perFlowBufSize := (bytesBuffered / uint64(numFlowsBeforeStarvation))
+		written := 0
+		read := 0
+		for i := 0; i < nflows; i++ {
+			f := flows[i]
+
+			_, err := f.WriteMsg(randData[:perFlowBufSize])
+			if err != nil {
+				t.Fatal(err)
+			}
+			written += int(perFlowBufSize)
+
+			totalBorrowed, shared := borrowedInvariant(dc)
+
+			borrowed := uint64((i%numFlowsBeforeStarvation)+1) * perFlowBufSize
+
+			releasedInvariant(dc, ac)
+
+			if got, want := totalBorrowed, borrowed; got != want {
+				t.Errorf("%v: %v: got %v, want %v", i, numFlowsBeforeStarvation, got, want)
+			}
+
+			if got, want := flowControlBorrowed(dc)[flowID(f)], perFlowBufSize; got != want {
+				t.Errorf("%v: %v: got %v, want %v", i, numFlowsBeforeStarvation, got, want)
+			}
+
+			if shared < mtu {
+				// At this point the available borrowed/shared tokens are exhausted.
+				// The following loop will read enough data for the accept side
+				// to send a release message to the dialer to free up some
+				// borrowed tokens for more flows to be opened.
+				need := written - read
+				n, err := readFromFlows(accept, int(perFlowBufSize), need)
+				if err != nil {
+					t.Fatal(err)
+				}
+				read += n
+				totalBorrowed, _ = borrowedInvariant(dc)
+				if got, want := int(totalBorrowed), (numFlowsBeforeStarvation * int(perFlowBufSize)); got != 0 && got != want {
+					t.Errorf("%v: %v: got %v, want either 0 or %v", i, numFlowsBeforeStarvation, got, want)
+				}
+
+				releasedInvariant(dc, ac)
+
+			}
+
+			totalBorrowed, _ = borrowedInvariant(ac)
+			if got, want := int(totalBorrowed), 0; got != want {
+				t.Errorf("%v: %v: got %v, want either 0 or %v", i, numFlowsBeforeStarvation, got, want)
+			}
+
+			releasedInvariant(dc, ac)
+
+		}
+		dc.Close(ctx, nil)
+		ac.Close(ctx, nil)
+		<-dc.Closed()
+		<-ac.Closed()
+	}
+
 }
