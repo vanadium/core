@@ -5,6 +5,7 @@
 package conn
 
 import (
+	"errors"
 	"fmt"
 	"math/rand"
 	"reflect"
@@ -72,11 +73,11 @@ func cmpWriteqEntries(t *testing.T, wq *writeq, priority int, active *writeqEntr
 	_, _, line, _ := runtime.Caller(1)
 	if active == nil {
 		if got, want := wq.active, (*writer)(nil); got != want {
-			t.Errorf("line %v: active: got %v, want %v", line, got, want)
+			t.Fatalf("line %v: active: got %v, want %v", line, got, want)
 		}
 	} else {
 		if got, want := wq.active, &active.writer; got != want {
-			t.Errorf("line %v: active: got %v, want %v", line, got, want)
+			t.Fatalf("line %v: active: got %v, want %v", line, got, want)
 		}
 	}
 
@@ -88,7 +89,7 @@ func cmpWriteqEntries(t *testing.T, wq *writeq, priority int, active *writeqEntr
 		}
 	}
 	if got, want := listWQEntriesLocked(wq, priority), wl; !reflect.DeepEqual(got, want) {
-		t.Errorf("line %v: queue: got %v, want %v", line, got, want)
+		t.Fatalf("line %v: queue: got %v, want %v", line, got, want)
 	}
 }
 
@@ -430,6 +431,13 @@ func TestWriteqConcurrency(t *testing.T) {
 	}
 }
 
+func nilPointers(w *writer) error {
+	if w.prev != nil || w.next != nil {
+		return fmt.Errorf("pointers should be nil: %p: %p <-> %p", w, w.prev, w.next)
+	}
+	return nil
+}
+
 func TestWriteqContextCancel(t *testing.T) {
 	wq := &writeq{}
 	rctx, shutdown := test.V23Init()
@@ -439,12 +447,21 @@ func TestWriteqContextCancel(t *testing.T) {
 
 	ctx, cancel := context.WithCancel(rctx)
 
+	isNil := func(w *writeqEntry) {
+		if err := nilPointers(&w.writer); err != nil {
+			_, _, line, _ := runtime.Caller(1)
+			t.Errorf("line %v: %v", line, err)
+		}
+	}
+
 	wq.wait(ctx, &fe1.writer, expressPriority)
 	cancel()
 	err := wq.wait(ctx, &fe2.writer, expressPriority)
 	if err == nil || !strings.Contains(err.Error(), "context canceled") {
 		t.Fatalf("missing or unexpected error: %v", err)
 	}
+	isNil(fe2)
+
 	// fe2 will never make it into the queue since it was canceled.
 	cmpWriteqEntries(t, wq, expressPriority, fe1)
 	// fe1 is still the active writer since the cancel was issued after
@@ -452,7 +469,7 @@ func TestWriteqContextCancel(t *testing.T) {
 	wq.done(&fe1.writer)
 	cmpWriteqEntries(t, wq, expressPriority, nil)
 
-	nworkers := 1000
+	nworkers := 100
 	var done sync.WaitGroup
 	var waiters sync.WaitGroup
 	startCancel := make(chan struct{})
@@ -472,6 +489,10 @@ func TestWriteqContextCancel(t *testing.T) {
 			defer done.Done()
 			shared := newEntry()
 			if err := wq.wait(ctx, &shared.writer, flowPriority); err != nil {
+				if perr := nilPointers(&shared.writer); perr != nil {
+					errCh <- fmt.Errorf("%v: %v", err, perr)
+					return
+				}
 				errCh <- err
 				return
 			}
@@ -486,6 +507,7 @@ func TestWriteqContextCancel(t *testing.T) {
 
 	waiters.Wait()
 	wq.done(&fe1.writer)
+	isNil(fe1)
 	close(startCancel)
 	done.Wait()
 	close(errCh)
@@ -499,6 +521,118 @@ func TestWriteqContextCancel(t *testing.T) {
 
 	if got, want := nerrors, nworkers/2; got < want {
 		t.Errorf("got %v, want >= %v", got, want)
+	}
+
+}
+
+func TestWriteqContextCancelSpecial(t *testing.T) {
+	rctx, shutdown := test.V23Init()
+	defer shutdown()
+
+	wq := &writeq{}
+	fe1 := newEntry()
+
+	nWriters := 2
+	nIterations := 100
+	cancelations := 0
+
+	writers := make([]*writeqEntry, nWriters)
+	for i := 0; i < nWriters; i++ {
+		writers[i] = newEntry()
+		fmt.Printf("%v: %p\n", i, writers[i])
+	}
+
+	// This test is intended to catch the case where a writer that
+	// has just become active and is waiting to receive its notification
+	// is also canceled. In this case the notification and the cancelation
+	// are racing, hence we need to run the loop below enough times to
+	// to have the cancelation win the race. This race also occurs with
+	// the RPC 'mux' benchmarks which run both streaming and non-streaming
+	// RPCs with cancelations. See handleCancel in writeq.go.
+	for i := 0; i < nIterations; i++ {
+
+		ctx, cancel := context.WithCancel(rctx)
+
+		var wg sync.WaitGroup
+
+		errCh := make(chan error, nWriters*2)
+
+		fmt.Printf("%v: \n", i)
+
+		runner := func(ctx *context.T, id int, we *writeqEntry) {
+			err := wq.wait(ctx, &we.writer, flowPriority)
+			errCh <- err
+			if err != nil {
+				fmt.Printf("%v: --- error: %p: %v\n", id, &we.writer, err)
+				if errors.Is(err, context.Canceled) {
+					if err := nilPointers(&we.writer); err != nil {
+						_, _, line, _ := runtime.Caller(1)
+						errCh <- fmt.Errorf("line %v: %v: %v", line, id, err)
+					}
+				}
+				return
+			}
+			fmt.Printf("%v: --- before: %p\n", id, &we.writer)
+			wq.done(&we.writer)
+			fmt.Printf("%v: --- after: %p\n", id, &we.writer)
+		}
+
+		if err := wq.wait(ctx, &fe1.writer, flowPriority); err != nil {
+			t.Fatal(err)
+		}
+
+		fmt.Printf("fe1: %p\n", &fe1.writer)
+		for j := 0; j < nWriters; j++ {
+			fmt.Printf("%v: %p\n", j, writers[j])
+		}
+
+		wg.Add(nWriters)
+		for j := 0; j < nWriters; j++ {
+			go func(j int) {
+				runner(ctx, j, writers[j])
+				wg.Done()
+			}(j)
+		}
+
+		cancel()
+		fmt.Printf("calling done on fe1: %p\n", &fe1.writer)
+		wq.done(&fe1.writer)
+		fmt.Printf("done on fe1 done\n")
+
+		wq.mu.Lock()
+		if wq.active == &fe1.writer {
+			t.Fatalf("%v: active should not anything but %p: %p %v\n", i, &fe1.writer, wq.active, wq.active)
+		}
+		wq.mu.Unlock()
+
+		wg.Wait()
+
+		wq.mu.Lock()
+		if wq.active != nil {
+			t.Fatalf("%v: active should be nil, not %p %v\n", i, wq.active, wq.active)
+		}
+		wq.mu.Unlock()
+		cmpWriteqEntries(t, wq, flowPriority, nil)
+		close(errCh)
+
+		for err := range errCh {
+			if err != nil {
+				if errors.Is(err, context.Canceled) {
+					cancelations++
+				} else {
+					t.Error(err)
+				}
+			}
+		}
+
+		/*		if cancelations > 0 {
+				break
+			}*/
+
+	}
+
+	if cancelations == 0 {
+		t.Errorf("expected some cancelations")
 	}
 
 }

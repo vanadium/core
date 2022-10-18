@@ -89,14 +89,6 @@ type writer struct {
 	notify chan struct{}
 }
 
-func (w *writer) signal() {
-	if w.close {
-		close(w.notify)
-		return
-	}
-	w.notify <- struct{}{}
-}
-
 func (q *writeq) String() string {
 	q.mu.Lock()
 	defer q.mu.Unlock()
@@ -108,13 +100,13 @@ func (q *writeq) stringLocked() string {
 	if q.active == nil {
 		fmt.Fprintf(out, "writeq(%p): idle\n", q)
 	} else {
-		fmt.Fprintf(out, "writeq(%p): active: %v\n", q, q.active)
+		fmt.Fprintf(out, "writeq(%p): active: %p (%v)\n", q, q.active, q.active)
 	}
 	for p, h := range q.activeWriters {
 		if h != nil {
 			fmt.Fprintf(out, "\t%v: ", p)
 			for w := h; w != nil; w = w.next {
-				fmt.Fprintf(out, "%v ", w)
+				fmt.Fprintf(out, "%p ", w)
 				if w.next == h {
 					break
 				}
@@ -181,13 +173,29 @@ func (q *writeq) nextLocked() (*writer, int) {
 	return nil, -1
 }
 
+func (w *writer) signal() {
+	if w.close {
+		close(w.notify)
+		return
+	}
+	w.notify <- struct{}{}
+}
+
 func (q *writeq) handleCancel(w *writer, p int) {
 	q.mu.Lock()
+	fmt.Printf("canceled: %p\n", w)
 	// The writer could be in the queue or active, but not both.
 	if q.active == w {
+		// This can happen if this writer becomes the active one before
+		// being notified but after seeing the cancelation. That is,
+		// there is a race between the notification and the cancelation that
+		// this code handles.
+		//		w.prev, w.next = nil, nil
 		q.active = nil
+		fmt.Printf("oops... %p %p <-> %p\n", w, w.prev, w.next)
 		// Replace the canceled writer with a new one, if there is one.
 		if head, _ := q.nextLocked(); head != nil {
+			fmt.Printf("oops... new head: %p\n", head)
 			// Make the item removed from the queue the active one and signal it.
 			q.active = head
 			q.mu.Unlock()
@@ -198,7 +206,9 @@ func (q *writeq) handleCancel(w *writer, p int) {
 		return
 	}
 	// It must be in the queue, so remove it.
+	fmt.Printf("canceled: %p remove from lists: %s\n", w, q.stringLocked())
 	q.rmWriterLocked(w, p)
+	fmt.Printf("canceled: %p remove from lists - should be gone now: %s\n", w, q.stringLocked())
 	q.mu.Unlock()
 }
 
@@ -217,11 +227,16 @@ func (q *writeq) signalWait(ctx *context.T, w *writer, p int) error {
 }
 
 func (q *writeq) wait(ctx *context.T, w *writer, p int) error {
+	// NOTE: ctx may be nil.
 	q.mu.Lock()
+	fmt.Printf("%p: wait: before: %s\n", w, q.stringLocked())
 	if q.active != nil {
 		if !q.addWriterLocked(w, p) || w == q.active {
+			fmt.Printf("%p: wait: after: 1: %s\n", w, q.stringLocked())
+			q.mu.Unlock()
 			return fmt.Errorf("writer %p, priority %v already exists in the writeq", w, p)
 		}
+		fmt.Printf("%p: wait: after: 2: %s\n", w, q.stringLocked())
 		q.mu.Unlock()
 		return q.signalWait(ctx, w, p)
 	}
@@ -229,11 +244,14 @@ func (q *writeq) wait(ctx *context.T, w *writer, p int) error {
 	if head, p := q.nextLocked(); head != nil {
 		// Make the item removed from the queue the active one and signal it.
 		q.active = head
+		fmt.Printf("%p: wait: after: 3: %s\n", w, q.stringLocked())
+
 		q.mu.Unlock()
 		head.signal()
 		return q.signalWait(ctx, w, p)
 	}
 	q.active = w
+	fmt.Printf("%p: wait: after: 4: %s\n", w, q.stringLocked())
 	// No need to signal the writer, just return immediately.
 	q.mu.Unlock()
 	return nil
@@ -242,16 +260,22 @@ func (q *writeq) wait(ctx *context.T, w *writer, p int) error {
 
 func (q *writeq) done(w *writer) {
 	q.mu.Lock()
+	fmt.Printf("%p: done: before: %s\n", w, q.stringLocked())
 	if q.active == w {
 		q.active = nil
 		w.next, w.prev = nil, nil
 		if head, _ := q.nextLocked(); head != nil {
 			// If there is a new active writer, signal it.
 			q.active = head
+			fmt.Printf("%p: done: after 1: %s\n", w, q.stringLocked())
+
 			q.mu.Unlock()
 			head.signal()
 			return
 		}
+	} else {
+		fmt.Printf("WTF.... not the active one: %p\n", w)
 	}
+	fmt.Printf("%p: done: after 2: %s\n", w, q.stringLocked())
 	q.mu.Unlock()
 }
