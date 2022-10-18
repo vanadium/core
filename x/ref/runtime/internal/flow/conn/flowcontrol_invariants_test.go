@@ -10,10 +10,6 @@ import (
 	"v.io/v23/flow"
 )
 
-func (fs *flowControlFlowStats) counts() (borrowing bool, borrowed, released uint64) {
-	return fs.borrowing, fs.borrowed, fs.released
-}
-
 // flowControlBorrowedInvariant checks the invariant that the sum of all borrowed
 // counters is equal to the amount by which the shared pool is decremented.
 func flowControlBorrowedInvariant(c *Conn) (totalBorrowed, shared uint64, err error) {
@@ -29,7 +25,7 @@ func flowControlBorrowedInvariant(c *Conn) (totalBorrowed, shared uint64, err er
 		}
 		totalBorrowed += borrowed
 	}
-	if c.flowControl.bytesBufferedPerFlow-c.flowControl.lshared != uint64(totalBorrowed) {
+	if c.flowControl.bytesBufferedPerFlow-c.flowControl.lshared != totalBorrowed {
 		return totalBorrowed, c.flowControl.lshared, fmt.Errorf("borrowed: sum of borrowed across all flows %v does not match that taken from the shared pool: %v - %v -> %v != %v", totalBorrowed, c.flowControl.bytesBufferedPerFlow, c.flowControl.lshared, c.flowControl.bytesBufferedPerFlow-c.flowControl.lshared, totalBorrowed)
 	}
 	return totalBorrowed, c.flowControl.lshared, nil

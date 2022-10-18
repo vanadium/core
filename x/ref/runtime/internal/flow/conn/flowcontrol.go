@@ -194,14 +194,8 @@ func (fs *flowControlConnStats) releaseOutstandingBorrowedLocked(fid, val uint64
 
 func (fs *flowControlConnStats) releaseOutstandingBorrowed(fid, val uint64) {
 	fs.mu.Lock()
-	fs.mu.Unlock()
-	fs.releaseOutstandingBorrowedLocked(fid, val)
-}
-
-func (fs *flowControlConnStats) sharedCh() chan struct{} {
-	fs.mu.Lock()
 	defer fs.mu.Unlock()
-	return fs.lsharedCh
+	fs.releaseOutstandingBorrowedLocked(fid, val)
 }
 
 func (fs *flowControlConnStats) handleRelease(ctx *context.T, c *Conn, counters map[uint64]uint64) {
@@ -296,7 +290,6 @@ func (fs *flowControlFlowStats) returnTokensLocked(ctx *context.T, borrowed bool
 		return
 	}
 	fs.released += uint64(unused)
-	return
 }
 
 func (fs *flowControlFlowStats) handleFlowClose(closedRemotely, notConnClosing bool) {

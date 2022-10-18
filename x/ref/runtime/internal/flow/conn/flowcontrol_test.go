@@ -178,6 +178,16 @@ func TestOrdering(t *testing.T) {
 	}
 }
 
+func testInvariants(dc, ac *Conn) error {
+	if _, _, err := flowControlBorrowedInvariant(dc); err != nil {
+		return fmt.Errorf("dial: flowcontrol invariant: %v", err)
+	}
+	if _, _, err := flowControlBorrowedInvariant(ac); err != nil {
+		return fmt.Errorf("accept: flowcontrol invariant: %v", err)
+	}
+	return nil
+}
+
 func TestFlowControl(t *testing.T) {
 	defer goroutines.NoLeaks(t, leakWaitTime)()
 	ctx, shutdown := test.V23Init()
@@ -198,16 +208,6 @@ func TestFlowControl(t *testing.T) {
 					<-ac.Closed()
 				}()
 
-				testInvariants := func() error {
-					if _, _, err := flowControlBorrowedInvariant(dc); err != nil {
-						return fmt.Errorf("dial: flowcontrol invariant: %v", err)
-					}
-					if _, _, err := flowControlBorrowedInvariant(ac); err != nil {
-						return fmt.Errorf("accept: flowcontrol invariant: %v", err)
-					}
-					return nil
-				}
-
 				errs := make(chan error, nflows*4*2)
 				var wg sync.WaitGroup
 				wg.Add(nflows * 4)
@@ -219,7 +219,7 @@ func TestFlowControl(t *testing.T) {
 							fmt.Printf("dial: doWrite: flow: %v/%v, mtu: %v, buffered: %v, unexpected error: %v\n", i, nflows, mtu, bytesBuffered, err)
 						}
 						errs <- err
-						errs <- testInvariants()
+						errs <- testInvariants(dc, ac)
 						wg.Done()
 					}(i)
 					go func(i int) {
@@ -228,7 +228,7 @@ func TestFlowControl(t *testing.T) {
 							fmt.Printf("dial: doRead: flow: %v/%v, mtu: %v, buffered: %v, unexpected error: %v\n", i, nflows, mtu, bytesBuffered, err)
 						}
 						errs <- err
-						errs <- testInvariants()
+						errs <- testInvariants(dc, ac)
 						wg.Done()
 					}(i)
 				}
@@ -240,7 +240,7 @@ func TestFlowControl(t *testing.T) {
 							fmt.Printf("accept: doRead: flow: %v/%v, mtu: %v, buffered: %v, unexpected error: %v\n", i, nflows, mtu, bytesBuffered, err)
 						}
 						errs <- err
-						errs <- testInvariants()
+						errs <- testInvariants(dc, ac)
 						wg.Done()
 					}(i)
 					go func(i int) {
@@ -249,7 +249,7 @@ func TestFlowControl(t *testing.T) {
 							fmt.Printf("accept: doWrite: flow: %v/%v, mtu: %v, buffered: %v, unexpected error: %v\n", i, nflows, mtu, bytesBuffered, err)
 						}
 						errs <- err
-						errs <- testInvariants()
+						errs <- testInvariants(dc, ac)
 						wg.Done()
 					}(i)
 				}
@@ -262,7 +262,7 @@ func TestFlowControl(t *testing.T) {
 				}
 				close(errs)
 
-				if err := testInvariants(); err != nil {
+				if err := testInvariants(dc, ac); err != nil {
 					t.Error(err)
 				}
 
@@ -291,7 +291,7 @@ func readFromFlows(accept <-chan flow.Flow, sent, need int) (int, error) {
 				return trx, nil
 			}
 			rx += len(buf)
-			if rx >= int(sent) {
+			if rx >= sent {
 				break
 			}
 		}
