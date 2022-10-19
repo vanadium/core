@@ -332,7 +332,9 @@ func (f *flw) handleOpenFlow(ctx *context.T, alsoClose, finalPart bool, payload 
 func (f *flw) sendDataMessage(ctx *context.T, priority int, alsoClose, finalPart bool, payload [][]byte) error {
 	flags := f.messageFlags(alsoClose, finalPart)
 	if err := f.writeq.wait(ctx, &f.writeqEntry, priority); err != nil {
-		ctx.Infof("writeq.wait: error %v", err)
+		if ctx.V(2) {
+			ctx.Infof("writeq.wait: error %v", err)
+		}
 		return io.EOF
 	}
 	defer f.writeq.done(&f.writeqEntry)
