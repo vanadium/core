@@ -101,6 +101,31 @@ func cmpWriteqNext(t *testing.T, wq *writeq, w *writeqEntry) {
 	}
 }
 
+func assertChanSize(t *testing.T, ch chan struct{}, size int) {
+	if got, want := len(ch), size; got != want {
+		_, _, line, _ := runtime.Caller(2)
+		t.Fatalf("line: %v, got %v, want %v", line, got, want)
+	}
+}
+
+func assertActive(t *testing.T, wq *writeq, w *writer) {
+	wq.mu.Lock()
+	defer wq.mu.Unlock()
+	if got, want := wq.active, w; got != want {
+		_, _, line, _ := runtime.Caller(2)
+		t.Fatalf("line: %v, got %v, want %v", line, got, want)
+	}
+}
+
+func assertNotActive(t *testing.T, wq *writeq, w *writer) {
+	wq.mu.Lock()
+	defer wq.mu.Unlock()
+	if got, want := wq.active, w; got == want {
+		_, _, line, _ := runtime.Caller(2)
+		t.Fatalf("line: %v, got %v should not be the same as want", line, got)
+	}
+}
+
 func TestWriteqLists(t *testing.T) {
 	wq := &writeq{}
 
@@ -181,19 +206,27 @@ func TestWriteqNotifySerial(t *testing.T) {
 	wq := &writeq{}
 	fe1, fe2, fe3 := newEntry(), newEntry(), newEntry()
 
+	assertWait := func(w *writeqEntry) {
+		assertChanSize(t, w.notify, 0)
+		assertActive(t, wq, &w.writer)
+	}
+
 	// wait will return immediately if the writeq is empty and
 	// there is no active writer.
 	wq.wait(nil, &fe1.writer, expressPriority)
+	assertWait(fe1)
 	cmpWriteqEntries(t, wq, flowPriority, fe1)
 	cmpWriteqEntries(t, wq, expressPriority, fe1)
 	// reset the active writer to allow the next wq.wait to run straight
 	// through.
 	wq.done(&fe1.writer)
 	wq.wait(nil, &fe2.writer, flowPriority)
+	assertWait(fe2)
 	cmpWriteqEntries(t, wq, flowPriority, fe2)
 	cmpWriteqEntries(t, wq, expressPriority, fe2)
 	wq.done(&fe2.writer)
 	wq.wait(nil, &fe3.writer, flowPriority)
+	assertWait(fe3)
 	cmpWriteqEntries(t, wq, flowPriority, fe3)
 	cmpWriteqEntries(t, wq, expressPriority, fe3)
 	wq.done(&fe3.writer)
@@ -209,17 +242,25 @@ func TestWriteqNotifyPriority(t *testing.T) {
 	var wg sync.WaitGroup
 	wg.Add(2)
 
+	assertWait := func(w *writeqEntry) {
+		assertChanSize(t, w.notify, 0)
+		assertActive(t, wq, &w.writer)
+	}
+
 	first, second := make(chan struct{}), make(chan struct{})
 	wq.wait(nil, &fe1.writer, flowPriority)
+	assertWait(fe1)
 
 	go func() {
 		<-first
 		wq.wait(nil, &fe2.writer, flowPriority)
+		assertWait(fe2)
 		ch <- fe2
 	}()
 	go func() {
 		<-second
 		wq.wait(nil, &fe3.writer, expressPriority)
+		assertWait(fe3)
 		ch <- fe3
 	}()
 
@@ -265,7 +306,15 @@ type doneRecord struct {
 func TestWriteqFIFOOrdering(t *testing.T) {
 	wq := &writeq{}
 	start := newEntry()
+
+	assertWait := func(w *writeqEntry) {
+		assertChanSize(t, w.notify, 0)
+		assertActive(t, wq, &w.writer)
+
+	}
+
 	wq.wait(nil, &start.writer, flowPriority)
+	assertWait(start)
 
 	nworkers := 10
 	var wg sync.WaitGroup
@@ -310,6 +359,7 @@ func TestWriteqFIFOOrdering(t *testing.T) {
 				}
 			}()
 			wq.wait(nil, &w.writer, flowPriority)
+			assertWait(w)
 			if active := wq.getActive(); active != &w.writer {
 				errCh <- fmt.Errorf("invariant violated: active: got %p, want %p", active, &w.writer)
 			}
@@ -358,6 +408,11 @@ func TestWriteqFIFOOrdering(t *testing.T) {
 func TestWriteqSharedEntries(t *testing.T) {
 	wq := &writeq{}
 
+	assertWait := func(w *writeqEntry) {
+		assertChanSize(t, w.notify, 0)
+		assertActive(t, wq, &w.writer)
+	}
+
 	nworkers := 10
 	niterations := 1000
 	shared := newEntry()
@@ -381,6 +436,7 @@ func TestWriteqSharedEntries(t *testing.T) {
 			for j := 0; j < niterations; j++ {
 				sharedMu.Lock()
 				wq.wait(nil, &shared.writer, flowPriority)
+				assertWait(shared)
 				if active := wq.getActive(); active != &shared.writer {
 					errCh <- fmt.Errorf("invariant violated: active: got %p, want %p", active, &shared.writer)
 				}
@@ -422,6 +478,11 @@ func TestWriteqConcurrency(t *testing.T) {
 	ctx, shutdown := test.V23Init()
 	defer shutdown()
 
+	assertWait := func(w *writeqEntry) {
+		assertChanSize(t, w.notify, 0)
+		assertActive(t, wq, &w.writer)
+	}
+
 	nworkers := 100
 	niterations := 1000
 	var done sync.WaitGroup
@@ -441,6 +502,7 @@ func TestWriteqConcurrency(t *testing.T) {
 					errCh <- err
 					return
 				}
+				assertWait(shared)
 				active := wq.getActive()
 				if active != &shared.writer {
 					errCh <- fmt.Errorf("invariant violated: active: got %p, want %p", active, &shared.writer)
@@ -471,6 +533,16 @@ func TestWriteqContextCancel(t *testing.T) {
 	wq := &writeq{}
 	rctx, shutdown := test.V23Init()
 
+	assertWait := func(w *writeqEntry) {
+		assertChanSize(t, w.notify, 0)
+		assertActive(t, wq, &w.writer)
+	}
+
+	assertCancel := func(w *writeqEntry) {
+		assertChanSize(t, w.notify, 0)
+		assertNotActive(t, wq, &w.writer)
+	}
+
 	defer shutdown()
 	fe1, fe2 := newEntry(), newEntry()
 
@@ -486,6 +558,7 @@ func TestWriteqContextCancel(t *testing.T) {
 	wq.wait(ctx, &fe1.writer, expressPriority)
 	cancel()
 	err := wq.wait(ctx, &fe2.writer, expressPriority)
+	assertCancel(fe2)
 	if err == nil || !strings.Contains(err.Error(), "context canceled") {
 		t.Fatalf("missing or unexpected error: %v", err)
 	}
@@ -518,6 +591,7 @@ func TestWriteqContextCancel(t *testing.T) {
 			defer done.Done()
 			shared := newEntry()
 			if err := wq.wait(ctx, &shared.writer, flowPriority); err != nil {
+				assertCancel(shared)
 				if perr := nilPointers(&shared.writer); perr != nil {
 					errCh <- fmt.Errorf("%v: %v", err, perr)
 					return
@@ -525,6 +599,7 @@ func TestWriteqContextCancel(t *testing.T) {
 				errCh <- err
 				return
 			}
+			assertWait(shared)
 		}(i)
 		go func(cancel func()) {
 			<-startCancel
@@ -555,12 +630,22 @@ func TestWriteqContextCancel(t *testing.T) {
 }
 
 func TestWriteqContextCancelRace(t *testing.T) {
+	wq := &writeq{}
+
 	rctx, shutdown := test.V23Init()
 	defer shutdown()
 
-	wq := &writeq{}
-	fe1 := newEntry()
+	assertWait := func(w *writeqEntry) {
+		assertChanSize(t, w.notify, 0)
+		assertActive(t, wq, &w.writer)
+	}
 
+	assertCancel := func(w *writeqEntry) {
+		assertChanSize(t, w.notify, 0)
+		assertNotActive(t, wq, &w.writer)
+	}
+
+	fe1 := newEntry()
 	nWriters := 4
 	nIterations := 100
 	cancelations := 0
@@ -592,6 +677,7 @@ func TestWriteqContextCancelRace(t *testing.T) {
 				errCh <- err
 				if err != nil {
 					if errors.Is(err, context.Canceled) {
+						assertCancel(we)
 						if err := nilPointers(&we.writer); err != nil {
 							_, _, line, _ := runtime.Caller(1)
 							errCh <- fmt.Errorf("line %v: %v: %v", line, id, err)
@@ -599,12 +685,14 @@ func TestWriteqContextCancelRace(t *testing.T) {
 					}
 					return
 				}
+				assertWait(we)
 				wq.done(&we.writer)
 			}
 
 			if err := wq.wait(ctx, &fe1.writer, flowPriority); err != nil {
 				t.Fatal(err)
 			}
+			assertWait(fe1)
 
 			wg.Add(nWriters)
 			for j := 0; j < nWriters; j++ {
@@ -623,19 +711,12 @@ func TestWriteqContextCancelRace(t *testing.T) {
 			cancel()
 			wq.done(&fe1.writer)
 
-			wq.mu.Lock()
-			if wq.active == &fe1.writer {
-				t.Fatalf("%v: active should not anything but %p: %p %v\n", i, &fe1.writer, wq.active, wq.active)
-			}
-			wq.mu.Unlock()
+			assertNotActive(t, wq, &fe1.writer)
 
 			wg.Wait()
 
-			wq.mu.Lock()
-			if wq.active != nil {
-				t.Fatalf("%v: active should be nil, not %p %v\n", i, wq.active, wq.active)
-			}
-			wq.mu.Unlock()
+			assertActive(t, wq, nil)
+
 			cmpWriteqEntries(t, wq, flowPriority, nil)
 			close(errCh)
 
