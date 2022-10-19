@@ -94,7 +94,7 @@ func (r *readConn) ReadMsg2([]byte) ([]byte, error) {
 	return r.ReadMsg()
 }
 
-func TestOrdering(t *testing.T) {
+func TestFlowMessageOrdering(t *testing.T) {
 	// We will send nmessages*mtu bytes on each flow.
 	// For the test to work properly we should send < defaultBufferSize(2^20) bytes.
 	// If we don't then it's possible for the teardown message to be sent before some
