@@ -240,15 +240,10 @@ func (q *writeq) wait(ctx *context.T, w *writer, p int) error {
 		q.mu.Unlock()
 		return q.signalWait(ctx, w, p)
 	}
-
-	if head, p := q.nextLocked(); head != nil {
-		q.active = head
-		head.signal()
-		q.mu.Unlock()
-		return q.signalWait(ctx, w, p)
-	}
+	// There is no way for there to be no active writer and for there to be
+	// another writer waiting so it's safe to make the new writer the active one
+	// and just return immediately with no need to signal the writer.
 	q.active = w
-	// No need to signal the writer, just return immediately.
 	q.mu.Unlock()
 	return nil
 
@@ -256,6 +251,7 @@ func (q *writeq) wait(ctx *context.T, w *writer, p int) error {
 
 func (q *writeq) done(w *writer) {
 	q.mu.Lock()
+	defer q.mu.Unlock()
 	if q.active == w {
 		q.active = nil
 		w.next, w.prev = nil, nil
@@ -263,11 +259,8 @@ func (q *writeq) done(w *writer) {
 			// If there is a new active writer, signal it.
 			q.active = head
 			head.signal()
-			q.mu.Unlock()
-			return
 		}
-	} else {
-		vlog.Infof("%p.writeq(%p): unexpected active writer, should be %p, not %p", q, w, w, q.active)
+		return
 	}
-	q.mu.Unlock()
+	vlog.Infof("%p.writeq(%p): unexpected active writer, should be %p, not %p", q, w, w, q.active)
 }
