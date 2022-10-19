@@ -37,7 +37,7 @@ import (
 )
 
 // Read reads a message contained in the byte slice 'from'.
-func Read(ctx *context.T, from []byte) (Message, error) { //nolint:gocyclo
+func Read(ctx *context.T, from []byte) (Message, error) {
 	if len(from) == 0 {
 		return nil, NewErrInvalidMsg(ctx, InvalidType, 0, 0, nil)
 	}
@@ -45,13 +45,25 @@ func Read(ctx *context.T, from []byte) (Message, error) { //nolint:gocyclo
 	switch msgType {
 	case DataType:
 		return Data{}.Read(ctx, from)
+	case OpenFlowType:
+		return OpenFlow{}.Read(ctx, from)
+	}
+	return ReadNoPayload(ctx, from)
+}
+
+// ReadNoPayload reads any of the messages that do not carry a payload,
+// ie. all except the Data and OpenFlow messages.
+func ReadNoPayload(ctx *context.T, from []byte) (Message, error) {
+	if len(from) == 0 {
+		return nil, NewErrInvalidMsg(ctx, InvalidType, 0, 0, nil)
+	}
+	msgType, from := from[0], from[1:]
+	switch msgType {
 	case SetupType:
 		return Setup{}.Read(ctx, from)
 	case AuthType, AuthED25519Type, AuthRSAType:
 		var m = Auth{signatureType: msgType}
 		return m.Read(ctx, from)
-	case OpenFlowType:
-		return OpenFlow{}.Read(ctx, from)
 	case ReleaseType:
 		return Release{}.Read(ctx, from)
 	case HealthCheckRequestType:

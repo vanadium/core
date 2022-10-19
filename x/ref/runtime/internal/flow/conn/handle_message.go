@@ -17,31 +17,22 @@ func (c *Conn) handleAnyMessage(ctx *context.T, m message.Message) error {
 	switch msg := m.(type) {
 	case message.Data:
 		return c.handleData(ctx, msg)
-
 	case message.OpenFlow:
 		return c.handleOpenFlow(ctx, msg)
-
 	case message.Release:
 		return c.handleRelease(ctx, msg)
-
 	case message.Auth:
 		return c.handleAuth(ctx, msg)
-
 	case message.HealthCheckRequest:
 		return c.handleHealthCheckRequest(ctx)
-
 	case message.HealthCheckResponse:
 		return c.handleHealthCheckResponse(ctx)
-
 	case message.TearDown:
 		return c.handleTearDown(ctx, msg)
-
 	case message.EnterLameDuck:
 		return c.handleEnterLameDuck(ctx, msg)
-
 	case message.AckLameDuck:
 		return c.handleAckLameDuck(ctx, msg)
-
 	default:
 		return ErrUnexpectedMsg.Errorf(ctx, "unexpected message type: %T", m)
 	}

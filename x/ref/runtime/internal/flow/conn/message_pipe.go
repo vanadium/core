@@ -254,7 +254,7 @@ func (p *messagePipe) readAnyMessage(ctx *context.T, plaintext []byte) (message.
 	case message.OpenFlowType:
 		return p.handleOpenFlow(ctx, from)
 	}
-	return message.Read(ctx, plaintext)
+	return message.ReadNoPayload(ctx, plaintext)
 }
 
 func (p *messagePipe) handleData(ctx *context.T, from []byte) (message.Message, error) {
