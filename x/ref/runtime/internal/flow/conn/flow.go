@@ -68,7 +68,7 @@ func (c *Conn) newFlowLocked(
 	dialed bool,
 	channelTimeout time.Duration,
 	sideChannel bool,
-	initialCounters uint64) *flw {
+	initialTokens uint64) *flw {
 	f := &flw{
 		id:               id,
 		conn:             c,
@@ -90,12 +90,7 @@ func (c *Conn) newFlowLocked(
 	// have tokens to spend on writes.
 	f.writeqEntry.notify = make(chan struct{}, 1)
 
-	f.flowControl.shared = &c.flowControl
-	f.flowControl.borrowing = dialed
-	f.flowControl.id = id
-	if initialCounters != 0 {
-		f.flowControl.releaseCountersLocked(initialCounters)
-	}
+	f.flowControl.init(&c.flowControl, id, dialed, !dialed, initialTokens)
 
 	f.tokenWait = make(chan struct{}, 1)
 
@@ -113,7 +108,7 @@ func (c *Conn) newFlowLocked(
 }
 
 func (f *flw) sendRelease(ctx *context.T, n int) {
-	f.conn.sendRelease(ctx, f, f.id, uint64(n))
+	f.conn.sendRelease(ctx, &f.flowControl, uint64(n))
 }
 
 // disableEncrytion should not be called concurrently with Write* methods.
