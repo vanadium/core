@@ -41,12 +41,11 @@ func Read(ctx *context.T, from []byte) (Message, error) {
 	if len(from) == 0 {
 		return nil, NewErrInvalidMsg(ctx, InvalidType, 0, 0, nil)
 	}
-	msgType, from := from[0], from[1:]
-	switch msgType {
+	switch from[0] {
 	case DataType:
-		return Data{}.Read(ctx, from)
+		return Data{}.Read(ctx, from[1:])
 	case OpenFlowType:
-		return OpenFlow{}.Read(ctx, from)
+		return OpenFlow{}.Read(ctx, from[1:])
 	}
 	return ReadNoPayload(ctx, from)
 }
