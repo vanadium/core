@@ -313,7 +313,9 @@ func (f *flw) handleOpenFlow(ctx *context.T, alsoClose, finalPart bool, payload 
 	}
 	flags := f.messageFlags(alsoClose, finalPart)
 	if err := f.writeq.wait(ctx, &f.writeqEntry, flowPriority); err != nil {
-		ctx.Infof("writeq.wait: error %v", err)
+		if ctx.V(2) {
+			ctx.Infof("writeq.wait: error %v", err)
+		}
 		return io.EOF
 	}
 	defer f.writeq.done(&f.writeqEntry)
@@ -493,7 +495,7 @@ func (f *flw) close(ctx *context.T, closedRemotely bool, err error) {
 		// send the flow close message as it will fail.  This is racy
 		// with the connection closing, but there are no ill-effects
 		// other than spamming the logs a little so it's OK.
-		if serr := f.sendDataMessage(ctx, expressPriority, true, true, nil); serr != nil && log {
+		if serr := f.conn.sendCloseMessage(ctx, f.id); serr != nil && log {
 			ctx.Infof("could not send close flow message: %v: close error (if any): %v", serr, err)
 		}
 	}
