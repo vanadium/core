@@ -289,6 +289,18 @@ func acceptor(errCh chan error, acceptCh chan flow.Flow, size int, close bool) {
 	errCh <- nil
 }
 
+func countRemoteBorrowing(c *Conn) int {
+	rb := 0
+	c.mu.Lock()
+	defer c.mu.Unlock()
+	for _, f := range c.flows {
+		if f.flowControl.remoteBorrowing {
+			rb++
+		}
+	}
+	return rb
+}
+
 func testCountersOpts(t *testing.T, ctx *context.T, count int, dialClose, acceptClose bool, size int, opts Opts) (
 	dialRelease, dialBorrowed, acceptRelease, acceptBorrowed int) {
 
@@ -341,10 +353,10 @@ func testCountersOpts(t *testing.T, ctx *context.T, count int, dialClose, accept
 		t.Fatal(err)
 	}
 	dc.flowControl.mu.Lock()
-	dialRelease, dialBorrowed = len(dc.flowControl.toRelease), len(dc.flowControl.borrowing)
+	dialRelease, dialBorrowed = len(dc.flowControl.toRelease), countRemoteBorrowing(dc)
 	dc.flowControl.mu.Unlock()
 	ac.flowControl.mu.Lock()
-	acceptRelease, acceptBorrowed = len(ac.flowControl.toRelease), len(ac.flowControl.borrowing)
+	acceptRelease, acceptBorrowed = len(ac.flowControl.toRelease), countRemoteBorrowing(ac)
 	ac.flowControl.mu.Unlock()
 	ac.Close(ctx, nil)
 	dc.Close(ctx, nil)
