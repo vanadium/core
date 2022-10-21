@@ -869,17 +869,22 @@ func (c *Conn) fragmentReleaseMessage(ctx *context.T, toRelease map[uint64]uint6
 	return nil
 }
 
-func (c *Conn) sendRelease(ctx *context.T, f *flw, fid, count uint64) {
+func (c *Conn) sendRelease(ctx *context.T, fs *flowControlFlowStats, count uint64) {
+	fid := fs.id
 	c.mu.Lock()
-	_, ok := c.flows[fid]
-	c.mu.Unlock()
-	if ok {
-		// Handle the case where the flow is already closed but a message
-		// is received for it, hence only bump the toRelease value for
-		// that flow if it is still active.
-		c.flowControl.incrementToRelease(fid, count)
+	_, open := c.flows[fid]
+	toRelease := c.flowControl.determineReleaseMessageContents(fs, count, open)
+	if toRelease != nil {
+		c.flowControl.mu.Lock()
+		for _, f := range c.flows {
+			f.flowControl.clearRemoteBorrowingLocked()
+		}
+		fs.clearRemoteBorrowingLocked()
+		fs.shared.clearToReleaseLocked()
+		c.flowControl.mu.Unlock()
 	}
-	toRelease := c.flowControl.createReleaseMessageContents(fid, count)
+	c.mu.Unlock()
+
 	var err error
 	if toRelease != nil {
 		delete(toRelease, invalidFlowID)

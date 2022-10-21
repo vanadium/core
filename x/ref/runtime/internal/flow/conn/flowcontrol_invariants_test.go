@@ -13,10 +13,10 @@ import (
 // flowControlBorrowedInvariant checks the invariant that the sum of all borrowed
 // counters is equal to the amount by which the shared pool is decremented.
 func flowControlBorrowedInvariant(c *Conn) (totalBorrowed, shared uint64, err error) {
-	c.flowControl.mu.Lock()
-	defer c.flowControl.mu.Unlock()
 	c.mu.Lock()
 	defer c.mu.Unlock()
+	c.flowControl.mu.Lock()
+	defer c.flowControl.mu.Unlock()
 
 	for _, f := range c.flows {
 		borrowing, borrowed := f.flowControl.borrowing, f.flowControl.borrowed
@@ -33,11 +33,10 @@ func flowControlBorrowedInvariant(c *Conn) (totalBorrowed, shared uint64, err er
 
 func flowControlBorrowed(c *Conn) map[uint64]uint64 {
 	borrowed := map[uint64]uint64{}
-	c.flowControl.mu.Lock()
-	defer c.flowControl.mu.Unlock()
 	c.mu.Lock()
 	defer c.mu.Unlock()
-
+	c.flowControl.mu.Lock()
+	defer c.flowControl.mu.Unlock()
 	for _, f := range c.flows {
 		borrowed[f.id] = f.flowControl.borrowed
 	}
@@ -56,14 +55,14 @@ func flowID(f flow.Flow) uint64 {
 //  2. similarly for the accept side, the total number of counters available,
 //     ie. to be released should not exceed the total available.
 func flowControlReleasedInvariant(dc, ac *Conn) error {
-	dc.flowControl.mu.Lock()
-	defer dc.flowControl.mu.Unlock()
-	ac.flowControl.mu.Lock()
-	defer ac.flowControl.mu.Unlock()
 	dc.mu.Lock()
 	defer dc.mu.Unlock()
 	ac.mu.Lock()
 	defer ac.mu.Unlock()
+	dc.flowControl.mu.Lock()
+	defer dc.flowControl.mu.Unlock()
+	ac.flowControl.mu.Lock()
+	defer ac.flowControl.mu.Unlock()
 
 	// dial side released
 	totalReleased := 0
