@@ -55,14 +55,14 @@ func flowID(f flow.Flow) uint64 {
 //  2. similarly for the accept side, the total number of counters available,
 //     ie. to be released should not exceed the total available.
 func flowControlReleasedInvariant(dc, ac *Conn) error {
-	dc.flowControl.mu.Lock()
-	defer dc.flowControl.mu.Unlock()
-	ac.flowControl.mu.Lock()
-	defer ac.flowControl.mu.Unlock()
 	dc.mu.Lock()
 	defer dc.mu.Unlock()
 	ac.mu.Lock()
 	defer ac.mu.Unlock()
+	dc.flowControl.mu.Lock()
+	defer dc.flowControl.mu.Unlock()
+	ac.flowControl.mu.Lock()
+	defer ac.flowControl.mu.Unlock()
 
 	// dial side released
 	totalReleased := 0
