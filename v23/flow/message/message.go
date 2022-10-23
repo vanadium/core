@@ -576,37 +576,43 @@ func (m *OpenFlow) String() string {
 // Release is sent as flows are read from locally.  The counters
 // inform remote writers that there is local buffer space available.
 type Release struct {
-	Counters map[uint64]uint64
+	Counters []Counter
+}
+
+// Counter represents the flow control tokens to be assigned to
+// a speficic flow.
+type Counter struct {
+	FlowID uint64
+	Tokens uint64
 }
 
 func (m *Release) append(ctx *context.T, data []byte) ([]byte, error) {
 	data = append(data, releaseType)
-	for fid, val := range m.Counters {
-		data = writeVarUint64(fid, data)
-		data = writeVarUint64(val, data)
+	for _, c := range m.Counters {
+		data = writeVarUint64(c.FlowID, data)
+		data = writeVarUint64(c.Tokens, data)
 	}
 	return data, nil
 }
 func (m *Release) read(ctx *context.T, orig []byte) error {
 	var (
-		data     = orig
 		valid    bool
 		fid, val uint64
 		n        uint64
 	)
-	if len(data) == 0 {
+	if len(orig) == 0 {
 		return nil
 	}
-	m.Counters = map[uint64]uint64{}
-	for len(data) > 0 {
-		if fid, data, valid = readVarUint64(data); !valid {
-			return NewErrInvalidMsg(ctx, releaseType, uint64(len(orig)), n, nil)
+	m.Counters = []Counter{}
+	for len(orig) > 0 {
+		if fid, orig, valid = readVarUint64(orig); !valid {
+			return NewErrInvalidMsg(ctx, releaseType, uint64(len(orig)), n*2, nil)
 		}
-		if val, data, valid = readVarUint64(data); !valid {
-			return NewErrInvalidMsg(ctx, releaseType, uint64(len(orig)), n+1, nil)
+		if val, orig, valid = readVarUint64(orig); !valid {
+			return NewErrInvalidMsg(ctx, releaseType, uint64(len(orig)), (n*2)+1, nil)
 		}
-		m.Counters[fid] = val
-		n += 2
+		m.Counters = append(m.Counters, Counter{FlowID: fid, Tokens: val})
+		n++
 	}
 	return nil
 }
