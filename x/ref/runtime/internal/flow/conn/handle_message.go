@@ -106,7 +106,7 @@ func (c *Conn) handleOpenFlow(ctx *context.T, msg *message.OpenFlow) error {
 		c.acceptChannelTimeout,
 		sideChannel,
 		msg.InitialCounters)
-	c.flowControl.newCounters(msg.ID)
+	c.flowControl.newCounters(&f.flowControl)
 	c.mu.Unlock()
 
 	c.handler.HandleFlow(f) //nolint:errcheck

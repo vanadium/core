@@ -301,6 +301,18 @@ func countRemoteBorrowing(c *Conn) int {
 	return rb
 }
 
+func countToRelease(c *Conn) int {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+	nc := len(c.flowControl.toReleaseClosed)
+	for _, f := range c.flows {
+		if f.flowControl.toRelease > 0 {
+			nc++
+		}
+	}
+	return nc
+}
+
 func testCountersOpts(t *testing.T, ctx *context.T, count int, dialClose, acceptClose bool, size int, opts Opts) (
 	dialRelease, dialBorrowed, acceptRelease, acceptBorrowed int) {
 
@@ -353,10 +365,12 @@ func testCountersOpts(t *testing.T, ctx *context.T, count int, dialClose, accept
 		t.Fatal(err)
 	}
 	dc.flowControl.mu.Lock()
-	dialRelease, dialBorrowed = len(dc.flowControl.toRelease), countRemoteBorrowing(dc)
+	dialRelease = countToRelease(dc)
+	dialBorrowed = countRemoteBorrowing(dc)
 	dc.flowControl.mu.Unlock()
 	ac.flowControl.mu.Lock()
-	acceptRelease, acceptBorrowed = len(ac.flowControl.toRelease), countRemoteBorrowing(ac)
+	acceptRelease = countToRelease(ac)
+	acceptBorrowed = countRemoteBorrowing(ac)
 	ac.flowControl.mu.Unlock()
 	ac.Close(ctx, nil)
 	dc.Close(ctx, nil)

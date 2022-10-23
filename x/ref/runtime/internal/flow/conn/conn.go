@@ -815,40 +815,18 @@ func (c *Conn) deleteFlow(fid uint64) {
 	delete(c.flows, fid)
 }
 
-func (c *Conn) fragmentReleaseMessage(ctx *context.T, toRelease map[uint64]uint64) error {
+func (c *Conn) fragmentReleaseMessage(ctx *context.T, toRelease []message.Counter) error {
 	limit := c.flowControl.releaseMessageLimit
-	if len(toRelease) < limit {
-		return c.sendMessage(ctx, false, expressPriority, &message.Release{
-			Counters: toRelease,
-		})
-	}
 	for {
-		var send, remaining map[uint64]uint64
-		rem := len(toRelease) - limit
-		if rem <= 0 {
-			send = toRelease
-		} else {
-			send = make(map[uint64]uint64, limit)
-			remaining = make(map[uint64]uint64, rem)
-			i := 0
-			for k, v := range toRelease {
-				if i < limit {
-					send[k] = v
-				} else {
-					remaining[k] = v
-				}
-				i++
-			}
+		if len(toRelease) < limit {
+			return c.sendMessage(ctx, false, expressPriority,
+				&message.Release{Counters: toRelease})
 		}
-		if err := c.sendMessage(ctx, false, expressPriority, &message.Release{
-			Counters: send,
-		}); err != nil {
+		if err := c.sendMessage(ctx, false, expressPriority,
+			&message.Release{Counters: toRelease[:limit]}); err != nil {
 			return err
 		}
-		if remaining == nil {
-			break
-		}
-		toRelease = remaining
+		toRelease = toRelease[limit:]
 	}
 	return nil
 }
@@ -857,22 +835,28 @@ func (c *Conn) sendRelease(ctx *context.T, fs *flowControlFlowStats, count uint6
 	fid := fs.id
 	c.mu.Lock()
 	_, open := c.flows[fid]
-	toRelease := c.flowControl.determineReleaseMessageContents(fs, count, open)
-	if toRelease != nil {
+	var toReleaseCounters []message.Counter
+	toRelease := c.flowControl.determineReleaseMessage(fs, count, open)
+	if toRelease {
+		toReleaseCounters = c.flowControl.toReleaseClosed
 		c.flowControl.mu.Lock()
 		for _, f := range c.flows {
-			f.flowControl.clearRemoteBorrowingLocked()
+			if f.flowControl.toRelease != 0 {
+				toReleaseCounters = append(toReleaseCounters,
+					message.Counter{
+						FlowID: f.id,
+						Tokens: f.flowControl.toRelease})
+			}
+			f.flowControl.clearLocked()
 		}
-		fs.clearRemoteBorrowingLocked()
+		fs.clearLocked()
 		fs.shared.clearToReleaseLocked()
 		c.flowControl.mu.Unlock()
 	}
 	c.mu.Unlock()
-
 	var err error
-	if toRelease != nil {
-		delete(toRelease, invalidFlowID)
-		err = c.fragmentReleaseMessage(ctx, toRelease)
+	if toRelease {
+		err = c.fragmentReleaseMessage(ctx, toReleaseCounters)
 	}
 	if err != nil {
 		c.Close(ctx, ErrSend.Errorf(ctx, "failure sending release message to %v: %v", c.remote.String(), err))

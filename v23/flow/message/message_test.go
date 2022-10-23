@@ -172,9 +172,9 @@ func TestAddReceiveBuffers(t *testing.T) {
 	defer shutdown()
 	testMessages(t, ctx, []message.Message{
 		&message.Release{},
-		&message.Release{Counters: map[uint64]uint64{
-			4: 233,
-			9: 423242,
+		&message.Release{Counters: []message.Counter{
+			{4, 233},
+			{9, 423242},
 		}},
 	})
 }
