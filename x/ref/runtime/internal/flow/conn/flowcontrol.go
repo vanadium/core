@@ -8,6 +8,7 @@ import (
 	"sync"
 
 	"v.io/v23/context"
+	"v.io/v23/flow/message"
 )
 
 // flowControlConnStats represents the flow control counters for all flows
@@ -36,13 +37,18 @@ type flowControlConnStats struct {
 
 	mtu uint64
 
-	// TODO(mattr): Integrate these maps back into the flows themselves as
-	// has been done with the sending counts.
-	// toRelease is a map from flowID to a number of tokens which are pending
-	// to be released.  We only send release messages when some flow has
-	// used up at least half it's buffer, and then we send the counters for
-	// every flow.  This reduces the number of release messages that are sent.
-	toRelease map[uint64]uint64
+	// toReleaseClosed contains the counters associated with flows
+	// that have been closed so that those counters can be returned to
+	// the remote end of the connection. This is required so that
+	// counters that were borrowed on the remote end can be returned
+	// to the shared pool.
+	toReleaseClosed []message.Counter
+
+	// toRelease is the number of tokens released by all flows that are
+	// borrowing tokens at their remote ends. It is used to trigger
+	// sending a release message to remote end to transition those
+	// flows from borrowing to using released tokens.
+	toReleaseBorrowed uint64
 
 	// In our protocol new flows are opened by the dialer by immediately
 	// starting to write data for that flow (in an OpenFlow message).
@@ -90,6 +96,11 @@ type flowControlFlowStats struct {
 	// remoteBorrowing indicates whether the remote end of this flow is using
 	// borrowed tokens.
 	remoteBorrowing bool
+	// toRelease is the number of tokens that are pending to be released for this
+	// flow. Release messages are sent when some flow has  used up at least half
+	// it's buffer, at which point the token counts are sent for every flow.
+	// This reduces the number of release messages that are sent.
+	toRelease uint64
 }
 
 func binaryEncodeUintSize(v uint64) int {
@@ -116,7 +127,6 @@ func binaryEncodeUintSize(v uint64) int {
 }
 
 func (fs *flowControlConnStats) init(bytesBufferedPerFlow uint64) {
-	fs.toRelease = map[uint64]uint64{}
 	fs.bytesBufferedPerFlow = bytesBufferedPerFlow
 	fs.lshared = 0
 	fs.lsharedCh = make(chan struct{})
@@ -134,37 +144,32 @@ func (fs *flowControlConnStats) configure(mtu, shared uint64) {
 }
 
 // newCounters creates a new entry for the specific flow id.
-func (fs *flowControlConnStats) newCounters(fid uint64) {
+func (fs *flowControlConnStats) newCounters(ffs *flowControlFlowStats) {
 	fs.mu.Lock()
 	defer fs.mu.Unlock()
-	fs.toRelease[fid] = fs.bytesBufferedPerFlow
+	ffs.toRelease = fs.bytesBufferedPerFlow
 }
 
-// determineReleaseMessageContents determines the data, if any, to be sent in a release
-// message to this connection's peer.
-func (fs *flowControlConnStats) determineReleaseMessageContents(ffs *flowControlFlowStats, count uint64, open bool) map[uint64]uint64 {
-	fid := ffs.id
+// determineReleaseMessage updates the flow control counters
+// for the specified flow and then determines if a release message
+// should be sent for all flows.
+func (fs *flowControlConnStats) determineReleaseMessage(ffs *flowControlFlowStats, count uint64, open bool) bool {
 	fs.mu.Lock()
 	defer fs.mu.Unlock()
 	// Only bump the toRelease value for that flow if it is still active.
 	if open {
-		fs.toRelease[fid] += count
+		ffs.toRelease += count
 	}
 	if ffs.remoteBorrowing {
-		fs.toRelease[invalidFlowID] += count
-		if fs.toRelease[invalidFlowID] > fs.bytesBufferedPerFlow/2 {
-			return fs.toRelease
-		}
-		return nil
+		fs.toReleaseBorrowed += count
+		return fs.toReleaseBorrowed > fs.bytesBufferedPerFlow/2
 	}
-	if fs.toRelease[fid] > fs.bytesBufferedPerFlow/2 {
-		return fs.toRelease
-	}
-	return nil
+	return ffs.toRelease > fs.bytesBufferedPerFlow/2
 }
 
 func (fs *flowControlConnStats) clearToReleaseLocked() {
-	fs.toRelease = make(map[uint64]uint64, len(fs.toRelease))
+	fs.toReleaseBorrowed = 0
+	fs.toReleaseClosed = nil
 }
 
 // releaseOutstandingBorrowed is called for a flow that is no longer in
@@ -193,22 +198,21 @@ func (fs *flowControlConnStats) releaseOutstandingBorrowed(fid, val uint64) {
 	fs.releaseOutstandingBorrowedLocked(fid, val)
 }
 
-func (fs *flowControlConnStats) handleRelease(ctx *context.T, c *Conn, counters map[uint64]uint64) {
+func (fs *flowControlConnStats) handleRelease(ctx *context.T, c *Conn, counters []message.Counter) {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 	fs.mu.Lock()
 	defer fs.mu.Unlock()
 	prevShared := fs.lshared
-	for fid, val := range counters {
-		if f := c.flows[fid]; f != nil {
-			f.flowControl.releaseCountersLocked(val)
+	for _, counter := range counters {
+		if f := c.flows[counter.FlowID]; f != nil {
+			f.flowControl.releaseCountersLocked(counter.Tokens)
 			select {
 			case f.tokenWait <- struct{}{}:
 			default:
 			}
-
 		} else {
-			fs.releaseOutstandingBorrowedLocked(fid, val)
+			fs.releaseOutstandingBorrowedLocked(counter.FlowID, counter.Tokens)
 		}
 	}
 	if fs.lshared != prevShared {
@@ -296,7 +300,8 @@ func (fs *flowControlFlowStats) returnTokensLocked(ctx *context.T, borrowed bool
 	fs.released += uint64(unused)
 }
 
-func (fs *flowControlFlowStats) clearRemoteBorrowingLocked() {
+func (fs *flowControlFlowStats) clearLocked() {
+	fs.toRelease = 0
 	fs.remoteBorrowing = false
 }
 
@@ -314,9 +319,10 @@ func (fs *flowControlFlowStats) handleFlowClose(closedRemotely, notConnClosing b
 		fs.shared.outstandingBorrowed[fid] = fs.borrowed
 	}
 	if !fs.remoteBorrowing {
-		delete(fs.shared.toRelease, fid)
-		fs.clearRemoteBorrowingLocked()
+		fs.clearLocked()
+		return
 	}
+	fs.shared.toReleaseClosed = append(fs.shared.toReleaseClosed, message.Counter{FlowID: fs.id, Tokens: fs.toRelease})
 	// Need to keep borrowed counters around so that they can be sent
 	// to the dialer to allow for the shared counter to be incremented
 	// for all the past flows that borrowed counters (ie. pretty much

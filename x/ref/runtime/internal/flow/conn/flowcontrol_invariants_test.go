@@ -75,15 +75,21 @@ func flowControlReleasedInvariant(dc, ac *Conn) error {
 		return fmt.Errorf("total number of released counters exceed the capacity of the server: %v > %v (# flows %v, * buffered per flow:%v)", totalReleased, len(dc.flows)*int(ac.flowControl.bytesBufferedPerFlow), totalReleased, len(dc.flows)*int(ac.flowControl.bytesBufferedPerFlow))
 	}
 
+	nToRelease := 0
 	totalToRelease := 0
 	// accept side toRelease.
-	for _, r := range ac.flowControl.toRelease {
-		totalToRelease += int(r)
+	for _, r := range ac.flowControl.toReleaseClosed {
+		totalToRelease += int(r.Tokens)
+		nToRelease++
+	}
+	for _, f := range ac.flows {
+		totalToRelease += int(f.flowControl.toRelease)
+		nToRelease++
 	}
 
 	// invariant 2.
-	if totalToRelease > len(ac.flowControl.toRelease)*int(ac.flowControl.bytesBufferedPerFlow) {
-		return fmt.Errorf("total number of toRelease counters exceed the capacity of the server: %v > %v (# flows %v, * buffered per flow:%v)", totalToRelease, len(ac.flowControl.toRelease)*int(ac.flowControl.bytesBufferedPerFlow), totalReleased, len(ac.flowControl.toRelease)*int(ac.flowControl.bytesBufferedPerFlow))
+	if totalToRelease > nToRelease*int(ac.flowControl.bytesBufferedPerFlow) {
+		return fmt.Errorf("total number of toRelease counters exceed the capacity of the server: %v > %v (# flows %v, * buffered per flow:%v)", totalToRelease, nToRelease*int(ac.flowControl.bytesBufferedPerFlow), totalReleased, nToRelease*int(ac.flowControl.bytesBufferedPerFlow))
 	}
 
 	return nil
