@@ -322,7 +322,7 @@ func (fs *flowControlFlowStats) handleFlowClose(closedRemotely, notConnClosing b
 		fs.clearLocked()
 		return
 	}
-	fs.shared.toReleaseClosed = append(fs.shared.toReleaseClosed, message.Counter{fs.id, fs.toRelease})
+	fs.shared.toReleaseClosed = append(fs.shared.toReleaseClosed, message.Counter{FlowID: fs.id, Tokens: fs.toRelease})
 	// Need to keep borrowed counters around so that they can be sent
 	// to the dialer to allow for the shared counter to be incremented
 	// for all the past flows that borrowed counters (ie. pretty much

@@ -579,6 +579,8 @@ type Release struct {
 	Counters []Counter
 }
 
+// Counter represents the flow control tokens to be assigned to
+// a speficic flow.
 type Counter struct {
 	FlowID uint64
 	Tokens uint64

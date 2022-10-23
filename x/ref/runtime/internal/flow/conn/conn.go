@@ -828,7 +828,6 @@ func (c *Conn) fragmentReleaseMessage(ctx *context.T, toRelease []message.Counte
 		}
 		toRelease = toRelease[limit:]
 	}
-	return nil
 }
 
 func (c *Conn) sendRelease(ctx *context.T, fs *flowControlFlowStats, count uint64) {
