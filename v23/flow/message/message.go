@@ -550,6 +550,7 @@ func (m Release) Append(ctx *context.T, data []byte) ([]byte, error) {
 	}
 	return data, nil
 }
+
 func (m Release) Read(ctx *context.T, orig []byte) (Message, error) {
 	var (
 		valid    bool
