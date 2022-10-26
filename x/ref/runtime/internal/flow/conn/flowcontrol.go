@@ -56,17 +56,18 @@ type flowControlConnStats struct {
 	// flow, it couldn't have allocated us any counters via a Release message.
 	// In order to deal with this the conn maintains a pool of shared tokens
 	// which are used by dialers of new flows.
-	// lshared is the number of shared tokens available for new flows dialed
+	// shared is the number of shared tokens available for new flows dialed
 	// locally.
-	lshared uint64
+	shared    uint64
+	maxShared uint64
 
-	// lsharedCh is used to notify any flows that are blocked waiting for
+	// sharedCh is used to notify any flows that are blocked waiting for
 	// tokens that there may be some available to be borrowed, ie. it is
 	// closed whenever the size of the shared pool changes. The channel
 	// is closed (and a new created to replace it) to broadcast to all
 	// waiting flows that they should wake and check to see if tokens
 	// are available for them.
-	lsharedCh chan struct{}
+	sharedCh chan struct{}
 
 	// outstandingBorrowed is a map from flowID to a number of borrowed tokens.
 	// This map is populated when a flow closes locally before it receives a remote close
@@ -128,15 +129,15 @@ func binaryEncodeUintSize(v uint64) int {
 
 func (fs *flowControlConnStats) init(bytesBufferedPerFlow uint64) {
 	fs.bytesBufferedPerFlow = bytesBufferedPerFlow
-	fs.lshared = 0
-	fs.lsharedCh = make(chan struct{})
-	fs.outstandingBorrowed = make(map[uint64]uint64)
+	fs.shared, fs.maxShared = 0, 0
+	fs.sharedCh = make(chan struct{})
 }
 
 // configure must be called after the connection setup handshake is complete
 // and the mtu and shared tokens are known.
 func (fs *flowControlConnStats) configure(mtu, shared uint64) {
-	fs.mtu, fs.lshared = mtu, shared
+	fs.mtu = mtu
+	fs.shared, fs.maxShared = shared, shared
 	// Assume at most 2^32 flows per connection.
 	bytesPerFlowID := binaryEncodeUintSize(1 << 32)
 	bytesPerCounter := binaryEncodeUintSize(fs.bytesBufferedPerFlow)
@@ -176,7 +177,15 @@ func (fs *flowControlConnStats) clearToReleaseLocked() {
 // use locally (eg. closed) but which is included in a release message received
 // from the peer. This is required to ensure that borrowed tokens are returned
 // to the shared pool.
-func (fs *flowControlConnStats) releaseOutstandingBorrowedLocked(fid, val uint64) {
+func (fs *flowControlConnStats) releaseOutstandingBorrowedLocked(fid, val uint64, closed bool) {
+	if fs.outstandingBorrowed == nil {
+		return
+	}
+	if closed {
+		// If the flow is closing then we assume the remote side releases
+		// all borrowed counters for that flow.
+		val = fs.outstandingBorrowed[fid]
+	}
 	borrowed := fs.outstandingBorrowed[fid]
 	released := val
 	if borrowed == 0 {
@@ -184,7 +193,7 @@ func (fs *flowControlConnStats) releaseOutstandingBorrowedLocked(fid, val uint64
 	} else if borrowed < released {
 		released = borrowed
 	}
-	fs.lshared += released
+	fs.shared += released
 	if released == borrowed {
 		delete(fs.outstandingBorrowed, fid)
 	} else {
@@ -192,10 +201,12 @@ func (fs *flowControlConnStats) releaseOutstandingBorrowedLocked(fid, val uint64
 	}
 }
 
-func (fs *flowControlConnStats) releaseOutstandingBorrowed(fid, val uint64) {
+// releaseOutstandingBorrowedClosed is called when a message is received
+// for an already closed flow.
+func (fs *flowControlConnStats) releaseOutstandingBorrowedClosed(fid uint64) {
 	fs.mu.Lock()
 	defer fs.mu.Unlock()
-	fs.releaseOutstandingBorrowedLocked(fid, val)
+	fs.releaseOutstandingBorrowedLocked(fid, 0, true)
 }
 
 func (fs *flowControlConnStats) handleRelease(ctx *context.T, c *Conn, counters []message.Counter) {
@@ -203,7 +214,7 @@ func (fs *flowControlConnStats) handleRelease(ctx *context.T, c *Conn, counters 
 	defer c.mu.Unlock()
 	fs.mu.Lock()
 	defer fs.mu.Unlock()
-	prevShared := fs.lshared
+	prevShared := fs.shared
 	for _, counter := range counters {
 		if f := c.flows[counter.FlowID]; f != nil {
 			f.flowControl.releaseCountersLocked(counter.Tokens)
@@ -212,12 +223,12 @@ func (fs *flowControlConnStats) handleRelease(ctx *context.T, c *Conn, counters 
 			default:
 			}
 		} else {
-			fs.releaseOutstandingBorrowedLocked(counter.FlowID, counter.Tokens)
+			fs.releaseOutstandingBorrowedLocked(counter.FlowID, counter.Tokens, false)
 		}
 	}
-	if fs.lshared != prevShared {
-		close(fs.lsharedCh)
-		fs.lsharedCh = make(chan struct{})
+	if fs.shared != prevShared {
+		close(fs.sharedCh)
+		fs.sharedCh = make(chan struct{})
 	}
 }
 
@@ -234,12 +245,13 @@ func (fs *flowControlFlowStats) init(shared *flowControlConnStats, id uint64, bo
 func (fs *flowControlFlowStats) releaseCountersLocked(tokens uint64) {
 	fs.borrowing = false
 	if fs.borrowed > 0 {
+		//fmt.Fprintf(os.Stderr, "releaseCountersLocked: %v - %v\n", fs.shared.shared, fs.borrowed)
 		n := tokens
 		if fs.borrowed < tokens {
 			n = fs.borrowed
 		}
 		tokens -= n
-		fs.shared.lshared += n
+		fs.shared.shared += n
 		fs.borrowed -= n
 	}
 	fs.released += tokens
@@ -274,18 +286,18 @@ func (fs *flowControlFlowStats) getTokensLocked(ctx *context.T, encapsulated boo
 		max -= proxyOverhead
 	}
 	if fs.borrowing {
-		if fs.shared.lshared < max {
-			max = fs.shared.lshared
+		if fs.shared.shared < max {
+			max = fs.shared.shared
 		}
-		fs.shared.lshared -= max
+		fs.shared.shared -= max
 		fs.borrowed += max
-		return true, fs.shared.lsharedCh, int(max)
+		return true, fs.shared.sharedCh, int(max)
 	}
 	if fs.released < max {
 		max = fs.released
 	}
 	fs.released -= max
-	return false, fs.shared.lsharedCh, int(max)
+	return false, fs.shared.sharedCh, int(max)
 }
 
 func (fs *flowControlFlowStats) returnTokensLocked(ctx *context.T, borrowed bool, unused int) {
@@ -293,7 +305,7 @@ func (fs *flowControlFlowStats) returnTokensLocked(ctx *context.T, borrowed bool
 		return
 	}
 	if borrowed {
-		fs.shared.lshared += uint64(unused)
+		fs.shared.shared += uint64(unused)
 		fs.borrowed -= uint64(unused)
 		return
 	}
@@ -313,11 +325,15 @@ func (fs *flowControlFlowStats) handleFlowClose(closedRemotely, notConnClosing b
 		// When the other side closes a flow, it implicitly releases all the
 		// counters used by that flow.  That means we should release the shared
 		// counter to be used on other new flows.
-		fs.shared.lshared += fs.borrowed
-		fs.borrowed = 0
+		fs.shared.shared += fs.borrowed
 	} else if fs.borrowed > 0 && notConnClosing {
+		if fs.shared.outstandingBorrowed == nil {
+			fs.shared.outstandingBorrowed = map[uint64]uint64{}
+		}
 		fs.shared.outstandingBorrowed[fid] = fs.borrowed
 	}
+	fs.borrowed = 0
+
 	if !fs.remoteBorrowing {
 		fs.clearLocked()
 		return

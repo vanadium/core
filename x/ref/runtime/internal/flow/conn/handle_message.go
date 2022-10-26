@@ -5,7 +5,6 @@
 package conn
 
 import (
-	"math"
 	"time"
 
 	"v.io/v23/context"
@@ -59,9 +58,7 @@ func (c *Conn) handleData(ctx *context.T, msg *message.Data) error {
 	}
 	f := c.flows[msg.ID]
 	if f == nil {
-		// If the flow is closing then we assume the remote side releases
-		// all borrowed counters for that flow.
-		c.flowControl.releaseOutstandingBorrowed(msg.ID, math.MaxUint64)
+		c.flowControl.releaseOutstandingBorrowedClosed(msg.ID)
 		c.mu.Unlock()
 		return nil
 	}
