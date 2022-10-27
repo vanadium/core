@@ -378,7 +378,7 @@ func TestChangedDefaultBlessings(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if err := acceptorConn.sendMessage(ctx, true, expressPriority, &message.Auth{
+	if err := acceptorConn.sendAuthMessage(ctx, message.Auth{
 		BlessingsKey: bkey,
 		DischargeKey: dkey,
 	}); err != nil {

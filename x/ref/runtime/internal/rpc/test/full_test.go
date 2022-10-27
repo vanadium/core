@@ -985,9 +985,9 @@ func TestReplayAttack(t *testing.T) { //nolint:gocyclo
 	if err != nil {
 		t.Fatal(err)
 	}
-	rSetup, ok := m.(*message.Setup)
+	rSetup, ok := m.(message.Setup)
 	if !ok {
-		t.Fatalf("got %#v, want *message.Setup", m)
+		t.Fatalf("got %#v, want message.Setup", m)
 	}
 	rpk := rSetup.PeerNaClPublicKey
 
@@ -996,12 +996,12 @@ func TestReplayAttack(t *testing.T) { //nolint:gocyclo
 	if err != nil {
 		t.Fatal(err)
 	}
-	lSetup := &message.Setup{
+	lSetup := message.Setup{
 		Versions:          rSetup.Versions,
 		PeerLocalEndpoint: rSetup.PeerLocalEndpoint,
 		PeerNaClPublicKey: pk,
 	}
-	b, err = message.Append(ctx, lSetup, nil)
+	b, err = lSetup.Append(ctx, nil)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -1030,13 +1030,13 @@ func TestReplayAttack(t *testing.T) { //nolint:gocyclo
 			t.Fatal(err)
 		}
 		switch m.(type) {
-		case *message.Auth:
+		case message.Auth:
 			auth = true
-		case *message.Data:
+		case message.Data:
 		default:
 			continue
 		}
-		if b, err = message.Append(ctx, m, nil); err != nil {
+		if b, err = m.Append(ctx, nil); err != nil {
 			t.Fatal(err)
 		}
 		ciphertext, err := cipher.Seal(nil, b)
@@ -1062,8 +1062,8 @@ func TestReplayAttack(t *testing.T) { //nolint:gocyclo
 	if err != nil {
 		t.Fatal(err)
 	}
-	if _, ok = m.(*message.TearDown); !ok {
-		t.Fatalf("got %#v, want *message.TearDown", m)
+	if _, ok = m.(message.TearDown); !ok {
+		t.Fatalf("got %#v, want message.TearDown", m)
 	}
 }
 
@@ -1369,10 +1369,10 @@ func (c *manInMiddleConn) ReadMsg() ([]byte, error) {
 	b, err := c.Conn.ReadMsg()
 	if len(b) > 0 {
 		m, _ := message.Read(c.ctx, b)
-		if msg, ok := m.(*message.Setup); ok {
+		if msg, ok := m.(message.Setup); ok {
 			// The malicious man in the middle changes the max version to a bad version.
 			msg.Versions = version.RPCVersionRange{Min: version.RPCVersion10, Max: 100}
-			b, err = message.Append(c.ctx, msg, nil)
+			b, err = msg.Append(c.ctx, nil)
 		}
 	}
 	return b, err

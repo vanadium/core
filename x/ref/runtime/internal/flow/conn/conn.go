@@ -103,7 +103,10 @@ type Conn struct {
 	// are locked independently.
 	flowControl flowControlConnStats
 
-	writeq writeq
+	writeq                  writeq
+	releaseSender           messageSender // use for release messages
+	healthAndLameDuckSender messageSender // use for health+lameduck
+	setupCloseSender        messageSender // use for setup, auth, close and teardown
 
 	mu sync.Mutex // All the variables below here are protected by mu.
 
@@ -119,6 +122,19 @@ type Conn struct {
 	flows                             map[uint64]*flw
 	hcstate                           *healthCheckState
 	acceptChannelTimeout              time.Duration
+}
+
+type messageSender struct {
+	sync.Mutex
+	writer
+}
+
+func (ms *messageSender) wait(ctx *context.T, q *writeq) (*writer, error) {
+	w := &ms.writer
+	if err := q.wait(nil, w, expressPriority); err != nil {
+		return nil, err
+	}
+	return w, nil
 }
 
 // Ensure that *Conn implements flow.ManagedConn.
@@ -231,6 +247,7 @@ func NewDialed( //nolint:gocyclo
 		mtu:                  opts.MTU,
 	}
 
+	c.initWriters()
 	c.flowControl.init(opts.BytesBuffered)
 	done := make(chan struct{})
 	var rtt time.Duration
@@ -352,6 +369,7 @@ func NewAccepted(
 		mtu:                  opts.MTU,
 	}
 
+	c.initWriters()
 	c.flowControl.init(opts.BytesBuffered)
 	done := make(chan struct{}, 1)
 	var rtt time.Duration
@@ -402,6 +420,10 @@ func NewAccepted(
 	return c, nil
 }
 
+func (c *Conn) initWriters() {
+	c.setupCloseSender.notify = make(chan struct{})
+}
+
 func (c *Conn) blessingsLoop(
 	ctx *context.T,
 	refreshTime time.Time,
@@ -441,7 +463,7 @@ func (c *Conn) blessingsLoop(
 		c.localDischarges = dis
 		c.localValid = valid
 		c.mu.Unlock()
-		err = c.sendMessage(ctx, true, expressPriority, &message.Auth{
+		err = c.sendAuthMessage(ctx, message.Auth{
 			BlessingsKey: bkey,
 			DischargeKey: dkey,
 		})
@@ -486,7 +508,7 @@ func (c *Conn) newHealthChecksLocked(ctx *context.T, firstRTT time.Duration) *he
 		lastRTT:       firstRTT,
 	}
 	requestTimer := time.AfterFunc(c.acceptChannelTimeout/2, func() {
-		c.sendMessage(ctx, true, expressPriority, &message.HealthCheckRequest{})
+		c.sendHealthCheckMessage(ctx, true)
 		c.mu.Lock()
 		h.requestSent = time.Now()
 		c.mu.Unlock()
@@ -547,7 +569,7 @@ func (c *Conn) EnterLameDuck(ctx *context.T) chan struct{} {
 	}
 	c.mu.Unlock()
 	if enterLameDuck {
-		err := c.sendMessage(ctx, false, expressPriority, &message.EnterLameDuck{})
+		err := c.sendLameDuckMessage(ctx, false, true)
 		if err != nil {
 			c.Close(ctx, ErrSend.Errorf(ctx, "failure sending release message to %v: %v", c.remote.String(), err))
 		}
@@ -762,9 +784,7 @@ func (c *Conn) internalCloseLocked(ctx *context.T, closedRemotely, closedWhileAc
 			if err != nil {
 				msg = err.Error()
 			}
-			cerr := c.sendMessage(ctx, false, tearDownPriority, &message.TearDown{
-				Message: msg,
-			})
+			cerr := c.sendTearDownMessage(ctx, msg)
 			if cerr != nil {
 				ctx.VI(2).Infof("Error sending tearDown on connection to %s: %v", c.remote, cerr)
 			}
@@ -819,11 +839,11 @@ func (c *Conn) fragmentReleaseMessage(ctx *context.T, toRelease []message.Counte
 	limit := c.flowControl.releaseMessageLimit
 	for {
 		if len(toRelease) < limit {
-			return c.sendMessage(ctx, false, expressPriority,
-				&message.Release{Counters: toRelease})
+			return c.sendReleaseMessage(ctx,
+				message.Release{Counters: toRelease})
 		}
-		if err := c.sendMessage(ctx, false, expressPriority,
-			&message.Release{Counters: toRelease[:limit]}); err != nil {
+		if err := c.sendReleaseMessage(ctx,
+			message.Release{Counters: toRelease[:limit]}); err != nil {
 			return err
 		}
 		toRelease = toRelease[limit:]
@@ -865,18 +885,11 @@ func (c *Conn) sendRelease(ctx *context.T, fs *flowControlFlowStats, count uint6
 func (c *Conn) readLoop(ctx *context.T) {
 	defer c.loopWG.Done()
 	var err error
-	var dataMsg message.Data
 	for {
-		msg, rerr := c.mp.readDataMsg(ctx, nil, &dataMsg)
+		msg, rerr := c.mp.readMsg(ctx, nil)
 		if rerr != nil {
 			err = ErrRecv.Errorf(ctx, "error reading from: %v: %v", c.remote.String(), rerr)
 			break
-		}
-		if msg == nil {
-			if err = c.handleData(ctx, &dataMsg); err != nil {
-				break
-			}
-			continue
 		}
 		if err = c.handleAnyMessage(ctx, msg); err != nil {
 			break
@@ -931,41 +944,132 @@ LastUsed:    %v
 
 func (c *Conn) writeEncodedBlessings(ctx *context.T, w *writer, data []byte) error {
 	if err := c.writeq.wait(ctx, w, flowPriority); err != nil {
+		ctx.Infof("writeq.wait: error %v", err)
 		return err
 	}
 	// TODO(cnicolaou): what about fragmentation and flow control here?
-	err := c.mp.writeMsg(ctx, &message.Data{
+	err := c.mp.writeData(ctx, message.Data{
 		ID:      blessingsFlowID,
 		Payload: [][]byte{data}})
 	c.writeq.done(w)
 	return err
 }
 
-// sendMessage sends a single message on the conn with the given priority.
-// It should never be called with the conn lock held since it may block.
-// if cancelWithContext is true, then this write attempt will fail when the context
-// is canceled.  Otherwise context cancellation will have no effect and this call
-// will block until the message is sent.
-func (c *Conn) sendMessage(
+func (c *Conn) sendReleaseMessage(
 	ctx *context.T,
-	cancelWithContext bool,
-	priority int,
-	m message.Message) error {
-
-	var cctx *context.T
-	if cancelWithContext {
-		cctx = ctx
-	}
-	// We need a new writer for call to sendMessage since it can be called
-	// from many different flows concurrently to send flow control
-	// release messages.
-	var w writer
-	w.close = true
-	w.notify = make(chan struct{})
-	if err := c.writeq.wait(cctx, &w, priority); err != nil {
+	m message.Release) error {
+	c.releaseSender.Lock()
+	defer c.releaseSender.Unlock()
+	allocChannel(&c.releaseSender)
+	w, err := c.releaseSender.wait(nil, &c.writeq)
+	if err != nil {
+		ctx.Infof("writeq.wait: error %v", err)
 		return err
 	}
-	err := c.mp.writeMsg(ctx, m)
-	c.writeq.done(&w)
-	return err
+	defer c.writeq.done(w)
+	return c.mp.writeRelease(ctx, m)
+}
+
+func (c *Conn) sendAuthMessage(ctx *context.T, m message.Auth) error {
+	c.setupCloseSender.Lock()
+	defer c.setupCloseSender.Unlock()
+	w, err := c.setupCloseSender.wait(ctx, &c.writeq)
+	if err != nil {
+		ctx.Infof("writeq.wait: error %v", err)
+		return err
+	}
+	defer c.writeq.done(w)
+	return c.mp.writeMsg(ctx, m.Append)
+}
+
+func (c *Conn) sendSetupMessage(
+	ctx *context.T,
+	m message.Setup) error {
+	c.setupCloseSender.Lock()
+	defer c.setupCloseSender.Unlock()
+	w, err := c.setupCloseSender.wait(ctx, &c.writeq)
+	if err != nil {
+		ctx.Infof("writeq.wait: error %v", err)
+		return err
+	}
+	defer c.writeq.done(w)
+	return c.mp.writeMsg(ctx, m.Append)
+}
+
+func allocChannel(ms *messageSender) {
+	if ms.notify == nil {
+		ms.notify = make(chan struct{})
+	}
+}
+
+func (c *Conn) sendHealthCheckMessage(
+	ctx *context.T,
+	request bool) error {
+	c.healthAndLameDuckSender.Lock()
+	defer c.healthAndLameDuckSender.Unlock()
+	allocChannel(&c.healthAndLameDuckSender)
+	w, err := c.healthAndLameDuckSender.wait(ctx, &c.writeq)
+	if err != nil {
+		ctx.Infof("writeq.wait: error %v", err)
+		return err
+	}
+	defer c.writeq.done(w)
+	if request {
+		var m message.HealthCheckRequest
+		return c.mp.writeMsg(ctx, m.Append)
+	}
+	var m message.HealthCheckResponse
+	return c.mp.writeMsg(ctx, m.Append)
+}
+
+func cancelContext(ctx *context.T, cancelWithContext bool) *context.T {
+	if cancelWithContext {
+		return ctx
+	}
+	return nil
+}
+
+func (c *Conn) sendLameDuckMessage(ctx *context.T, cancelWithContext bool, enterLameDuck bool) error {
+	c.healthAndLameDuckSender.Lock()
+	defer c.healthAndLameDuckSender.Unlock()
+	allocChannel(&c.healthAndLameDuckSender)
+	w, err := c.healthAndLameDuckSender.wait(cancelContext(ctx, cancelWithContext), &c.writeq)
+	if err != nil {
+		ctx.Infof("writeq.wait: error %v", err)
+		return err
+	}
+	defer c.writeq.done(w)
+	if enterLameDuck {
+		var m message.EnterLameDuck
+		return c.mp.writeMsg(ctx, m.Append)
+	}
+	var m message.AckLameDuck
+	return c.mp.writeMsg(ctx, m.Append)
+}
+
+func (c *Conn) sendTearDownMessage(ctx *context.T, msg string) error {
+	c.setupCloseSender.Lock()
+	defer c.setupCloseSender.Unlock()
+	allocChannel(&c.setupCloseSender)
+	w, err := c.setupCloseSender.wait(nil, &c.writeq)
+	if err != nil {
+		ctx.Infof("writeq.wait: error %v", err)
+		return err
+	}
+	defer c.writeq.done(w)
+	var m = message.TearDown{Message: msg}
+	return c.mp.writeMsg(ctx, m.Append)
+}
+
+func (c *Conn) sendCloseMessage(ctx *context.T, id uint64) error {
+	c.setupCloseSender.Lock()
+	defer c.setupCloseSender.Unlock()
+	allocChannel(&c.setupCloseSender)
+	w, err := c.setupCloseSender.wait(nil, &c.writeq)
+	if err != nil {
+		ctx.Infof("writeq.wait: error %v", err)
+		return err
+	}
+	defer c.writeq.done(w)
+	return c.mp.writeData(ctx, message.Data{ID: id, Flags: message.CloseFlag})
 }

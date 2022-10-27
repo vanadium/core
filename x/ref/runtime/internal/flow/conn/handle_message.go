@@ -14,39 +14,30 @@ import (
 
 func (c *Conn) handleAnyMessage(ctx *context.T, m message.Message) error {
 	switch msg := m.(type) {
-	case *message.Data:
+	case message.Data:
 		return c.handleData(ctx, msg)
-
-	case *message.OpenFlow:
+	case message.OpenFlow:
 		return c.handleOpenFlow(ctx, msg)
-
-	case *message.Release:
+	case message.Release:
 		return c.handleRelease(ctx, msg)
-
-	case *message.Auth:
+	case message.Auth:
 		return c.handleAuth(ctx, msg)
-
-	case *message.HealthCheckRequest:
+	case message.HealthCheckRequest:
 		return c.handleHealthCheckRequest(ctx)
-
-	case *message.HealthCheckResponse:
+	case message.HealthCheckResponse:
 		return c.handleHealthCheckResponse(ctx)
-
-	case *message.TearDown:
+	case message.TearDown:
 		return c.handleTearDown(ctx, msg)
-
-	case *message.EnterLameDuck:
+	case message.EnterLameDuck:
 		return c.handleEnterLameDuck(ctx, msg)
-
-	case *message.AckLameDuck:
+	case message.AckLameDuck:
 		return c.handleAckLameDuck(ctx, msg)
-
 	default:
 		return ErrUnexpectedMsg.Errorf(ctx, "unexpected message type: %T", m)
 	}
 }
 
-func (c *Conn) handleData(ctx *context.T, msg *message.Data) error {
+func (c *Conn) handleData(ctx *context.T, msg message.Data) error {
 	c.mu.Lock()
 	if c.status == Closing {
 		c.mu.Unlock()
@@ -74,7 +65,7 @@ func (c *Conn) handleData(ctx *context.T, msg *message.Data) error {
 	return nil
 }
 
-func (c *Conn) handleOpenFlow(ctx *context.T, msg *message.OpenFlow) error {
+func (c *Conn) handleOpenFlow(ctx *context.T, msg message.OpenFlow) error {
 	remoteBlessings, remoteDischarges, err := c.blessingsFlow.getRemote(
 		ctx, msg.BlessingsKey, msg.DischargeKey)
 	if err != nil {
@@ -119,7 +110,7 @@ func (c *Conn) handleOpenFlow(ctx *context.T, msg *message.OpenFlow) error {
 	return nil
 }
 
-func (c *Conn) handleTearDown(ctx *context.T, msg *message.TearDown) error {
+func (c *Conn) handleTearDown(ctx *context.T, msg message.TearDown) error {
 	var err error
 	if msg.Message != "" {
 		err = ErrRemoteError.Errorf(ctx, "remote end received err: %v", msg.Message)
@@ -128,7 +119,7 @@ func (c *Conn) handleTearDown(ctx *context.T, msg *message.TearDown) error {
 	return nil
 }
 
-func (c *Conn) handleEnterLameDuck(ctx *context.T, msg *message.EnterLameDuck) error {
+func (c *Conn) handleEnterLameDuck(ctx *context.T, msg message.EnterLameDuck) error {
 	c.mu.Lock()
 	c.remoteLameDuck = true
 	c.mu.Unlock()
@@ -136,7 +127,7 @@ func (c *Conn) handleEnterLameDuck(ctx *context.T, msg *message.EnterLameDuck) e
 		// We only want to send the lame duck acknowledgment after all outstanding
 		// OpenFlows are sent.
 		c.unopenedFlows.Wait()
-		err := c.sendMessage(ctx, true, expressPriority, &message.AckLameDuck{})
+		err := c.sendLameDuckMessage(ctx, true, false)
 		if err != nil {
 			c.Close(ctx, ErrSend.Errorf(ctx, "failure sending release message to %v: %v", c.remote.String(), err))
 		}
@@ -144,7 +135,7 @@ func (c *Conn) handleEnterLameDuck(ctx *context.T, msg *message.EnterLameDuck) e
 	return nil
 }
 
-func (c *Conn) handleAckLameDuck(ctx *context.T, msg *message.AckLameDuck) error {
+func (c *Conn) handleAckLameDuck(ctx *context.T, msg message.AckLameDuck) error {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 	if c.status < LameDuckAcknowledged {
@@ -178,16 +169,16 @@ func (c *Conn) handleHealthCheckResponse(ctx *context.T) error {
 }
 
 func (c *Conn) handleHealthCheckRequest(ctx *context.T) error {
-	c.sendMessage(ctx, true, expressPriority, &message.HealthCheckResponse{})
+	c.sendHealthCheckMessage(ctx, false)
 	return nil
 }
 
-func (c *Conn) handleRelease(ctx *context.T, msg *message.Release) error {
+func (c *Conn) handleRelease(ctx *context.T, msg message.Release) error {
 	c.flowControl.handleRelease(ctx, c, msg.Counters)
 	return nil
 }
 
-func (c *Conn) handleAuth(ctx *context.T, msg *message.Auth) error {
+func (c *Conn) handleAuth(ctx *context.T, msg message.Auth) error {
 	// handles a blessings refresh, as sent by blessingsLoop.
 	blessings, discharges, err := c.blessingsFlow.getRemote(
 		ctx, msg.BlessingsKey, msg.DischargeKey)
@@ -220,24 +211,17 @@ func (c *Conn) remoteEndpointForError() string {
 // loops and hence must be prepared to handle all message types, although
 // in practice this happens extremely very rarely. Note that the Data
 // messages will be addressed to the blessings flow, ie. flow ID 1.
-func (c *Conn) readRemoteAuthLoop(ctx *context.T) (*message.Auth, error) {
-	var dataMsg message.Data
+func (c *Conn) readRemoteAuthLoop(ctx *context.T) (message.Auth, error) {
 	for {
-		msg, err := c.mp.readDataMsg(ctx, nil, &dataMsg)
+		msg, err := c.mp.readMsg(ctx, nil)
 		if err != nil {
-			return nil, ErrRecv.Errorf(ctx, "conn.readRemoteAuth: error reading from %v: %v", c.remoteEndpointForError(), err)
+			return message.Auth{}, ErrRecv.Errorf(ctx, "conn.readRemoteAuth: error reading from %v: %v", c.remoteEndpointForError(), err)
 		}
-		if msg == nil {
-			if err := c.handleData(ctx, &dataMsg); err != nil {
-				return nil, err
-			}
-			continue
-		}
-		if rauth, ok := msg.(*message.Auth); ok && rauth != nil {
+		if rauth, ok := msg.(message.Auth); ok {
 			return rauth, nil
 		}
 		switch m := msg.(type) {
-		case *message.TearDown:
+		case message.TearDown:
 			// A teardown message may be sent by the client if it decides
 			// that it doesn't trust the server. We handle it here and return
 			// a connection closed error rather than waiting for the readMsg
@@ -245,8 +229,8 @@ func (c *Conn) readRemoteAuthLoop(ctx *context.T) (*message.Auth, error) {
 			if err := c.handleTearDown(ctx, m); err != nil {
 				vlog.Infof("conn.readRemoteAuth: handleMessage teardown: failed: %v", err)
 			}
-			return nil, ErrConnectionClosed.Errorf(ctx, "conn.readRemoteAuth: connection closed")
-		case *message.OpenFlow:
+			return message.Auth{}, ErrConnectionClosed.Errorf(ctx, "conn.readRemoteAuth: connection closed")
+		case message.OpenFlow:
 			// If we get an OpenFlow message here it needs to be handled
 			// asynchronously since it will call the flow handler
 			// which will block until NewAccepted (which calls
@@ -260,7 +244,7 @@ func (c *Conn) readRemoteAuthLoop(ctx *context.T) (*message.Auth, error) {
 			continue
 		}
 		if err = c.handleAnyMessage(ctx, msg); err != nil {
-			return nil, err
+			return message.Auth{}, err
 		}
 	}
 }

@@ -6,6 +6,7 @@ package conn
 
 import (
 	"fmt"
+	"os"
 	"strings"
 	"sync"
 
@@ -86,7 +87,6 @@ type writer struct {
 	// to be sent and head.prev points to the last item to be sent.
 	prev, next *writer
 
-	close  bool
 	notify chan struct{}
 }
 
@@ -174,17 +174,6 @@ func (q *writeq) nextLocked() (*writer, int) {
 	return nil, -1
 }
 
-// signal a writer by closing its chanel or sending it a value. signal
-// should be called with the writeq lock held to ensure that once the
-// lock is released the then active writer can receive the notification.
-func (w *writer) signal() {
-	if w.close {
-		close(w.notify)
-		return
-	}
-	w.notify <- struct{}{}
-}
-
 func (q *writeq) handleCancel(w *writer, p int) {
 	q.mu.Lock()
 	// The writer could be in the queue or active, but not both.
@@ -194,11 +183,15 @@ func (q *writeq) handleCancel(w *writer, p int) {
 		// there is a race between the notification and the cancelation that
 		// this code handles.
 		q.active = nil
+
+		if w.next != nil || w.prev != nil {
+			fmt.Fprintf(os.Stderr, "WTF....\n")
+		}
 		// Replace the canceled writer with a new one, if there is one.
 		if head, _ := q.nextLocked(); head != nil {
 			// Make the item removed from the queue the active one and signal it.
 			q.active = head
-			head.signal()
+			head.notify <- struct{}{}
 			q.mu.Unlock()
 			return
 		}
@@ -235,6 +228,7 @@ func (q *writeq) wait(ctx *context.T, w *writer, p int) error {
 	if q.active != nil {
 		if !q.addWriterLocked(w, p) || w == q.active {
 			q.mu.Unlock()
+			vlog.Infof("writer %p, priority %v already exists in the writeq", w, p)
 			return fmt.Errorf("writer %p, priority %v already exists in the writeq", w, p)
 		}
 		q.mu.Unlock()
@@ -258,7 +252,7 @@ func (q *writeq) done(w *writer) {
 		if head, _ := q.nextLocked(); head != nil {
 			// If there is a new active writer, signal it.
 			q.active = head
-			head.signal()
+			head.notify <- struct{}{}
 		}
 		return
 	}

@@ -35,7 +35,7 @@ func (a proxyAuthorizer) BlessingsForPeer(ctx *context.T, serverBlessings []stri
 }
 
 func writeMessage(ctx *context.T, m message.Message, f flow.Flow) error {
-	w, err := message.Append(ctx, m, nil)
+	w, err := m.Append(ctx, nil)
 	if err != nil {
 		return err
 	}
@@ -57,9 +57,9 @@ func readProxyResponse(ctx *context.T, f flow.Flow) ([]naming.Endpoint, error) {
 		return nil, err
 	}
 	switch m := msg.(type) {
-	case *message.ProxyResponse:
+	case message.ProxyResponse:
 		return m.Endpoints, nil
-	case *message.ProxyErrorResponse:
+	case message.ProxyErrorResponse:
 		f.Close()
 		return nil, ErrorfProxyResponse(ctx, "proxy returned: %v", m.Error)
 	default:
