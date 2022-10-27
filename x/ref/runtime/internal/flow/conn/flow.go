@@ -455,7 +455,6 @@ func (f *flw) close(ctx *context.T, closedRemotely bool, err error) {
 	cancel := f.cancel
 	f.mu.Unlock()
 
-	//fmt.Fprintf(os.Stderr, "%p: flow close %v %v (was closed %v)\n", f, f.id, closedRemotely, wasClosed)
 	if wasClosed {
 		return
 	}

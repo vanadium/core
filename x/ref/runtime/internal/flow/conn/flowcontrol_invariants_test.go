@@ -185,3 +185,33 @@ func flowControlReleasedInvariant(dc, ac *Conn) error {
 
 	return nil
 }
+
+func flowControlReleasedInvariantBidirectional(dc, ac *Conn) error {
+	if err := flowControlReleasedInvariant(dc, ac); err != nil {
+		return fmt.Errorf("flowControlReleasedInvariant: dial->accept: %v", err)
+	}
+	if err := flowControlReleasedInvariant(ac, dc); err != nil {
+		return fmt.Errorf("flowControlReleasedInvariant: accept->dial: %v", err)
+	}
+	return nil
+}
+
+func flowControlBorrowedInvariantBoth(dc, ac *Conn) error {
+	if _, _, err := flowControlBorrowedInvariant(dc); err != nil {
+		return fmt.Errorf("flowControlBorrowedInvariant: dial: %v", err)
+	}
+	if _, _, err := flowControlBorrowedInvariant(ac); err != nil {
+		return fmt.Errorf("flowControlBorrowedClosedInvariant: accept: %v", err)
+	}
+	return nil
+}
+
+func flowControlBorrowedClosedInvariantBoth(dc, ac *Conn) error {
+	if _, _, err := flowControlBorrowedClosedInvariant(dc); err != nil {
+		return fmt.Errorf("flowControlBorrowedClosedInvariant: dial: %v", err)
+	}
+	if _, _, err := flowControlBorrowedClosedInvariant(ac); err != nil {
+		return fmt.Errorf("flowControlBorrowedClosedInvariant: accept: %v", err)
+	}
+	return nil
+}

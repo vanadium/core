@@ -181,16 +181,6 @@ func TestFlowMessageOrdering(t *testing.T) {
 	}
 }
 
-func testInvariants(dc, ac *Conn) error {
-	if _, _, err := flowControlBorrowedClosedInvariant(dc); err != nil {
-		return fmt.Errorf("dial: flowcontrol invariant: %v", err)
-	}
-	if _, _, err := flowControlBorrowedClosedInvariant(ac); err != nil {
-		return fmt.Errorf("accept: flowcontrol invariant: %v", err)
-	}
-	return nil
-}
-
 func TestFlowControl(t *testing.T) {
 	defer goroutines.NoLeaks(t, leakWaitTime)()
 	ctx, shutdown := test.V23Init()
@@ -222,7 +212,7 @@ func TestFlowControl(t *testing.T) {
 							fmt.Printf("dial: doWrite: flow: %v/%v, mtu: %v, buffered: %v, unexpected error: %v\n", i, nflows, mtu, bytesBuffered, err)
 						}
 						errs <- err
-						errs <- testInvariants(dc, ac)
+						errs <- flowControlBorrowedClosedInvariantBoth(dc, ac)
 						wg.Done()
 					}(i)
 					go func(i int) {
@@ -231,7 +221,7 @@ func TestFlowControl(t *testing.T) {
 							fmt.Printf("dial: doRead: flow: %v/%v, mtu: %v, buffered: %v, unexpected error: %v\n", i, nflows, mtu, bytesBuffered, err)
 						}
 						errs <- err
-						errs <- testInvariants(dc, ac)
+						errs <- flowControlBorrowedClosedInvariantBoth(dc, ac)
 						wg.Done()
 					}(i)
 				}
@@ -243,7 +233,7 @@ func TestFlowControl(t *testing.T) {
 							fmt.Printf("accept: doRead: flow: %v/%v, mtu: %v, buffered: %v, unexpected error: %v\n", i, nflows, mtu, bytesBuffered, err)
 						}
 						errs <- err
-						errs <- testInvariants(dc, ac)
+						errs <- flowControlBorrowedClosedInvariantBoth(dc, ac)
 						wg.Done()
 					}(i)
 					go func(i int) {
@@ -252,7 +242,7 @@ func TestFlowControl(t *testing.T) {
 							fmt.Printf("accept: doWrite: flow: %v/%v, mtu: %v, buffered: %v, unexpected error: %v\n", i, nflows, mtu, bytesBuffered, err)
 						}
 						errs <- err
-						errs <- testInvariants(dc, ac)
+						errs <- flowControlBorrowedClosedInvariantBoth(dc, ac)
 						wg.Done()
 					}(i)
 				}
@@ -265,7 +255,7 @@ func TestFlowControl(t *testing.T) {
 				}
 				close(errs)
 
-				if err := testInvariants(dc, ac); err != nil {
+				if err := flowControlBorrowedClosedInvariantBoth(dc, ac); err != nil {
 					t.Error(err)
 				}
 
@@ -317,14 +307,6 @@ func TestFlowControlBorrowing(t *testing.T) {
 		}
 		return
 	}
-	releasedInvariant := func(a, b *Conn) {
-		if err := flowControlReleasedInvariant(a, b); err != nil {
-			t.Fatal(err)
-		}
-		if err := flowControlReleasedInvariant(b, a); err != nil {
-			t.Fatal(err)
-		}
-	}
 
 	nflows := 100
 	bytesBuffered := uint64(10000)
@@ -351,7 +333,7 @@ func TestFlowControlBorrowing(t *testing.T) {
 
 			borrowed := uint64((i%numFlowsBeforeStarvation)+1) * perFlowBufSize
 
-			releasedInvariant(dc, ac)
+			flowControlReleasedInvariantBidirectional(dc, ac)
 
 			if got, want := totalBorrowed, borrowed; got != want {
 				t.Errorf("%v: %v: got %v, want %v", i, numFlowsBeforeStarvation, got, want)
@@ -377,7 +359,7 @@ func TestFlowControlBorrowing(t *testing.T) {
 					t.Errorf("%v: %v: got %v, want either 0 or %v", i, numFlowsBeforeStarvation, got, want)
 				}
 
-				releasedInvariant(dc, ac)
+				flowControlReleasedInvariantBidirectional(dc, ac)
 
 			}
 
@@ -386,7 +368,7 @@ func TestFlowControlBorrowing(t *testing.T) {
 				t.Errorf("%v: %v: got %v, want either 0 or %v", i, numFlowsBeforeStarvation, got, want)
 			}
 
-			releasedInvariant(dc, ac)
+			flowControlReleasedInvariantBidirectional(dc, ac)
 
 		}
 		dc.Close(ctx, nil)
@@ -429,6 +411,32 @@ func acceptor(errCh chan error, acceptCh chan flow.Flow, size int, close bool) {
 	errCh <- nil
 }
 
+func dialWriteRead(t *testing.T, ctx *context.T, dc *Conn, writeBuf []byte) (flow.Flow, error) {
+	df, err := dc.Dial(ctx, dc.LocalBlessings(), nil, naming.Endpoint{}, 0, false)
+	if err != nil {
+		t.Fatal(err)
+	}
+	// WriteMsg wil fragment messages larger than its default buffer size.
+	if _, err := df.WriteMsg(writeBuf); err != nil {
+		return nil, fmt.Errorf("could not write flow: %v", err)
+	}
+	readBuf := make([]byte, len(writeBuf))
+	// It's essential to use ReadFull rather than ReadMsg since WriteMsg
+	// will fragment a message larger than a default size into multiple
+	// messages.
+	n, err := io.ReadFull(df, readBuf)
+	if err != nil {
+		return nil, fmt.Errorf("unexpected error reading from flow: %v", err)
+	}
+	if got, want := n, len(writeBuf); got != want {
+		return nil, fmt.Errorf("got %v, want %v", got, want)
+	}
+	if !bytes.Equal(writeBuf, readBuf) {
+		return nil, fmt.Errorf("data corruption: %v %v", writeBuf[:10], readBuf[:10])
+	}
+	return df, nil
+}
+
 func testCountersOpts(t *testing.T, ctx *context.T, count int, dialClose, acceptClose bool, size int, opts Opts) (
 	dialRelease, dialBorrowed, acceptRelease, acceptBorrowed int) {
 
@@ -449,50 +457,21 @@ func testCountersOpts(t *testing.T, ctx *context.T, count int, dialClose, accept
 	}
 
 	for i := 0; i < count; i++ {
-		//fmt.Fprintf(os.Stderr, "\niteration: start: %v: dialClose %v, acceptClose %v\n", i, dialClose, acceptClose)
-
-		df, err := dc.Dial(ctx, dc.LocalBlessings(), nil, naming.Endpoint{}, 0, false)
+		df, err := dialWriteRead(t, ctx, dc, writeBuf)
 		if err != nil {
-			t.Fatal(err)
-		}
-		// WriteMsg wil fragment messages larger than its default buffer size.
-		if _, err := df.WriteMsg(writeBuf); err != nil {
-			t.Fatalf("line %v: could not write flow: %v", line, err)
-		}
-		readBuf := make([]byte, size)
-		// It's essential to use ReadFull rather than ReadMsg since WriteMsg
-		// will fragment a message larger than a default size into multiple
-		// messages.
-		n, err := io.ReadFull(df, readBuf)
-		if err != nil {
-			t.Fatalf("line %v: unexpected error reading from flow: %v", line, err)
-		}
-		if got, want := n, size; got != want {
-			t.Fatalf("line %v: got %v, want %v", line, got, want)
-		}
-		if !bytes.Equal(writeBuf, readBuf) {
-			t.Fatalf("line %v: data corruption: %v %v", line, writeBuf[:10], readBuf[:10])
+			t.Fatalf("line: %v: %v", line, err)
 		}
 		if dialClose {
 			if err := df.Close(); err != nil {
 				t.Fatalf("line %v: unexpected error closing flow: %v", line, err)
 			}
 		}
-		if _, _, err := flowControlBorrowedInvariant(dc); err != nil {
-			t.Fatalf("line %v: flowControlBorrowedClosedInvariant: dial: %v", line, err)
+		if err := flowControlBorrowedInvariantBoth(dc, ac); err != nil {
+			t.Fatalf("line %v: %v", line, err)
 		}
-		if _, _, err := flowControlBorrowedInvariant(ac); err != nil {
-			t.Fatalf("line %v: flowControlBorrowedClosedInvariant: accept: %v", line, err)
+		if err := flowControlReleasedInvariantBidirectional(dc, ac); err != nil {
+			t.Fatalf("line %v: flowControlReleasedInvariant: %v", line, err)
 		}
-
-		if err := flowControlReleasedInvariant(dc, ac); err != nil {
-			t.Fatalf("line %v: flowControlReleasedInvariant: dial->accept: %v", line, err)
-		}
-		if err := flowControlReleasedInvariant(ac, dc); err != nil {
-			t.Fatalf("line %v: flowControlReleasedInvariant: accept->dial: %v", line, err)
-		}
-		//fmt.Fprintf(os.Stderr, "iteration: done: %v\n", i)
-
 	}
 
 	close(acceptCh)
@@ -500,11 +479,8 @@ func testCountersOpts(t *testing.T, ctx *context.T, count int, dialClose, accept
 		t.Fatal(err)
 	}
 
-	if _, _, err := flowControlBorrowedClosedInvariant(dc); err != nil {
-		t.Fatalf("line %v: flowControlBorrowedClosedInvariant: dial: %v", line, err)
-	}
-	if _, _, err := flowControlBorrowedClosedInvariant(ac); err != nil {
-		t.Fatalf("line %v: flowControlBorrowedClosedInvariant: accept: %v", line, err)
+	if err := flowControlBorrowedClosedInvariantBoth(dc, ac); err != nil {
+		t.Fatalf("line %v:  %v", line, err)
 	}
 
 	dc.flowControl.mu.Lock()

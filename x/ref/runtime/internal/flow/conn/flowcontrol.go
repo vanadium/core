@@ -251,7 +251,6 @@ func (fs *flowControlFlowStats) init(shared *flowControlConnStats, id uint64, bo
 func (fs *flowControlFlowStats) releaseCountersLocked(tokens uint64) {
 	fs.borrowing = false
 	if fs.borrowed > 0 {
-		//fmt.Fprintf(os.Stderr, "releaseCountersLocked: %v - %v\n", fs.shared.shared, fs.borrowed)
 		n := tokens
 		if fs.borrowed < tokens {
 			n = fs.borrowed
