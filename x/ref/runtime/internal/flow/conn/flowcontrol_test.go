@@ -442,6 +442,8 @@ func testCountersOpts(t *testing.T, ctx *context.T, count int, dialClose, accept
 
 	_, _, line, _ := runtime.Caller(1)
 
+	t.Logf("runAndTest: line: %v, count: %v, size: %v, dial close: %v, accept close: %v", line, count, size, dialClose, acceptClose)
+
 	acceptCh := make(chan flow.Flow, 1)
 	dc, ac, derr, aerr := setupConnsOpts(t, "local", "", ctx, ctx, nil, acceptCh, nil, nil, opts)
 	if derr != nil || aerr != nil {
@@ -479,8 +481,10 @@ func testCountersOpts(t *testing.T, ctx *context.T, count int, dialClose, accept
 		t.Fatal(err)
 	}
 
-	if err := flowControlBorrowedClosedInvariantBoth(dc, ac); err != nil {
-		t.Fatalf("line %v:  %v", line, err)
+	if dialClose {
+		if err := flowControlBorrowedClosedInvariantBoth(dc, ac); err != nil {
+			t.Fatalf("line %v:  %v", line, err)
+		}
 	}
 
 	dc.flowControl.mu.Lock()
@@ -519,7 +523,7 @@ func TestFlowCountrolCounters(t *testing.T) {
 	}
 
 	runAndTest := func(count, size, dialApprox, acceptApprox int, opts Opts) {
-		t.Logf("runAndTest: %v %v %v %v", count, size, dialApprox, acceptApprox)
+		t.Logf("runAndTest: count: %v, size: %v, dialApprox: %v, acceptApprox: %v", count, size, dialApprox, acceptApprox)
 		dialRelease, dialBorrowed, acceptRelease, acceptBorrowed = testCountersOpts(t, ctx, count, true, false, size, opts)
 		assert(dialApprox, acceptApprox)
 		dialRelease, dialBorrowed, acceptRelease, acceptBorrowed = testCountersOpts(t, ctx, count, false, true, size, opts)
