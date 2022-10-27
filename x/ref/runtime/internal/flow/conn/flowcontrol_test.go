@@ -339,7 +339,7 @@ func TestFlowControlBorrowing(t *testing.T) {
 				t.Errorf("%v: %v: got %v, want %v", i, numFlowsBeforeStarvation, got, want)
 			}
 
-			if got, want := flowControlBorrowed(dc)[flowID(f)], perFlowBufSize; got != want {
+			if got, want := flowControlBorrowed(dc, flowID(f)), perFlowBufSize; got != want {
 				t.Errorf("%v: %v: got %v, want %v", i, numFlowsBeforeStarvation, got, want)
 			}
 

@@ -175,40 +175,47 @@ func (fs *flowControlConnStats) clearToReleaseLocked() {
 
 // releaseOutstandingBorrowed is called for a flow that is no longer in
 // use locally (eg. closed) but which is included in a release message received
-// from the peer, or, which receives a data message after it has been closed
-// locally. This is required to ensure that borrowed tokens are returned
-// to the shared pool. Unfortunately this scheme requires tracking the
-// outstanding borrowed on a per-flow basis on the client side of a flow
-// and the toRelease counts on the server for all flows whether open or closed.
+// from the peer, or, which receives a data message (likely with the close flag
+// set) after it has been closed locally. This is required to ensure that borrowed
+// tokens are returned to the shared pool. Unfortunately this scheme requires
+// tracking the outstanding borrowed on a per-flow basis on the client side of a
+// flow and the toRelease counts on the server for all flows whether open or closed.
 // A better scheme, which would require a protocol revision, would be track
 // these outstanding borrowed tokens in aggregate on both the client and
 // server side.
-func (fs *flowControlConnStats) releaseOutstandingBorrowedLocked(fid, val uint64, closed bool) {
+func (fs *flowControlConnStats) releaseOutstandingBorrowedLocked(fid, val uint64, alreadyClosed bool) {
 	if fs.outstandingBorrowed == nil {
 		return
 	}
-	if closed {
-		// If the flow is closing then we assume the remote side releases
-		// all borrowed counters for that flow.
+	if alreadyClosed {
+		// If the flow has received a message and is already closed, or in the process of
+		// closing then we assume the remote side releases all borrowed counters for
+		// that flow.
 		val = fs.outstandingBorrowed[fid]
 	}
 	borrowed := fs.outstandingBorrowed[fid]
-	released := val
 	if borrowed == 0 {
 		return
-	} else if borrowed < released {
+	}
+	released := val
+	if borrowed < released {
 		released = borrowed
 	}
 	fs.shared += released
 	if released == borrowed {
 		delete(fs.outstandingBorrowed, fid)
 	} else {
+		// Just in case the tokens released are less than those borrowed.
+		// This may happen if a release message is received prior to the
+		// remote end closing the connection, though in practice it is
+		// very rare.
 		fs.outstandingBorrowed[fid] = borrowed - released
 	}
 }
 
 // releaseOutstandingBorrowedClosed is called when a message is received
-// for an already closed flow.
+// for an already closed or closing flow. That is, one that is no longer
+// in the Conn's flow table.
 func (fs *flowControlConnStats) releaseOutstandingBorrowedClosed(fid uint64) {
 	fs.mu.Lock()
 	defer fs.mu.Unlock()
@@ -332,13 +339,15 @@ func (fs *flowControlFlowStats) handleFlowClose(closedRemotely, notConnClosing b
 		// counter to be used on other new flows.
 		fs.shared.shared += fs.borrowed
 	} else if fs.borrowed > 0 && notConnClosing {
+		// If the flow is closed locally, then we wait for either a release
+		// message or a data message from the remote end to free up any
+		// borrowed counters.
 		if fs.shared.outstandingBorrowed == nil {
 			fs.shared.outstandingBorrowed = map[uint64]uint64{}
 		}
 		fs.shared.outstandingBorrowed[fid] = fs.borrowed
 	}
 	fs.borrowed = 0
-
 	if !fs.remoteBorrowing {
 		fs.clearLocked()
 		return

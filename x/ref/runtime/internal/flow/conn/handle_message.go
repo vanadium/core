@@ -58,6 +58,8 @@ func (c *Conn) handleData(ctx *context.T, msg *message.Data) error {
 	}
 	f := c.flows[msg.ID]
 	if f == nil {
+		// The data message likely has the CloseFlag set but we treat
+		// all messages received for a locally close flow the same way.
 		c.flowControl.releaseOutstandingBorrowedClosed(msg.ID)
 		c.mu.Unlock()
 		return nil

@@ -10,6 +10,8 @@ import (
 	"v.io/v23/flow"
 )
 
+// allBorrowedLocked returns the total number of borrowed tokens across
+// both open and closed flows.
 func allBorrowedLocked(c *Conn) (uint64, error) {
 	totalBorrowed := uint64(0)
 	for _, f := range c.flows {
@@ -53,7 +55,10 @@ func flowControlBorrowedClosedInvariant(c *Conn) (totalBorrowed, shared uint64, 
 }
 
 // flowControlBorrowedInvariant checks the invariant that the sum of all borrowed
-// counters is always greater than or equal to....
+// counters is less than or equal to the number of tokens taken from the shared pool.
+// The difference between the two values is due to the asynchronous nature of
+// returning outstanding borrowed tokens. When all flows are closed the values
+// will be identical as per flowControlBorrowedClosedInvariant.
 func flowControlBorrowedInvariant(c *Conn) (totalBorrowed, shared uint64, err error) {
 	c.mu.Lock()
 	defer c.mu.Unlock()
@@ -76,16 +81,12 @@ func flowControlBorrowedInvariant(c *Conn) (totalBorrowed, shared uint64, err er
 	return totalBorrowed, c.flowControl.shared, nil
 }
 
-func flowControlBorrowed(c *Conn) map[uint64]uint64 {
-	borrowed := map[uint64]uint64{}
+func flowControlBorrowed(c *Conn, fid uint64) uint64 {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 	c.flowControl.mu.Lock()
 	defer c.flowControl.mu.Unlock()
-	for _, f := range c.flows {
-		borrowed[f.id] = f.flowControl.borrowed
-	}
-	return borrowed
+	return c.flows[fid].flowControl.borrowed
 }
 
 func countRemoteBorrowing(c *Conn) int {
