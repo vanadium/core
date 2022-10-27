@@ -175,8 +175,14 @@ func (fs *flowControlConnStats) clearToReleaseLocked() {
 
 // releaseOutstandingBorrowed is called for a flow that is no longer in
 // use locally (eg. closed) but which is included in a release message received
-// from the peer. This is required to ensure that borrowed tokens are returned
-// to the shared pool.
+// from the peer, or, which receives a data message after it has been closed
+// locally. This is required to ensure that borrowed tokens are returned
+// to the shared pool. Unfortunately this scheme requires tracking the
+// outstanding borrowed on a per-flow basis on the client side of a flow
+// and the toRelease counts on the server for all flows whether open or closed.
+// A better scheme, which would require a protocol revision, would be track
+// these outstanding borrowed tokens in aggregate on both the client and
+// server side.
 func (fs *flowControlConnStats) releaseOutstandingBorrowedLocked(fid, val uint64, closed bool) {
 	if fs.outstandingBorrowed == nil {
 		return
