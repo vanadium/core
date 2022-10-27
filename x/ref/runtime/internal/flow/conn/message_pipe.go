@@ -5,6 +5,8 @@
 package conn
 
 import (
+	"fmt"
+	"os"
 	"sync"
 
 	"v.io/v23/context"
@@ -35,6 +37,7 @@ func newMessagePipe(rw flow.MsgReadWriteCloser) *messagePipe {
 			rw:          rw,
 			framer:      bypass,
 			frameOffset: bypass.FrameHeaderSize(),
+			mtu:         DefaultMTU,
 		}
 	}
 	return &messagePipe{
@@ -58,6 +61,7 @@ type messagePipe struct {
 	rw          flow.MsgReadWriteCloser
 	framer      framer.T
 	frameOffset int
+	mtu         int
 
 	seal sealFunc
 	open openFunc
@@ -114,6 +118,10 @@ func (p *messagePipe) enableEncryption(ctx *context.T, publicKey, secretKey, rem
 	return nil, ErrRPCVersionMismatch.Errorf(ctx, "conn.message_pipe: %v is not supported", rpcversion)
 }
 
+func (p *messagePipe) setMTU(mtu uint64) {
+	p.mtu = int(mtu)
+}
+
 func usedOurBuffer(x, y []byte) bool {
 	return &x[0:cap(x)][cap(x)-1] == &y[0:cap(y)][cap(y)-1]
 }
@@ -154,17 +162,9 @@ func (p *messagePipe) writeCiphertext(ctx *context.T, fn serialize, plaintextBuf
 	// NOTE that in the case where p.frameOffset > 0 but the returned buffer
 	// differs from the one passed in, p.frameOffset bytes are wasted in the
 	// buffers used here.
+	fmt.Fprintf(os.Stderr, " %v ... %v ...\n", p.mtu, len(wire))
 	_, err = p.rw.WriteMsg(wire)
 	return err
-}
-
-func (p *messagePipe) getBuffers() (*[]byte, *[]byte) {
-	return messagePipePool.Get().(*[]byte), messagePipePool.Get().(*[]byte)
-}
-
-func (p *messagePipe) putBuffers(ptext, ctext *[]byte) {
-	messagePipePool.Put(ptext)
-	messagePipePool.Put(ctext)
 }
 
 // Handle plaintext payloads which are not serialized by message.Append
@@ -216,15 +216,15 @@ func (p *messagePipe) writeMsg(ctx *context.T, fn serialize) error {
 	return p.writeCiphertext(ctx, fn, *plaintextBuf, *ciphertextBuf)
 }
 
-func (p *messagePipe) readClearText(ctx *context.T, plaintextBuf []byte) ([]byte, error) {
+func (p *messagePipe) decryptMessage(ctx *context.T, plaintextBuf []byte) ([]byte, error) {
 	p.readMu.Lock()
 	defer p.readMu.Unlock()
 	if p.open == nil {
 		return p.rw.ReadMsg2(plaintextBuf)
 	}
-	ciphertextBuf := messagePipePool.Get().(*[]byte)
-	defer messagePipePool.Put(ciphertextBuf)
-	ciphertext, err := p.rw.ReadMsg2(*ciphertextBuf)
+	desc, ciphertextBuf := getPoolBuf(p.mtu)
+	defer putPoolBuf(desc)
+	ciphertext, err := p.rw.ReadMsg2(ciphertextBuf)
 	if err != nil {
 		return nil, err
 	}
@@ -232,21 +232,17 @@ func (p *messagePipe) readClearText(ctx *context.T, plaintextBuf []byte) ([]byte
 	if !ok {
 		return nil, message.NewErrInvalidMsg(ctx, 0, uint64(len(ciphertext)), 0, nil)
 	}
-	return plaintext, nil
-}
-
-func (p *messagePipe) readMsg(ctx *context.T, plaintextBuf []byte) (message.Message, error) {
-	plaintext, err := p.readClearText(ctx, plaintextBuf)
-	if err != nil {
-		return nil, err
-	}
 	if len(plaintext) == 0 {
 		return nil, message.NewErrInvalidMsg(ctx, message.InvalidType, 0, 0, nil)
 	}
-	return p.readAnyMessage(ctx, plaintext)
+	return plaintext, nil
 }
 
-func (p *messagePipe) readAnyMessage(ctx *context.T, plaintext []byte) (message.Message, error) {
+func (p *messagePipe) readAnyMsg(ctx *context.T, plaintextBuf []byte) (message.Message, error) {
+	plaintext, err := p.decryptMessage(ctx, plaintextBuf)
+	if err != nil {
+		return nil, err
+	}
 	msgType, from := plaintext[0], plaintext[1:]
 	switch msgType {
 	case message.DataType:
@@ -257,38 +253,47 @@ func (p *messagePipe) readAnyMessage(ctx *context.T, plaintext []byte) (message.
 	return message.ReadNoPayload(ctx, plaintext)
 }
 
-func (p *messagePipe) handleData(ctx *context.T, from []byte) (message.Message, error) {
-	m, err := message.Data{}.Read(ctx, from)
+func (p *messagePipe) handleData(ctx *context.T, from []byte) (message.Data, error) {
+	m, err := message.Data{}.ReadDirect(ctx, from)
 	if err != nil {
-		return nil, err
+		return m, err
 	}
-	msg := m.(message.Data)
-	if msg.Flags&message.DisableEncryptionFlag == 0 {
+	if m.Flags&message.DisableEncryptionFlag == 0 {
 		return m, nil
 	}
 	payload, err := p.rw.ReadMsg2(nil)
 	if err != nil {
-		return nil, err
+		return m, err
 	}
-	msg.Payload = [][]byte{payload}
-	msg = msg.SetNoCopy(true)
-	return msg, nil
+	m.Payload = [][]byte{payload}
+	m = m.SetNoCopy(true)
+	return m, nil
 }
 
-func (p *messagePipe) handleOpenFlow(ctx *context.T, from []byte) (message.Message, error) {
-	m, err := message.OpenFlow{}.Read(ctx, from)
+func (p *messagePipe) handleOpenFlow(ctx *context.T, from []byte) (message.OpenFlow, error) {
+	m, err := message.OpenFlow{}.ReadDirect(ctx, from)
 	if err != nil {
-		return nil, err
+		return m, err
 	}
-	msg := m.(message.OpenFlow)
-	if msg.Flags&message.DisableEncryptionFlag == 0 {
+	if m.Flags&message.DisableEncryptionFlag == 0 {
 		return m, nil
 	}
 	payload, err := p.rw.ReadMsg2(nil)
 	if err != nil {
-		return nil, err
+		return m, err
 	}
-	msg.Payload = [][]byte{payload}
-	msg = msg.SetNoCopy(true)
-	return msg, nil
+	m.Payload = [][]byte{payload}
+	m = m.SetNoCopy(true)
+	return m, nil
+}
+
+func (p *messagePipe) readSetupMsg(ctx *context.T, plaintextBuf []byte) (message.Setup, error) {
+	plaintext, err := p.decryptMessage(ctx, plaintextBuf)
+	if err != nil {
+		return message.Setup{}, err
+	}
+	if len(plaintext) == 0 {
+		return message.Setup{}, message.NewErrInvalidMsg(ctx, message.InvalidType, 0, 0, nil)
+	}
+	return message.Setup{}.ReadDirect(ctx, plaintext)
 }

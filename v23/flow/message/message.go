@@ -43,9 +43,9 @@ func Read(ctx *context.T, from []byte) (Message, error) {
 	}
 	switch from[0] {
 	case DataType:
-		return Data{}.Read(ctx, from[1:])
+		return Data{}.ReadDirect(ctx, from[1:])
 	case OpenFlowType:
-		return OpenFlow{}.Read(ctx, from[1:])
+		return OpenFlow{}.ReadDirect(ctx, from[1:])
 	}
 	return ReadNoPayload(ctx, from)
 }
@@ -59,7 +59,7 @@ func ReadNoPayload(ctx *context.T, from []byte) (Message, error) {
 	msgType, from := from[0], from[1:]
 	switch msgType {
 	case SetupType:
-		return Setup{}.Read(ctx, from)
+		return Setup{}.ReadDirect(ctx, from)
 	case AuthType, AuthED25519Type, AuthRSAType:
 		var m = Auth{signatureType: msgType}
 		return m.Read(ctx, from)
@@ -238,6 +238,10 @@ func (m Setup) Append(ctx *context.T, data []byte) ([]byte, error) {
 }
 
 func (m Setup) Read(ctx *context.T, orig []byte) (Message, error) {
+	return m.ReadDirect(ctx, orig)
+}
+
+func (m Setup) ReadDirect(ctx *context.T, orig []byte) (Setup, error) {
 	var (
 		data  = orig
 		valid bool
@@ -473,6 +477,11 @@ func (m OpenFlow) Append(ctx *context.T, data []byte) ([]byte, error) {
 }
 
 func (m OpenFlow) Read(ctx *context.T, orig []byte) (Message, error) {
+	return m.ReadDirect(ctx, orig)
+}
+
+func (m OpenFlow) ReadDirect(ctx *context.T, orig []byte) (OpenFlow, error) {
+
 	var (
 		data  []byte
 		valid bool
@@ -601,6 +610,10 @@ func (m Data) Append(ctx *context.T, data []byte) ([]byte, error) {
 }
 
 func (m Data) Read(ctx *context.T, orig []byte) (Message, error) {
+	return m.ReadDirect(ctx, orig)
+}
+
+func (m Data) ReadDirect(ctx *context.T, orig []byte) (Data, error) {
 	var data []byte
 	var valid bool
 	if m.ID, data, valid = readVarUint64(orig); !valid {

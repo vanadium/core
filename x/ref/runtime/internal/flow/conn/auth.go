@@ -144,15 +144,11 @@ func (c *Conn) setup(ctx *context.T, versions version.RPCVersionRange, dialer bo
 		rttstart = time.Now()
 		ch <- c.sendSetupMessage(ctx, lSetup)
 	}()
-	msg, err := c.mp.readMsg(ctx, nil)
+	buf := [2048]byte{}
+	rSetup, err := c.mp.readSetupMsg(ctx, buf[:])
 	if err != nil {
 		<-ch
 		return nil, naming.Endpoint{}, rttstart, ErrRecv.Errorf(ctx, "conn.setup: recv: %v", err)
-	}
-	rSetup, valid := msg.(message.Setup)
-	if !valid {
-		<-ch
-		return nil, naming.Endpoint{}, rttstart, ErrUnexpectedMsg.Errorf(ctx, "conn.setup: unexpected message type: %T", msg)
 	}
 	if err := <-ch; err != nil {
 		return nil, naming.Endpoint{}, rttstart, ErrSend.Errorf(ctx, "conn.setup: remote %v: %v", c.remoteEndpointForError(), err)
@@ -192,6 +188,7 @@ func (c *Conn) setup(ctx *context.T, versions version.RPCVersionRange, dialer bo
 	if err != nil {
 		return nil, naming.Endpoint{}, rttstart, err
 	}
+	c.mp.setMTU(c.mtu)
 
 	if c.version >= version.RPCVersion14 {
 		// We include the setup messages in the channel binding to prevent attacks
