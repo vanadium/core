@@ -109,11 +109,11 @@ func TestUninterpretedSetupOpts(t *testing.T) {
 	ctx, cancel := context.RootContext()
 	defer cancel()
 	ma := Setup{Versions: version.RPCVersionRange{Min: 3, Max: 5},
-		PeerNaClPublicKey: &[32]byte{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13,
+		PeerNaClPublicKey: [32]byte{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13,
 			14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31},
 	}
 	mb := Setup{Versions: version.RPCVersionRange{Min: 3, Max: 5},
-		PeerNaClPublicKey: &[32]byte{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13,
+		PeerNaClPublicKey: [32]byte{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13,
 			14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31},
 		uninterpretedOptions: []option{{opt: 7777, payload: []byte("wat")}},
 	}

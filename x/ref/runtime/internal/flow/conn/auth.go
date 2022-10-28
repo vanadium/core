@@ -5,6 +5,7 @@
 package conn
 
 import (
+	"bytes"
 	"crypto/rand"
 	"time"
 
@@ -123,6 +124,8 @@ func (c *Conn) acceptHandshake(
 	return rtt, err
 }
 
+var emptyNaClPublicKey [32]byte
+
 func (c *Conn) setup(ctx *context.T, versions version.RPCVersionRange, dialer bool, mtu uint64) ([]byte, naming.Endpoint, time.Time, error) { //nolint:gocyclo
 	var rttstart time.Time
 	pk, sk, err := box.GenerateKey(rand.Reader)
@@ -132,10 +135,10 @@ func (c *Conn) setup(ctx *context.T, versions version.RPCVersionRange, dialer bo
 	lSetup := message.Setup{
 		Versions:          versions,
 		PeerLocalEndpoint: c.local,
-		PeerNaClPublicKey: pk,
 		Mtu:               c.mtu,
 		SharedTokens:      c.flowControl.bytesBufferedPerFlow,
 	}
+	copy(lSetup.PeerNaClPublicKey[:], (*pk)[:])
 	if !c.remote.IsZero() {
 		lSetup.PeerRemoteEndpoint = c.remote
 	}
@@ -185,10 +188,10 @@ func (c *Conn) setup(ctx *context.T, versions version.RPCVersionRange, dialer bo
 
 	c.flowControl.configure(c.mtu, lshared)
 
-	if rSetup.PeerNaClPublicKey == nil {
+	if bytes.Equal(rSetup.PeerNaClPublicKey[:], emptyNaClPublicKey[:]) {
 		return nil, naming.Endpoint{}, rttstart, ErrMissingSetupOption.Errorf(ctx, "conn.setup: missing required setup option: peerNaClPublicKey")
 	}
-	binding, err := c.mp.enableEncryption(ctx, pk, sk, rSetup.PeerNaClPublicKey, c.version)
+	binding, err := c.mp.enableEncryption(ctx, pk, sk, &rSetup.PeerNaClPublicKey, c.version)
 	if err != nil {
 		return nil, naming.Endpoint{}, rttstart, err
 	}

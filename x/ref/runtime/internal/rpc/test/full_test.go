@@ -989,7 +989,8 @@ func TestReplayAttack(t *testing.T) { //nolint:gocyclo
 	if !ok {
 		t.Fatalf("got %#v, want message.Setup", m)
 	}
-	rpk := rSetup.PeerNaClPublicKey
+	rpk := [32]byte{}
+	copy(rpk[:], rSetup.PeerNaClPublicKey[:])
 
 	// Send our setup message to the server.
 	pk, sk, err := box.GenerateKey(rand.Reader)
@@ -999,8 +1000,8 @@ func TestReplayAttack(t *testing.T) { //nolint:gocyclo
 	lSetup := message.Setup{
 		Versions:          rSetup.Versions,
 		PeerLocalEndpoint: rSetup.PeerLocalEndpoint,
-		PeerNaClPublicKey: pk,
 	}
+	copy(lSetup.PeerNaClPublicKey[:], (*pk)[:])
 	b, err = lSetup.Append(ctx, nil)
 	if err != nil {
 		t.Fatal(err)
@@ -1010,7 +1011,7 @@ func TestReplayAttack(t *testing.T) { //nolint:gocyclo
 	}
 
 	// Setup encryption to the server.
-	cipher, err := naclbox.NewCipher(pk, sk, rpk)
+	cipher, err := naclbox.NewCipher(pk, sk, &rpk)
 	if err != nil {
 		t.Fatal(err)
 	}
