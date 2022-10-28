@@ -6,12 +6,7 @@ package conn
 
 import "testing"
 
-func sameBuffer(x, y []byte) bool {
-	return &x[0:cap(x)][cap(x)-1] == &y[0:cap(y)][cap(y)-1]
-}
-
 func TestBufPools(t *testing.T) {
-	extra := make([]byte, ciphertextBufferSize*2)
 	for i, tc := range []struct {
 		request, cap, pool int
 	}{
@@ -33,22 +28,5 @@ func TestBufPools(t *testing.T) {
 			t.Errorf("%v: got %v, want %v", i, got, want)
 		}
 		putPoolBuf(desc)
-		desc, nb := getPoolBuf(tc.request)
-		if desc.pool != -1 && !sameBuffer(b, nb) {
-			t.Errorf("%v: buffers differ", i)
-		}
-		if desc.pool == -1 && sameBuffer(b, nb) {
-			t.Errorf("%v: buffers are the same", i)
-		}
-		if got, want := desc.pool, tc.pool; got != want {
-			t.Errorf("%v: got %v, want %v", i, got, want)
-		}
-		putPoolBuf(desc)
-		ob := b
-		b = append(b, extra...)
-		if sameBuffer(b, ob) {
-			t.Errorf("%v: same buffer", i)
-		}
-		putPoolBuf(desc) // no effect
 	}
 }

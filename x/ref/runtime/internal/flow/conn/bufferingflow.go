@@ -24,9 +24,9 @@ type BufferingFlow struct {
 	lf  *flw
 	mtu int
 
-	mu      sync.Mutex
-	storage [DefaultMTU]byte
-	buf     []byte
+	mu   sync.Mutex
+	desc poolBuf
+	buf  []byte
 }
 
 // NewBufferingFlow creates a new instance of BufferingFlow.
@@ -38,7 +38,8 @@ func NewBufferingFlow(ctx *context.T, f flow.Flow) *BufferingFlow {
 	if m, ok := f.Conn().(MTUer); ok {
 		b.mtu = int(m.MTU())
 	}
-	b.buf = b.storage[:0]
+	b.desc, b.buf = getPoolBuf(b.mtu)
+	b.buf = b.buf[:0]
 	if lf, ok := f.(*flw); ok {
 		b.lf = lf
 	}
@@ -50,24 +51,24 @@ func NewBufferingFlow(ctx *context.T, f flow.Flow) *BufferingFlow {
 func (b *BufferingFlow) Write(data []byte) (int, error) {
 	b.mu.Lock()
 	defer b.mu.Unlock()
-	return b.writeLocked(data)
+	return b.appendLocked(data)
 }
 
-func (b *BufferingFlow) write(data []byte) (int, error) {
+func (b *BufferingFlow) writeLocked(data []byte) (int, error) {
 	if b.lf != nil {
-		return b.lf.Write(b.buf)
+		return b.lf.writeMsg(false, [][]byte{b.buf})
 	}
 	return b.Flow.Write(b.buf)
 }
 
-func (b *BufferingFlow) writeLocked(data []byte) (int, error) {
+func (b *BufferingFlow) appendLocked(data []byte) (int, error) {
 	l := len(data)
 	if len(b.buf)+l < b.mtu {
 		b.buf = append(b.buf, data...)
 		return l, nil
 	}
-	_, err := b.write(b.buf)
-	b.buf = b.storage[:0]
+	_, err := b.writeLocked(b.buf)
+	b.buf = b.buf[:0]
 	b.buf = append(b.buf, data...)
 	return l, err
 }
@@ -79,7 +80,7 @@ func (b *BufferingFlow) WriteMsg(data ...[]byte) (int, error) {
 	defer b.mu.Unlock()
 	wrote := 0
 	for _, d := range data {
-		n, err := b.writeLocked(d)
+		n, err := b.appendLocked(d)
 		wrote += n
 		if err != nil {
 			return wrote, err
@@ -94,11 +95,12 @@ func (b *BufferingFlow) Close() error {
 	defer b.mu.Unlock()
 	var err error
 	if b.lf != nil {
-		_, err = b.lf.WriteMsgAndClose(b.buf)
+		_, err = b.lf.writeMsg(true, [][]byte{b.buf})
 	} else {
 		_, err = b.Flow.WriteMsgAndClose(b.buf)
 	}
-	b.buf = b.storage[:0]
+	putPoolBuf(b.desc)
+	b.buf = nil
 	return err
 }
 
@@ -106,18 +108,17 @@ func (b *BufferingFlow) Close() error {
 func (b *BufferingFlow) WriteMsgAndClose(data ...[]byte) (int, error) {
 	defer b.mu.Unlock()
 	b.mu.Lock()
-	wrote, err := b.WriteMsg(data...)
-	if err != nil {
-		return wrote, err
+	if b.lf != nil {
+		return b.lf.writeMsg(true, [][]byte{b.buf})
 	}
-	return wrote, b.Close()
+	return b.Flow.WriteMsgAndClose(data...)
 }
 
 // Flush writes all buffered data to the underlying Flow.
 func (b *BufferingFlow) Flush() error {
 	b.mu.Lock()
 	defer b.mu.Unlock()
-	_, err := b.write(b.buf)
-	b.buf = b.storage[:0]
+	_, err := b.writeLocked(b.buf)
+	b.buf = b.buf[:0]
 	return err
 }

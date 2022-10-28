@@ -96,7 +96,7 @@ func (p *messagePipe) Close() error {
 
 // enableEncryption enables encryption on the pipe (unless the underlying
 // transport reader implements UnsafeDisableEncryption and that
-// implementatio nreturns true). The encryption used depends on the RPC version
+// implementatio returns true). The encryption used depends on the RPC version
 // being used.
 func (p *messagePipe) enableEncryption(ctx *context.T, publicKey, secretKey, remotePublicKey *[32]byte, rpcversion version.RPCVersion) ([]byte, error) {
 	if uu, ok := p.rw.(unsafeUnencrypted); ok && uu.UnsafeDisableEncryption() {
@@ -129,21 +129,6 @@ func usedOurBuffer(x, y []byte) bool {
 
 type serialize func(ctx *context.T, buf []byte) ([]byte, error)
 
-func (p *messagePipe) createCiphertext(ctx *context.T, fn serialize, plaintextBuf, ciphertextBuf []byte) (wire, framed []byte, err error) {
-	if p.seal == nil {
-		wire, err = fn(ctx, plaintextBuf[p.frameOffset:p.frameOffset])
-		framed = plaintextBuf
-		return
-	}
-	plaintext, err := fn(ctx, plaintextBuf[:0])
-	if err != nil {
-		return
-	}
-	wire, err = p.seal(ciphertextBuf[p.frameOffset:p.frameOffset], plaintext)
-	framed = ciphertextBuf
-	return
-}
-
 func (p *messagePipe) writeFrame(ctx *context.T, wire, framedWire []byte) error {
 	if p.frameOffset > 0 && usedOurBuffer(framedWire, wire) {
 		// Write the frame size directly into the buffer we allocated and then
@@ -166,19 +151,24 @@ func (p *messagePipe) writeFrame(ctx *context.T, wire, framedWire []byte) error 
 func (p *messagePipe) writeCiphertext(ctx *context.T, fn serialize, size int) error {
 	plaintextDesc, plaintextBuf := getPoolBuf(size)
 	defer putPoolBuf(plaintextDesc)
-	var ciphertextDesc poolBuf
-	var ciphertextBuf []byte
-	if p.seal != nil {
-		ciphertextDesc, ciphertextBuf = getPoolBuf(size + maxCipherOverhead)
-		defer putPoolBuf(ciphertextDesc)
+	if p.seal == nil {
+		wire, err := fn(ctx, plaintextBuf[p.frameOffset:p.frameOffset])
+		if err != nil {
+			return err
+		}
+		return p.writeFrame(ctx, wire, plaintextBuf)
 	}
-
-	wire, framedWire, err := p.createCiphertext(ctx, fn, plaintextBuf, ciphertextBuf)
+	ciphertextDesc, ciphertextBuf := getPoolBuf(size + maxCipherOverhead)
+	defer putPoolBuf(ciphertextDesc)
+	plaintext, err := fn(ctx, plaintextBuf[:0])
 	if err != nil {
 		return err
 	}
-	return p.writeFrame(ctx, wire, framedWire)
-
+	wire, err := p.seal(ciphertextBuf[p.frameOffset:p.frameOffset], plaintext)
+	if err != nil {
+		return err
+	}
+	return p.writeFrame(ctx, wire, ciphertextBuf)
 }
 
 // Handle plaintext payloads which are not serialized by message.Append
@@ -214,11 +204,11 @@ func (p *messagePipe) writeSetup(ctx *context.T, m message.Setup) error {
 	defer p.writeMu.Unlock()
 	// Setup messages are always in the clear.
 	var buf [1024]byte
-	wire, err := m.Append(ctx, buf[:0])
+	wire, err := m.Append(ctx, buf[p.frameOffset:p.frameOffset])
 	if err != nil {
 		return nil
 	}
-	return p.writeFrame(ctx, wire, wire)
+	return p.writeFrame(ctx, wire, buf[:])
 }
 
 func (p *messagePipe) writeOpenFlow(ctx *context.T, m message.OpenFlow) error {
@@ -319,7 +309,7 @@ func (p *messagePipe) handleOpenFlow(ctx *context.T, from []byte) (message.OpenF
 }
 
 func (p *messagePipe) readSetup(ctx *context.T, plaintextBuf []byte) (message.Setup, error) {
-	// Setup messages are always in the clear/
+	// Setup messages are always in the clear.
 	p.readMu.Lock()
 	defer p.readMu.Unlock()
 	plaintext, err := p.rw.ReadMsg2(plaintextBuf)

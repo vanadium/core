@@ -52,11 +52,12 @@ type poolBuf struct {
 func getPoolBuf(size int) (poolBuf, []byte) {
 	for i, s := range bufPoolSizes {
 		if size <= s {
+			b := bufPools[i].Get().(*[]byte)
 			bd := poolBuf{
-				rbuf: bufPools[i].Get().(*[]byte),
+				rbuf: b,
 				pool: i,
 			}
-			return bd, *bd.rbuf
+			return bd, *b
 		}
 	}
 	buf := make([]byte, size)
