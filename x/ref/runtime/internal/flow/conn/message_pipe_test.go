@@ -197,7 +197,7 @@ func runMany(ctx *context.T, dialedPipe, acceptedPipe *messagePipe, rxbuf, paylo
 
 	go func() {
 		for {
-			m, err := acceptedPipe.readMsg(ctx, rxbuf)
+			m, err := acceptedPipe.readAnyMsg(ctx, rxbuf)
 			if err != nil {
 				errCh <- err
 				return
@@ -265,7 +265,7 @@ func testMessages(t *testing.T) []message.Message {
 		message.Setup{Versions: version.RPCVersionRange{Min: 3, Max: 5}},
 		message.Setup{
 			Versions: version.RPCVersionRange{Min: 3, Max: 5},
-			PeerNaClPublicKey: &[32]byte{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13,
+			PeerNaClPublicKey: [32]byte{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13,
 				14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31},
 			PeerRemoteEndpoint: ep1,
 			PeerLocalEndpoint:  ep2,
@@ -299,7 +299,7 @@ func writeToMessagePipe(ctx *context.T, mp *messagePipe, m message.Message) erro
 	case message.Release:
 		return mp.writeRelease(ctx, msg)
 	default:
-		return mp.writeMsg(ctx, m.Append)
+		return mp.writeAnyMsg(ctx, m.Append)
 	}
 }
 
@@ -314,7 +314,7 @@ func messageRoundTrip(t *testing.T, ctx *context.T, dialed, accepted *messagePip
 	errCh := make(chan error, 1)
 	msgCh := make(chan message.Message, 1)
 	reader := func(mp *messagePipe) {
-		m, err := mp.readMsg(ctx, nil)
+		m, err := mp.readAnyMsg(ctx, nil)
 		errCh <- err
 		msgCh <- m
 	}
@@ -371,7 +371,7 @@ func runMessagePipeBenchmark(b *testing.B, ctx *context.T, dialed, accepted *mes
 	}()
 
 	for i := 0; i < b.N; i++ {
-		_, err := accepted.readMsg(ctx, rxbuf)
+		_, err := accepted.readAnyMsg(ctx, rxbuf)
 		if err != nil {
 			b.Fatal(err)
 		}

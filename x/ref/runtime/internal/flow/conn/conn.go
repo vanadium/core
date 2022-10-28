@@ -886,7 +886,7 @@ func (c *Conn) readLoop(ctx *context.T) {
 	defer c.loopWG.Done()
 	var err error
 	for {
-		msg, rerr := c.mp.readMsg(ctx, nil)
+		msg, rerr := c.mp.readAnyMsg(ctx, nil)
 		if rerr != nil {
 			err = ErrRecv.Errorf(ctx, "error reading from: %v: %v", c.remote.String(), rerr)
 			break
@@ -979,7 +979,7 @@ func (c *Conn) sendAuthMessage(ctx *context.T, m message.Auth) error {
 		return err
 	}
 	defer c.writeq.done(w)
-	return c.mp.writeMsg(ctx, m.Append)
+	return c.mp.writeAnyMsg(ctx, m.Append)
 }
 
 func (c *Conn) sendSetupMessage(
@@ -993,7 +993,7 @@ func (c *Conn) sendSetupMessage(
 		return err
 	}
 	defer c.writeq.done(w)
-	return c.mp.writeMsg(ctx, m.Append)
+	return c.mp.writeSetup(ctx, m)
 }
 
 func allocChannel(ms *messageSender) {
@@ -1016,10 +1016,10 @@ func (c *Conn) sendHealthCheckMessage(
 	defer c.writeq.done(w)
 	if request {
 		var m message.HealthCheckRequest
-		return c.mp.writeMsg(ctx, m.Append)
+		return c.mp.writeAnyMsg(ctx, m.Append)
 	}
 	var m message.HealthCheckResponse
-	return c.mp.writeMsg(ctx, m.Append)
+	return c.mp.writeAnyMsg(ctx, m.Append)
 }
 
 func cancelContext(ctx *context.T, cancelWithContext bool) *context.T {
@@ -1041,10 +1041,10 @@ func (c *Conn) sendLameDuckMessage(ctx *context.T, cancelWithContext bool, enter
 	defer c.writeq.done(w)
 	if enterLameDuck {
 		var m message.EnterLameDuck
-		return c.mp.writeMsg(ctx, m.Append)
+		return c.mp.writeAnyMsg(ctx, m.Append)
 	}
 	var m message.AckLameDuck
-	return c.mp.writeMsg(ctx, m.Append)
+	return c.mp.writeAnyMsg(ctx, m.Append)
 }
 
 func (c *Conn) sendTearDownMessage(ctx *context.T, msg string) error {
@@ -1058,7 +1058,7 @@ func (c *Conn) sendTearDownMessage(ctx *context.T, msg string) error {
 	}
 	defer c.writeq.done(w)
 	var m = message.TearDown{Message: msg}
-	return c.mp.writeMsg(ctx, m.Append)
+	return c.mp.writeAnyMsg(ctx, m.Append)
 }
 
 func (c *Conn) sendCloseMessage(ctx *context.T, id uint64) error {

@@ -9,7 +9,7 @@ import (
 )
 
 const (
-	// estimate of how the overhead of the message header fields other
+	// Estimate of the overhead of the message header fields other
 	// than the payloads.
 	estimatedMessageOverhead = 256
 
@@ -41,52 +41,18 @@ func init() {
 			return &b
 		}
 	}
-	bufMaxPool = len(bufPoolSizes) - 1
+	bufMaxPool = len(bufPoolSizes)
 }
 
-/*
-//const bufPoolEmbedSize = 1024
-type flexBuf struct {
-	rbuf  *[]byte
-	pool  int
-	embed [bufPoolEmbedSize]byte
-}
-
-func (fb *flexBuf) get(size int) []byte {
-	if size < bufPoolEmbedSize {
-		fb.rbuf = nil
-		return fb.embed[:]
-	}
-	for i, s := range bufPoolSizes {
-		if size <= s {
-			fb.rbuf = bufPools[i].Get().(*[]byte)
-			fb.pool = i
-			return *fb.rbuf
-		}
-	}
-	fb.rbuf = bufPools[bufMaxPool].Get().(*[]byte)
-	fb.pool = bufMaxPool
-	return *fb.rbuf
-}
-
-func (fb *flexBuf) put() {
-	if fb.rbuf == nil {
-		return
-	}
-	bufPools[fb.pool].Put(fb.rbuf)
-	fb.rbuf = nil
-}
-*/
-
-type bufDesc struct {
+type poolBuf struct {
 	rbuf *[]byte
 	pool int
 }
 
-func getPoolBuf(size int) (bufDesc, []byte) {
+func getPoolBuf(size int) (poolBuf, []byte) {
 	for i, s := range bufPoolSizes {
 		if size <= s {
-			bd := bufDesc{
+			bd := poolBuf{
 				rbuf: bufPools[i].Get().(*[]byte),
 				pool: i,
 			}
@@ -94,16 +60,21 @@ func getPoolBuf(size int) (bufDesc, []byte) {
 		}
 	}
 	buf := make([]byte, size)
-	bd := bufDesc{
+	bd := poolBuf{
 		rbuf: &buf,
-		pool: bufMaxPool,
+		pool: -1,
 	}
 	return bd, buf
 }
 
-func putPoolBuf(bd bufDesc) {
+func putPoolBuf(bd poolBuf) {
 	if bd.pool == -1 {
+		bd.rbuf = nil
 		return
 	}
 	bufPools[bd.pool].Put(bd.rbuf)
+}
+
+func (pb poolBuf) bytes() []byte {
+	return *pb.rbuf
 }

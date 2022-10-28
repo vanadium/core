@@ -27,6 +27,7 @@
 package message
 
 import (
+	"bytes"
 	"encoding/hex"
 	"fmt"
 
@@ -178,7 +179,7 @@ const (
 // should not be changed.
 type Setup struct {
 	Versions             version.RPCVersionRange
-	PeerNaClPublicKey    *[32]byte
+	PeerNaClPublicKey    [32]byte
 	PeerRemoteEndpoint   naming.Endpoint
 	PeerLocalEndpoint    naming.Endpoint
 	Mtu                  uint64
@@ -209,11 +210,13 @@ func readSetupOption(ctx *context.T, orig []byte) (opt uint64, p, d []byte, err 
 	return
 }
 
+var emptyNaClPublicKey [32]byte
+
 func (m Setup) Append(ctx *context.T, data []byte) ([]byte, error) {
 	data = append(data, SetupType)
 	data = writeVarUint64(uint64(m.Versions.Min), data)
 	data = writeVarUint64(uint64(m.Versions.Max), data)
-	if m.PeerNaClPublicKey != nil {
+	if !bytes.Equal(m.PeerNaClPublicKey[:], emptyNaClPublicKey[:]) {
 		data = appendSetupOption(peerNaClPublicKeyOption,
 			m.PeerNaClPublicKey[:], data)
 	}
@@ -266,7 +269,6 @@ func (m Setup) ReadDirect(ctx *context.T, orig []byte) (Setup, error) {
 		}
 		switch opt {
 		case peerNaClPublicKeyOption:
-			m.PeerNaClPublicKey = new([32]byte)
 			copy(m.PeerNaClPublicKey[:], payload)
 		case peerRemoteEndpointOption:
 			m.PeerRemoteEndpoint, err = naming.ParseEndpoint(string(payload))

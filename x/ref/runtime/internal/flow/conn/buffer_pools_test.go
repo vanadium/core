@@ -23,7 +23,7 @@ func TestBufPools(t *testing.T) {
 		{8193, 16384, 3},
 		{16385, 32768, 4},
 		{32769, ciphertextBufferSize, 5},
-		{ciphertextBufferSize + 1, ciphertextBufferSize, -1},
+		{ciphertextBufferSize + 1, ciphertextBufferSize + 1, -1},
 	} {
 		desc, b := getPoolBuf(tc.request)
 		if got, want := cap(b), tc.cap; got != want {
@@ -34,8 +34,11 @@ func TestBufPools(t *testing.T) {
 		}
 		putPoolBuf(desc)
 		desc, nb := getPoolBuf(tc.request)
-		if !sameBuffer(b, nb) {
+		if desc.pool != -1 && !sameBuffer(b, nb) {
 			t.Errorf("%v: buffers differ", i)
+		}
+		if desc.pool == -1 && sameBuffer(b, nb) {
+			t.Errorf("%v: buffers are the same", i)
 		}
 		if got, want := desc.pool, tc.pool; got != want {
 			t.Errorf("%v: got %v, want %v", i, got, want)
