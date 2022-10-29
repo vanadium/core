@@ -123,14 +123,10 @@ func (p *messagePipe) enableEncryption(ctx *context.T, publicKey, secretKey, rem
 	return nil, ErrRPCVersionMismatch.Errorf(ctx, "conn.message_pipe: %v is not supported", rpcversion)
 }
 
-func usedOurBuffer(x, y []byte) bool {
-	return &x[0:cap(x)][cap(x)-1] == &y[0:cap(y)][cap(y)-1]
-}
-
 type serialize func(ctx *context.T, buf []byte) ([]byte, error)
 
 func (p *messagePipe) writeFrame(ctx *context.T, wire, framedWire []byte) error {
-	if p.frameOffset > 0 && usedOurBuffer(framedWire, wire) {
+	if p.frameOffset > 0 && sameUnderlyingStorage(framedWire, wire) {
 		// Write the frame size directly into the buffer we allocated and then
 		// write out that buffer in a single write operation.
 		if err := p.framer.PutSize(framedWire[:p.frameOffset], len(wire)); err != nil {
@@ -149,8 +145,8 @@ func (p *messagePipe) writeFrame(ctx *context.T, wire, framedWire []byte) error 
 }
 
 func (p *messagePipe) writeCiphertext(ctx *context.T, fn serialize, size int) error {
-	plaintextDesc, plaintextBuf := getPoolBuf(size)
-	defer putPoolBuf(plaintextDesc)
+	plaintextNetBuf, plaintextBuf := getNetBuf(size)
+	defer putNetBuf(plaintextNetBuf)
 	if p.seal == nil {
 		wire, err := fn(ctx, plaintextBuf[p.frameOffset:p.frameOffset])
 		if err != nil {
@@ -158,8 +154,8 @@ func (p *messagePipe) writeCiphertext(ctx *context.T, fn serialize, size int) er
 		}
 		return p.writeFrame(ctx, wire, plaintextBuf)
 	}
-	ciphertextDesc, ciphertextBuf := getPoolBuf(size + maxCipherOverhead)
-	defer putPoolBuf(ciphertextDesc)
+	ciphertextNetBuf, ciphertextBuf := getNetBuf(size + maxCipherOverhead)
+	defer putNetBuf(ciphertextNetBuf)
 	plaintext, err := fn(ctx, plaintextBuf[:0])
 	if err != nil {
 		return err
@@ -241,8 +237,8 @@ func (p *messagePipe) decryptMessage(ctx *context.T, plaintextBuf []byte) ([]byt
 	if p.open == nil {
 		return p.rw.ReadMsg2(plaintextBuf)
 	}
-	desc, ciphertextBuf := getPoolBuf(p.mtu + estimatedMessageOverhead + maxCipherOverhead)
-	defer putPoolBuf(desc)
+	nb, ciphertextBuf := getNetBuf(p.mtu + estimatedMessageOverhead + maxCipherOverhead)
+	defer putNetBuf(nb)
 	ciphertext, err := p.rw.ReadMsg2(ciphertextBuf)
 	if err != nil {
 		return nil, err

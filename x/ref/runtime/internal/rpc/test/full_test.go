@@ -1047,6 +1047,7 @@ func TestReplayAttack(t *testing.T) { //nolint:gocyclo
 		if _, err = conn.WriteMsg(ciphertext); err != nil {
 			t.Fatal(err)
 		}
+
 	}
 
 	// The server should send a tearDown message complaining about the channel binding.

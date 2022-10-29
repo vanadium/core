@@ -25,7 +25,7 @@ type BufferingFlow struct {
 	mtu int
 
 	mu   sync.Mutex
-	desc poolBuf
+	nBuf netBuf
 	buf  []byte
 }
 
@@ -38,7 +38,7 @@ func NewBufferingFlow(ctx *context.T, f flow.Flow) *BufferingFlow {
 	if m, ok := f.Conn().(MTUer); ok {
 		b.mtu = int(m.MTU())
 	}
-	b.desc, b.buf = getPoolBuf(b.mtu)
+	b.nBuf, b.buf = getNetBuf(b.mtu)
 	b.buf = b.buf[:0]
 	if lf, ok := f.(*flw); ok {
 		b.lf = lf
@@ -99,7 +99,7 @@ func (b *BufferingFlow) Close() error {
 	} else {
 		_, err = b.Flow.WriteMsgAndClose(b.buf)
 	}
-	putPoolBuf(b.desc)
+	b.nBuf = putNetBuf(b.nBuf)
 	b.buf = nil
 	return err
 }

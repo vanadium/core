@@ -27,51 +27,82 @@ const (
 )
 
 var (
-	bufPools     []sync.Pool
-	bufPoolSizes = []int{1024, 4096, 8192, 16384, 32768, ciphertextBufferSize}
+	netBufPools     []sync.Pool
+	netBufPoolSizes = []int{1024, 4096, 8192, 16384, 32768, ciphertextBufferSize}
 )
 
 func init() {
-	bufPools = make([]sync.Pool, len(bufPoolSizes))
-	for i, size := range bufPoolSizes {
+	netBufPools = make([]sync.Pool, len(netBufPoolSizes))
+	for i, size := range netBufPoolSizes {
 		size := size
-		bufPools[i].New = func() interface{} {
+		netBufPools[i].New = func() interface{} {
 			b := make([]byte, size)
 			return &b
 		}
 	}
 }
 
-type poolBuf struct {
-	rbuf *[]byte
-	pool int
+// netBuf represents a buffer (byte slice) obtained from one of a set of sync.Pools
+// each configured to manage buffers of a fixed size or from the heap.
+// See netBufPoolSizes for the currently configured set of sizes. If a size
+// larger than that suppored by all of the sync.Pools is requested then
+// the buffer is allocated from the heap. Typical usage is:
+//
+//	netBuf, buf := getNetBuf(size)
+//	  ... use buf ...
+//	putNetBuf(netBuf)
+type netBuf struct {
+	bufPtr *[]byte
+	pool   int // a heap allocated buffer has pool set to -1.
 }
 
-func getPoolBuf(size int) (poolBuf, []byte) {
-	for i, s := range bufPoolSizes {
+// getNetBuf returns a new instance of netBuf with a buffer allocated either
+// via a sync.Pool or the heap depending on its size. Regardless of whether
+// the returned byte slice is extended the returned netBuf must be returned
+// using putNetBuf.
+func getNetBuf(size int) (netBuf, []byte) {
+	for i, s := range netBufPoolSizes {
 		if size <= s {
-			b := bufPools[i].Get().(*[]byte)
-			bd := poolBuf{
-				rbuf: b,
-				pool: i,
+			b := netBufPools[i].Get().(*[]byte)
+			bd := netBuf{
+				bufPtr: b,
+				pool:   i,
 			}
 			return bd, *b
 		}
 	}
 	buf := make([]byte, size)
-	bd := poolBuf{
-		rbuf: &buf,
-		pool: -1,
+	bd := netBuf{
+		bufPtr: &buf,
+		pool:   -1,
 	}
 	return bd, buf
 }
 
-func putPoolBuf(bd poolBuf) {
+// putNetBuf ensures that buffers obtained from a sync.Pool are returned to
+// the appropriate pool. putNetBuf returns an empty netBuf that should be
+// assigned to any variable/field containing the netBuf being returned to
+// reduce the risk of returning the same buffer more than once. Returning the
+// same buffer may result in the same buffer being returned by getNetBuf
+// multiple times since sync.Pools have this property.
+func putNetBuf(bd netBuf) netBuf {
 	if bd.pool == -1 {
-		bd.rbuf = nil
-		return
+		return netBuf{}
 	}
-	if bd.rbuf != nil {
-		bufPools[bd.pool].Put(bd.rbuf)
+	if bd.bufPtr != nil {
+		netBufPools[bd.pool].Put(bd.bufPtr)
 	}
+	return netBuf{}
+}
+
+// sameUnderlyingStorage returns true if x and y share the same underlying
+// storage.
+func sameUnderlyingStorage(x, y []byte) bool {
+	return &x[0:cap(x)][cap(x)-1] == &y[0:cap(y)][cap(y)-1]
+}
+
+// differentUnderlyingStorage returns true if x and y do not share the same
+// underlying storage.
+func differentUnderlyingStorage(x, y []byte) bool {
+	return &x[0:cap(x)][cap(x)-1] != &y[0:cap(y)][cap(y)-1]
 }

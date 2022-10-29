@@ -7,6 +7,7 @@ package conn
 import "testing"
 
 func TestBufPools(t *testing.T) {
+	large := make([]byte, ciphertextBufferSize*2)
 	for i, tc := range []struct {
 		request, cap, pool int
 	}{
@@ -20,13 +21,25 @@ func TestBufPools(t *testing.T) {
 		{32769, ciphertextBufferSize, 5},
 		{ciphertextBufferSize + 1, ciphertextBufferSize + 1, -1},
 	} {
-		desc, b := getPoolBuf(tc.request)
+		nb, b := getNetBuf(tc.request)
 		if got, want := cap(b), tc.cap; got != want {
 			t.Errorf("%v: got %v, want %v", i, got, want)
 		}
-		if got, want := desc.pool, tc.pool; got != want {
+		if got, want := nb.pool, tc.pool; got != want {
 			t.Errorf("%v: got %v, want %v", i, got, want)
 		}
-		putPoolBuf(desc)
+		if differentUnderlyingStorage(*nb.bufPtr, b) {
+			t.Errorf("%v: should share the same underlying storage", i)
+		}
+		orbuf := nb.bufPtr
+		b = append(b, large...)
+		if sameUnderlyingStorage(*nb.bufPtr, b) {
+			t.Errorf("%v: should not share the same underlying storage", i)
+		}
+		if got, want := nb.bufPtr, orbuf; got != want {
+			t.Errorf("%v: got %v, want %v", i, got, want)
+		}
+		nb = putNetBuf(nb)
+		putNetBuf(nb) // safe to call putNetBuf on nb if nb is empty.
 	}
 }
