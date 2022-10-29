@@ -218,6 +218,10 @@ func (f *flw) writeMsgDone(ctx *context.T, sent int, alsoClose bool, err error) 
 	return sent, nil
 }
 
+func (f *flw) write(alsoClose bool, part []byte) (sent int, err error) {
+	return f.writeMsg(alsoClose, [][]byte{part})
+}
+
 func (f *flw) writeMsg(alsoClose bool, parts [][]byte) (sent int, err error) {
 	ctx := f.currentContext()
 
