@@ -73,9 +73,7 @@ func putPoolBuf(bd poolBuf) {
 		bd.rbuf = nil
 		return
 	}
-	bufPools[bd.pool].Put(bd.rbuf)
-}
-
-func (pb poolBuf) bytes() []byte {
-	return *pb.rbuf
+	if bd.rbuf != nil {
+		bufPools[bd.pool].Put(bd.rbuf)
+	}
 }
