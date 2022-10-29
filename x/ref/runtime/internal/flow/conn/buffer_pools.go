@@ -29,7 +29,6 @@ const (
 var (
 	bufPools     []sync.Pool
 	bufPoolSizes = []int{1024, 4096, 8192, 16384, 32768, ciphertextBufferSize}
-	bufMaxPool   = 0
 )
 
 func init() {
@@ -41,7 +40,6 @@ func init() {
 			return &b
 		}
 	}
-	bufMaxPool = len(bufPoolSizes)
 }
 
 type poolBuf struct {
