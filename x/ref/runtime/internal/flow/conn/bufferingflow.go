@@ -50,7 +50,8 @@ func NewBufferingFlow(ctx *context.T, f flow.Flow) *BufferingFlow {
 func (b *BufferingFlow) Write(data []byte) (int, error) {
 	b.mu.Lock()
 	defer b.mu.Unlock()
-	return b.appendLocked(data)
+	n, err := b.appendLocked(data)
+	return n, b.handleError(err)
 }
 
 // WriteMsg buffers data until the underlying channel's MTU is reached at which point
@@ -112,8 +113,7 @@ func (b *BufferingFlow) Close() error {
 	b.mu.Lock()
 	defer b.mu.Unlock()
 	_, err := b.writeLocked(true, b.buf)
-	b.nBuf = putNetBuf(b.nBuf)
-	b.buf = nil
+	b.reset()
 	return err
 }
 
@@ -127,8 +127,8 @@ func (b *BufferingFlow) WriteMsgAndClose(data ...[]byte) (int, error) {
 		}
 	}
 	n, err := b.writeMsgLocked(true, data)
-	b.buf = b.buf[:0]
-	return n, b.handleError(err)
+	b.reset()
+	return n, err
 }
 
 // Flush writes all buffered data to the underlying Flow.
@@ -140,11 +140,15 @@ func (b *BufferingFlow) Flush() error {
 	return b.handleError(err)
 }
 
+func (b *BufferingFlow) reset() {
+	b.nBuf = putNetBuf(b.nBuf)
+	b.buf = nil
+}
+
 func (b *BufferingFlow) handleError(err error) error {
 	if err == nil {
 		return nil
 	}
-	b.nBuf = putNetBuf(b.nBuf)
-	b.buf = nil
+	b.reset()
 	return err
 }

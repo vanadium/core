@@ -17,6 +17,7 @@ import (
 	"v.io/x/ref/test"
 )
 
+// flowEcho echos all messages received on a flow.
 func flowEcho(wg *sync.WaitGroup, f flow.Flow, msgCh chan<- []byte, errCh chan<- error) {
 	defer wg.Done()
 	for {
@@ -31,6 +32,8 @@ func flowEcho(wg *sync.WaitGroup, f flow.Flow, msgCh chan<- []byte, errCh chan<-
 	}
 }
 
+// flowWrite uses the Write method to write msgs to a flow. It does not
+// call Close.
 func flowWrite(f flow.Flow, errCh chan<- error, msgs ...string) {
 	for i, m := range msgs {
 		n, err := f.Write([]byte(m))
@@ -52,6 +55,8 @@ func asByteSlice(msgs []string) [][]byte {
 	return data
 }
 
+// flowWriteMsgThenClose uses the WriteMsg method to write msgs to a flow.
+// It then calls Close.
 func flowWriteMsgThenClose(f flow.Flow, errCh chan<- error, msgs ...string) {
 	bs := asByteSlice(msgs)
 	s := totalSize(bs)
@@ -66,17 +71,22 @@ func flowWriteMsgThenClose(f flow.Flow, errCh chan<- error, msgs ...string) {
 	f.Close()
 }
 
+// flowWriteThenClose uses flowWrite and then calls Close.
 func flowWriteThenClose(f flow.Flow, errCh chan<- error, msgs ...string) {
 	flowWrite(f, errCh, msgs...)
 	f.Close()
 }
 
+// flowWriteAndClose uses flowWrite and the calls WriteMsgAndClose with
+// the final msg.
 func flowWriteAndClose(f flow.Flow, errCh chan<- error, msgs ...string) {
 	end := len(msgs) - 1
 	flowWrite(f, errCh, msgs[:end]...)
 	f.WriteMsgAndClose([]byte(msgs[end]))
 }
 
+// flowWriteFlushClose uses flowWrite for each msg followed by a Flush
+// and finally Close.
 func flowWriteFlushClose(f flow.Flow, errCh chan<- error, msgs ...string) {
 	for _, msg := range msgs {
 		flowWrite(f, errCh, msg)
@@ -85,6 +95,8 @@ func flowWriteFlushClose(f flow.Flow, errCh chan<- error, msgs ...string) {
 	f.Close()
 }
 
+// flowWriteMsgAndClose uses the WriteMsgAndClose method to write all
+// msgs in one operation.
 func flowWriteMsgAndClose(f flow.Flow, errCh chan<- error, msgs ...string) {
 	f.WriteMsgAndClose(asByteSlice(msgs)...)
 }
@@ -115,15 +127,27 @@ func assertNoErrors(t *testing.T, depth int, errCh <-chan error) {
 	}
 }
 
+func assertBufferReset(depth int, bf *BufferingFlow) error {
+	_, _, line, _ := runtime.Caller(depth + 1)
+	if bf.buf != nil {
+		return fmt.Errorf("line: %v, buffer not reset", line)
+	}
+	if bf.nBuf.bufPtr != nil || bf.nBuf.pool != 0 {
+		return fmt.Errorf("line: %v, netBuf not reset", line)
+	}
+	return nil
+}
+
 func bufferingFlowTestRunner(t *testing.T, ctx *context.T, f flow.Flow, accept <-chan flow.Flow, writer func(flow.Flow, chan<- error, ...string), msgs ...string) <-chan []byte {
-	errCh := make(chan error, 2)
+	errCh := make(chan error, 4)
 	msgCh := make(chan []byte, 1000)
 
 	var wg sync.WaitGroup
 	wg.Add(2)
 
+	bf := NewBufferingFlow(ctx, f)
 	go func() {
-		writer(NewBufferingFlow(ctx, f), errCh, msgs...)
+		writer(bf, errCh, msgs...)
 		wg.Done()
 	}()
 	go flowEcho(&wg, <-accept, msgCh, errCh)
@@ -131,7 +155,9 @@ func bufferingFlowTestRunner(t *testing.T, ctx *context.T, f flow.Flow, accept <
 	wg.Wait()
 	close(errCh)
 	assertNoErrors(t, 1, errCh)
-
+	if err := assertBufferReset(1, bf); err != nil {
+		t.Fatal(err)
+	}
 	close(msgCh)
 	return msgCh
 }
@@ -184,6 +210,75 @@ func TestBufferingFlow(t *testing.T) {
 	expectedMessages(t, msgCh, strings.Repeat("ab", 8),
 		strings.Repeat("ab", 2), strings.Repeat("cd", 8), strings.Repeat("cd", 2), strings.Repeat("ef", 8),
 		strings.Repeat("ef", 2))
+
+	ac.Close(ctx, nil)
+	dc.Close(ctx, nil)
+	<-ac.Closed()
+	<-dc.Closed()
+}
+
+type writeErrorFlow struct {
+	*flw
+}
+
+func (ef *writeErrorFlow) Write([]byte) (int, error) {
+	return 0, fmt.Errorf("write")
+}
+
+func (ef *writeErrorFlow) WriteMsg(...[]byte) (int, error) {
+	return 0, fmt.Errorf("writeMsg")
+}
+
+func (ef *writeErrorFlow) WriteMsgAndClose(...[]byte) (int, error) {
+	return 0, fmt.Errorf("writeMsgAndClose")
+}
+
+func (ef *writeErrorFlow) Flush() error {
+	return fmt.Errorf("flush")
+}
+
+func TestBufferingFlowErrors(t *testing.T) {
+	ctx, shutdown := test.V23Init()
+	defer shutdown()
+
+	flows, _, dc, ac := setupFlowsOpts(t, "local", "", ctx, ctx, true, 1, Opts{MTU: 2})
+
+	var err error
+	var bf *BufferingFlow
+
+	assertReset := func(errmsg string) {
+		_, _, line, _ := runtime.Caller(1)
+		if nerr := assertBufferReset(1, bf); err == nil || err.Error() != errmsg || nerr != nil {
+			t.Fatalf("line: %v, missing/incorrect error: (%q), or buffer not reset correctly on error: %v", line, err, nerr)
+		}
+	}
+
+	wf := &writeErrorFlow{flw: flows[0].(*flw)}
+	bf = NewBufferingFlow(ctx, wf)
+	_, err = bf.Write([]byte{'1', '2'})
+	assertReset("write")
+
+	bf = NewBufferingFlow(ctx, wf)
+	_, err = bf.WriteMsg([]byte{'1', '2'})
+	assertReset("write")
+
+	bf = NewBufferingFlow(ctx, wf)
+	_, err = bf.WriteMsgAndClose([]byte{'1', '2'})
+	assertReset("writeMsgAndClose")
+
+	bf = NewBufferingFlow(ctx, wf)
+	if _, err := bf.Write([]byte{'x'}); err != nil {
+		t.Fatal(err)
+	}
+	_, err = bf.WriteMsgAndClose([]byte{'2'})
+	assertReset("write")
+
+	bf = NewBufferingFlow(ctx, wf)
+	if _, err := bf.Write([]byte{'x'}); err != nil {
+		t.Fatal(err)
+	}
+	err = bf.Flush()
+	assertReset("write")
 
 	ac.Close(ctx, nil)
 	dc.Close(ctx, nil)

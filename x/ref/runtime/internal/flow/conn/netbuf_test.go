@@ -6,7 +6,7 @@ package conn
 
 import "testing"
 
-func TestBufPools(t *testing.T) {
+func TestNetBufs(t *testing.T) {
 	large := make([]byte, ciphertextBufferSize*2)
 	for i, tc := range []struct {
 		request, cap, pool int
