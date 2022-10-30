@@ -21,7 +21,6 @@ type MTUer interface {
 // fragment a single payload over multiple writes to that channel.
 type BufferingFlow struct {
 	flow.Flow
-	lf  *flw
 	mtu int
 
 	mu   sync.Mutex
@@ -37,10 +36,6 @@ func NewBufferingFlow(ctx *context.T, f flow.Flow) *BufferingFlow {
 	}
 	if m, ok := f.Conn().(MTUer); ok {
 		b.mtu = int(m.MTU())
-	}
-
-	if lf, ok := f.(*flw); ok {
-		b.lf = lf
 	}
 	return b
 }
@@ -80,39 +75,17 @@ func (b *BufferingFlow) appendLocked(data []byte) (int, error) {
 		b.buf = append(b.buf, data...)
 		return l, nil
 	}
-	_, err := b.writeLocked(false, b.buf)
+	_, err := b.Flow.Write(b.buf)
 	b.buf = b.buf[:0]
 	b.buf = append(b.buf, data...)
 	return l, err
-}
-
-func (b *BufferingFlow) writeLocked(alsoClose bool, data []byte) (int, error) {
-	if b.lf != nil {
-		return b.lf.write(alsoClose, data)
-	}
-	if alsoClose {
-		return b.Flow.WriteMsgAndClose(data)
-	} else {
-		return b.Flow.Write(data)
-	}
-}
-
-func (b *BufferingFlow) writeMsgLocked(alsoClose bool, data [][]byte) (int, error) {
-	if b.lf != nil {
-		return b.lf.writeMsg(alsoClose, data)
-	}
-	if alsoClose {
-		return b.Flow.WriteMsgAndClose(data...)
-	} else {
-		return b.Flow.WriteMsg(data...)
-	}
 }
 
 // Close flushes the already written data and then closes the underlying Flow.
 func (b *BufferingFlow) Close() error {
 	b.mu.Lock()
 	defer b.mu.Unlock()
-	_, err := b.writeLocked(true, b.buf)
+	_, err := b.Flow.WriteMsgAndClose(b.buf)
 	b.reset()
 	return err
 }
@@ -122,11 +95,11 @@ func (b *BufferingFlow) WriteMsgAndClose(data ...[]byte) (int, error) {
 	defer b.mu.Unlock()
 	b.mu.Lock()
 	if len(b.buf) > 0 {
-		if _, err := b.writeLocked(false, b.buf); err != nil {
+		if _, err := b.Flow.Write(b.buf); err != nil {
 			return 0, b.handleError(err)
 		}
 	}
-	n, err := b.writeMsgLocked(true, data)
+	n, err := b.Flow.WriteMsgAndClose(data...)
 	b.reset()
 	return n, err
 }
@@ -135,7 +108,7 @@ func (b *BufferingFlow) WriteMsgAndClose(data ...[]byte) (int, error) {
 func (b *BufferingFlow) Flush() error {
 	b.mu.Lock()
 	defer b.mu.Unlock()
-	_, err := b.writeLocked(false, b.buf)
+	_, err := b.Flow.Write(b.buf)
 	b.buf = b.buf[:0]
 	return b.handleError(err)
 }
