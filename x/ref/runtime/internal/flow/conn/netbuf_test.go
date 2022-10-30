@@ -28,18 +28,14 @@ func TestNetBufs(t *testing.T) {
 		if got, want := nb.pool, tc.pool; got != want {
 			t.Errorf("%v: got %v, want %v", i, got, want)
 		}
-		if differentUnderlyingStorage(*nb.bufPtr, b) {
+		if differentUnderlyingStorage(nb.buf, b) {
 			t.Errorf("%v: should share the same underlying storage", i)
 		}
-		orbuf := nb.bufPtr
 		b = append(b, large...)
-		if sameUnderlyingStorage(*nb.bufPtr, b) {
+		if sameUnderlyingStorage(nb.buf, b) {
 			t.Errorf("%v: should not share the same underlying storage", i)
 		}
-		if got, want := nb.bufPtr, orbuf; got != want {
-			t.Errorf("%v: got %v, want %v", i, got, want)
-		}
 		nb = putNetBuf(nb)
-		putNetBuf(nb) // safe to call putNetBuf on nb if nb is empty.
+		putNetBuf(nb) // safe to call putNetBuf on nb if nb is nil.
 	}
 }

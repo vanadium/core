@@ -33,11 +33,14 @@ var (
 
 func init() {
 	netBufPools = make([]sync.Pool, len(netBufPoolSizes))
-	for i, size := range netBufPoolSizes {
+	for pool, size := range netBufPoolSizes {
+		pool := pool
 		size := size
-		netBufPools[i].New = func() interface{} {
-			b := make([]byte, size)
-			return &b
+		netBufPools[pool].New = func() interface{} {
+			return &netBuf{
+				buf:  make([]byte, size),
+				pool: pool,
+			}
 		}
 	}
 }
@@ -52,47 +55,42 @@ func init() {
 //	  ... use buf ...
 //	putNetBuf(netBuf)
 type netBuf struct {
-	bufPtr *[]byte
-	pool   int // a heap allocated buffer has pool set to -1.
+	buf  []byte
+	pool int // a heap allocated buffer has pool set to -1.
 }
 
 // getNetBuf returns a new instance of netBuf with a buffer allocated either
 // via a sync.Pool or the heap depending on its size. Regardless of whether
 // the returned byte slice is extended the returned netBuf must be returned
 // using putNetBuf.
-func getNetBuf(size int) (netBuf, []byte) {
+func getNetBuf(size int) (*netBuf, []byte) {
 	for i, s := range netBufPoolSizes {
 		if size <= s {
-			b := netBufPools[i].Get().(*[]byte)
-			bd := netBuf{
-				bufPtr: b,
-				pool:   i,
-			}
-			return bd, *b
+			nb := netBufPools[i].Get().(*netBuf)
+			return nb, nb.buf
 		}
 	}
-	buf := make([]byte, size)
-	bd := netBuf{
-		bufPtr: &buf,
-		pool:   -1,
+	nb := &netBuf{
+		buf:  make([]byte, size),
+		pool: -1,
 	}
-	return bd, buf
+	return nb, nb.buf
 }
 
 // putNetBuf ensures that buffers obtained from a sync.Pool are returned to
-// the appropriate pool. putNetBuf returns an empty netBuf that should be
+// the appropriate pool. putNetBuf returns a nil netBuf that should be
 // assigned to any variable/field containing the netBuf being returned to
 // reduce the risk of returning the same buffer more than once. Returning the
 // same buffer may result in the same buffer being returned by getNetBuf
 // multiple times since sync.Pools have this property.
-func putNetBuf(bd netBuf) netBuf {
-	if bd.pool == -1 {
-		return netBuf{}
+func putNetBuf(bd *netBuf) *netBuf {
+	if bd == nil || bd.pool == -1 {
+		return nil
 	}
-	if bd.bufPtr != nil {
-		netBufPools[bd.pool].Put(bd.bufPtr)
+	if bd != nil {
+		netBufPools[bd.pool].Put(bd)
 	}
-	return netBuf{}
+	return nil
 }
 
 // sameUnderlyingStorage returns true if x and y share the same underlying
