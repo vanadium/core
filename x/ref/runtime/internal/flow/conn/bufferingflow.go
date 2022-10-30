@@ -114,7 +114,7 @@ func (b *BufferingFlow) Close() error {
 	_, err := b.writeLocked(true, b.buf)
 	b.nBuf = putNetBuf(b.nBuf)
 	b.buf = nil
-	return b.handleError(err)
+	return err
 }
 
 // WriteMsgAndClose writes all buffered data and closes the underlying Flow.
@@ -141,6 +141,9 @@ func (b *BufferingFlow) Flush() error {
 }
 
 func (b *BufferingFlow) handleError(err error) error {
+	if err == nil {
+		return nil
+	}
 	b.nBuf = putNetBuf(b.nBuf)
 	b.buf = nil
 	return err
