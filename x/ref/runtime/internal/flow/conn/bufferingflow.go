@@ -24,9 +24,9 @@ type BufferingFlow struct {
 	lf  *flw
 	mtu int
 
-	mu   sync.Mutex
-	nBuf netBuf
-	buf  []byte
+	mu      sync.Mutex
+	storage [DefaultMTU]byte
+	buf     []byte
 }
 
 // NewBufferingFlow creates a new instance of BufferingFlow.
@@ -38,82 +38,67 @@ func NewBufferingFlow(ctx *context.T, f flow.Flow) *BufferingFlow {
 	if m, ok := f.Conn().(MTUer); ok {
 		b.mtu = int(m.MTU())
 	}
-
+	b.buf = b.storage[:0]
 	if lf, ok := f.(*flw); ok {
 		b.lf = lf
 	}
 	return b
 }
 
-// Write buffers data until the underlying channel's MTU is reached at which point
-// it will write any buffered data and buffer the newly supplied data.
+// Write buffers data until the underlying channels MTU is reached at which point
+// it calls Write on the wrapped Flow.
 func (b *BufferingFlow) Write(data []byte) (int, error) {
 	b.mu.Lock()
 	defer b.mu.Unlock()
-	n, err := b.appendLocked(data)
-	return n, b.handleError(err)
+	return b.writeLocked(data)
 }
 
-// WriteMsg buffers data until the underlying channel's MTU is reached at which point
-// it will write any buffered data and buffer the newly supplied data.
+func (b *BufferingFlow) write(data []byte) (int, error) {
+	if b.lf != nil {
+		return b.lf.Write(b.buf)
+	}
+	return b.Flow.Write(b.buf)
+}
+
+func (b *BufferingFlow) writeLocked(data []byte) (int, error) {
+	l := len(data)
+	if len(b.buf)+l < b.mtu {
+		b.buf = append(b.buf, data...)
+		return l, nil
+	}
+	_, err := b.write(b.buf)
+	b.buf = b.storage[:0]
+	b.buf = append(b.buf, data...)
+	return l, err
+}
+
+// WriteMsg buffers data until the underlying channels MTU is reached at which point
+// it calls WriteMsg on the wrapped Flow.
 func (b *BufferingFlow) WriteMsg(data ...[]byte) (int, error) {
 	b.mu.Lock()
 	defer b.mu.Unlock()
 	wrote := 0
 	for _, d := range data {
-		n, err := b.appendLocked(d)
+		n, err := b.writeLocked(d)
 		wrote += n
 		if err != nil {
-			return wrote, b.handleError(err)
+			return wrote, err
 		}
 	}
 	return wrote, nil
-}
-
-func (b *BufferingFlow) appendLocked(data []byte) (int, error) {
-	l := len(data)
-	if b.buf == nil {
-		b.nBuf, b.buf = getNetBuf(b.mtu)
-		b.buf = b.buf[:0]
-	}
-	if len(b.buf)+l < b.mtu {
-		b.buf = append(b.buf, data...)
-		return l, nil
-	}
-	_, err := b.writeLocked(false, b.buf)
-	b.buf = b.buf[:0]
-	b.buf = append(b.buf, data...)
-	return l, err
-}
-
-func (b *BufferingFlow) writeLocked(alsoClose bool, data []byte) (int, error) {
-	if b.lf != nil {
-		return b.lf.write(alsoClose, data)
-	}
-	if alsoClose {
-		return b.Flow.WriteMsgAndClose(data)
-	} else {
-		return b.Flow.Write(data)
-	}
-}
-
-func (b *BufferingFlow) writeMsgLocked(alsoClose bool, data [][]byte) (int, error) {
-	if b.lf != nil {
-		return b.lf.writeMsg(alsoClose, data)
-	}
-	if alsoClose {
-		return b.Flow.WriteMsgAndClose(data...)
-	} else {
-		return b.Flow.WriteMsg(data...)
-	}
 }
 
 // Close flushes the already written data and then closes the underlying Flow.
 func (b *BufferingFlow) Close() error {
 	b.mu.Lock()
 	defer b.mu.Unlock()
-	_, err := b.writeLocked(true, b.buf)
-	b.reset()
+	var err error
+	if b.lf != nil {
+		_, err = b.lf.WriteMsgAndClose(b.buf)
+	} else {
+		_, err = b.Flow.WriteMsgAndClose(b.buf)
+	}
+	b.buf = b.storage[:0]
 	return err
 }
 
@@ -121,34 +106,18 @@ func (b *BufferingFlow) Close() error {
 func (b *BufferingFlow) WriteMsgAndClose(data ...[]byte) (int, error) {
 	defer b.mu.Unlock()
 	b.mu.Lock()
-	if len(b.buf) > 0 {
-		if _, err := b.writeLocked(false, b.buf); err != nil {
-			return 0, b.handleError(err)
-		}
+	wrote, err := b.WriteMsg(data...)
+	if err != nil {
+		return wrote, err
 	}
-	n, err := b.writeMsgLocked(true, data)
-	b.reset()
-	return n, err
+	return wrote, b.Close()
 }
 
 // Flush writes all buffered data to the underlying Flow.
 func (b *BufferingFlow) Flush() error {
 	b.mu.Lock()
 	defer b.mu.Unlock()
-	_, err := b.writeLocked(false, b.buf)
-	b.buf = b.buf[:0]
-	return b.handleError(err)
-}
-
-func (b *BufferingFlow) reset() {
-	b.nBuf = putNetBuf(b.nBuf)
-	b.buf = nil
-}
-
-func (b *BufferingFlow) handleError(err error) error {
-	if err == nil {
-		return nil
-	}
-	b.reset()
+	_, err := b.write(b.buf)
+	b.buf = b.storage[:0]
 	return err
 }
