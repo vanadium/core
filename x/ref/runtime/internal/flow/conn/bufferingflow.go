@@ -38,6 +38,7 @@ func NewBufferingFlow(ctx *context.T, f flow.Flow) *BufferingFlow {
 	if m, ok := f.Conn().(MTUer); ok {
 		b.mtu = int(m.MTU())
 	}
+
 	if lf, ok := f.(*flw); ok {
 		b.lf = lf
 	}
@@ -62,7 +63,7 @@ func (b *BufferingFlow) WriteMsg(data ...[]byte) (int, error) {
 		n, err := b.appendLocked(d)
 		wrote += n
 		if err != nil {
-			return wrote, err
+			return wrote, b.handleError(err)
 		}
 	}
 	return wrote, nil
@@ -113,7 +114,7 @@ func (b *BufferingFlow) Close() error {
 	_, err := b.writeLocked(true, b.buf)
 	b.nBuf = putNetBuf(b.nBuf)
 	b.buf = nil
-	return err
+	return b.handleError(err)
 }
 
 // WriteMsgAndClose writes all buffered data and closes the underlying Flow.
@@ -122,14 +123,12 @@ func (b *BufferingFlow) WriteMsgAndClose(data ...[]byte) (int, error) {
 	b.mu.Lock()
 	if len(b.buf) > 0 {
 		if _, err := b.writeLocked(false, b.buf); err != nil {
-			b.nBuf = putNetBuf(b.nBuf)
-			b.buf = nil
-			return 0, err
+			return 0, b.handleError(err)
 		}
 	}
 	n, err := b.writeMsgLocked(true, data)
 	b.buf = b.buf[:0]
-	return n, err
+	return n, b.handleError(err)
 }
 
 // Flush writes all buffered data to the underlying Flow.
@@ -138,5 +137,11 @@ func (b *BufferingFlow) Flush() error {
 	defer b.mu.Unlock()
 	_, err := b.writeLocked(false, b.buf)
 	b.buf = b.buf[:0]
+	return b.handleError(err)
+}
+
+func (b *BufferingFlow) handleError(err error) error {
+	b.nBuf = putNetBuf(b.nBuf)
+	b.buf = nil
 	return err
 }

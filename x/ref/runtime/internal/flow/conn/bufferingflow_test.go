@@ -44,6 +44,28 @@ func flowWrite(f flow.Flow, errCh chan<- error, msgs ...string) {
 	}
 }
 
+func asByteSlice(msgs []string) [][]byte {
+	data := make([][]byte, len(msgs))
+	for i := range msgs {
+		data[i] = []byte(msgs[i])
+	}
+	return data
+}
+
+func flowWriteMsgThenClose(f flow.Flow, errCh chan<- error, msgs ...string) {
+	bs := asByteSlice(msgs)
+	s := totalSize(bs)
+	n, err := f.WriteMsg(bs...)
+	if err != nil {
+		errCh <- err
+		return
+	}
+	if got, want := n, s; got != want {
+		errCh <- fmt.Errorf("got %v, want %v", got, want)
+	}
+	f.Close()
+}
+
 func flowWriteThenClose(f flow.Flow, errCh chan<- error, msgs ...string) {
 	flowWrite(f, errCh, msgs...)
 	f.Close()
@@ -64,11 +86,7 @@ func flowWriteFlushClose(f flow.Flow, errCh chan<- error, msgs ...string) {
 }
 
 func flowWriteMsgAndClose(f flow.Flow, errCh chan<- error, msgs ...string) {
-	data := make([][]byte, len(msgs))
-	for i := range msgs {
-		data[i] = []byte(msgs[i])
-	}
-	f.WriteMsgAndClose(data...)
+	f.WriteMsgAndClose(asByteSlice(msgs)...)
 }
 
 func expectedMessages(t *testing.T, msgCh <-chan []byte, expected ...string) {
@@ -122,7 +140,7 @@ func TestBufferingFlow(t *testing.T) {
 	ctx, shutdown := test.V23Init()
 	defer shutdown()
 
-	flows, accept, dc, ac := setupFlowsOpts(t, "local", "", ctx, ctx, true, 6, Opts{MTU: 16})
+	flows, accept, dc, ac := setupFlowsOpts(t, "local", "", ctx, ctx, true, 8, Opts{MTU: 16})
 
 	// Series of writes followed by a close.
 	msgCh := bufferingFlowTestRunner(t, ctx, flows[0], accept, flowWriteThenClose,
@@ -154,6 +172,18 @@ func TestBufferingFlow(t *testing.T) {
 		strings.Repeat("ab", 6), strings.Repeat("cd", 6), strings.Repeat("ef", 6))
 	expectedMessages(t, msgCh, strings.Repeat("ab", 6)+strings.Repeat("cd", 2),
 		strings.Repeat("cd", 4)+strings.Repeat("ef", 4), strings.Repeat("ef", 2))
+
+	// A call to WriteMsg and then a call to Close.
+	msgCh = bufferingFlowTestRunner(t, ctx, flows[6], accept, flowWriteMsgThenClose,
+		strings.Repeat("ab", 6), strings.Repeat("cd", 6), strings.Repeat("ef", 6))
+	expectedMessages(t, msgCh, strings.Repeat("ab", 6),
+		strings.Repeat("cd", 6), strings.Repeat("ef", 6))
+
+	msgCh = bufferingFlowTestRunner(t, ctx, flows[7], accept, flowWriteMsgThenClose,
+		strings.Repeat("ab", 10), strings.Repeat("cd", 10), strings.Repeat("ef", 10))
+	expectedMessages(t, msgCh, strings.Repeat("ab", 8),
+		strings.Repeat("ab", 2), strings.Repeat("cd", 8), strings.Repeat("cd", 2), strings.Repeat("ef", 8),
+		strings.Repeat("ef", 2))
 
 	ac.Close(ctx, nil)
 	dc.Close(ctx, nil)
