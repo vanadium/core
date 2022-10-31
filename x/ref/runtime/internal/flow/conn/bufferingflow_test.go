@@ -5,6 +5,7 @@
 package conn
 
 import (
+	"bytes"
 	"fmt"
 	"io"
 	"runtime"
@@ -109,7 +110,7 @@ func expectedMessages(t *testing.T, msgCh <-chan []byte, expected ...string) {
 			t.Fatalf("line %v: %v: got unexpected msg: %v", line, i, string(msg))
 		}
 		if got, want := string(msg), expected[i]; got != want {
-			t.Fatalf("line %v: %v: got %v, want %v", line, i, got, want)
+			t.Fatalf("line %v: %v: got (%v):%v, want (%v):%v", line, i, len(got), got, len(want), want)
 		}
 		i++
 	}
@@ -132,7 +133,7 @@ func assertBufferReset(depth int, bf *BufferingFlow) error {
 	if bf.buf != nil {
 		return fmt.Errorf("line: %v, buffer not reset", line)
 	}
-	if bf.nBuf.bufPtr != nil || bf.nBuf.pool != 0 {
+	if bf.nBuf != nil {
 		return fmt.Errorf("line: %v, netBuf not reset", line)
 	}
 	return nil
@@ -170,51 +171,127 @@ func TestBufferingFlow(t *testing.T) {
 
 	// Series of writes followed by a close.
 	msgCh := bufferingFlowTestRunner(t, ctx, flows[0], accept, flowWriteThenClose,
-		"hello", " there", " world", " some more that ...should cause a flush")
-	expectedMessages(t, msgCh, "hello there", " world", " some more that ", "...should cause ", "a flush")
+		"hello",
+		" there",
+		" world",
+		" some more that ...should cause a flush")
+	expectedMessages(t, msgCh,
+		"hello there",
+		" world",
+		" some more that ",
+		"...should cause ",
+		"a flush")
 
 	msgCh = bufferingFlowTestRunner(t, ctx, flows[1], accept, flowWriteThenClose,
-		strings.Repeat("ab", 10), strings.Repeat("cd", 10))
-	expectedMessages(t, msgCh, strings.Repeat("ab", 8), strings.Repeat("ab", 2),
-		strings.Repeat("cd", 8), strings.Repeat("cd", 2))
+		strings.Repeat("ab", 10),
+		strings.Repeat("cd", 10))
+	expectedMessages(t, msgCh,
+		strings.Repeat("ab", 8),
+		strings.Repeat("ab", 2),
+		strings.Repeat("cd", 8),
+		strings.Repeat("cd", 2))
 
 	// Series of writes+flush followed by a close.
 	msgCh = bufferingFlowTestRunner(t, ctx, flows[2], accept, flowWriteFlushClose,
-		strings.Repeat("ab", 10), strings.Repeat("cd", 10))
-	expectedMessages(t, msgCh, strings.Repeat("ab", 8), strings.Repeat("ab", 2),
-		strings.Repeat("cd", 8), strings.Repeat("cd", 2))
+		strings.Repeat("ab", 10),
+		strings.Repeat("cd", 10))
+	expectedMessages(t, msgCh,
+		strings.Repeat("ab", 8),
+		strings.Repeat("ab", 2),
+		strings.Repeat("cd", 8),
+		strings.Repeat("cd", 2))
 
 	msgCh = bufferingFlowTestRunner(t, ctx, flows[3], accept, flowWriteFlushClose,
-		strings.Repeat("ab", 6), strings.Repeat("cd", 6))
-	expectedMessages(t, msgCh, strings.Repeat("ab", 6), strings.Repeat("cd", 6))
+		strings.Repeat("ab", 6),
+		strings.Repeat("cd", 6))
+	expectedMessages(t, msgCh,
+		strings.Repeat("ab", 6),
+		strings.Repeat("cd", 6))
 
 	// A series of writes followed by a writeAndClose.
 	msgCh = bufferingFlowTestRunner(t, ctx, flows[4], accept, flowWriteAndClose,
-		strings.Repeat("ab", 6), strings.Repeat("cd", 6), strings.Repeat("ef", 6))
-	expectedMessages(t, msgCh, strings.Repeat("ab", 6), strings.Repeat("cd", 6), strings.Repeat("ef", 6))
+		strings.Repeat("ab", 6),
+		strings.Repeat("cd", 6),
+		strings.Repeat("ef", 6))
+	expectedMessages(t, msgCh,
+		strings.Repeat("ab", 6),
+		strings.Repeat("cd", 6),
+		strings.Repeat("ef", 6))
 
 	// A single call to WriteMsgAndClose.
 	msgCh = bufferingFlowTestRunner(t, ctx, flows[5], accept, flowWriteMsgAndClose,
-		strings.Repeat("ab", 6), strings.Repeat("cd", 6), strings.Repeat("ef", 6))
-	expectedMessages(t, msgCh, strings.Repeat("ab", 6)+strings.Repeat("cd", 2),
-		strings.Repeat("cd", 4)+strings.Repeat("ef", 4), strings.Repeat("ef", 2))
+		strings.Repeat("ab", 6),
+		strings.Repeat("cd", 6),
+		strings.Repeat("ef", 6))
+	expectedMessages(t, msgCh,
+		strings.Repeat("ab", 6)+strings.Repeat("cd", 2),
+		strings.Repeat("cd", 4)+strings.Repeat("ef", 4),
+		strings.Repeat("ef", 2))
 
 	// A call to WriteMsg and then a call to Close.
 	msgCh = bufferingFlowTestRunner(t, ctx, flows[6], accept, flowWriteMsgThenClose,
-		strings.Repeat("ab", 6), strings.Repeat("cd", 6), strings.Repeat("ef", 6))
-	expectedMessages(t, msgCh, strings.Repeat("ab", 6),
-		strings.Repeat("cd", 6), strings.Repeat("ef", 6))
+		strings.Repeat("ab", 6),
+		strings.Repeat("cd", 6),
+		strings.Repeat("ef", 6))
+	expectedMessages(t, msgCh,
+		strings.Repeat("ab", 6),
+		strings.Repeat("cd", 6),
+		strings.Repeat("ef", 6))
 
 	msgCh = bufferingFlowTestRunner(t, ctx, flows[7], accept, flowWriteMsgThenClose,
-		strings.Repeat("ab", 10), strings.Repeat("cd", 10), strings.Repeat("ef", 10))
-	expectedMessages(t, msgCh, strings.Repeat("ab", 8),
-		strings.Repeat("ab", 2), strings.Repeat("cd", 8), strings.Repeat("cd", 2), strings.Repeat("ef", 8),
+		strings.Repeat("ab", 10),
+		strings.Repeat("cd", 10),
+		strings.Repeat("ef", 10))
+	expectedMessages(t, msgCh,
+		strings.Repeat("ab", 8),
+		strings.Repeat("ab", 2),
+		strings.Repeat("cd", 8),
+		strings.Repeat("cd", 2),
+		strings.Repeat("ef", 8),
 		strings.Repeat("ef", 2))
 
 	ac.Close(ctx, nil)
 	dc.Close(ctx, nil)
 	<-ac.Closed()
 	<-dc.Closed()
+}
+
+func TestBufferingFlowLarge(t *testing.T) {
+	ctx, shutdown := test.V23Init()
+	defer shutdown()
+
+	mtu := bufferingFlowInternalArraySize * 2
+	flows, accept, dc, ac := setupFlowsOpts(t, "local", "", ctx, ctx, true, 2, Opts{MTU: uint64(mtu)})
+
+	// Series of writes followed by a close but using buffers larger than the internal
+	// array of 4k to test assigning a new netBuf to replace that array.
+	msgCh := bufferingFlowTestRunner(t, ctx, flows[0], accept, flowWriteThenClose,
+		strings.Repeat("a", bufferingFlowInternalArraySize-1),
+		strings.Repeat("b", 10),
+		strings.Repeat("c", bufferingFlowInternalArraySize+1),
+		strings.Repeat("d", mtu+1))
+	expectedMessages(t, msgCh,
+		strings.Repeat("a", bufferingFlowInternalArraySize-1)+strings.Repeat("b", 10),
+		strings.Repeat("c", bufferingFlowInternalArraySize+1),
+		strings.Repeat("d", mtu),
+		strings.Repeat("d", 1))
+
+	msgCh = bufferingFlowTestRunner(t, ctx, flows[1], accept, flowWriteMsgThenClose,
+		strings.Repeat("a", bufferingFlowInternalArraySize-1),
+		strings.Repeat("b", 10),
+		strings.Repeat("c", bufferingFlowInternalArraySize+1),
+		strings.Repeat("d", mtu+1))
+	expectedMessages(t, msgCh,
+		strings.Repeat("a", bufferingFlowInternalArraySize-1)+strings.Repeat("b", 10),
+		strings.Repeat("c", bufferingFlowInternalArraySize+1),
+		strings.Repeat("d", mtu),
+		strings.Repeat("d", 1))
+
+	ac.Close(ctx, nil)
+	dc.Close(ctx, nil)
+	<-ac.Closed()
+	<-dc.Closed()
+
 }
 
 type writeErrorFlow struct {
@@ -260,6 +337,11 @@ func TestBufferingFlowErrors(t *testing.T) {
 
 	bf = NewBufferingFlow(ctx, wf)
 	_, err = bf.WriteMsg([]byte{'1', '2'})
+	assertReset("write")
+
+	bf = NewBufferingFlow(ctx, wf)
+	bf.Write([]byte{'1'}) // make sure there is some buffered data before the larger write.
+	_, err = bf.Write(bytes.Repeat([]byte{'b'}, bufferingFlowInternalArraySize+1))
 	assertReset("write")
 
 	bf = NewBufferingFlow(ctx, wf)
