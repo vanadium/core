@@ -275,7 +275,7 @@ func (f *flw) writeMsg(alsoClose bool, parts [][]byte) (sent int, err error) {
 		f.flowControl.returnTokensLocked(ctx, borrowed, avail-size)
 		f.flowControl.unlockForTokens()
 
-		if err := f.handleOpenFlow(ctx, alsoClose, len(parts) == 0, tosend); err != nil {
+		if err := f.sendOpenFlow(ctx, alsoClose, len(parts) == 0, tosend); err != nil {
 			return f.writeMsgDone(ctx, sent, alsoClose, err)
 		}
 
@@ -301,7 +301,7 @@ func (f *flw) messageFlags(alsoClose, finalPart bool) uint64 {
 	return flags
 }
 
-func (f *flw) handleOpenFlow(ctx *context.T, alsoClose, finalPart bool, payload [][]byte) error {
+func (f *flw) sendOpenFlow(ctx *context.T, alsoClose, finalPart bool, payload [][]byte) error {
 	bkey, dkey, err := f.conn.blessingsFlow.send(ctx, f.localBlessings, f.localDischarges, nil)
 	if err != nil {
 		return err
