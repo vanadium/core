@@ -17,6 +17,7 @@ import (
 
 	"v.io/v23/context"
 	"v.io/x/ref/test"
+	"v.io/x/ref/test/goroutines"
 )
 
 type writeqEntry struct {
@@ -179,6 +180,7 @@ func TestWriteqLists(t *testing.T) {
 }
 
 func TestWriteqErrors(t *testing.T) {
+	defer goroutines.NoLeaks(t, leakWaitTime)()
 	wq := &writeq{}
 	fe1, fe2, fe3 := newEntry(), newEntry(), newEntry()
 	wq.wait(nil, &fe1.writer, expressPriority)
