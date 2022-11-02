@@ -38,7 +38,6 @@ func flowEcho(wg *sync.WaitGroup, f flow.Flow, msgCh chan<- []byte, errCh chan<-
 func flowWrite(f flow.Flow, errCh chan<- error, msgs ...string) {
 	for i, m := range msgs {
 		n, err := f.Write([]byte(m))
-		fmt.Printf("wrote: %v ... buf len %v\n", n, len(m))
 		if err != nil {
 			errCh <- err
 			return
