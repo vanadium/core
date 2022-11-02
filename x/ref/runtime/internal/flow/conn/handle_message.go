@@ -57,8 +57,6 @@ func (c *Conn) handleData(ctx *context.T, msg message.Data) error {
 	}
 	c.mu.Unlock()
 
-	// received data messages always have a single payload.
-
 	if err := f.q.put(ctx, msg.Payload); err != nil {
 		return err
 	}
@@ -104,7 +102,6 @@ func (c *Conn) handleOpenFlow(ctx *context.T, msg message.OpenFlow) error {
 
 	c.handler.HandleFlow(f) //nolint:errcheck
 
-	// received openFlow messages always have a single payload.
 	if err := f.q.put(ctx, msg.Payload); err != nil {
 		return err
 	}
