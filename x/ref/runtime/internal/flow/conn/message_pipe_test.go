@@ -184,7 +184,7 @@ func runMany(ctx *context.T, dialedPipe, acceptedPipe *messagePipe, rxbuf, paylo
 			if len(payload) > DefaultMTU {
 				payload = payload[:DefaultMTU]
 			}
-			msg := message.Data{ID: 1123, Payload: [][]byte{payload}}
+			msg := message.Data{ID: 1123, Payload: payload}
 			err := dialedPipe.writeData(ctx, msg)
 			if err != nil {
 				errCh <- err
@@ -203,7 +203,7 @@ func runMany(ctx *context.T, dialedPipe, acceptedPipe *messagePipe, rxbuf, paylo
 				return
 			}
 			m = m.Copy()
-			received = append(received, m.(message.Data).Payload[0]...)
+			received = append(received, m.(message.Data).Payload...)
 			if len(received) == len(payload) {
 				break
 			}
@@ -254,12 +254,12 @@ func testMessages(t *testing.T) []message.Message {
 			BlessingsKey:    42,
 			DischargeKey:    55,
 			Flags:           message.CloseFlag,
-			Payload:         [][]byte{[]byte("fake payload")},
+			Payload:         []byte("fake payload"),
 		},
 		message.OpenFlow{ID: 23, InitialCounters: 1 << 20, BlessingsKey: 42, DischargeKey: 55},
 		message.OpenFlow{ID: 23, Flags: message.DisableEncryptionFlag,
 			InitialCounters: 1 << 18, BlessingsKey: 42, DischargeKey: 55,
-			Payload: [][]byte{[]byte("fake payload")},
+			Payload: []byte("fake payload"),
 		},
 
 		message.Setup{Versions: version.RPCVersionRange{Min: 3, Max: 5}},
@@ -275,12 +275,12 @@ func testMessages(t *testing.T) []message.Message {
 			Mtu:          1 << 16,
 			SharedTokens: 1 << 20,
 		},
-		message.Data{ID: 1123, Flags: message.CloseFlag, Payload: [][]byte{[]byte("fake payload")}},
-		message.Data{ID: 1123, Flags: message.CloseFlag, Payload: [][]byte{largePayload}},
+		message.Data{ID: 1123, Flags: message.CloseFlag, Payload: []byte("fake payload")},
+		message.Data{ID: 1123, Flags: message.CloseFlag, Payload: largePayload},
 
 		message.Data{},
-		message.Data{ID: 1123, Flags: message.DisableEncryptionFlag, Payload: [][]byte{[]byte("fake payload")}},
-		message.Data{ID: 1123, Flags: message.DisableEncryptionFlag, Payload: [][]byte{largePayload}},
+		message.Data{ID: 1123, Flags: message.DisableEncryptionFlag, Payload: []byte("fake payload")},
+		message.Data{ID: 1123, Flags: message.DisableEncryptionFlag, Payload: largePayload},
 	}
 }
 
@@ -355,7 +355,7 @@ func messageRoundTrip(t *testing.T, ctx *context.T, dialed, accepted *messagePip
 	}
 }
 
-func runMessagePipeBenchmark(b *testing.B, ctx *context.T, dialed, accepted *messagePipe, rxbuf []byte, payload [][]byte) {
+func runMessagePipeBenchmark(b *testing.B, ctx *context.T, dialed, accepted *messagePipe, rxbuf []byte, payload []byte) {
 	errCh := make(chan error, 1)
 
 	msg := message.Data{ID: 1123, Payload: payload}
@@ -411,12 +411,10 @@ func benchmarkMessagePipe(b *testing.B, allowFramerBypass bool, size int, userxb
 		b.Fatal(err)
 	}
 
-	pl := [][]byte{payload}
-
 	b.ReportAllocs()
 	b.ResetTimer()
 	b.SetBytes(int64(size) * 2)
-	runMessagePipeBenchmark(b, ctx, dialed, accepted, rxbuf, pl)
+	runMessagePipeBenchmark(b, ctx, dialed, accepted, rxbuf, payload)
 }
 
 func BenchmarkMessagePipe__RPC11__NewBuf__UseFramer____1KB(b *testing.B) {

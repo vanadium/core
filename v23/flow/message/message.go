@@ -459,7 +459,7 @@ type OpenFlow struct {
 	InitialCounters            uint64
 	BlessingsKey, DischargeKey uint64
 	Flags                      uint64
-	Payload                    [][]byte
+	Payload                    []byte
 	nocopy                     bool
 }
 
@@ -470,10 +470,8 @@ func (m OpenFlow) Append(ctx *context.T, data []byte) ([]byte, error) {
 	data = writeVarUint64(m.BlessingsKey, data)
 	data = writeVarUint64(m.DischargeKey, data)
 	data = writeVarUint64(m.Flags, data)
-	if m.Flags&DisableEncryptionFlag == 0 {
-		for _, p := range m.Payload {
-			data = append(data, p...)
-		}
+	if m.Flags&DisableEncryptionFlag == 0 && len(m.Payload) > 0 {
+		data = append(data, m.Payload...)
 	}
 	return data, nil
 }
@@ -483,7 +481,6 @@ func (m OpenFlow) Read(ctx *context.T, orig []byte) (Message, error) {
 }
 
 func (m OpenFlow) ReadDirect(ctx *context.T, orig []byte) (OpenFlow, error) {
-
 	var (
 		data  []byte
 		valid bool
@@ -506,8 +503,9 @@ func (m OpenFlow) ReadDirect(ctx *context.T, orig []byte) (OpenFlow, error) {
 	if m.Flags, data, valid = readVarUint64(data); !valid {
 		return OpenFlow{}, NewErrInvalidMsg(ctx, DataType, uint64(len(orig)), 1, nil)
 	}
+	m.Payload = nil
 	if m.Flags&DisableEncryptionFlag == 0 && len(data) > 0 {
-		m.Payload = [][]byte{data}
+		m.Payload = data
 	}
 	return m, nil
 }
@@ -516,9 +514,7 @@ func (m OpenFlow) Copy() Message {
 	if m.nocopy {
 		return m
 	}
-	for i, v := range m.Payload {
-		m.Payload[i] = copyBytes(v)
-	}
+	m.Payload = copyBytes(m.Payload)
 	return m
 }
 
@@ -530,13 +526,12 @@ func (m OpenFlow) SetNoCopy(nocopy bool) OpenFlow {
 }
 
 func (m OpenFlow) String() string {
-	return fmt.Sprintf("ID:%d InitialCounters:%d BlessingsKey:0x%x DischargeKey:0x%x Flags:0x%x Payload:(%d bytes in %d slices)",
+	return fmt.Sprintf("ID:%d InitialCounters:%d BlessingsKey:0x%x DischargeKey:0x%x Flags:0x%x Payload:(%d bytes)",
 		m.ID,
 		m.InitialCounters,
 		m.BlessingsKey,
 		m.DischargeKey,
 		m.Flags,
-		payloadSize(m.Payload),
 		len(m.Payload))
 }
 
@@ -595,7 +590,7 @@ func (m Release) String() string {
 type Data struct {
 	ID      uint64
 	Flags   uint64
-	Payload [][]byte
+	Payload []byte
 	nocopy  bool
 }
 
@@ -603,10 +598,8 @@ func (m Data) Append(ctx *context.T, data []byte) ([]byte, error) {
 	data = append(data, DataType)
 	data = writeVarUint64(m.ID, data)
 	data = writeVarUint64(m.Flags, data)
-	if m.Flags&DisableEncryptionFlag == 0 {
-		for _, p := range m.Payload {
-			data = append(data, p...)
-		}
+	if m.Flags&DisableEncryptionFlag == 0 && len(m.Payload) > 0 {
+		data = append(data, m.Payload...)
 	}
 	return data, nil
 }
@@ -626,7 +619,7 @@ func (m Data) ReadDirect(ctx *context.T, orig []byte) (Data, error) {
 	}
 	m.Payload = nil
 	if m.Flags&DisableEncryptionFlag == 0 && len(data) > 0 {
-		m.Payload = [][]byte{data}
+		m.Payload = data
 	}
 	return m, nil
 }
@@ -635,9 +628,7 @@ func (m Data) Copy() Message {
 	if m.nocopy {
 		return m
 	}
-	for i, v := range m.Payload {
-		m.Payload[i] = copyBytes(v)
-	}
+	m.Payload = copyBytes(m.Payload)
 	return m
 }
 
@@ -649,7 +640,7 @@ func (m Data) SetNoCopy(nocopy bool) Data {
 }
 
 func (m *Data) String() string {
-	return fmt.Sprintf("ID:%d Flags:0x%x Payload:(%d bytes in %d slices)", m.ID, m.Flags, payloadSize(m.Payload), len(m.Payload))
+	return fmt.Sprintf("ID:%d Flags:0x%x Payload:(%d bytess)", m.ID, m.Flags, len(m.Payload))
 }
 
 // MultiProxyRequest is sent when a proxy wants to accept connections from another proxy.
@@ -777,6 +768,9 @@ func (m HealthCheckResponse) Read(ctx *context.T, data []byte) (Message, error) 
 func (m HealthCheckResponse) Copy() Message { return m }
 
 func copyBytes(b []byte) []byte {
+	if len(b) == 0 {
+		return nil
+	}
 	cpy := make([]byte, len(b))
 	copy(cpy, b)
 	return cpy
@@ -907,12 +901,4 @@ func writeVarUint64(u uint64, buf []byte) []byte {
 			byte(u&0xff))
 	}
 	return buf
-}
-
-func payloadSize(payload [][]byte) int {
-	sz := 0
-	for _, p := range payload {
-		sz += len(p)
-	}
-	return sz
 }

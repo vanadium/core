@@ -169,9 +169,9 @@ func (p *messagePipe) writeCiphertext(ctx *context.T, fn serialize, size int) er
 
 // Handle plaintext payloads which are not serialized by message.Append
 // above and are instead written separately in the clear.
-func (p *messagePipe) handlePlaintextPayload(flags uint64, payload [][]byte) error {
+func (p *messagePipe) handlePlaintextPayload(flags uint64, payload []byte) error {
 	if flags&message.DisableEncryptionFlag != 0 {
-		if _, err := p.rw.WriteMsg(payload...); err != nil {
+		if _, err := p.rw.WriteMsg(payload); err != nil {
 			return err
 		}
 	}
@@ -186,7 +186,7 @@ func totalSize(parts [][]byte) (s int) {
 }
 
 func (p *messagePipe) writeData(ctx *context.T, m message.Data) error {
-	size := totalSize(m.Payload)
+	size := len(m.Payload)
 	p.writeMu.Lock()
 	defer p.writeMu.Unlock()
 	if err := p.writeCiphertext(ctx, m.Append, size); err != nil {
@@ -208,7 +208,7 @@ func (p *messagePipe) writeSetup(ctx *context.T, m message.Setup) error {
 }
 
 func (p *messagePipe) writeOpenFlow(ctx *context.T, m message.OpenFlow) error {
-	size := totalSize(m.Payload)
+	size := len(m.Payload)
 	p.writeMu.Lock()
 	defer p.writeMu.Unlock()
 	if err := p.writeCiphertext(ctx, m.Append, size); err != nil {
@@ -281,7 +281,7 @@ func (p *messagePipe) handleData(ctx *context.T, from []byte) (message.Data, err
 	if err != nil {
 		return m, err
 	}
-	m.Payload = [][]byte{payload}
+	m.Payload = payload
 	m = m.SetNoCopy(true)
 	return m, nil
 }
@@ -299,7 +299,7 @@ func (p *messagePipe) handleOpenFlow(ctx *context.T, from []byte) (message.OpenF
 	if err != nil {
 		return m, err
 	}
-	m.Payload = [][]byte{payload}
+	m.Payload = payload
 	m = m.SetNoCopy(true)
 	return m, nil
 }

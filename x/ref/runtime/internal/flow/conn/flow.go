@@ -174,7 +174,7 @@ func (f *flw) currentContext() *context.T {
 // to send the current message, and if there are none, it will wait until
 // some become available from the peer end of the connection via a release
 // message containing tokens for this flow.
-func (f *flw) ensureTokens(ctx *context.T, need int, parts [][]byte, tosend [][]byte) ([][]byte, [][]byte, int, error) {
+func (f *flw) ensureTokens(ctx *context.T, need int, parts [][]byte) ([][]byte, []byte, int, error) {
 
 	for {
 		// The critical region needs to capture both reading tokens and
@@ -185,7 +185,7 @@ func (f *flw) ensureTokens(ctx *context.T, need int, parts [][]byte, tosend [][]
 		f.flowControl.lockForTokens()
 		borrowed, borrowedNotification, avail := f.flowControl.getTokensLocked(ctx, f.encapsulated)
 		if avail >= need {
-			parts, tosend, size := popFront(parts, tosend[:0], avail)
+			parts, tosend, size := popFront(parts, avail)
 			f.flowControl.returnTokensLocked(ctx, borrowed, avail-size)
 			f.flowControl.unlockForTokens()
 			return parts, tosend, size, nil
@@ -230,7 +230,8 @@ func (f *flw) writeMsg(alsoClose bool, parts [][]byte) (sent int, err error) {
 	for _, p := range parts {
 		totalSize += len(p)
 	}
-	size, sent, tosend := 0, 0, make([][]byte, len(parts))
+	var tosend []byte
+	size, sent := 0, 0
 
 	f.markUsed()
 
@@ -256,7 +257,7 @@ func (f *flw) writeMsg(alsoClose bool, parts [][]byte) (sent int, err error) {
 		if wasOpened {
 			// Send a data message, possibly having to wait for flow control
 			// tokens before doing so.
-			parts, tosend, size, err = f.ensureTokens(ctx, need, parts, tosend)
+			parts, tosend, size, err = f.ensureTokens(ctx, need, parts)
 			if err != nil {
 				return f.writeMsgDone(ctx, sent, alsoClose, err)
 			}
@@ -271,11 +272,11 @@ func (f *flw) writeMsg(alsoClose bool, parts [][]byte) (sent int, err error) {
 		// message will always be sent, if it can't include a payload.
 		f.flowControl.lockForTokens()
 		borrowed, _, avail := f.flowControl.getTokensLocked(ctx, f.encapsulated)
-		parts, tosend, size = popFront(parts, tosend[:0], avail)
+		parts, tosend, size = popFront(parts, avail)
 		f.flowControl.returnTokensLocked(ctx, borrowed, avail-size)
 		f.flowControl.unlockForTokens()
 
-		if err := f.handleOpenFlow(ctx, alsoClose, len(parts) == 0, tosend); err != nil {
+		if err := f.sendOpenFlow(ctx, alsoClose, len(parts) == 0, tosend); err != nil {
 			return f.writeMsgDone(ctx, sent, alsoClose, err)
 		}
 
@@ -301,7 +302,7 @@ func (f *flw) messageFlags(alsoClose, finalPart bool) uint64 {
 	return flags
 }
 
-func (f *flw) handleOpenFlow(ctx *context.T, alsoClose, finalPart bool, payload [][]byte) error {
+func (f *flw) sendOpenFlow(ctx *context.T, alsoClose, finalPart bool, payload []byte) error {
 	bkey, dkey, err := f.conn.blessingsFlow.send(ctx, f.localBlessings, f.localDischarges, nil)
 	if err != nil {
 		return err
@@ -326,7 +327,7 @@ func (f *flw) handleOpenFlow(ctx *context.T, alsoClose, finalPart bool, payload 
 	})
 }
 
-func (f *flw) sendDataMessage(ctx *context.T, priority int, alsoClose, finalPart bool, payload [][]byte) error {
+func (f *flw) sendDataMessage(ctx *context.T, priority int, alsoClose, finalPart bool, payload []byte) error {
 	flags := f.messageFlags(alsoClose, finalPart)
 	if err := f.writeq.wait(ctx, &f.writeqEntry, priority); err != nil {
 		if ctx.V(2) {
@@ -514,18 +515,41 @@ func (f *flw) markUsed() {
 	}
 }
 
-// popFront removes the first num bytes from in and appends them to out
-// returning in, out, and the actual number of bytes appended.
-func popFront(in, out [][]byte, num int) ([][]byte, [][]byte, int) {
-	i, sofar := 0, 0
-	for i < len(in) && sofar < num {
-		i, sofar = i+1, sofar+len(in[i])
+func popFront(in [][]byte, num int) ([][]byte, []byte, int) {
+	nIn := len(in)
+	if nIn == 0 {
+		return nil, nil, 0
 	}
-	out = append(out, in[:i]...)
-	if excess := sofar - num; excess > 0 {
-		i, sofar = i-1, num
-		keep := len(out[i]) - excess
-		in[i], out[i] = in[i][keep:], out[i][:keep]
+	if l0 := len(in[0]); nIn == 1 {
+		// common case, so make it simple and fast.
+		if num >= l0 {
+			return in[1:], in[0], l0
+		}
+		return [][]byte{in[0][num:]}, in[0][:num], num
 	}
-	return in[i:], out, sofar
+	out := in[0]
+	i, total, offset := 0, 0, 0
+	for i < nIn {
+		li := len(in[i])
+		total += li
+		if total > num {
+			offset = li - (total - num)
+			total = num
+			if i > 0 {
+				out = append(out, in[i][:offset]...)
+			}
+			break
+		}
+		if i > 0 {
+			out = append(out, in[i]...)
+		}
+		i++
+	}
+	if i == nIn {
+		return nil, out[:total], total
+	}
+	rem := make([][]byte, nIn-i)
+	copy(rem, in[i:])
+	rem[0] = in[i][offset:]
+	return rem, out[:total], total
 }
