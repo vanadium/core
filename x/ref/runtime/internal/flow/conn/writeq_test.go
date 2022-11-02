@@ -17,6 +17,7 @@ import (
 
 	"v.io/v23/context"
 	"v.io/x/ref/test"
+	"v.io/x/ref/test/goroutines"
 )
 
 type writeqEntry struct {
@@ -179,19 +180,24 @@ func TestWriteqLists(t *testing.T) {
 }
 
 func TestWriteqErrors(t *testing.T) {
+	defer goroutines.NoLeaks(t, leakWaitTime)()
 	wq := &writeq{}
 	fe1, fe2, fe3 := newEntry(), newEntry(), newEntry()
 	wq.wait(nil, &fe1.writer, expressPriority)
 
 	var ready sync.WaitGroup
+	var done sync.WaitGroup
 	ready.Add(2)
+	done.Add(2)
 	go func() {
 		ready.Done()
 		wq.wait(nil, &fe2.writer, expressPriority)
+		done.Done()
 	}()
 	go func() {
 		ready.Done()
 		wq.wait(nil, &fe3.writer, expressPriority)
+		done.Done()
 	}()
 
 	ready.Wait()
@@ -199,7 +205,10 @@ func TestWriteqErrors(t *testing.T) {
 	if err == nil || !strings.Contains(err.Error(), "already exists in the writeq") {
 		t.Fatalf("missing or unexpected error: %v", err)
 	}
-
+	wq.done(&fe1.writer)
+	wq.done(&fe2.writer)
+	wq.done(&fe3.writer)
+	done.Wait()
 }
 
 func TestWriteqNotifySerial(t *testing.T) {
