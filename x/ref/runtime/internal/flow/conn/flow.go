@@ -515,8 +515,9 @@ func (f *flw) markUsed() {
 	}
 }
 
-// popFront removes the first num bytes from in, returning in, out, and the
-// actual number of bytes appended.
+// popFront removes at most num bytes from in, returning the remaining
+// bytes as a new slice of buffers. The returned number of bytes is always
+// the same as the length of the returned buffer.
 func popFront(in [][]byte, num int) ([][]byte, []byte, int) {
 	nIn := len(in)
 	if nIn == 0 {
