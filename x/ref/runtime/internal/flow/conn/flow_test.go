@@ -135,67 +135,52 @@ func TestPopFrontN(t *testing.T) {
 		}
 	}
 
-	send, nextSlice, nextOffset, size = popFrontN(input[:1], 0, 0, 64)
-	assert(input[0], 1, 0, 64)
-	send, nextSlice, nextOffset, size = popFrontN(input[:1], nextSlice, nextOffset, 64)
+	send, nextSlice, nextOffset, size = readAtMost(input[:1], 0, 0, 1)
+	assert(input[0][0:1], 0, 1, 1)
+	send, nextSlice, nextOffset, size = readAtMost(input[:1], nextSlice, nextOffset, 100)
+	assert(input[0][1:], 1, 0, len(input[0])-1)
+
+	send, nextSlice, nextOffset, size = readAtMost(input[:1], 0, 0, len(input[0]))
+	assert(input[0], 1, 0, len(input[0]))
+
+	send, nextSlice, nextOffset, size = readAtMost(input[:1], nextSlice, nextOffset, len(input[0]))
 	assert(nil, 0, 0, 0)
 
-	send, nextSlice, nextOffset, size = popFrontN(input[:1], 0, 0, 100)
-	assert(input[0], 1, 0, 64)
-	send, nextSlice, nextOffset, size = popFrontN(input[:1], nextSlice, nextOffset, 1)
+	send, nextSlice, nextOffset, size = readAtMost(input[:1], 0, 0, len(input[0])+100)
+	assert(input[0], 1, 0, len(input[0]))
+	send, nextSlice, nextOffset, size = readAtMost(input[:1], nextSlice, nextOffset, 1)
 	assert(nil, 0, 0, 0)
 
-	send, nextSlice, nextOffset, size = popFrontN(input[:1], 0, 0, 33)
+	send, nextSlice, nextOffset, size = readAtMost(input[:1], 0, 0, 33)
 	assert(input[0][:33], 0, 33, 33)
-	send, nextSlice, nextOffset, size = popFrontN(input[:1], nextSlice, nextOffset, 1)
+	send, nextSlice, nextOffset, size = readAtMost(input[:1], nextSlice, nextOffset, 1)
 	assert(input[0][33:34], 0, 34, 1)
-	send, nextSlice, nextOffset, size = popFrontN(input[:1], nextSlice, nextOffset, 100)
+	send, nextSlice, nextOffset, size = readAtMost(input[:1], nextSlice, nextOffset, 100)
 	assert(input[0][34:], 1, 0, 30)
-	send, nextSlice, nextOffset, size = popFrontN(input[:1], nextSlice, nextOffset, 100)
+	send, nextSlice, nextOffset, size = readAtMost(input[:1], nextSlice, nextOffset, 100)
 	assert(nil, 0, 0, 0)
 
-	/*
-		rem, send, size = popFront(input[:1], 100)
-		assert(input[1:1], input[0], 64)
+	partial := len(input[1]) / 3
+	atMost := len(input[0]) + partial
+	send, nextSlice, nextOffset, size = readAtMost(input, 0, 0, atMost)
+	assert(append(input[0], input[1][:partial]...), 1, partial, atMost)
 
-		rem, send, size = popFront(input[:1], 63)
-		tmpRem := copyInput()[:1]
-		tmpRem[0] = tmpRem[0][63:]
-		assert(tmpRem, input[0][:63], 63)
+	prevOffset := partial
+	partial = len(input[1]) - len(input[1])/3
+	atMost = partial + len(input[2])
+	send, nextSlice, nextOffset, size = readAtMost(input, nextSlice, nextOffset, atMost)
+	assert(append(input[1][prevOffset:], input[2]...), 3, 0, atMost)
 
-		rem, send, size = popFront(input, 33)
-		tmpRem = copyInput()
-		tmpRem[0] = tmpRem[0][33:]
-		assert(tmpRem, input[0][:33], 33)
+	send, nextSlice, nextOffset, size = readAtMost(input, nextSlice, nextOffset, 1000)
+	assert(input[3], 4, 0, len(input[3]))
 
-		rem, send, size = popFront(input, len(input[0])+13)
-		tmpRem = copyInput()[1:]
-		tmpRem[0] = tmpRem[0][13:]
-		tmpOut := input[0]
-		tmpOut = append(tmpOut, input[1][:13]...)
-		assert(tmpRem, tmpOut, len(input[0])+13)
+	send, nextSlice, nextOffset, size = readAtMost(input, nextSlice, nextOffset, 1000)
+	assert(nil, 0, 0, 0)
 
-		rem, send, size = popFront(input, len(input[0])+len(input[1])+len(input[2])+2)
-		tmpRem = copyInput()[3:]
-		tmpRem[0] = tmpRem[0][2:]
-		tmpOut = input[0]
-		tmpOut = append(tmpOut, input[1]...)
-		tmpOut = append(tmpOut, input[2]...)
-		tmpOut = append(tmpOut, input[3][:2]...)
-		assert(tmpRem, tmpOut, len(tmpOut))
-
-		rem, send, size = popFront(input, len(input[0])+len(input[1])+len(input[2])+len(input[3]))
-		tmpOut = input[0]
-		tmpOut = append(tmpOut, input[1]...)
-		tmpOut = append(tmpOut, input[2]...)
-		tmpOut = append(tmpOut, input[3]...)
-		assert(nil, tmpOut, len(tmpOut))
-
-		rem, send, size = popFront(input, 1000)
-		tmpOut = input[0]
-		tmpOut = append(tmpOut, input[1]...)
-		tmpOut = append(tmpOut, input[2]...)
-		tmpOut = append(tmpOut, input[3]...)
-		assert(nil, tmpOut, len(tmpOut))*/
-
+	send, nextSlice, nextOffset, size = readAtMost(input, 0, 0, 1000)
+	tmpOut := input[0]
+	tmpOut = append(tmpOut, input[1]...)
+	tmpOut = append(tmpOut, input[2]...)
+	tmpOut = append(tmpOut, input[3]...)
+	assert(tmpOut, 4, 0, totalSize(input))
 }
