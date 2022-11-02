@@ -902,11 +902,3 @@ func writeVarUint64(u uint64, buf []byte) []byte {
 	}
 	return buf
 }
-
-func payloadSize(payload [][]byte) int {
-	sz := 0
-	for _, p := range payload {
-		sz += len(p)
-	}
-	return sz
-}

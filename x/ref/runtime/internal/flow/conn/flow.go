@@ -174,7 +174,8 @@ func (f *flw) currentContext() *context.T {
 // to send the current message, and if there are none, it will wait until
 // some become available from the peer end of the connection via a release
 // message containing tokens for this flow.
-func (f *flw) ensureTokens(ctx *context.T, need int, parts [][]byte, slice, offset int) (out []byte, nextSlice, nextOffset, size int, err error) {
+func (f *flw) ensureTokens(ctx *context.T, need int, parts [][]byte) ([][]byte, []byte, int, error) {
+
 	for {
 		// The critical region needs to capture both reading tokens and
 		// setting up to wait for new ones. Similarly, releaseCounters
@@ -184,10 +185,10 @@ func (f *flw) ensureTokens(ctx *context.T, need int, parts [][]byte, slice, offs
 		f.flowControl.lockForTokens()
 		borrowed, borrowedNotification, avail := f.flowControl.getTokensLocked(ctx, f.encapsulated)
 		if avail >= need {
-			tosend, nextSlice, nextOffset, size := readAtMost(parts, slice, offset, avail)
+			parts, tosend, size := popFront(parts, avail)
 			f.flowControl.returnTokensLocked(ctx, borrowed, avail-size)
 			f.flowControl.unlockForTokens()
-			return tosend, nextSlice, nextOffset, size, nil
+			return parts, tosend, size, nil
 		}
 		// need to wait for tokens, but first return any tokens that were available.
 		f.flowControl.returnTokensLocked(ctx, borrowed, avail)
@@ -195,7 +196,7 @@ func (f *flw) ensureTokens(ctx *context.T, need int, parts [][]byte, slice, offs
 		f.flowControl.unlockForTokens()
 		select {
 		case <-ctx.Done():
-			return nil, 0, 0, 0, ctx.Err()
+			return nil, nil, 0, ctx.Err()
 		case <-ch:
 		case <-borrowedNotification:
 		}
@@ -230,7 +231,7 @@ func (f *flw) writeMsg(alsoClose bool, parts [][]byte) (sent int, err error) {
 		totalSize += len(p)
 	}
 	var tosend []byte
-	var size, slice, offset int
+	size, sent := 0, 0
 
 	f.markUsed()
 
@@ -252,15 +253,15 @@ func (f *flw) writeMsg(alsoClose bool, parts [][]byte) (sent int, err error) {
 		need = totalSize
 	}
 
-	for slice < len(parts) {
+	for len(parts) > 0 {
 		if wasOpened {
 			// Send a data message, possibly having to wait for flow control
 			// tokens before doing so.
-			tosend, slice, offset, size, err = f.ensureTokens(ctx, need, parts, slice, offset)
+			parts, tosend, size, err = f.ensureTokens(ctx, need, parts)
 			if err != nil {
 				return f.writeMsgDone(ctx, sent, alsoClose, err)
 			}
-			if err := f.sendDataMessage(ctx, flowPriority, alsoClose, slice == len(parts), tosend); err != nil {
+			if err := f.sendDataMessage(ctx, flowPriority, alsoClose, len(parts) == 0, tosend); err != nil {
 				return f.writeMsgDone(ctx, sent, alsoClose, err)
 			}
 			sent += size
@@ -271,11 +272,11 @@ func (f *flw) writeMsg(alsoClose bool, parts [][]byte) (sent int, err error) {
 		// message will always be sent, if it can't include a payload.
 		f.flowControl.lockForTokens()
 		borrowed, _, avail := f.flowControl.getTokensLocked(ctx, f.encapsulated)
-		tosend, slice, offset, size = readAtMost(parts, slice, offset, avail)
+		parts, tosend, size = popFront(parts, avail)
 		f.flowControl.returnTokensLocked(ctx, borrowed, avail-size)
 		f.flowControl.unlockForTokens()
 
-		if err := f.sendOpenFlow(ctx, alsoClose, slice == len(parts), tosend); err != nil {
+		if err := f.sendOpenFlow(ctx, alsoClose, len(parts) == 0, tosend); err != nil {
 			return f.writeMsgDone(ctx, sent, alsoClose, err)
 		}
 
@@ -551,44 +552,4 @@ func popFront(in [][]byte, num int) ([][]byte, []byte, int) {
 	copy(rem, in[i:])
 	rem[0] = in[i][offset:]
 	return rem, out[:total], total
-}
-
-// readAtMost returns at most needAtMost bytes from the input along with
-// the current byte slice in the input and the offset in that slice of any
-// remaining data.
-func readAtMost(in [][]byte, slice, offset, needAtMost int) (out []byte, nextSlice, nextOffset, total int) {
-	nIn := len(in) - slice
-	if nIn == 0 {
-		return nil, 0, 0, 0
-	}
-	first := in[slice][offset:]
-	total = len(first)
-	// These are the common cases, so handle them cleanly here.
-	if total > needAtMost {
-		// First slice has enough data.
-		return first[:needAtMost], slice, offset + needAtMost, needAtMost
-	}
-	if (nIn == 1 && needAtMost >= total) || needAtMost == total {
-		// There is only one slice so just return it, or the first slice
-		// is exactly what's requested.
-		return first, slice + 1, 0, total
-	}
-	// First slice has insufficient data for needAtMost.
-	out = first
-	for slice++; slice < len(in); slice++ {
-		li := len(in[slice])
-		total += li
-		if total >= needAtMost {
-			offset = li - (total - needAtMost)
-			out = append(out, in[slice][:offset]...)
-			if offset == li {
-				return out, slice + 1, 0, needAtMost
-			}
-			return out, slice, offset, needAtMost
-		}
-		out = append(out, in[slice]...)
-	}
-	// needAtMost is greater than all of the input data, so return all of the input
-	// as a single slice.
-	return out, slice, 0, total
 }
