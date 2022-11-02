@@ -15,14 +15,6 @@ import (
 	"v.io/x/ref/test/goroutines"
 )
 
-func mkBufs(in ...string) [][]byte {
-	out := make([][]byte, len(in))
-	for i, s := range in {
-		out[i] = []byte(s)
-	}
-	return out
-}
-
 type readqRelease struct {
 	n int
 }
