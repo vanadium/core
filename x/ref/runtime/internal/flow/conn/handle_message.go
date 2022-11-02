@@ -56,7 +56,6 @@ func (c *Conn) handleData(ctx *context.T, msg message.Data) error {
 		return nil
 	}
 	c.mu.Unlock()
-
 	if err := f.q.put(ctx, msg.Payload); err != nil {
 		return err
 	}
