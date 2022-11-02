@@ -184,14 +184,18 @@ func TestWriteqErrors(t *testing.T) {
 	wq.wait(nil, &fe1.writer, expressPriority)
 
 	var ready sync.WaitGroup
+	var done sync.WaitGroup
 	ready.Add(2)
+	done.Add(2)
 	go func() {
 		ready.Done()
 		wq.wait(nil, &fe2.writer, expressPriority)
+		done.Done()
 	}()
 	go func() {
 		ready.Done()
 		wq.wait(nil, &fe3.writer, expressPriority)
+		done.Done()
 	}()
 
 	ready.Wait()
@@ -199,7 +203,10 @@ func TestWriteqErrors(t *testing.T) {
 	if err == nil || !strings.Contains(err.Error(), "already exists in the writeq") {
 		t.Fatalf("missing or unexpected error: %v", err)
 	}
-
+	wq.done(&fe1.writer)
+	wq.done(&fe2.writer)
+	wq.done(&fe3.writer)
+	done.Wait()
 }
 
 func TestWriteqNotifySerial(t *testing.T) {
