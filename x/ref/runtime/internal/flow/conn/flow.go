@@ -515,9 +515,6 @@ func (f *flw) markUsed() {
 	}
 }
 
-// popFront removes at most num bytes from in, returning the remaining
-// bytes as a new slice of buffers. The returned number of bytes is always
-// the same as the length of the returned buffer.
 func popFront(in [][]byte, num int) ([][]byte, []byte, int) {
 	nIn := len(in)
 	if nIn == 0 {
@@ -532,6 +529,52 @@ func popFront(in [][]byte, num int) ([][]byte, []byte, int) {
 	}
 	out := in[0]
 	i, total, offset := 0, 0, 0
+	for i < nIn {
+		li := len(in[i])
+		total += li
+		if total > num {
+			offset = li - (total - num)
+			total = num
+			if i > 0 {
+				out = append(out, in[i][:offset]...)
+			}
+			break
+		}
+		if i > 0 {
+			out = append(out, in[i]...)
+		}
+		i++
+	}
+	if i == nIn {
+		return nil, out[:total], total
+	}
+	rem := make([][]byte, nIn-i)
+	copy(rem, in[i:])
+	rem[0] = in[i][offset:]
+	return rem, out[:total], total
+
+}
+
+// popFront removes at most num bytes from in, returning the remaining
+// bytes as a new slice of buffers. The returned number of bytes is always
+// the same as the length of the returned buffer.
+func popFrontN(in [][]byte, slice, offset, num int) (out []byte, nextSlice, nextOffset, total int) {
+	nIn := len(in) - slice
+	if nIn == 0 {
+		return nil, 0, 0, 0
+	}
+	fs := in[slice][offset:] // first slice.
+	l0 := len(fs)
+	// These are the common cases, so handle them cleanly here.
+	if l0 >= num {
+		// First slice has enough data.
+		return fs[:num], slice, offset + num, num
+	}
+	if nIn == 1 && num >= l0 {
+		// There is only one slice so just return it.
+		return fs, slice + 1, 0, l0
+	}
+
 	for i < nIn {
 		li := len(in[i])
 		total += li
