@@ -839,7 +839,7 @@ func gatherStats(ctx *context.T, proxies []naming.MountedServer, servers ...stri
 	proxyRequests = make([]map[string]int64, len(proxies))
 	proxiedMessages = make([]map[string]int64, len(proxies))
 	proxiedBytes = make([]map[string]int64, len(proxies))
-	ctx, cancel := context.WithTimeout(ctx, time.Second)
+	ctx, cancel := context.WithTimeout(ctx, time.Second*10)
 	defer cancel()
 	prefixes := make([]string, len(servers))
 	for i, s := range servers {
