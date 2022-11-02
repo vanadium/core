@@ -950,7 +950,8 @@ func (c *Conn) writeEncodedBlessings(ctx *context.T, w *writer, data []byte) err
 	// TODO(cnicolaou): what about fragmentation and flow control here?
 	err := c.mp.writeData(ctx, message.Data{
 		ID:      blessingsFlowID,
-		Payload: [][]byte{data}})
+		Payload: data,
+	})
 	c.writeq.done(w)
 	return err
 }

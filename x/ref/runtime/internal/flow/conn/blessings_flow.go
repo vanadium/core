@@ -102,13 +102,11 @@ func (b *blessingsFlow) setPublicKeyBinding(pk security.PublicKey) {
 	b.binding = pk
 }
 
-func (b *blessingsFlow) writeMsg(bufs [][]byte) error {
+func (b *blessingsFlow) writeMsg(buf []byte) error {
 	b.mu.Lock()
 	defer b.mu.Unlock()
-	for _, buf := range bufs {
-		b.decBuf.Write(buf)
-	}
-	return nil
+	_, err := b.decBuf.Write(buf)
+	return err
 }
 
 func validateReceivedBlessings(ctx *context.T, pk security.PublicKey, blessings security.Blessings) error {

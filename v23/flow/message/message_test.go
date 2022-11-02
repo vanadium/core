@@ -7,6 +7,7 @@ package message_test
 import (
 	"errors"
 	"reflect"
+	"runtime"
 	"testing"
 
 	v23 "v.io/v23"
@@ -26,25 +27,26 @@ func testMessages(t *testing.T, ctx *context.T, cases []message.Message) {
 }
 
 func testMessagesWithResults(t *testing.T, ctx *context.T, cases []message.Message, results []message.Message) {
+	_, _, line, _ := runtime.Caller(2)
 	for i, orig := range cases {
 		want := results[i]
 		encoded, err := orig.Append(ctx, nil)
 		if err != nil {
-			t.Errorf("unexpected error for %#v: %v", orig, err)
+			t.Errorf("%v: line: %v, unexpected error for %#v: %v", i, line, orig, err)
 		}
 		got, err := message.Read(ctx, encoded)
 		if err != nil {
-			t.Errorf("unexpected error reading %#v: %v", want, err)
+			t.Errorf("%v: line: %v, unexpected error reading %#v: %v", i, line, want, err)
 		}
 		if !reflect.DeepEqual(got, want) {
-			t.Errorf("got: %#v, want %#v", got, want)
+			t.Errorf("%v: line: %v, got: %#v, want %#v", i, line, got, want)
 		}
 		got = got.Copy()
 		for i := range encoded {
 			encoded[i] = 0xff
 		}
 		if !reflect.DeepEqual(got, want) {
-			t.Errorf("got: %#v, want %#v", got, want)
+			t.Errorf("%v: line: %v, got: %#v, want %#v", i, line, got, want)
 		}
 	}
 }
@@ -142,7 +144,7 @@ func TestOpenFlow(t *testing.T) {
 			BlessingsKey:    42,
 			DischargeKey:    55,
 			Flags:           message.CloseFlag,
-			Payload:         [][]byte{[]byte("fake payload")},
+			Payload:         []byte("fake payload"),
 		},
 		message.OpenFlow{ID: 23, InitialCounters: 1 << 20, BlessingsKey: 42, DischargeKey: 55},
 	})
@@ -183,12 +185,12 @@ func TestData(t *testing.T) {
 	ctx, shutdown := test.V23Init()
 	defer shutdown()
 	testMessages(t, ctx, []message.Message{
-		message.Data{ID: 1123, Flags: message.CloseFlag, Payload: [][]byte{[]byte("fake payload")}},
+		message.Data{ID: 1123, Flags: message.CloseFlag, Payload: []byte("fake payload")},
 		message.Data{},
 	})
 	testMessagesWithResults(t, ctx,
 		[]message.Message{
-			message.Data{ID: 1123, Flags: message.DisableEncryptionFlag, Payload: [][]byte{[]byte("fake payload")}},
+			message.Data{ID: 1123, Flags: message.DisableEncryptionFlag, Payload: []byte("fake payload")},
 		},
 		[]message.Message{
 			message.Data{ID: 1123, Flags: message.DisableEncryptionFlag},
@@ -198,7 +200,7 @@ func TestData(t *testing.T) {
 func TestDataReuse(t *testing.T) {
 	ctx, shutdown := test.V23Init()
 	defer shutdown()
-	m := message.Data{ID: 1123, Flags: message.CloseFlag, Payload: [][]byte{[]byte("fake payload")}}
+	m := message.Data{ID: 1123, Flags: message.CloseFlag, Payload: []byte("fake payload")}
 	buf := make([]byte, 0, 1024)
 	buf, err := m.Append(ctx, buf)
 	if err != nil {
@@ -215,7 +217,7 @@ func TestDataReuse(t *testing.T) {
 	if got, want := rm.Flags, uint64(message.CloseFlag); got != want {
 		t.Errorf("got %v, want %v", got, want)
 	}
-	if got, want := string(rm.Payload[0]), "fake payload"; got != want {
+	if got, want := string(rm.Payload), "fake payload"; got != want {
 		t.Errorf("got %v, want %v", got, want)
 	}
 
@@ -243,7 +245,7 @@ func TestDataReuse(t *testing.T) {
 
 }
 
-func plaintextPayload(m message.Message) ([][]byte, bool) {
+func plaintextPayload(m message.Message) ([]byte, bool) {
 	switch msg := m.(type) {
 	case message.Data:
 		if msg.Flags&message.DisableEncryptionFlag != 0 {
@@ -260,11 +262,11 @@ func plaintextPayload(m message.Message) ([][]byte, bool) {
 func setPlaintextPayload(m message.Message, payload []byte, nocopy bool) message.Message {
 	switch msg := m.(type) {
 	case message.Data:
-		msg.Payload = [][]byte{payload}
+		msg.Payload = payload
 		msg = msg.SetNoCopy(nocopy)
 		return msg
 	case message.OpenFlow:
-		msg.Payload = [][]byte{payload}
+		msg.Payload = payload
 		msg = msg.SetNoCopy(nocopy)
 		return msg
 	}
@@ -296,8 +298,8 @@ func clearDisableEncryptionFlag(m message.Message) message.Message {
 func TestPlaintextPayloads(t *testing.T) {
 
 	encrypted := []message.Message{
-		message.Data{Flags: message.CloseFlag, Payload: [][]byte{[]byte("fake payload")}},
-		message.OpenFlow{Flags: message.CloseFlag, Payload: [][]byte{[]byte("fake payload")}},
+		message.Data{Flags: message.CloseFlag, Payload: []byte("fake payload")},
+		message.OpenFlow{Flags: message.CloseFlag, Payload: []byte("fake payload")},
 	}
 	for _, m := range encrypted {
 		payload, ok := plaintextPayload(m)
@@ -311,10 +313,10 @@ func TestPlaintextPayloads(t *testing.T) {
 	}
 
 	disabled := []message.Message{
-		message.Data{Flags: message.DisableEncryptionFlag, Payload: [][]byte{[]byte("fake payload")}},
+		message.Data{Flags: message.DisableEncryptionFlag, Payload: []byte("fake payload")},
 		message.OpenFlow{
 			Flags:   message.DisableEncryptionFlag,
-			Payload: [][]byte{[]byte("fake payload")},
+			Payload: []byte("fake payload"),
 		},
 	}
 	for _, m := range disabled {
@@ -331,7 +333,7 @@ func TestPlaintextPayloads(t *testing.T) {
 		m = m.Copy()
 		copy(newPayload, []byte("world"))
 		p, _ := plaintextPayload(m)
-		if got, want := string(p[0]), "hello"; got != want {
+		if got, want := string(p), "hello"; got != want {
 			t.Errorf("got %v, want %v", got, want)
 		}
 
@@ -341,7 +343,7 @@ func TestPlaintextPayloads(t *testing.T) {
 		// can be overwritten here.
 		copy(newPayload, []byte("world"))
 		p, _ = plaintextPayload(m)
-		if got, want := string(p[0]), "world"; got != want {
+		if got, want := string(p), "world"; got != want {
 			t.Errorf("got %v, want %v", got, want)
 		}
 	}
@@ -457,14 +459,14 @@ func BenchmarkSetupRead(b *testing.B) {
 func BenchmarkDataAppend(b *testing.B) {
 	ctx, shutdown := v23.Init()
 	defer shutdown()
-	m := message.Data{ID: 1123, Flags: message.CloseFlag, Payload: [][]byte{[]byte("fake payload")}}
+	m := message.Data{ID: 1123, Flags: message.CloseFlag, Payload: []byte("fake payload")}
 	benchmarkMessageAppend(b, ctx, m)
 }
 
 func BenchmarkDataRead(b *testing.B) {
 	ctx, shutdown := v23.Init()
 	defer shutdown()
-	m := message.Data{ID: 1123, Flags: message.CloseFlag, Payload: [][]byte{[]byte("fake payload")}}
+	m := message.Data{ID: 1123, Flags: message.CloseFlag, Payload: []byte("fake payload")}
 	buf := make([]byte, 0, 2048)
 	buf, _ = m.Append(ctx, buf)
 	benchmarkMessageRead(b, ctx, buf)
