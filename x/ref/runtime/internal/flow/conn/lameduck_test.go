@@ -30,6 +30,20 @@ func waitForLameDuck(t *testing.T, c *Conn) {
 	}
 }
 
+func readOneFromFlows(ac *Conn, aflows <-chan flow.Flow) {
+	for {
+		select {
+		case f := <-aflows:
+			if got, err := f.ReadMsg(); err != nil {
+				panic(fmt.Sprintf("got %v wanted nil", err))
+			} else if !bytes.Equal(got, []byte("hello")) {
+				panic(fmt.Sprintf("got %q, wanted 'hello'", string(got)))
+			}
+		case <-ac.Closed():
+			return
+		}
+	}
+}
 func TestLameDuck(t *testing.T) {
 	defer goroutines.NoLeaks(t, leakWaitTime)()
 
@@ -42,20 +56,7 @@ func TestLameDuck(t *testing.T) {
 		t.Fatal(derr, aerr)
 	}
 
-	go func() {
-		for {
-			select {
-			case f := <-aflows:
-				if got, err := f.ReadMsg(); err != nil {
-					panic(fmt.Sprintf("got %v wanted nil", err))
-				} else if !bytes.Equal(got, []byte("hello")) {
-					panic(fmt.Sprintf("got %q, wanted 'hello'", string(got)))
-				}
-			case <-ac.Closed():
-				return
-			}
-		}
-	}()
+	go readOneFromFlows(ac, aflows)
 
 	// Dial a flow and write it (which causes it to open).
 	f1, err := dc.Dial(ctx, dc.LocalBlessings(), nil, naming.Endpoint{}, 0, false)

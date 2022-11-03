@@ -243,15 +243,15 @@ func TestWriteqNotifySerial(t *testing.T) {
 	cmpWriteqEntries(t, wq, expressPriority, nil)
 }
 
-func waitForActiveAndQueued(t *testing.T, wq *writeq, a, b *writeqEntry) {
+func waitForActiveAndQueued(t *testing.T, wq *writeq, priority int, a, b *writeqEntry) {
 	err := waitFor(time.Minute, func() error {
 		wq.mu.Lock()
 		defer wq.mu.Unlock()
 		if wq.active == &a.writer &&
-			wq.activeWriters[flowPriority] == &b.writer {
+			wq.activeWriters[priority] == &b.writer {
 			return nil
 		}
-		return fmt.Errorf("%p is not active and %p is not queued", a, b)
+		return fmt.Errorf("%p is not active and %p is not queued: %s", &a.writer, &b.writer, wq.stringLocked())
 	})
 	if err != nil {
 		_, _, line, _ := runtime.Caller(1)
@@ -291,13 +291,11 @@ func TestWriteqNotifyPriority(t *testing.T) {
 
 	close(first)
 
-	waitForActiveAndQueued(t, wq, fe1, fe2)
-
+	waitForActiveAndQueued(t, wq, flowPriority, fe1, fe2)
 	cmpWriteqEntries(t, wq, flowPriority, fe1, fe2)
 	close(second)
 
-	waitForActiveAndQueued(t, wq, fe1, fe3)
-
+	waitForActiveAndQueued(t, wq, expressPriority, fe1, fe3)
 	cmpWriteqEntries(t, wq, expressPriority, fe1, fe3)
 
 	// fe2 and fe3 are blocked until now.
