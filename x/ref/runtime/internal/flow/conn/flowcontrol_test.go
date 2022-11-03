@@ -25,9 +25,9 @@ import (
 )
 
 func waitFor(f func() bool) {
-	t := time.NewTicker(10 * time.Millisecond)
-	defer t.Stop()
-	for range t.C {
+	ticker := time.NewTicker(10 * time.Millisecond)
+	defer ticker.Stop()
+	for range ticker.C {
 		if f() {
 			return
 		}
@@ -440,14 +440,15 @@ func dialWriteRead(t *testing.T, ctx *context.T, dc *Conn, writeBuf []byte) (flo
 func testCountersOpts(t *testing.T, ctx *context.T, count int, dialClose, acceptClose bool, size int, opts Opts) (
 	dialRelease, dialBorrowed, acceptRelease, acceptBorrowed int) {
 
-	_, _, line, _ := runtime.Caller(1)
+	_, _, line1, _ := runtime.Caller(1)
+	_, _, line2, _ := runtime.Caller(2)
 
-	t.Logf("runAndTest: line: %v, count: %v, size: %v, dial close: %v, accept close: %v", line, count, size, dialClose, acceptClose)
+	t.Logf("runAndTest: lines: %v:%v, count: %v, size: %v, dial close: %v, accept close: %v", line2, line1, count, size, dialClose, acceptClose)
 
 	acceptCh := make(chan flow.Flow, 1)
 	dc, ac, derr, aerr := setupConnsOpts(t, "local", "", ctx, ctx, nil, acceptCh, nil, nil, opts)
 	if derr != nil || aerr != nil {
-		t.Fatalf("line %v: setup: dial err: %v, accept err: %v", line, derr, aerr)
+		t.Fatalf("lines: %v:%v: setup: dial err: %v, accept err: %v", line2, line1, derr, aerr)
 	}
 
 	errCh := make(chan error, 1)
@@ -455,24 +456,24 @@ func testCountersOpts(t *testing.T, ctx *context.T, count int, dialClose, accept
 
 	writeBuf := make([]byte, size)
 	if n, err := io.ReadFull(rand.Reader, writeBuf); n != size || err != nil {
-		t.Fatalf("line %v: failed to write random bytes: %v %v", line, n, err)
+		t.Fatalf("lines: %v:%v: failed to write random bytes: %v %v", line2, line1, n, err)
 	}
 
 	for i := 0; i < count; i++ {
 		df, err := dialWriteRead(t, ctx, dc, writeBuf)
 		if err != nil {
-			t.Fatalf("line: %v: %v", line, err)
+			t.Fatalf("lines: %v:%v: %v", line2, line1, err)
 		}
 		if dialClose {
 			if err := df.Close(); err != nil {
-				t.Fatalf("line %v: unexpected error closing flow: %v", line, err)
+				t.Fatalf("lines: %v:%v: unexpected error closing flow: %v", line2, line1, err)
 			}
 		}
 		if err := flowControlBorrowedInvariantBoth(dc, ac); err != nil {
-			t.Fatalf("line %v: %v", line, err)
+			t.Fatalf("lines: %v:%v: %v", line2, line1, err)
 		}
 		if err := flowControlReleasedInvariantBidirectional(dc, ac); err != nil {
-			t.Fatalf("line %v: flowControlReleasedInvariant: %v", line, err)
+			t.Fatalf("lines: %v:%v: flowControlReleasedInvariant: %v", line2, line1, err)
 		}
 	}
 
@@ -481,26 +482,41 @@ func testCountersOpts(t *testing.T, ctx *context.T, count int, dialClose, accept
 		t.Fatal(err)
 	}
 
-	if dialClose {
-		if err := flowControlBorrowedClosedInvariantBoth(dc, ac); err != nil {
-			t.Fatalf("line %v:  %v", line, err)
+	waitFor(func() bool {
+		_, _, err := flowControlBorrowedClosedInvariant(dc)
+		if err != nil {
+			t.Logf("dial: %v", err)
 		}
-	}
+		return err == nil
+	})
 
+	waitFor(func() bool {
+		_, _, err := flowControlBorrowedClosedInvariant(ac)
+		if err != nil {
+			t.Logf("accept: %v", err)
+		}
+		return err == nil
+	})
+
+	dc.mu.Lock()
 	dc.flowControl.mu.Lock()
 	dialRelease = countToRelease(dc)
 	dialBorrowed = countRemoteBorrowing(dc)
 	dc.flowControl.mu.Unlock()
+	dc.mu.Unlock()
+
+	ac.mu.Lock()
 	ac.flowControl.mu.Lock()
 	acceptRelease = countToRelease(ac)
 	acceptBorrowed = countRemoteBorrowing(ac)
 	ac.flowControl.mu.Unlock()
+	ac.mu.Unlock()
 	ac.Close(ctx, nil)
 	dc.Close(ctx, nil)
 	return
 }
 
-func TestFlowCountrolCounters(t *testing.T) {
+func TestFlowControlCounters(t *testing.T) {
 	defer goroutines.NoLeaks(t, leakWaitTime)()
 
 	ctx, shutdown := test.V23Init()

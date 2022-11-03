@@ -91,8 +91,6 @@ func flowControlBorrowed(c *Conn, fid uint64) uint64 {
 
 func countRemoteBorrowing(c *Conn) int {
 	rb := 0
-	c.mu.Lock()
-	defer c.mu.Unlock()
 	for _, f := range c.flows {
 		if f.flowControl.remoteBorrowing {
 			rb++
@@ -102,8 +100,6 @@ func countRemoteBorrowing(c *Conn) int {
 }
 
 func countToRelease(c *Conn) int {
-	c.mu.Lock()
-	defer c.mu.Unlock()
 	nc := len(c.flowControl.toReleaseClosed)
 	for _, f := range c.flows {
 		if f.flowControl.toRelease > 0 {
