@@ -24,21 +24,29 @@ import (
 	"v.io/x/ref/test/goroutines"
 )
 
-func waitFor(f func() bool) {
+func waitFor(delay time.Duration, f func() error) error {
 	ticker := time.NewTicker(10 * time.Millisecond)
 	defer ticker.Stop()
+	deadline := time.Now().Add(delay)
 	for range ticker.C {
-		if f() {
-			return
+		err := f()
+		if err == nil {
+			return nil
+		}
+		if time.Now().After(deadline) {
+			return err
 		}
 	}
+	return fmt.Errorf("unreachable")
 }
 
-func block(ctx *context.T, c *Conn, p int) chan struct{} {
+func block(t *testing.T, ctx *context.T, c *Conn, p int) chan struct{} {
 	w := writer{notify: make(chan struct{}, 1)}
 	ready, unblock := make(chan struct{}), make(chan struct{})
 	go func() {
-		waitForWriters(ctx, c, 0)
+		if err := waitForWriters(ctx, c, 0); err != nil {
+			t.Logf("waitForWriters: %v", err)
+		}
 		c.writeq.wait(nil, &w, p)
 		close(ready)
 		<-unblock
@@ -48,8 +56,8 @@ func block(ctx *context.T, c *Conn, p int) chan struct{} {
 	return unblock
 }
 
-func waitForWriters(ctx *context.T, conn *Conn, num int) {
-	waitFor(func() bool {
+func waitForWriters(ctx *context.T, conn *Conn, num int) error {
+	return waitFor(time.Minute, func() error {
 		conn.writeq.mu.Lock()
 		count := 0
 		if conn.writeq.active != nil {
@@ -64,7 +72,10 @@ func waitForWriters(ctx *context.T, conn *Conn, num int) {
 			}
 		}
 		conn.writeq.mu.Unlock()
-		return count >= num
+		if count >= num {
+			return nil
+		}
+		return fmt.Errorf("#writers %v < %v", count, num)
 	})
 }
 
@@ -119,7 +130,7 @@ func TestFlowMessageOrdering(t *testing.T) {
 	var wg sync.WaitGroup
 	wg.Add(2 * nflows)
 	errCh := make(chan error, 2*nflows)
-	unblock := block(ctx, dc, flowPriority)
+	unblock := block(t, ctx, dc, flowPriority)
 
 	for _, f := range flows {
 		go func(fl flow.Flow) {
@@ -482,21 +493,21 @@ func testCountersOpts(t *testing.T, ctx *context.T, count int, dialClose, accept
 		t.Fatal(err)
 	}
 
-	waitFor(func() bool {
+	err := waitFor(time.Minute, func() error {
 		_, _, err := flowControlBorrowedClosedInvariant(dc)
-		if err != nil {
-			t.Logf("dial: %v", err)
-		}
-		return err == nil
+		return err
 	})
+	if err != nil {
+		t.Errorf("dial: %v", err)
+	}
 
-	waitFor(func() bool {
+	err = waitFor(time.Minute, func() error {
 		_, _, err := flowControlBorrowedClosedInvariant(ac)
-		if err != nil {
-			t.Logf("accept: %v", err)
-		}
-		return err == nil
+		return err
 	})
+	if err != nil {
+		t.Errorf("dial: %v", err)
+	}
 
 	dc.mu.Lock()
 	dc.flowControl.mu.Lock()
