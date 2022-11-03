@@ -201,11 +201,11 @@ func TestWriteqErrors(t *testing.T) {
 	}()
 
 	ready.Wait()
+	wq.done(&fe1.writer)
 	err := wq.wait(nil, &fe3.writer, expressPriority)
 	if err == nil || !strings.Contains(err.Error(), "already exists in the writeq") {
 		t.Fatalf("missing or unexpected error: %v", err)
 	}
-	wq.done(&fe1.writer)
 	wq.done(&fe2.writer)
 	wq.done(&fe3.writer)
 	done.Wait()
