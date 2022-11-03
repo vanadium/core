@@ -493,6 +493,7 @@ func testCountersOpts(t *testing.T, ctx *context.T, count int, dialClose, accept
 		t.Fatal(err)
 	}
 
+<<<<<<< HEAD
 	err := waitFor(time.Minute, func() error {
 		_, _, err := flowControlBorrowedClosedInvariant(dc)
 		return err
@@ -508,6 +509,23 @@ func testCountersOpts(t *testing.T, ctx *context.T, count int, dialClose, accept
 	if err != nil {
 		t.Errorf("dial: %v", err)
 	}
+=======
+	waitFor(func() bool {
+		_, _, err := flowControlBorrowedClosedInvariant(dc)
+		if err != nil {
+			t.Logf("dial: %v", err)
+		}
+		return err == nil
+	})
+
+	waitFor(func() bool {
+		_, _, err := flowControlBorrowedClosedInvariant(ac)
+		if err != nil {
+			t.Logf("accept: %v", err)
+		}
+		return err == nil
+	})
+>>>>>>> main
 
 	dc.mu.Lock()
 	dc.flowControl.mu.Lock()
