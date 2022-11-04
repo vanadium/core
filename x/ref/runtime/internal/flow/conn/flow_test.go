@@ -10,6 +10,12 @@ import (
 	"reflect"
 	"runtime"
 	"testing"
+	"time"
+
+	"v.io/v23/context"
+	"v.io/v23/flow"
+	"v.io/v23/rpc/version"
+	"v.io/x/ref/test"
 )
 
 func TestPopFrontN(t *testing.T) {
@@ -99,4 +105,132 @@ func TestPopFrontN(t *testing.T) {
 	tmpOut = append(tmpOut, input[2]...)
 	tmpOut = append(tmpOut, input[3]...)
 	assert(tmpOut, 4, 0, totalSize(input))
+}
+
+func runFlowBenchmark(b *testing.B, ctx *context.T, dialed, accepted flow.Flow, rxbuf []byte, payload []byte) {
+	errCh := make(chan error, 1)
+
+	go func() {
+		for i := 0; i < b.N; i++ {
+			n, err := dialed.WriteMsg(payload)
+			if err != nil || n != len(payload) {
+				errCh <- err
+				return
+			}
+		}
+		errCh <- nil
+		dialed.Close()
+	}()
+
+	var err error
+	i := 0
+	for {
+		if rxbuf != nil {
+			_, err = accepted.ReadMsg2(rxbuf)
+		} else {
+			_, err = accepted.ReadMsg()
+		}
+		if err == io.EOF {
+			break
+		}
+		if err != nil {
+			b.Fatal(err)
+		}
+		i++
+	}
+
+	if err := <-errCh; err != nil {
+		b.Fatal(err)
+	}
+}
+
+func benchmarkFlow(b *testing.B, size int, bufferingFlow, userxbuf bool, rpcversion version.RPCVersion) {
+	ctx, shutdown := test.V23Init()
+	defer shutdown()
+	payload := make([]byte, size)
+	if _, err := io.ReadFull(rand.Reader, payload); err != nil {
+		b.Fatal(err)
+	}
+
+	var rxbuf []byte
+	if userxbuf {
+		rxbuf = make([]byte, size+2048)
+	}
+
+	aflows := make(chan flow.Flow, 1)
+	dc, _, derr, aerr := setupConns(b, "tcp", "", ctx, ctx, nil, aflows, nil, nil)
+	if derr != nil || aerr != nil {
+		b.Fatal(derr, aerr)
+	}
+
+	df, af := oneFlow(b, ctx, dc, aflows, time.Second)
+	if bufferingFlow {
+		df = NewBufferingFlow(ctx, df)
+		af = NewBufferingFlow(ctx, af)
+	}
+
+	b.ReportAllocs()
+	b.ResetTimer()
+	b.SetBytes(int64(size) * 2)
+	runFlowBenchmark(b, ctx, df, af, rxbuf, payload)
+}
+
+func BenchmarkFlow__RPC11__NewBuf__1KB(b *testing.B) {
+	benchmarkFlow(b, 1000, false, false, version.RPCVersion11)
+}
+func BenchmarkFlow__RPC11__NewBuf__1MB(b *testing.B) {
+	benchmarkFlow(b, 1000000, false, false, version.RPCVersion11)
+}
+
+func BenchmarkFlow__RPC11__NewBuf___10MB(b *testing.B) {
+	benchmarkFlow(b, 10000000, false, false, version.RPCVersion11)
+}
+
+func BenchmarkFlow__RPC11__NewBuf__MTU(b *testing.B) {
+	benchmarkFlow(b, DefaultMTU, false, false, version.RPCVersion11)
+}
+
+func BenchmarkFlow__RPC11__UseBuf__1KB(b *testing.B) {
+	benchmarkFlow(b, 1000, false, true, version.RPCVersion11)
+}
+func BenchmarkFlow__RPC11__UseBuf__1MB(b *testing.B) {
+	benchmarkFlow(b, 1000000, false, true, version.RPCVersion11)
+}
+
+func BenchmarkFlow__RPC11__UseBuf___10MB(b *testing.B) {
+	benchmarkFlow(b, 10000000, false, true, version.RPCVersion11)
+}
+
+func BenchmarkFlow__RPC11__UseBuf__MTU(b *testing.B) {
+	benchmarkFlow(b, DefaultMTU, false, true, version.RPCVersion11)
+}
+
+func BenchmarkFlow__RPC11__NewBuf__BufferingFlow__1KB(b *testing.B) {
+	benchmarkFlow(b, 1000, true, false, version.RPCVersion11)
+}
+func BenchmarkFlow__RPC11__NewBuf__BufferingFlow__1MB(b *testing.B) {
+	benchmarkFlow(b, 1000000, true, false, version.RPCVersion11)
+}
+
+func BenchmarkFlow__RPC11__NewBuf__BufferingFlow__10MB(b *testing.B) {
+	benchmarkFlow(b, 10000000, true, false, version.RPCVersion11)
+}
+
+func BenchmarkFlow__RPC11__NewBuf__BufferingFlow__MTU(b *testing.B) {
+	benchmarkFlow(b, DefaultMTU, true, false, version.RPCVersion11)
+}
+
+func BenchmarkFlow__RPC11__UseBuf__BufferingFlow__1KB(b *testing.B) {
+	benchmarkFlow(b, 1000, true, true, version.RPCVersion11)
+}
+func BenchmarkFlow__RPC11__UseBuf__BufferingFlow__1MB(b *testing.B) {
+	benchmarkFlow(b, 1000000, true, true, version.RPCVersion11)
+}
+
+func BenchmarkFlow__RPC11__UseBuf__BufferingFlow__10MB(b *testing.B) {
+	benchmarkFlow(b, 10000000, true, true, version.RPCVersion11)
+}
+
+func BenchmarkFlow__RPC11__UseBuf__BufferingFlow__MTU(b *testing.B) {
+	benchmarkFlow(b, DefaultMTU, true, true, version.RPCVersion11)
 }
