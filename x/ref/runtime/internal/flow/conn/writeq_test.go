@@ -244,7 +244,7 @@ func waitForActiveAndQueued(t *testing.T, wq *writeq, priority int, a, b *writeq
 		wq.mu.Lock()
 		defer wq.mu.Unlock()
 		if wq.active != &a.writer {
-			return fmt.Errorf("%p is not active: %s:", &a.writer, wq.stringLocked())
+			return fmt.Errorf("%p is not active: %s", &a.writer, wq.stringLocked())
 		}
 		for w := wq.activeWriters[priority]; w != nil; w = w.next {
 			if w == &b.writer {
