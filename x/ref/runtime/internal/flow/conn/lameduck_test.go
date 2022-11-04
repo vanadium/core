@@ -7,6 +7,7 @@ package conn
 import (
 	"bytes"
 	"fmt"
+	"runtime"
 	"testing"
 	"time"
 
@@ -16,7 +17,34 @@ import (
 	"v.io/x/ref/test/goroutines"
 )
 
-func TestLameDuck(t *testing.T) { //nolint:gocyclo
+func waitForLameDuck(t *testing.T, c *Conn) {
+	err := waitFor(time.Minute, func() error {
+		if c.RemoteLameDuck() {
+			return nil
+		}
+		return fmt.Errorf("not yet in lame duck mode")
+	})
+	if err != nil {
+		_, _, line, _ := runtime.Caller(1)
+		t.Errorf("line: %v, failed to enter lame duck mode", line)
+	}
+}
+
+func readOneFromFlows(ac *Conn, aflows <-chan flow.Flow) {
+	for {
+		select {
+		case f := <-aflows:
+			if got, err := f.ReadMsg(); err != nil {
+				panic(fmt.Sprintf("got %v wanted nil", err))
+			} else if !bytes.Equal(got, []byte("hello")) {
+				panic(fmt.Sprintf("got %q, wanted 'hello'", string(got)))
+			}
+		case <-ac.Closed():
+			return
+		}
+	}
+}
+func TestLameDuck(t *testing.T) {
 	defer goroutines.NoLeaks(t, leakWaitTime)()
 
 	ctx, shutdown := test.V23Init()
@@ -28,20 +56,7 @@ func TestLameDuck(t *testing.T) { //nolint:gocyclo
 		t.Fatal(derr, aerr)
 	}
 
-	go func() {
-		for {
-			select {
-			case f := <-aflows:
-				if got, err := f.ReadMsg(); err != nil {
-					panic(fmt.Sprintf("got %v wanted nil", err))
-				} else if !bytes.Equal(got, []byte("hello")) {
-					panic(fmt.Sprintf("got %q, wanted 'hello'", string(got)))
-				}
-			case <-ac.Closed():
-				return
-			}
-		}
-	}()
+	go readOneFromFlows(ac, aflows)
 
 	// Dial a flow and write it (which causes it to open).
 	f1, err := dc.Dial(ctx, dc.LocalBlessings(), nil, naming.Endpoint{}, 0, false)
@@ -64,7 +79,7 @@ func TestLameDuck(t *testing.T) { //nolint:gocyclo
 	// Now put the accepted conn into lame duck mode and wait for the dialed
 	// conn to get the message.
 	ldch := ac.EnterLameDuck(ctx)
-	waitFor(dc.RemoteLameDuck)
+	waitForLameDuck(t, dc)
 
 	// Now we shouldn't be able to dial from dc because it's in lame duck mode.
 	if _, err := dc.Dial(ctx, dc.LocalBlessings(), nil, naming.Endpoint{}, 0, false); err == nil {
@@ -93,7 +108,7 @@ func TestLameDuck(t *testing.T) { //nolint:gocyclo
 
 	// Now put the dialer side into lame duck.
 	ldch = dc.EnterLameDuck(ctx)
-	waitFor(ac.RemoteLameDuck)
+	waitForLameDuck(t, ac)
 	<-ldch
 	if status := dc.Status(); status != LameDuckAcknowledged {
 		t.Errorf("Got %d, wanted %d.", status, LameDuckAcknowledged)

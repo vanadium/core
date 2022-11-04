@@ -185,22 +185,18 @@ func TestWriteqErrors(t *testing.T) {
 	fe1, fe2, fe3 := newEntry(), newEntry(), newEntry()
 	wq.wait(nil, &fe1.writer, expressPriority)
 
-	var ready sync.WaitGroup
 	var done sync.WaitGroup
-	ready.Add(2)
 	done.Add(2)
 	go func() {
-		ready.Done()
 		wq.wait(nil, &fe2.writer, expressPriority)
 		done.Done()
 	}()
 	go func() {
-		ready.Done()
 		wq.wait(nil, &fe3.writer, expressPriority)
 		done.Done()
 	}()
 
-	ready.Wait()
+	waitForActiveAndQueued(t, wq, expressPriority, fe1, fe3)
 	err := wq.wait(nil, &fe3.writer, expressPriority)
 	if err == nil || !strings.Contains(err.Error(), "already exists in the writeq") {
 		t.Fatalf("missing or unexpected error: %v", err)
@@ -243,6 +239,26 @@ func TestWriteqNotifySerial(t *testing.T) {
 	cmpWriteqEntries(t, wq, expressPriority, nil)
 }
 
+func waitForActiveAndQueued(t *testing.T, wq *writeq, priority int, a, b *writeqEntry) {
+	err := waitFor(time.Minute, func() error {
+		wq.mu.Lock()
+		defer wq.mu.Unlock()
+		if wq.active != &a.writer {
+			return fmt.Errorf("%p is not active: %s", &a.writer, wq.stringLocked())
+		}
+		for w := wq.activeWriters[priority]; w != nil; w = w.next {
+			if w == &b.writer {
+				return nil
+			}
+		}
+		return fmt.Errorf("%p is not queued: %s", &b.writer, wq.stringLocked())
+	})
+	if err != nil {
+		_, _, line, _ := runtime.Caller(1)
+		t.Errorf("line: %v, %v", line, err)
+	}
+}
+
 func TestWriteqNotifyPriority(t *testing.T) {
 	wq := &writeq{}
 	fe1, fe2, fe3 := newEntry(), newEntry(), newEntry()
@@ -275,22 +291,11 @@ func TestWriteqNotifyPriority(t *testing.T) {
 
 	close(first)
 
-	waitFor(func() bool {
-		wq.mu.Lock()
-		defer wq.mu.Unlock()
-		return wq.active == &fe1.writer &&
-			wq.activeWriters[flowPriority] == &fe2.writer
-	})
-
+	waitForActiveAndQueued(t, wq, flowPriority, fe1, fe2)
 	cmpWriteqEntries(t, wq, flowPriority, fe1, fe2)
 	close(second)
 
-	waitFor(func() bool {
-		wq.mu.Lock()
-		defer wq.mu.Unlock()
-		return wq.active == &fe1.writer &&
-			wq.activeWriters[expressPriority] == &fe3.writer
-	})
+	waitForActiveAndQueued(t, wq, expressPriority, fe1, fe3)
 	cmpWriteqEntries(t, wq, expressPriority, fe1, fe3)
 
 	// fe2 and fe3 are blocked until now.
