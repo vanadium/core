@@ -185,27 +185,23 @@ func TestWriteqErrors(t *testing.T) {
 	fe1, fe2, fe3 := newEntry(), newEntry(), newEntry()
 	wq.wait(nil, &fe1.writer, expressPriority)
 
-	var ready sync.WaitGroup
 	var done sync.WaitGroup
-	ready.Add(2)
 	done.Add(2)
 	go func() {
-		ready.Done()
 		wq.wait(nil, &fe2.writer, expressPriority)
 		done.Done()
 	}()
 	go func() {
-		ready.Done()
 		wq.wait(nil, &fe3.writer, expressPriority)
 		done.Done()
 	}()
 
-	ready.Wait()
-	wq.done(&fe1.writer)
+	waitForActiveAndQueued(t, wq, expressPriority, fe1, fe3)
 	err := wq.wait(nil, &fe3.writer, expressPriority)
 	if err == nil || !strings.Contains(err.Error(), "already exists in the writeq") {
 		t.Fatalf("missing or unexpected error: %v", err)
 	}
+	wq.done(&fe1.writer)
 	wq.done(&fe2.writer)
 	wq.done(&fe3.writer)
 	done.Wait()
@@ -247,11 +243,15 @@ func waitForActiveAndQueued(t *testing.T, wq *writeq, priority int, a, b *writeq
 	err := waitFor(time.Minute, func() error {
 		wq.mu.Lock()
 		defer wq.mu.Unlock()
-		if wq.active == &a.writer &&
-			wq.activeWriters[priority] == &b.writer {
-			return nil
+		if wq.active != &a.writer {
+			return fmt.Errorf("%p is not active: %s:", &a.writer, wq.stringLocked())
 		}
-		return fmt.Errorf("%p is not active and %p is not queued: %s", &a.writer, &b.writer, wq.stringLocked())
+		for w := wq.activeWriters[priority]; w != nil; w = w.next {
+			if w == &b.writer {
+				return nil
+			}
+		}
+		return fmt.Errorf("%p is not queued: %s", &b.writer, wq.stringLocked())
 	})
 	if err != nil {
 		_, _, line, _ := runtime.Caller(1)
