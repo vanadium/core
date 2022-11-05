@@ -30,7 +30,7 @@ func (fh fh) HandleFlow(f flow.Flow) error {
 	return nil
 }
 
-func setupConns(t *testing.T,
+func setupConns(t testing.TB,
 	network, address string,
 	dctx, actx *context.T,
 	dflows, aflows chan<- flow.Flow,
@@ -38,7 +38,7 @@ func setupConns(t *testing.T,
 	return setupConnsOpts(t, network, address, dctx, actx, dflows, aflows, dAuth, aAuth, Opts{HandshakeTimeout: time.Minute})
 }
 
-func setupConnsOpts(t *testing.T,
+func setupConnsOpts(t testing.TB,
 	network, address string,
 	dctx, actx *context.T,
 	dflows, aflows chan<- flow.Flow,
@@ -46,7 +46,7 @@ func setupConnsOpts(t *testing.T,
 	return setupConnsWithTimeout(t, network, address, dctx, actx, dflows, aflows, dAuth, aAuth, 0, opts)
 }
 
-func setupConnsWithTimeout(t *testing.T,
+func setupConnsWithTimeout(t testing.TB,
 	network, address string,
 	dctx, actx *context.T,
 	dflows, aflows chan<- flow.Flow,
@@ -95,16 +95,16 @@ func setupConnsWithTimeout(t *testing.T,
 	return <-dch, <-ach, <-derrch, <-aerrch
 }
 
-func setupFlow(t *testing.T, network, address string, dctx, actx *context.T, dialFromDialer bool) (dialed flow.Flow, accepted <-chan flow.Flow, close func()) {
+func setupFlow(t testing.TB, network, address string, dctx, actx *context.T, dialFromDialer bool) (dialed flow.Flow, accepted <-chan flow.Flow, close func()) {
 	dfs, accepted, ac, dc := setupFlows(t, network, address, dctx, actx, dialFromDialer, 1)
 	return dfs[0], accepted, func() { dc.Close(dctx, nil); ac.Close(dctx, nil) }
 }
 
-func setupFlows(t *testing.T, network, address string, dctx, actx *context.T, dialFromDialer bool, n int) (dialed []flow.Flow, accepted <-chan flow.Flow, dc, ac *Conn) {
+func setupFlows(t testing.TB, network, address string, dctx, actx *context.T, dialFromDialer bool, n int) (dialed []flow.Flow, accepted <-chan flow.Flow, dc, ac *Conn) {
 	return setupFlowsOpts(t, network, address, dctx, actx, dialFromDialer, n, Opts{})
 }
 
-func setupFlowsOpts(t *testing.T, network, address string, dctx, actx *context.T, dialFromDialer bool, n int, opts Opts) (dialed []flow.Flow, accepted <-chan flow.Flow, dc, ac *Conn) {
+func setupFlowsOpts(t testing.TB, network, address string, dctx, actx *context.T, dialFromDialer bool, n int, opts Opts) (dialed []flow.Flow, accepted <-chan flow.Flow, dc, ac *Conn) {
 	dialed = make([]flow.Flow, n)
 	dflows, aflows := make(chan flow.Flow, n), make(chan flow.Flow, n)
 	d, a, derr, aerr := setupConnsOpts(t, network, address, dctx, actx, dflows, aflows, nil, nil, opts)
@@ -125,7 +125,7 @@ func setupFlowsOpts(t *testing.T, network, address string, dctx, actx *context.T
 	return dialed, aflows, d, a
 }
 
-func oneFlow(t *testing.T, ctx *context.T, dc *Conn, aflows <-chan flow.Flow, channelTimeout time.Duration) (df, af flow.Flow) {
+func oneFlow(t testing.TB, ctx *context.T, dc *Conn, aflows <-chan flow.Flow, channelTimeout time.Duration) (df, af flow.Flow) {
 	df, err := dc.Dial(ctx, dc.LocalBlessings(), nil, naming.Endpoint{}, channelTimeout, false)
 	if err != nil {
 		t.Fatalf("Unexpected error: %v", err)

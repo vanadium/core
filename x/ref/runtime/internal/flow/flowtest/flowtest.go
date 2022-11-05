@@ -18,7 +18,7 @@ import (
 
 // Pipe returns a connection pair dialed on against a listener using
 // the given network and address.
-func Pipe(t *testing.T, ctx *context.T, network, address string) (dialed, accepted flow.Conn) {
+func Pipe(t testing.TB, ctx *context.T, network, address string) (dialed, accepted flow.Conn) {
 	var err error
 	dialed, accepted, err = NewPipe(ctx, network, address)
 	if err != nil {
