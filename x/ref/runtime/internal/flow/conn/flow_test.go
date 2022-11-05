@@ -36,13 +36,6 @@ func TestReadAtMost(t *testing.T) {
 		io.ReadFull(rand.Reader, input[i])
 	}
 
-	copyInput := func() [][]byte {
-		r := make([][]byte, len(input))
-		copy(r, input)
-		return r
-	}
-	_ = copyInput
-
 	var send []byte
 	var nextSlice, nextOffset, size int
 	assert := func(wSend []byte, wNextSlice, wNextOffset, wSize int) {
