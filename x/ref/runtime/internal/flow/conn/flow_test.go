@@ -18,7 +18,14 @@ import (
 	"v.io/x/ref/test"
 )
 
-func TestPopFrontN(t *testing.T) {
+func totalSize(parts [][]byte) (s int) {
+	for _, p := range parts {
+		s += len(p)
+	}
+	return
+}
+
+func TestReadAtMost(t *testing.T) {
 	input := [][]byte{
 		make([]byte, 64),
 		make([]byte, 32),
@@ -28,13 +35,6 @@ func TestPopFrontN(t *testing.T) {
 	for i := range input {
 		io.ReadFull(rand.Reader, input[i])
 	}
-
-	copyInput := func() [][]byte {
-		r := make([][]byte, len(input))
-		copy(r, input)
-		return r
-	}
-	_ = copyInput
 
 	var send []byte
 	var nextSlice, nextOffset, size int
