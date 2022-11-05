@@ -18,7 +18,14 @@ import (
 	"v.io/x/ref/test"
 )
 
-func TestPopFrontN(t *testing.T) {
+func totalSize(parts [][]byte) (s int) {
+	for _, p := range parts {
+		s += len(p)
+	}
+	return
+}
+
+func TestReadAtMost(t *testing.T) {
 	input := [][]byte{
 		make([]byte, 64),
 		make([]byte, 32),

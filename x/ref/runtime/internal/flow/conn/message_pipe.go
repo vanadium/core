@@ -178,13 +178,6 @@ func (p *messagePipe) handlePlaintextPayload(flags uint64, payload []byte) error
 	return nil
 }
 
-func totalSize(parts [][]byte) (s int) {
-	for _, p := range parts {
-		s += len(p)
-	}
-	return
-}
-
 func (p *messagePipe) writeData(ctx *context.T, m message.Data) error {
 	size := len(m.Payload)
 	p.writeMu.Lock()
