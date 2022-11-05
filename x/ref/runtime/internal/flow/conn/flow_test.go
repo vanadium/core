@@ -182,7 +182,7 @@ func BenchmarkFlow__RPC11__NewBuf__1MB(b *testing.B) {
 	benchmarkFlow(b, 1000000, false, false, version.RPCVersion11)
 }
 
-func BenchmarkFlow__RPC11__NewBuf___10MB(b *testing.B) {
+func BenchmarkFlow__RPC11__NewBuf__10MB(b *testing.B) {
 	benchmarkFlow(b, 10000000, false, false, version.RPCVersion11)
 }
 

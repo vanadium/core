@@ -156,26 +156,19 @@ func testManyMessages(t *testing.T, ctx *context.T, dialedPipe, acceptedPipe *me
 	if err != nil {
 		t.Fatal(err)
 	}
-
-	for _, rxbuf := range [][]byte{nil, make([]byte, DefaultMTU)} {
-
-		received, txErr, rxErr := runMany(ctx, dialedPipe, acceptedPipe, rxbuf, payload)
-
-		if err := txErr; err != nil {
-			t.Fatal(err)
-		}
-		if err := rxErr; err != nil {
-			t.Fatal(err)
-		}
-
-		if got, want := payload, received; !bytes.Equal(got, want) {
-			t.Errorf("data mismatch")
-		}
+	received, txErr, rxErr := runMany(ctx, dialedPipe, acceptedPipe, payload)
+	if err := txErr; err != nil {
+		t.Fatal(err)
 	}
-
+	if err := rxErr; err != nil {
+		t.Fatal(err)
+	}
+	if got, want := payload, received; !bytes.Equal(got, want) {
+		t.Errorf("data mismatch")
+	}
 }
 
-func runMany(ctx *context.T, dialedPipe, acceptedPipe *messagePipe, rxbuf, payload []byte) (received []byte, writeErr, readErr error) {
+func runMany(ctx *context.T, dialedPipe, acceptedPipe *messagePipe, payload []byte) (received []byte, writeErr, readErr error) {
 	errCh := make(chan error, 2)
 	go func() {
 		sent := 0
@@ -197,12 +190,13 @@ func runMany(ctx *context.T, dialedPipe, acceptedPipe *messagePipe, rxbuf, paylo
 
 	go func() {
 		for {
-			m, err := acceptedPipe.readAnyMsg(ctx, rxbuf)
+			m, nb, err := acceptedPipe.readAnyMsg(ctx)
 			if err != nil {
 				errCh <- err
 				return
 			}
 			m = m.Copy()
+			putNetBuf(nb)
 			received = append(received, m.(message.Data).Payload...)
 			if len(received) == len(payload) {
 				break
@@ -314,7 +308,9 @@ func messageRoundTrip(t *testing.T, ctx *context.T, dialed, accepted *messagePip
 	errCh := make(chan error, 1)
 	msgCh := make(chan message.Message, 1)
 	reader := func(mp *messagePipe) {
-		m, err := mp.readAnyMsg(ctx, nil)
+		m, nb, err := mp.readAnyMsg(ctx)
+		m = m.Copy()
+		putNetBuf(nb)
 		errCh <- err
 		msgCh <- m
 	}
@@ -355,7 +351,7 @@ func messageRoundTrip(t *testing.T, ctx *context.T, dialed, accepted *messagePip
 	}
 }
 
-func runMessagePipeBenchmark(b *testing.B, ctx *context.T, dialed, accepted *messagePipe, rxbuf []byte, payload []byte) {
+func runMessagePipeBenchmark(b *testing.B, ctx *context.T, dialed, accepted *messagePipe, payload []byte) {
 	errCh := make(chan error, 1)
 
 	msg := message.Data{ID: 1123, Payload: payload}
@@ -371,10 +367,11 @@ func runMessagePipeBenchmark(b *testing.B, ctx *context.T, dialed, accepted *mes
 	}()
 
 	for i := 0; i < b.N; i++ {
-		_, err := accepted.readAnyMsg(ctx, rxbuf)
+		_, nb, err := accepted.readAnyMsg(ctx)
 		if err != nil {
 			b.Fatal(err)
 		}
+		putNetBuf(nb)
 	}
 
 	if err := <-errCh; err != nil {
@@ -382,17 +379,12 @@ func runMessagePipeBenchmark(b *testing.B, ctx *context.T, dialed, accepted *mes
 	}
 }
 
-func benchmarkMessagePipe(b *testing.B, allowFramerBypass bool, size int, userxbuf bool, ks keyset, rpcversion version.RPCVersion) {
+func benchmarkMessagePipe(b *testing.B, allowFramerBypass bool, size int, ks keyset, rpcversion version.RPCVersion) {
 	ctx, shutdown := test.V23Init()
 	defer shutdown()
 	payload := make([]byte, size)
 	if _, err := io.ReadFull(rand.Reader, payload); err != nil {
 		b.Fatal(err)
-	}
-
-	var rxbuf []byte
-	if userxbuf {
-		rxbuf = make([]byte, size+2048)
 	}
 
 	d, a, err := flowtest.NewPipe(ctx, "tcp", "")
@@ -404,7 +396,6 @@ func benchmarkMessagePipe(b *testing.B, allowFramerBypass bool, size int, userxb
 		dialed, accepted = newMessagePipe(d), newMessagePipe(a)
 	} else {
 		dialed, accepted = newMessagePipeUseFramer(d), newMessagePipeUseFramer(a)
-
 	}
 
 	if err := enableEncryption(ctx, dialed, accepted, ks, rpcversion); err != nil {
@@ -414,69 +405,37 @@ func benchmarkMessagePipe(b *testing.B, allowFramerBypass bool, size int, userxb
 	b.ReportAllocs()
 	b.ResetTimer()
 	b.SetBytes(int64(size) * 2)
-	runMessagePipeBenchmark(b, ctx, dialed, accepted, rxbuf, payload)
+	runMessagePipeBenchmark(b, ctx, dialed, accepted, payload)
 }
 
-func BenchmarkMessagePipe__RPC11__NewBuf__UseFramer____1KB(b *testing.B) {
-	benchmarkMessagePipe(b, false, 1000, false, rpc11Keyset, version.RPCVersion11)
+func BenchmarkMessagePipe__RPC11__UseFramer____1KB(b *testing.B) {
+	benchmarkMessagePipe(b, false, 1000, rpc11Keyset, version.RPCVersion11)
 }
 
-func BenchmarkMessagePipe__RPC11__NewBuf__UseFramer____MTU(b *testing.B) {
-	benchmarkMessagePipe(b, false, DefaultMTU, false, rpc11Keyset, version.RPCVersion11)
+func BenchmarkMessagePipe__RPC11__UseFramer____MTU(b *testing.B) {
+	benchmarkMessagePipe(b, false, DefaultMTU, rpc11Keyset, version.RPCVersion11)
 }
 
-func BenchmarkMessagePipe__RPC11__UseBuf__UseFramer____1KB(b *testing.B) {
-	benchmarkMessagePipe(b, false, 1000, true, rpc11Keyset, version.RPCVersion11)
+func BenchmarkMessagePipe__RPC15__UseFramer____1KB(b *testing.B) {
+	benchmarkMessagePipe(b, false, 1000, rpc15Keyset, version.RPCVersion15)
 }
 
-func BenchmarkMessagePipe__RPC11__UseBuf__UseFramer____MTU(b *testing.B) {
-	benchmarkMessagePipe(b, false, DefaultMTU, true, rpc11Keyset, version.RPCVersion11)
+func BenchmarkMessagePipe__RPC15__UseFramer____MTU(b *testing.B) {
+	benchmarkMessagePipe(b, false, DefaultMTU, rpc15Keyset, version.RPCVersion15)
 }
 
-func BenchmarkMessagePipe__RPC15__NewBuf__UseFramer____1KB(b *testing.B) {
-	benchmarkMessagePipe(b, false, 1000, false, rpc15Keyset, version.RPCVersion15)
+func BenchmarkMessagePipe__RPC11__BypassFramer__1KB(b *testing.B) {
+	benchmarkMessagePipe(b, true, 1000, rpc11Keyset, version.RPCVersion11)
 }
 
-func BenchmarkMessagePipe__RPC15__NewBuf__UseFramer____MTU(b *testing.B) {
-	benchmarkMessagePipe(b, false, DefaultMTU, false, rpc15Keyset, version.RPCVersion15)
+func BenchmarkMessagePipe__RPC11__BypassFramer__MTU(b *testing.B) {
+	benchmarkMessagePipe(b, true, DefaultMTU, rpc11Keyset, version.RPCVersion11)
 }
 
-func BenchmarkMessagePipe__RPC15__UseBuf__UseFramer____1KB(b *testing.B) {
-	benchmarkMessagePipe(b, false, 1000, true, rpc15Keyset, version.RPCVersion15)
+func BenchmarkMessagePipe__RPC15__BypassFramer__1KB(b *testing.B) {
+	benchmarkMessagePipe(b, true, 1000, rpc15Keyset, version.RPCVersion15)
 }
 
-func BenchmarkMessagePipe__RPC15__UseBuf__UseFramer____MTU(b *testing.B) {
-	benchmarkMessagePipe(b, false, DefaultMTU, true, rpc15Keyset, version.RPCVersion15)
-}
-
-func BenchmarkMessagePipe__RPC11__NewBuf__BypassFramer__1KB(b *testing.B) {
-	benchmarkMessagePipe(b, true, 1000, false, rpc11Keyset, version.RPCVersion11)
-}
-
-func BenchmarkMessagePipe__RPC11__NewBuf__BypassFramer__MTU(b *testing.B) {
-	benchmarkMessagePipe(b, true, DefaultMTU, false, rpc11Keyset, version.RPCVersion11)
-}
-
-func BenchmarkMessagePipe__RPC11__UseBuf__BypassFramer__1KB(b *testing.B) {
-	benchmarkMessagePipe(b, true, 1000, true, rpc11Keyset, version.RPCVersion11)
-}
-
-func BenchmarkMessagePipe__RPC11__UseBuf__BypassFramer__MTU(b *testing.B) {
-	benchmarkMessagePipe(b, true, DefaultMTU, true, rpc11Keyset, version.RPCVersion11)
-}
-
-func BenchmarkMessagePipe__RPC15__NewBuf__BypassFramer__1KB(b *testing.B) {
-	benchmarkMessagePipe(b, true, 1000, false, rpc15Keyset, version.RPCVersion15)
-}
-
-func BenchmarkMessagePipe__RPC15__NewBuf__BypassFramer__MTU(b *testing.B) {
-	benchmarkMessagePipe(b, true, DefaultMTU, false, rpc15Keyset, version.RPCVersion15)
-}
-
-func BenchmarkMessagePipe__RPC15__UseBuf__BypassFramer__1KB(b *testing.B) {
-	benchmarkMessagePipe(b, true, 1000, true, rpc15Keyset, version.RPCVersion15)
-}
-
-func BenchmarkMessagePipe__RPC15__UseBuf__BypassFramer__MTU(b *testing.B) {
-	benchmarkMessagePipe(b, true, DefaultMTU, true, rpc15Keyset, version.RPCVersion15)
+func BenchmarkMessagePipe__RPC15__BypassFramer__MTU(b *testing.B) {
+	benchmarkMessagePipe(b, true, DefaultMTU, rpc15Keyset, version.RPCVersion15)
 }

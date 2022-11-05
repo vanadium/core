@@ -511,6 +511,10 @@ func (m OpenFlow) ReadDirect(ctx *context.T, orig []byte) (OpenFlow, error) {
 }
 
 func (m OpenFlow) Copy() Message {
+	return m.CopyDirect()
+}
+
+func (m OpenFlow) CopyDirect() OpenFlow {
 	if m.nocopy {
 		return m
 	}

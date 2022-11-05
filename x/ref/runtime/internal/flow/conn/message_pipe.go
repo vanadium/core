@@ -224,89 +224,111 @@ func (p *messagePipe) writeAnyMsg(ctx *context.T, fn serialize) error {
 	return p.writeCiphertext(ctx, fn, size)
 }
 
-func (p *messagePipe) decryptMessage(ctx *context.T, plaintextBuf []byte) ([]byte, error) {
+func (p *messagePipe) decryptMessage(ctx *context.T) ([]byte, *netBuf, error) {
 	p.readMu.Lock()
 	defer p.readMu.Unlock()
 	if p.open == nil {
-		return p.rw.ReadMsg2(plaintextBuf)
+		// At this point we have no choice but to use a maximally sized buffer.
+		nb, buf := getNetBuf(p.mtu + estimatedMessageOverhead)
+		buf, err := p.rw.ReadMsg2(buf)
+		return buf, nb, err
 	}
-	nb, ciphertextBuf := getNetBuf(p.mtu + estimatedMessageOverhead + maxCipherOverhead)
-	defer putNetBuf(nb)
+	cnb, ciphertextBuf := getNetBuf(p.mtu + estimatedMessageOverhead + maxCipherOverhead)
+	defer putNetBuf(cnb)
 	ciphertext, err := p.rw.ReadMsg2(ciphertextBuf)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
-	plaintext, ok := p.open(plaintextBuf[:0], ciphertext)
+	pnb, plaintext := getNetBuf(len(ciphertext) - maxCipherOverhead)
+	plaintext, ok := p.open(plaintext[:0], ciphertext)
 	if !ok {
-		return nil, message.NewErrInvalidMsg(ctx, 0, uint64(len(ciphertext)), 0, nil)
+		return nil, nil, message.NewErrInvalidMsg(ctx, 0, uint64(len(ciphertext)), 0, nil)
 	}
 	if len(plaintext) == 0 {
-		return nil, message.NewErrInvalidMsg(ctx, message.InvalidType, 0, 0, nil)
+		return nil, nil, message.NewErrInvalidMsg(ctx, message.InvalidType, 0, 0, nil)
 	}
-	return plaintext, nil
+	return plaintext, pnb, nil
 }
 
-func (p *messagePipe) readAnyMsg(ctx *context.T, plaintextBuf []byte) (message.Message, error) {
-	plaintext, err := p.decryptMessage(ctx, plaintextBuf)
+func (p *messagePipe) readAnyMsg(ctx *context.T) (message.Message, *netBuf, error) {
+	plaintext, nBuf, err := p.decryptMessage(ctx)
 	if err != nil {
-		return nil, err
+		putNetBuf(nBuf)
+		return nil, nil, err
 	}
 	msgType, from := plaintext[0], plaintext[1:]
 	switch msgType {
 	case message.DataType:
-		return p.handleData(ctx, from)
+		return p.handleData(ctx, from, nBuf)
 	case message.OpenFlowType:
-		return p.handleOpenFlow(ctx, from)
+		return p.handleOpenFlow(ctx, from, nBuf)
 	}
-	return message.ReadNoPayload(ctx, plaintext)
+	m, err := message.ReadNoPayload(ctx, plaintext)
+	if err != nil {
+		putNetBuf(nBuf)
+		return nil, nil, err
+	}
+	return m, nBuf, nil
 }
 
-func (p *messagePipe) handleData(ctx *context.T, from []byte) (message.Data, error) {
+func (p *messagePipe) handleData(ctx *context.T, from []byte, nBuf *netBuf) (message.Data, *netBuf, error) {
 	m, err := message.Data{}.ReadDirect(ctx, from)
 	if err != nil {
-		return m, err
+		putNetBuf(nBuf)
+		return m, nil, err
 	}
 	if m.Flags&message.DisableEncryptionFlag == 0 {
-		return m, nil
+		return m, nBuf, nil
 	}
 	// plaintext payload that was sent in the immediately following message.
 	payload, err := p.rw.ReadMsg2(nil)
 	if err != nil {
-		return m, err
+		putNetBuf(nBuf)
+		return m, nil, err
 	}
 	m.Payload = payload
 	m = m.SetNoCopy(true)
-	return m, nil
+	return m, nBuf, nil
 }
 
-func (p *messagePipe) handleOpenFlow(ctx *context.T, from []byte) (message.OpenFlow, error) {
+func (p *messagePipe) handleOpenFlow(ctx *context.T, from []byte, nBuf *netBuf) (message.OpenFlow, *netBuf, error) {
 	m, err := message.OpenFlow{}.ReadDirect(ctx, from)
 	if err != nil {
-		return m, err
+		putNetBuf(nBuf)
+		return m, nil, err
 	}
 	if m.Flags&message.DisableEncryptionFlag == 0 {
-		return m, nil
+		return m, nBuf, nil
 	}
 	// plaintext payload that was sent in the immediately following message.
 	payload, err := p.rw.ReadMsg2(nil)
 	if err != nil {
-		return m, err
+		putNetBuf(nBuf)
+		return m, nil, err
 	}
 	m.Payload = payload
 	m = m.SetNoCopy(true)
-	return m, nil
+	return m, nBuf, nil
 }
 
-func (p *messagePipe) readSetup(ctx *context.T, plaintextBuf []byte) (message.Setup, error) {
+func (p *messagePipe) readSetup(ctx *context.T) (message.Setup, *netBuf, error) {
 	// Setup messages are always in the clear.
+	nBuf, plaintextBuf := getNetBuf(2048)
 	p.readMu.Lock()
 	defer p.readMu.Unlock()
 	plaintext, err := p.rw.ReadMsg2(plaintextBuf)
 	if err != nil {
-		return message.Setup{}, err
+		putNetBuf(nBuf)
+		return message.Setup{}, nil, err
 	}
 	if len(plaintext) == 0 {
-		return message.Setup{}, message.NewErrInvalidMsg(ctx, message.InvalidType, 0, 0, nil)
+		putNetBuf(nBuf)
+		return message.Setup{}, nil, message.NewErrInvalidMsg(ctx, message.InvalidType, 0, 0, nil)
 	}
-	return message.Setup{}.ReadDirect(ctx, plaintext[1:])
+	m, err := message.Setup{}.ReadDirect(ctx, plaintext[1:])
+	if err != nil {
+		putNetBuf(nBuf)
+		return m, nil, err
+	}
+	return m, nBuf, nil
 }

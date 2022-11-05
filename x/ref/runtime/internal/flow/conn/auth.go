@@ -126,23 +126,11 @@ func (c *Conn) acceptHandshake(
 
 var emptyNaClPublicKey [32]byte
 
-type setupSent struct {
-	err      error
-	rttStart time.Time
-}
-
-func (c *Conn) sendSetupWithRTT(ctx *context.T, ch chan<- setupSent, msg message.Setup) {
-	rttstart := time.Now()
-	ch <- setupSent{
-		rttStart: rttstart,
-		err:      c.sendSetupMessage(ctx, msg),
-	}
-}
-
 func (c *Conn) setup(ctx *context.T, versions version.RPCVersionRange, dialer bool, mtu uint64) ([]byte, naming.Endpoint, time.Time, error) { //nolint:gocyclo
+	var rttstart time.Time
 	pk, sk, err := box.GenerateKey(rand.Reader)
 	if err != nil {
-		return nil, naming.Endpoint{}, time.Time{}, err
+		return nil, naming.Endpoint{}, rttstart, err
 	}
 	lSetup := message.Setup{
 		Versions:          versions,
@@ -154,22 +142,22 @@ func (c *Conn) setup(ctx *context.T, versions version.RPCVersionRange, dialer bo
 	if !c.remote.IsZero() {
 		lSetup.PeerRemoteEndpoint = c.remote
 	}
-	ch := make(chan setupSent, 1)
-	go c.sendSetupWithRTT(ctx, ch, lSetup)
-
-	buf := [2048]byte{}
-	rSetup, err := c.mp.readSetup(ctx, buf[:])
+	ch := make(chan error, 1)
+	go func() {
+		rttstart = time.Now()
+		ch <- c.sendSetupMessage(ctx, lSetup)
+	}()
+	rSetup, nBuf, err := c.mp.readSetup(ctx)
+	defer putNetBuf(nBuf)
 	if err != nil {
-		state := <-ch
-		return nil, naming.Endpoint{}, state.rttStart, ErrRecv.Errorf(ctx, "conn.setup: recv: %v", err)
+		<-ch
+		return nil, naming.Endpoint{}, rttstart, ErrRecv.Errorf(ctx, "conn.setup: recv: %v", err)
 	}
-	state := <-ch
-	if state.err != nil {
-		return nil, naming.Endpoint{}, state.rttStart, ErrSend.Errorf(ctx, "conn.setup: remote %v: %v", c.remoteEndpointForError(), err)
+	if err := <-ch; err != nil {
+		return nil, naming.Endpoint{}, rttstart, ErrSend.Errorf(ctx, "conn.setup: remote %v: %v", c.remoteEndpointForError(), err)
 	}
-	rttStart := state.rttStart
 	if c.version, err = version.CommonVersion(ctx, lSetup.Versions, rSetup.Versions); err != nil {
-		return nil, naming.Endpoint{}, rttStart, err
+		return nil, naming.Endpoint{}, rttstart, err
 	}
 	if c.local.IsZero() {
 		c.local = rSetup.PeerRemoteEndpoint
@@ -197,11 +185,11 @@ func (c *Conn) setup(ctx *context.T, versions version.RPCVersionRange, dialer bo
 	c.flowControl.configure(c.mtu, lshared)
 
 	if bytes.Equal(rSetup.PeerNaClPublicKey[:], emptyNaClPublicKey[:]) {
-		return nil, naming.Endpoint{}, rttStart, ErrMissingSetupOption.Errorf(ctx, "conn.setup: missing required setup option: peerNaClPublicKey")
+		return nil, naming.Endpoint{}, rttstart, ErrMissingSetupOption.Errorf(ctx, "conn.setup: missing required setup option: peerNaClPublicKey")
 	}
 	binding, err := c.mp.enableEncryption(ctx, pk, sk, &rSetup.PeerNaClPublicKey, c.version)
 	if err != nil {
-		return nil, naming.Endpoint{}, rttStart, err
+		return nil, naming.Endpoint{}, rttstart, err
 	}
 	c.mp.setMTU(c.mtu, c.flowControl.bytesBufferedPerFlow)
 
@@ -213,24 +201,24 @@ func (c *Conn) setup(ctx *context.T, versions version.RPCVersionRange, dialer bo
 		// We always put the dialer first in the binding.
 		if dialer {
 			if binding, err = lSetup.Append(ctx, nil); err != nil {
-				return nil, naming.Endpoint{}, rttStart, err
+				return nil, naming.Endpoint{}, rttstart, err
 			}
 			if binding, err = rSetup.Append(ctx, binding); err != nil {
-				return nil, naming.Endpoint{}, rttStart, err
+				return nil, naming.Endpoint{}, rttstart, err
 			}
 		} else {
 			if binding, err = rSetup.Append(ctx, nil); err != nil {
-				return nil, naming.Endpoint{}, rttStart, err
+				return nil, naming.Endpoint{}, rttstart, err
 			}
 			if binding, err = lSetup.Append(ctx, binding); err != nil {
-				return nil, naming.Endpoint{}, rttStart, err
+				return nil, naming.Endpoint{}, rttstart, err
 			}
 		}
 	}
 	// if we're encapsulated in another flow, tell that flow to stop
 	// encrypting now that we've started.
 	c.mp.disableEncryptionOnEncapsulatedFlow()
-	return binding, rSetup.PeerLocalEndpoint, rttStart, nil
+	return binding, rSetup.PeerLocalEndpoint, rttstart, nil
 }
 
 // readRemoteAuth is used to read the auth handshake messages from the remote

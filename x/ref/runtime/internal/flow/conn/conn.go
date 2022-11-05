@@ -886,12 +886,12 @@ func (c *Conn) readLoop(ctx *context.T) {
 	defer c.loopWG.Done()
 	var err error
 	for {
-		msg, rerr := c.mp.readAnyMsg(ctx, nil)
+		msg, nBuf, rerr := c.mp.readAnyMsg(ctx)
 		if rerr != nil {
 			err = ErrRecv.Errorf(ctx, "error reading from: %v: %v", c.remote.String(), rerr)
 			break
 		}
-		if err = c.handleAnyMessage(ctx, msg); err != nil {
+		if err = c.handleAnyMessage(ctx, msg, nBuf); err != nil {
 			break
 		}
 	}
