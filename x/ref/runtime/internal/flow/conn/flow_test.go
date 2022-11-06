@@ -126,7 +126,7 @@ func runFlowBenchmark(b *testing.B, ctx *context.T, dialed, accepted flow.Flow, 
 	i := 0
 	for {
 		if rxbuf != nil {
-			_, err = accepted.ReadMsg2(rxbuf)
+			_, err = accepted.Read(rxbuf)
 		} else {
 			_, err = accepted.ReadMsg()
 		}
@@ -182,7 +182,7 @@ func BenchmarkFlow__RPC11__NewBuf__1MB(b *testing.B) {
 	benchmarkFlow(b, 1000000, false, false, version.RPCVersion11)
 }
 
-func BenchmarkFlow__RPC11__NewBuf__10MB(b *testing.B) {
+func BenchmarkFlow__RPC11__NewBuf_10MB(b *testing.B) {
 	benchmarkFlow(b, 10000000, false, false, version.RPCVersion11)
 }
 
@@ -197,7 +197,7 @@ func BenchmarkFlow__RPC11__UseBuf__1MB(b *testing.B) {
 	benchmarkFlow(b, 1000000, false, true, version.RPCVersion11)
 }
 
-func BenchmarkFlow__RPC11__UseBuf___10MB(b *testing.B) {
+func BenchmarkFlow__RPC11__UseBuf_10MB(b *testing.B) {
 	benchmarkFlow(b, 10000000, false, true, version.RPCVersion11)
 }
 
@@ -212,7 +212,7 @@ func BenchmarkFlow__RPC11__NewBuf__BufferingFlow__1MB(b *testing.B) {
 	benchmarkFlow(b, 1000000, true, false, version.RPCVersion11)
 }
 
-func BenchmarkFlow__RPC11__NewBuf__BufferingFlow__10MB(b *testing.B) {
+func BenchmarkFlow__RPC11__NewBuf__BufferingFlow_10MB(b *testing.B) {
 	benchmarkFlow(b, 10000000, true, false, version.RPCVersion11)
 }
 
@@ -227,7 +227,7 @@ func BenchmarkFlow__RPC11__UseBuf__BufferingFlow__1MB(b *testing.B) {
 	benchmarkFlow(b, 1000000, true, true, version.RPCVersion11)
 }
 
-func BenchmarkFlow__RPC11__UseBuf__BufferingFlow__10MB(b *testing.B) {
+func BenchmarkFlow__RPC11__UseBuf__BufferingFlow_10MB(b *testing.B) {
 	benchmarkFlow(b, 10000000, true, true, version.RPCVersion11)
 }
 
