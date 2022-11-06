@@ -192,7 +192,8 @@ func (p *messagePipe) writeSetup(ctx *context.T, m message.Setup) error {
 	p.writeMu.Lock()
 	defer p.writeMu.Unlock()
 	// Setup messages are always in the clear.
-	var buf [1024]byte
+	pb, buf := getNetBuf(2048)
+	defer putNetBuf(pb)
 	wire, err := m.Append(ctx, buf[p.frameOffset:p.frameOffset])
 	if err != nil {
 		return nil

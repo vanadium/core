@@ -28,7 +28,7 @@ const (
 
 var (
 	netBufPools     []sync.Pool
-	netBufPoolSizes = []int{1024, 4096, 8192, 16384, 32768, ciphertextBufferSize}
+	netBufPoolSizes = []int{128, 1024, 2048, 4096, 16834, ciphertextBufferSize}
 )
 
 func init() {
@@ -59,6 +59,17 @@ type netBuf struct {
 	pool int // a heap allocated buffer has pool set to -1.
 }
 
+// newNetBuf returns a netBuf with storage allocated from the heap rather than
+// a sync.Pool.
+func newNetBuf(size int) (*netBuf, []byte) {
+	nb := &netBuf{
+		buf:  make([]byte, size),
+		pool: -1,
+	}
+	return nb, nb.buf
+
+}
+
 // getNetBuf returns a new instance of netBuf with a buffer allocated either
 // via a sync.Pool or the heap depending on its size. Regardless of whether
 // the returned byte slice is extended the returned netBuf must be returned
@@ -70,11 +81,7 @@ func getNetBuf(size int) (*netBuf, []byte) {
 			return nb, nb.buf
 		}
 	}
-	nb := &netBuf{
-		buf:  make([]byte, size),
-		pool: -1,
-	}
-	return nb, nb.buf
+	return newNetBuf(size)
 }
 
 // putNetBuf ensures that buffers obtained from a sync.Pool are returned to
@@ -91,6 +98,15 @@ func putNetBuf(bd *netBuf) *netBuf {
 		netBufPools[bd.pool].Put(bd)
 	}
 	return nil
+}
+
+func (bd *netBuf) copyIfNeeded(b []byte) []byte {
+	if bd.pool == -1 && sameUnderlyingStorage(b, bd.buf) {
+		return b
+	}
+	n := make([]byte, len(b))
+	copy(n, b)
+	return n
 }
 
 // sameUnderlyingStorage returns true if x and y share the same underlying

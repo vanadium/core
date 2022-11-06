@@ -133,7 +133,7 @@ func (r *readq) read(ctx *context.T, data []byte) (n int, err error) {
 		} else {
 			r.nbufs--
 			putNetBuf(entry.nBuf)
-			r.bufs[r.b] = readqEntry{} // allow used buffer to be GC'ed
+			r.bufs[r.b] = readqEntry{}
 			r.b = (r.b + 1) % len(r.bufs)
 		}
 		r.size -= uint64(n)
@@ -147,10 +147,9 @@ func (r *readq) get(ctx *context.T) (out []byte, err error) {
 	r.mu.Lock()
 	if err = r.waitLocked(ctx); err == nil {
 		entry := r.bufs[r.b]
-		out = make([]byte, len(entry.buf))
-		copy(out, entry.buf)
+		out = entry.nBuf.copyIfNeeded(entry.buf)
 		putNetBuf(entry.nBuf)
-		r.bufs[r.b] = readqEntry{} // allow used buffer to be GC'ed
+		r.bufs[r.b] = readqEntry{}
 		r.b = (r.b + 1) % len(r.bufs)
 		r.size -= uint64(len(out))
 		r.nbufs--

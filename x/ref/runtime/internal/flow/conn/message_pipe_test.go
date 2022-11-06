@@ -408,19 +408,19 @@ func benchmarkMessagePipe(b *testing.B, allowFramerBypass bool, size int, ks key
 	runMessagePipeBenchmark(b, ctx, dialed, accepted, payload)
 }
 
-func BenchmarkMessagePipe__RPC11__UseFramer____1KB(b *testing.B) {
+func BenchmarkMessagePipe__RPC11__UseFramer_____1KB(b *testing.B) {
 	benchmarkMessagePipe(b, false, 1000, rpc11Keyset, version.RPCVersion11)
 }
 
-func BenchmarkMessagePipe__RPC11__UseFramer____MTU(b *testing.B) {
+func BenchmarkMessagePipe__RPC11__UseFramer_____MTU(b *testing.B) {
 	benchmarkMessagePipe(b, false, DefaultMTU, rpc11Keyset, version.RPCVersion11)
 }
 
-func BenchmarkMessagePipe__RPC15__UseFramer____1KB(b *testing.B) {
+func BenchmarkMessagePipe__RPC15__UseFramer_____1KB(b *testing.B) {
 	benchmarkMessagePipe(b, false, 1000, rpc15Keyset, version.RPCVersion15)
 }
 
-func BenchmarkMessagePipe__RPC15__UseFramer____MTU(b *testing.B) {
+func BenchmarkMessagePipe__RPC15__UseFramer_____MTU(b *testing.B) {
 	benchmarkMessagePipe(b, false, DefaultMTU, rpc15Keyset, version.RPCVersion15)
 }
 
