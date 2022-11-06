@@ -175,29 +175,29 @@ func benchmarkFlow(b *testing.B, size int, bufferingFlow, userxbuf bool, rpcvers
 	runFlowBenchmark(b, ctx, df, af, rxbuf, payload)
 }
 
-func BenchmarkFlow__RPC11__NewBuf__1KB(b *testing.B) {
+func BenchmarkFlow__RPC11__NewBuf____1KB(b *testing.B) {
 	benchmarkFlow(b, 1000, false, false, version.RPCVersion11)
 }
-func BenchmarkFlow__RPC11__NewBuf__1MB(b *testing.B) {
+func BenchmarkFlow__RPC11__NewBuf____1MB(b *testing.B) {
 	benchmarkFlow(b, 1000000, false, false, version.RPCVersion11)
 }
 
-func BenchmarkFlow__RPC11__NewBuf_10MB(b *testing.B) {
+func BenchmarkFlow__RPC11__NewBuf___10MB(b *testing.B) {
 	benchmarkFlow(b, 10000000, false, false, version.RPCVersion11)
 }
 
-func BenchmarkFlow__RPC11__NewBuf__MTU(b *testing.B) {
+func BenchmarkFlow__RPC11__NewBuf___MTU(b *testing.B) {
 	benchmarkFlow(b, DefaultMTU, false, false, version.RPCVersion11)
 }
 
-func BenchmarkFlow__RPC11__UseBuf__1KB(b *testing.B) {
+func BenchmarkFlow__RPC11__UseBuf___1KB(b *testing.B) {
 	benchmarkFlow(b, 1000, false, true, version.RPCVersion11)
 }
-func BenchmarkFlow__RPC11__UseBuf__1MB(b *testing.B) {
+func BenchmarkFlow__RPC11__UseBuf___1MB(b *testing.B) {
 	benchmarkFlow(b, 1000000, false, true, version.RPCVersion11)
 }
 
-func BenchmarkFlow__RPC11__UseBuf_10MB(b *testing.B) {
+func BenchmarkFlow__RPC11__UseBuf__10MB(b *testing.B) {
 	benchmarkFlow(b, 10000000, false, true, version.RPCVersion11)
 }
 
@@ -205,29 +205,29 @@ func BenchmarkFlow__RPC11__UseBuf__MTU(b *testing.B) {
 	benchmarkFlow(b, DefaultMTU, false, true, version.RPCVersion11)
 }
 
-func BenchmarkFlow__RPC11__NewBuf__BufferingFlow__1KB(b *testing.B) {
+func BenchmarkFlow__RPC11__NewBuf__BufferingFlow_____1KB(b *testing.B) {
 	benchmarkFlow(b, 1000, true, false, version.RPCVersion11)
 }
-func BenchmarkFlow__RPC11__NewBuf__BufferingFlow__1MB(b *testing.B) {
+func BenchmarkFlow__RPC11__NewBuf__BufferingFlow____1MB(b *testing.B) {
 	benchmarkFlow(b, 1000000, true, false, version.RPCVersion11)
 }
 
-func BenchmarkFlow__RPC11__NewBuf__BufferingFlow_10MB(b *testing.B) {
+func BenchmarkFlow__RPC11__NewBuf__BufferingFlow___10MB(b *testing.B) {
 	benchmarkFlow(b, 10000000, true, false, version.RPCVersion11)
 }
 
-func BenchmarkFlow__RPC11__NewBuf__BufferingFlow__MTU(b *testing.B) {
+func BenchmarkFlow__RPC11__NewBuf__BufferingFlow___MTU(b *testing.B) {
 	benchmarkFlow(b, DefaultMTU, true, false, version.RPCVersion11)
 }
 
-func BenchmarkFlow__RPC11__UseBuf__BufferingFlow__1KB(b *testing.B) {
+func BenchmarkFlow__RPC11__UseBuf__BufferingFlow___1KB(b *testing.B) {
 	benchmarkFlow(b, 1000, true, true, version.RPCVersion11)
 }
-func BenchmarkFlow__RPC11__UseBuf__BufferingFlow__1MB(b *testing.B) {
+func BenchmarkFlow__RPC11__UseBuf__BufferingFlow___1MB(b *testing.B) {
 	benchmarkFlow(b, 1000000, true, true, version.RPCVersion11)
 }
 
-func BenchmarkFlow__RPC11__UseBuf__BufferingFlow_10MB(b *testing.B) {
+func BenchmarkFlow__RPC11__UseBuf__BufferingFlow__10MB(b *testing.B) {
 	benchmarkFlow(b, 10000000, true, true, version.RPCVersion11)
 }
 
