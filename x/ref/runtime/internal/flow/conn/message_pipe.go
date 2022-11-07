@@ -198,7 +198,7 @@ func (p *messagePipe) writeSetup(ctx *context.T, m message.Setup) error {
 	if err != nil {
 		return nil
 	}
-	return p.writeFrame(ctx, wire, buf[:])
+	return p.writeFrame(ctx, wire, buf)
 }
 
 func (p *messagePipe) writeOpenFlow(ctx *context.T, m message.OpenFlow) error {
@@ -234,12 +234,16 @@ func (p *messagePipe) decryptMessage(ctx *context.T) ([]byte, *netBuf, error) {
 		buf, err := p.rw.ReadMsg2(buf)
 		return buf, nb, err
 	}
+	// Use a maximally sized buffer for reading the encrypted message since
+	// there is no way of knowing what it's size will be.
 	cnb, ciphertextBuf := getNetBuf(p.mtu + estimatedMessageOverhead + maxCipherOverhead)
 	defer putNetBuf(cnb)
 	ciphertext, err := p.rw.ReadMsg2(ciphertextBuf)
 	if err != nil {
 		return nil, nil, err
 	}
+	// Use the size of the ciphertext as an estimage for the size of the plaintext
+	// allocate a new netBuf for it. The netBut is returned along with the plaintext.
 	pnb, plaintext := getNetBuf(len(ciphertext) - maxCipherOverhead)
 	plaintext, ok := p.open(plaintext[:0], ciphertext)
 	if !ok {
@@ -251,6 +255,19 @@ func (p *messagePipe) decryptMessage(ctx *context.T) ([]byte, *netBuf, error) {
 	return plaintext, pnb, nil
 }
 
+// readAnyMsg reads any type of message from the network and returns the parsed
+// message and the netBuf represening the storage used to parse that message.
+// The returned message must not be used after the netBuf is released, a copy
+// of the message must be used if required after the netBuf is released.
+// Care must be taken to ensure that netBufs are released on every code path
+// to avoid leaking sync.Pool buffers. The advantage to using netBufs is that
+// memory allocations and memory use are greatly reduced, especially for large
+// messages. The interaction with the readq is designed to reduce copies
+// to a minimum for read.read calls (ie. a copy to the user supplied buffer),
+// at the cost of a copy for the readq.get; this copy is required to allow for
+// the netBuf to be freed. The reduced overall memory footprint and allocations
+// outweighs the cost of the copies, since the .read operation is the common
+// case.
 func (p *messagePipe) readAnyMsg(ctx *context.T) (message.Message, *netBuf, error) {
 	plaintext, nBuf, err := p.decryptMessage(ctx)
 	if err != nil {
@@ -260,9 +277,9 @@ func (p *messagePipe) readAnyMsg(ctx *context.T) (message.Message, *netBuf, erro
 	msgType, from := plaintext[0], plaintext[1:]
 	switch msgType {
 	case message.DataType:
-		return p.handleData(ctx, from, nBuf)
+		return p.handleReadData(ctx, from, nBuf)
 	case message.OpenFlowType:
-		return p.handleOpenFlow(ctx, from, nBuf)
+		return p.handleReadOpenFlow(ctx, from, nBuf)
 	}
 	m, err := message.ReadNoPayload(ctx, plaintext)
 	if err != nil {
@@ -272,7 +289,7 @@ func (p *messagePipe) readAnyMsg(ctx *context.T) (message.Message, *netBuf, erro
 	return m, nBuf, nil
 }
 
-func (p *messagePipe) handleData(ctx *context.T, from []byte, nBuf *netBuf) (message.Data, *netBuf, error) {
+func (p *messagePipe) handleReadData(ctx *context.T, from []byte, nBuf *netBuf) (message.Data, *netBuf, error) {
 	m, err := message.Data{}.ReadDirect(ctx, from)
 	if err != nil {
 		putNetBuf(nBuf)
@@ -287,12 +304,15 @@ func (p *messagePipe) handleData(ctx *context.T, from []byte, nBuf *netBuf) (mes
 		putNetBuf(nBuf)
 		return m, nil, err
 	}
-	m.Payload = payload
-	m = m.SetNoCopy(true)
-	return m, nBuf, nil
+	// Use the heap allocated payload.
+	m = m.CopyDirect()
+	nb, b := newNetBufPayload(payload)
+	putNetBuf(nBuf)
+	m.Payload = b
+	return m, nb, nil
 }
 
-func (p *messagePipe) handleOpenFlow(ctx *context.T, from []byte, nBuf *netBuf) (message.OpenFlow, *netBuf, error) {
+func (p *messagePipe) handleReadOpenFlow(ctx *context.T, from []byte, nBuf *netBuf) (message.OpenFlow, *netBuf, error) {
 	m, err := message.OpenFlow{}.ReadDirect(ctx, from)
 	if err != nil {
 		putNetBuf(nBuf)
@@ -307,9 +327,12 @@ func (p *messagePipe) handleOpenFlow(ctx *context.T, from []byte, nBuf *netBuf) 
 		putNetBuf(nBuf)
 		return m, nil, err
 	}
-	m.Payload = payload
-	m = m.SetNoCopy(true)
-	return m, nBuf, nil
+	// Use the heap allocated payload.
+	m = m.CopyDirect()
+	nb, b := newNetBufPayload(payload)
+	putNetBuf(nBuf)
+	m.Payload = b
+	return m, nb, nil
 }
 
 func (p *messagePipe) readSetup(ctx *context.T) (message.Setup, *netBuf, error) {

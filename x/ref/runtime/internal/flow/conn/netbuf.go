@@ -55,14 +55,16 @@ func init() {
 // each configured to manage buffers of a fixed size or from the heap.
 // See netBufPoolSizes for the currently configured set of sizes. If a size
 // larger than that suppored by all of the sync.Pools is requested then
-// the buffer is allocated from the heap. Typical usage is:
+// the buffer is allocated from the heap. It is also possible to create
+// netBufs that are intentionally backed by heap storage. This allows for
+// a uniform UI for managing sync.Pool and heap backed buffers.
+// Typical usage is:
 //
 //	netBuf, buf := getNetBuf(size)
 //	  ... use buf ...
 //	putNetBuf(netBuf)
 type netBuf struct {
 	buf  []byte
-	size int
 	pool int // a heap allocated buffer has pool set to -1.
 }
 
@@ -71,16 +73,16 @@ type netBuf struct {
 func newNetBuf(size int) (*netBuf, []byte) {
 	nb := &netBuf{
 		buf:  make([]byte, size),
-		size: size,
 		pool: -1,
 	}
 	return nb, nb.buf
 }
 
-func newNetBufWithPayload(data []byte) (*netBuf, []byte) {
+// newNetBufPayload returns a netBuf backed by the supplied buffer which
+// must have been heap allocated.
+func newNetBufPayload(data []byte) (*netBuf, []byte) {
 	nb := &netBuf{
 		buf:  data,
-		size: len(data),
 		pool: -1,
 	}
 	return nb, nb.buf
@@ -94,11 +96,7 @@ func getNetBuf(size int) (*netBuf, []byte) {
 	for i, s := range netBufPoolSizes {
 		if size <= s {
 			nb := netBufPools[i].Get().(*netBuf)
-			nb.size = size
 			atomic.AddInt64(&netBufGet[i], 1)
-			/*_, file, line, _ := runtime.Caller(1)
-			_, file1, line1, _ := runtime.Caller(3)
-			fmt.Printf("%v: %v: (%v:%v) get pool: %v, size: % 6v, allocs: %v: %p\n", filepath.Base(file), line, filepath.Base(file1), line1, i, size, atomic.LoadInt64(&netBufGet[i]), nb)*/
 			return nb, nb.buf
 		}
 	}
@@ -118,8 +116,6 @@ func putNetBuf(nb *netBuf) *netBuf {
 	if nb != nil {
 		netBufPools[nb.pool].Put(nb)
 		atomic.AddInt64(&netBufPut[nb.pool], 1)
-		/*_, file, line, _ := runtime.Caller(1)
-		fmt.Printf("%v: %v: put pool: %v, size: % 6v, allocs: %v: %p\n", filepath.Base(file), line, nb.pool, nb.size, atomic.LoadInt64(&netBufGet[nb.pool]), nb)*/
 	}
 	return nil
 }

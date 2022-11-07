@@ -5,7 +5,6 @@
 package conn
 
 import (
-	"fmt"
 	"time"
 
 	"v.io/v23/context"
@@ -51,8 +50,9 @@ func (c *Conn) handleData(ctx *context.T, msg message.Data, nBuf *netBuf) error 
 	}
 	if msg.ID == blessingsFlowID {
 		c.mu.Unlock()
-		defer putNetBuf(nBuf)
-		return c.blessingsFlow.writeMsg(msg.Payload)
+		err := c.blessingsFlow.writeMsg(msg.Payload)
+		putNetBuf(nBuf)
+		return err
 	}
 	f := c.flows[msg.ID]
 	if f == nil {
@@ -232,7 +232,7 @@ func (c *Conn) readRemoteAuthLoop(ctx *context.T) (message.Auth, error) {
 		}
 		if rauth, ok := msg.(message.Auth); ok {
 			defer putNetBuf(nBuf)
-			return rauth.Copy().(message.Auth), nil
+			return rauth.CopyDirect(), nil
 		}
 		switch m := msg.(type) {
 		case message.TearDown:
@@ -246,8 +246,6 @@ func (c *Conn) readRemoteAuthLoop(ctx *context.T) (message.Auth, error) {
 			putNetBuf(nBuf)
 			return message.Auth{}, ErrConnectionClosed.Errorf(ctx, "conn.readRemoteAuth: connection closed")
 		case message.OpenFlow:
-			fmt.Printf("\n\nahaha\n\n")
-			panic('x')
 			// If we get an OpenFlow message here it needs to be handled
 			// asynchronously since it will call the flow handler
 			// which will block until NewAccepted (which calls

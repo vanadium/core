@@ -200,7 +200,7 @@ func (r *readq) close(ctx *context.T) bool {
 			// storage allocated from the heap via a heap backed
 			// netBuf.
 			putNetBuf(entry.nBuf)
-			nb, b := newNetBufWithPayload(out)
+			nb, b := newNetBufPayload(out)
 			r.bufs[i] = readqEntry{buf: b, nBuf: nb}
 		}
 	}

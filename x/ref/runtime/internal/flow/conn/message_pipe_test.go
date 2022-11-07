@@ -339,13 +339,11 @@ func messageRoundTrip(t *testing.T, ctx *context.T, dialed, accepted *messagePip
 		if msg.Flags&message.DisableEncryptionFlag == 0 {
 			break
 		}
-		m = msg.SetNoCopy(true)
 
 	case message.OpenFlow:
 		if msg.Flags&message.DisableEncryptionFlag == 0 {
 			break
 		}
-		m = msg.SetNoCopy(true)
 	}
 
 	if got, want := acceptedMessage, m; !reflect.DeepEqual(got, want) {

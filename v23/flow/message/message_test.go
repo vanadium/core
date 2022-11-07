@@ -259,15 +259,13 @@ func plaintextPayload(m message.Message) ([]byte, bool) {
 	return nil, false
 }
 
-func setPlaintextPayload(m message.Message, payload []byte, nocopy bool) message.Message {
+func setPlaintextPayload(m message.Message, payload []byte) message.Message {
 	switch msg := m.(type) {
 	case message.Data:
 		msg.Payload = payload
-		msg = msg.SetNoCopy(nocopy)
 		return msg
 	case message.OpenFlow:
 		msg.Payload = payload
-		msg = msg.SetNoCopy(nocopy)
 		return msg
 	}
 	return m
@@ -329,21 +327,11 @@ func TestPlaintextPayloads(t *testing.T) {
 		}
 
 		newPayload := []byte("hello")
-		m = setPlaintextPayload(m, newPayload, false)
+		m = setPlaintextPayload(m, newPayload)
 		m = m.Copy()
 		copy(newPayload, []byte("world"))
 		p, _ := plaintextPayload(m)
 		if got, want := string(p), "hello"; got != want {
-			t.Errorf("got %v, want %v", got, want)
-		}
-
-		m = setPlaintextPayload(m, newPayload, true)
-		m = m.Copy()
-		// nocopy is true, so the buffer will be shared and
-		// can be overwritten here.
-		copy(newPayload, []byte("world"))
-		p, _ = plaintextPayload(m)
-		if got, want := string(p), "world"; got != want {
 			t.Errorf("got %v, want %v", got, want)
 		}
 	}
