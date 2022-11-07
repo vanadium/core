@@ -5,7 +5,6 @@
 package conn
 
 import (
-	"fmt"
 	"io"
 	"sync"
 
@@ -131,9 +130,6 @@ func (r *readq) read(ctx *context.T, data []byte) (n int, err error) {
 		entry := r.bufs[r.b]
 		n = copy(data, entry.buf)
 		entry.buf = entry.buf[n:]
-		if r.closed {
-			fmt.Printf("%p: readq.read: %v: %p\n", r, r.b, entry.nBuf)
-		}
 		if len(entry.buf) > 0 {
 			r.bufs[r.b] = entry
 		} else {
@@ -153,9 +149,6 @@ func (r *readq) get(ctx *context.T) (out []byte, err error) {
 	r.mu.Lock()
 	if err = r.waitLocked(ctx); err == nil {
 		entry := r.bufs[r.b]
-		if r.closed {
-			fmt.Printf("%p: readq.get: %v: %p\n", r, r.b, entry.nBuf)
-		}
 		out = copyIfNeeded(entry.nBuf, entry.buf)
 		putNetBuf(entry.nBuf)
 		r.bufs[r.b] = readqEntry{}
@@ -187,7 +180,6 @@ func (r *readq) waitLocked(ctx *context.T) (err error) {
 	// Even if the flow is closed, if we have data already queued
 	// we'll let it be read.
 	if err == io.EOF && r.nbufs > 0 {
-		fmt.Printf("wait locked -------------\n")
 		err = nil
 	}
 	return err
@@ -195,9 +187,16 @@ func (r *readq) waitLocked(ctx *context.T) (err error) {
 
 func (r *readq) close(ctx *context.T) bool {
 	r.mu.Lock()
-	for i, entry := range r.bufs {
+	a, b := make([]*netBuf, 0, len(r.bufs)), make([]*netBuf, 0, len(r.bufs))
+	for _, entry := range r.bufs {
 		if entry.nBuf != nil {
-			//o := entry.buf
+			a = append(a, entry.nBuf)
+		}
+	}
+	for i := r.b; i != r.e; i = (i + 1) % len(r.bufs) {
+		entry := r.bufs[i]
+		if entry.nBuf != nil {
+			b = append(b, entry.nBuf)
 			out := copyIfNeeded(entry.nBuf, entry.buf)
 			// Make sure to free the netBuf and replace it with
 			// storage allocated from the heap via a heap backed
@@ -205,7 +204,6 @@ func (r *readq) close(ctx *context.T) bool {
 			putNetBuf(entry.nBuf)
 			nb, b := newNetBufPayload(out)
 			r.bufs[i] = readqEntry{buf: b, nBuf: nb}
-			//fmt.Printf("%p: readq.close: copy %v %p .. %v\n", r, i, r.bufs[i].nBuf, bytes.Equal(r.bufs[i].buf, o))
 		}
 	}
 	closed := false

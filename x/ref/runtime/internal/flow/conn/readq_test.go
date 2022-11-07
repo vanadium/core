@@ -8,6 +8,8 @@ import (
 	"bytes"
 	"fmt"
 	"io"
+	"math/rand"
+	"sync"
 	"testing"
 
 	"v.io/v23/context"
@@ -191,5 +193,57 @@ func TestReadqQResize(t *testing.T) {
 		if got, want := buf[:n], []byte(fmt.Sprintf("%03v", i)); !bytes.Equal(got, want) {
 			t.Errorf("got %v, want %v", got, want)
 		}
+	}
+}
+
+func TestReadqClose(t *testing.T) {
+	defer goroutines.NoLeaks(t, 0)()
+	defer netbufsFreed(t)
+
+	ctx, shutdown := test.V23Init()
+	defer shutdown()
+
+	rr := &readqRelease{}
+
+	r := newReadQ(DefaultBytesBuffered, rr.release)
+
+	iterations := 1000
+	var wg sync.WaitGroup
+	wg.Add(2)
+	ch := make(chan struct{})
+	errCh := make(chan error, 1)
+
+	go func() {
+		defer wg.Done()
+		for i := 0; i < iterations; i++ {
+			readqPut(ctx, r, fmt.Sprintf("%03v", i))
+		}
+	}()
+
+	go func() {
+		defer wg.Done()
+		stopat := rand.Int31n(int32(iterations))
+		for i := 0; i < iterations; i++ {
+			msg, err := r.get(ctx)
+			if err == io.EOF {
+				break
+			}
+			if got, want := msg, []byte(fmt.Sprintf("%03v", i)); !bytes.Equal(got, want) {
+				errCh <- fmt.Errorf("got %s, want %s: %v", got, want, err)
+				return
+			}
+			if i == int(stopat) {
+				close(ch)
+			}
+		}
+		errCh <- nil
+	}()
+
+	<-ch
+	r.close(ctx)
+
+	wg.Wait()
+	if err := <-errCh; err != nil {
+		t.Fatal(err)
 	}
 }

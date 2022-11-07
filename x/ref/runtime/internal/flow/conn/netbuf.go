@@ -47,7 +47,6 @@ func init() {
 				pool: pool,
 			}
 		}
-
 	}
 }
 

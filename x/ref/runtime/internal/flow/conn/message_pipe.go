@@ -192,7 +192,7 @@ func (p *messagePipe) writeSetup(ctx *context.T, m message.Setup) error {
 	p.writeMu.Lock()
 	defer p.writeMu.Unlock()
 	// Setup messages are always in the clear.
-	pb, buf := getNetBuf(2048)
+	pb, buf := getNetBuf(1024)
 	defer putNetBuf(pb)
 	wire, err := m.Append(ctx, buf[p.frameOffset:p.frameOffset])
 	if err != nil {
@@ -247,10 +247,10 @@ func (p *messagePipe) decryptMessage(ctx *context.T) ([]byte, *netBuf, error) {
 	pnb, plaintext := getNetBuf(len(ciphertext) - maxCipherOverhead)
 	plaintext, ok := p.open(plaintext[:0], ciphertext)
 	if !ok {
-		return nil, nil, message.NewErrInvalidMsg(ctx, 0, uint64(len(ciphertext)), 0, nil)
+		return nil, putNetBuf(pnb), message.NewErrInvalidMsg(ctx, 0, uint64(len(ciphertext)), 0, nil)
 	}
 	if len(plaintext) == 0 {
-		return nil, nil, message.NewErrInvalidMsg(ctx, message.InvalidType, 0, 0, nil)
+		return nil, putNetBuf(pnb), message.NewErrInvalidMsg(ctx, message.InvalidType, 0, 0, nil)
 	}
 	return plaintext, pnb, nil
 }
@@ -271,8 +271,7 @@ func (p *messagePipe) decryptMessage(ctx *context.T) ([]byte, *netBuf, error) {
 func (p *messagePipe) readAnyMsg(ctx *context.T) (message.Message, *netBuf, error) {
 	plaintext, nBuf, err := p.decryptMessage(ctx)
 	if err != nil {
-		putNetBuf(nBuf)
-		return nil, nil, err
+		return nil, putNetBuf(nBuf), err
 	}
 	msgType, from := plaintext[0], plaintext[1:]
 	switch msgType {
@@ -283,8 +282,7 @@ func (p *messagePipe) readAnyMsg(ctx *context.T) (message.Message, *netBuf, erro
 	}
 	m, err := message.ReadNoPayload(ctx, plaintext)
 	if err != nil {
-		putNetBuf(nBuf)
-		return nil, nil, err
+		return nil, putNetBuf(nBuf), err
 	}
 	return m, nBuf, nil
 }
@@ -292,8 +290,7 @@ func (p *messagePipe) readAnyMsg(ctx *context.T) (message.Message, *netBuf, erro
 func (p *messagePipe) handleReadData(ctx *context.T, from []byte, nBuf *netBuf) (message.Data, *netBuf, error) {
 	m, err := message.Data{}.ReadDirect(ctx, from)
 	if err != nil {
-		putNetBuf(nBuf)
-		return m, nil, err
+		return m, putNetBuf(nBuf), err
 	}
 	if m.Flags&message.DisableEncryptionFlag == 0 {
 		return m, nBuf, nil
@@ -301,8 +298,7 @@ func (p *messagePipe) handleReadData(ctx *context.T, from []byte, nBuf *netBuf) 
 	// plaintext payload that was sent in the immediately following message.
 	payload, err := p.rw.ReadMsg2(nil)
 	if err != nil {
-		putNetBuf(nBuf)
-		return m, nil, err
+		return m, putNetBuf(nBuf), err
 	}
 	// Use the heap allocated payload.
 	m = m.CopyDirect()
@@ -315,8 +311,7 @@ func (p *messagePipe) handleReadData(ctx *context.T, from []byte, nBuf *netBuf) 
 func (p *messagePipe) handleReadOpenFlow(ctx *context.T, from []byte, nBuf *netBuf) (message.OpenFlow, *netBuf, error) {
 	m, err := message.OpenFlow{}.ReadDirect(ctx, from)
 	if err != nil {
-		putNetBuf(nBuf)
-		return m, nil, err
+		return m, putNetBuf(nBuf), err
 	}
 	if m.Flags&message.DisableEncryptionFlag == 0 {
 		return m, nBuf, nil
@@ -324,8 +319,7 @@ func (p *messagePipe) handleReadOpenFlow(ctx *context.T, from []byte, nBuf *netB
 	// plaintext payload that was sent in the immediately following message.
 	payload, err := p.rw.ReadMsg2(nil)
 	if err != nil {
-		putNetBuf(nBuf)
-		return m, nil, err
+		return m, putNetBuf(nBuf), err
 	}
 	// Use the heap allocated payload.
 	m = m.CopyDirect()
@@ -342,17 +336,14 @@ func (p *messagePipe) readSetup(ctx *context.T) (message.Setup, *netBuf, error) 
 	defer p.readMu.Unlock()
 	plaintext, err := p.rw.ReadMsg2(plaintextBuf)
 	if err != nil {
-		putNetBuf(nBuf)
-		return message.Setup{}, nil, err
+		return message.Setup{}, putNetBuf(nBuf), err
 	}
 	if len(plaintext) == 0 {
-		putNetBuf(nBuf)
-		return message.Setup{}, nil, message.NewErrInvalidMsg(ctx, message.InvalidType, 0, 0, nil)
+		return message.Setup{}, putNetBuf(nBuf), message.NewErrInvalidMsg(ctx, message.InvalidType, 0, 0, nil)
 	}
 	m, err := message.Setup{}.ReadDirect(ctx, plaintext[1:])
 	if err != nil {
-		putNetBuf(nBuf)
-		return m, nil, err
+		return m, putNetBuf(nBuf), err
 	}
 	return m, nBuf, nil
 }
