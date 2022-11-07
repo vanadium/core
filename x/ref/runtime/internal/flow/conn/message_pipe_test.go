@@ -49,14 +49,19 @@ func init() {
 }
 
 func TestMessagePipeRPC11(t *testing.T) {
+	defer netbufsFreed(t)
+
 	ctx, shutdown := test.V23Init()
 	defer shutdown()
+
 	testMessagePipesVersioned(t, ctx, "local", rpc11Keyset, version.RPCVersion11)
 	// framing will be bypassed for the tcp connections.
 	testMessagePipesVersioned(t, ctx, "tcp", rpc11Keyset, version.RPCVersion11)
 }
 
 func TestMessagePipesRPC15(t *testing.T) {
+	defer netbufsFreed(t)
+
 	ctx, shutdown := test.V23Init()
 	defer shutdown()
 	testMessagePipesVersioned(t, ctx, "local", rpc15Keyset, version.RPCVersion15)
@@ -380,6 +385,8 @@ func runMessagePipeBenchmark(b *testing.B, ctx *context.T, dialed, accepted *mes
 }
 
 func benchmarkMessagePipe(b *testing.B, allowFramerBypass bool, size int, ks keyset, rpcversion version.RPCVersion) {
+	defer netbufsFreed(b)
+
 	ctx, shutdown := test.V23Init()
 	defer shutdown()
 	payload := make([]byte, size)

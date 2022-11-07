@@ -888,6 +888,7 @@ func (c *Conn) readLoop(ctx *context.T) {
 	for {
 		msg, nBuf, rerr := c.mp.readAnyMsg(ctx)
 		if rerr != nil {
+			putNetBuf(nBuf)
 			err = ErrRecv.Errorf(ctx, "error reading from: %v: %v", c.remote.String(), rerr)
 			break
 		}

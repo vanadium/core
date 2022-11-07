@@ -23,8 +23,15 @@ func (rr *readqRelease) release(ctx *context.T, n int) {
 	rr.n += n
 }
 
+func readqPut(ctx *context.T, r *readq, m string) {
+	nb, b := getNetBuf(len(m))
+	b = append(b[:0], []byte(m)...)
+	r.put(ctx, b, nb)
+}
+
 func TestReadqRead(t *testing.T) {
 	defer goroutines.NoLeaks(t, 0)()
+	defer netbufsFreed(t)
 
 	ctx, shutdown := test.V23Init()
 	defer shutdown()
@@ -32,10 +39,13 @@ func TestReadqRead(t *testing.T) {
 	rr := &readqRelease{}
 
 	r := newReadQ(DefaultBytesBuffered, rr.release)
-	r.put(ctx, []byte("one"), nil)
-	r.put(ctx, []byte("two"), nil)
-	r.put(ctx, []byte("thre"), nil)
-	r.put(ctx, []byte("reallong"), nil)
+
+	put := func(m string) { readqPut(ctx, r, m) }
+
+	put("one")
+	put("two")
+	put("thre")
+	put("reallong")
 	r.close(ctx)
 
 	read := make([]byte, 4)
@@ -56,6 +66,7 @@ func TestReadqRead(t *testing.T) {
 
 func TestReadqGet(t *testing.T) {
 	defer goroutines.NoLeaks(t, 0)()
+	defer netbufsFreed(t)
 
 	ctx, shutdown := test.V23Init()
 	defer shutdown()
@@ -63,10 +74,11 @@ func TestReadqGet(t *testing.T) {
 	rr := &readqRelease{}
 
 	r := newReadQ(DefaultBytesBuffered, rr.release)
-	r.put(ctx, []byte("one"), nil)
-	r.put(ctx, []byte("two"), nil)
-	r.put(ctx, []byte("thre"), nil)
-	r.put(ctx, []byte("reallong"), nil)
+	put := func(m string) { readqPut(ctx, r, m) }
+	put("one")
+	put("two")
+	put("thre")
+	put("reallong")
 	r.close(ctx)
 
 	want := []string{"one", "two", "thre", "reallong"}
@@ -86,6 +98,7 @@ func TestReadqGet(t *testing.T) {
 
 func TestReadqMixed(t *testing.T) {
 	defer goroutines.NoLeaks(t, 0)()
+	defer netbufsFreed(t)
 
 	ctx, shutdown := test.V23Init()
 	defer shutdown()
@@ -93,10 +106,11 @@ func TestReadqMixed(t *testing.T) {
 	rr := &readqRelease{}
 
 	r := newReadQ(DefaultBytesBuffered, rr.release)
-	r.put(ctx, []byte("one"), nil)
-	r.put(ctx, []byte("two"), nil)
-	r.put(ctx, []byte("thre"), nil)
-	r.put(ctx, []byte("reallong"), nil)
+	put := func(m string) { readqPut(ctx, r, m) }
+	put("one")
+	put("two")
+	put("thre")
+	put("reallong")
 	r.close(ctx)
 
 	want := []string{"one", "two", "thre", "real", "long"}
@@ -135,6 +149,8 @@ func TestReadqMixed(t *testing.T) {
 }
 
 func TestReadqQResize(t *testing.T) {
+	defer netbufsFreed(t)
+
 	ctx, shutdown := test.V23Init()
 	defer shutdown()
 
@@ -143,7 +159,7 @@ func TestReadqQResize(t *testing.T) {
 	r := newReadQ(DefaultBytesBuffered, rr.release)
 
 	for i := 0; i < 100; i++ {
-		r.put(ctx, []byte(fmt.Sprintf("%03v", i)), nil)
+		readqPut(ctx, r, fmt.Sprintf("%03v", i))
 	}
 
 	if got, want := r.nbufs, 100; got != want {
@@ -166,7 +182,7 @@ func TestReadqQResize(t *testing.T) {
 		t.Errorf("got %v, want %v", got, want)
 	}
 	for i := 1; i < 100; i++ {
-		r.put(ctx, []byte(fmt.Sprintf("%03v", i)), nil)
+		readqPut(ctx, r, fmt.Sprintf("%03v", i))
 	}
 
 	for i := 0; i < 100; i++ {

@@ -68,6 +68,7 @@ func newReadQ(bytesBufferedPerFlow uint64, readCallback func(ctx *context.T, n i
 func (r *readq) put(ctx *context.T, buf []byte, nBuf *netBuf) error {
 	l := len(buf)
 	if l == 0 {
+		putNetBuf(nBuf)
 		return nil
 	}
 
@@ -75,6 +76,7 @@ func (r *readq) put(ctx *context.T, buf []byte, nBuf *netBuf) error {
 	defer r.mu.Unlock()
 
 	if r.closed {
+		putNetBuf(nBuf)
 		// The flow has already closed.  Simply drop the data.
 		return nil
 	}
@@ -147,7 +149,7 @@ func (r *readq) get(ctx *context.T) (out []byte, err error) {
 	r.mu.Lock()
 	if err = r.waitLocked(ctx); err == nil {
 		entry := r.bufs[r.b]
-		out = entry.nBuf.copyIfNeeded(entry.buf)
+		out = copyIfNeeded(entry.nBuf, entry.buf)
 		putNetBuf(entry.nBuf)
 		r.bufs[r.b] = readqEntry{}
 		r.b = (r.b + 1) % len(r.bufs)
@@ -190,6 +192,17 @@ func (r *readq) close(ctx *context.T) bool {
 		r.closed = true
 		closed = true
 		close(r.notify)
+	}
+	for i, entry := range r.bufs {
+		if entry.nBuf != nil {
+			out := copyIfNeeded(entry.nBuf, entry.buf)
+			// Make sure to free the netBuf and replace it with
+			// storage allocated from the heap via a heap backed
+			// netBuf.
+			putNetBuf(entry.nBuf)
+			nb, b := newNetBufWithPayload(out)
+			r.bufs[i] = readqEntry{buf: b, nBuf: nb}
+		}
 	}
 	r.mu.Unlock()
 	return closed

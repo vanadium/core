@@ -6,6 +6,7 @@ package conn
 
 import (
 	"sync"
+	"sync/atomic"
 )
 
 const (
@@ -28,11 +29,15 @@ const (
 
 var (
 	netBufPools     []sync.Pool
-	netBufPoolSizes = []int{128, 1024, 2048, 4096, 16834, ciphertextBufferSize}
+	netBufPoolSizes = []int{128, 1024, 2048, 4096, 16384, ciphertextBufferSize}
+	netBufGet       []int64
+	netBufPut       []int64
 )
 
 func init() {
 	netBufPools = make([]sync.Pool, len(netBufPoolSizes))
+	netBufGet = make([]int64, len(netBufPoolSizes))
+	netBufPut = make([]int64, len(netBufPoolSizes))
 	for pool, size := range netBufPoolSizes {
 		pool := pool
 		size := size
@@ -42,6 +47,7 @@ func init() {
 				pool: pool,
 			}
 		}
+
 	}
 }
 
@@ -56,6 +62,7 @@ func init() {
 //	putNetBuf(netBuf)
 type netBuf struct {
 	buf  []byte
+	size int
 	pool int // a heap allocated buffer has pool set to -1.
 }
 
@@ -64,10 +71,19 @@ type netBuf struct {
 func newNetBuf(size int) (*netBuf, []byte) {
 	nb := &netBuf{
 		buf:  make([]byte, size),
+		size: size,
 		pool: -1,
 	}
 	return nb, nb.buf
+}
 
+func newNetBufWithPayload(data []byte) (*netBuf, []byte) {
+	nb := &netBuf{
+		buf:  data,
+		size: len(data),
+		pool: -1,
+	}
+	return nb, nb.buf
 }
 
 // getNetBuf returns a new instance of netBuf with a buffer allocated either
@@ -78,6 +94,11 @@ func getNetBuf(size int) (*netBuf, []byte) {
 	for i, s := range netBufPoolSizes {
 		if size <= s {
 			nb := netBufPools[i].Get().(*netBuf)
+			nb.size = size
+			atomic.AddInt64(&netBufGet[i], 1)
+			/*_, file, line, _ := runtime.Caller(1)
+			_, file1, line1, _ := runtime.Caller(3)
+			fmt.Printf("%v: %v: (%v:%v) get pool: %v, size: % 6v, allocs: %v: %p\n", filepath.Base(file), line, filepath.Base(file1), line1, i, size, atomic.LoadInt64(&netBufGet[i]), nb)*/
 			return nb, nb.buf
 		}
 	}
@@ -90,17 +111,22 @@ func getNetBuf(size int) (*netBuf, []byte) {
 // reduce the risk of returning the same buffer more than once. Returning the
 // same buffer may result in the same buffer being returned by getNetBuf
 // multiple times since sync.Pools have this property.
-func putNetBuf(bd *netBuf) *netBuf {
-	if bd == nil || bd.pool == -1 {
+func putNetBuf(nb *netBuf) *netBuf {
+	if nb == nil || nb.pool == -1 {
 		return nil
 	}
-	if bd != nil {
-		netBufPools[bd.pool].Put(bd)
+	if nb != nil {
+		netBufPools[nb.pool].Put(nb)
+		atomic.AddInt64(&netBufPut[nb.pool], 1)
+		/*_, file, line, _ := runtime.Caller(1)
+		fmt.Printf("%v: %v: put pool: %v, size: % 6v, allocs: %v: %p\n", filepath.Base(file), line, nb.pool, nb.size, atomic.LoadInt64(&netBufGet[nb.pool]), nb)*/
 	}
 	return nil
 }
 
-func (bd *netBuf) copyIfNeeded(b []byte) []byte {
+// copyIfNeeded determies if the supplied byte slice needs to be copied
+// in order to be used after the netBuf is released.
+func copyIfNeeded(bd *netBuf, b []byte) []byte {
 	if bd.pool == -1 && sameUnderlyingStorage(b, bd.buf) {
 		return b
 	}
