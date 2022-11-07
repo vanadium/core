@@ -225,14 +225,21 @@ func (p *messagePipe) writeAnyMsg(ctx *context.T, fn serialize) error {
 	return p.writeCiphertext(ctx, fn, size)
 }
 
-func (p *messagePipe) decryptMessage(ctx *context.T) ([]byte, *netBuf, error) {
+// getPlaintextData returns the plaintext data received from the remote
+// end of this message pipe. It returns the data as a slice as well as the
+// netBuf that backs that byte slice. It guarantess to release any netBufs
+// it allocates on returning an error.
+func (p *messagePipe) getPlaintextData(ctx *context.T) ([]byte, *netBuf, error) {
 	p.readMu.Lock()
 	defer p.readMu.Unlock()
 	if p.open == nil {
 		// At this point we have no choice but to use a maximally sized buffer.
 		nb, buf := getNetBuf(p.mtu + estimatedMessageOverhead)
 		buf, err := p.rw.ReadMsg2(buf)
-		return buf, nb, err
+		if err != nil {
+			return nil, putNetBuf(nb), err
+		}
+		return buf, nb, nil
 	}
 	// Use a maximally sized buffer for reading the encrypted message since
 	// there is no way of knowing what it's size will be.
@@ -269,9 +276,9 @@ func (p *messagePipe) decryptMessage(ctx *context.T) ([]byte, *netBuf, error) {
 // outweighs the cost of the copies, since the .read operation is the common
 // case.
 func (p *messagePipe) readAnyMsg(ctx *context.T) (message.Message, *netBuf, error) {
-	plaintext, nBuf, err := p.decryptMessage(ctx)
+	plaintext, nBuf, err := p.getPlaintextData(ctx)
 	if err != nil {
-		return nil, putNetBuf(nBuf), err
+		return nil, nil, err
 	}
 	msgType, from := plaintext[0], plaintext[1:]
 	switch msgType {
@@ -287,6 +294,10 @@ func (p *messagePipe) readAnyMsg(ctx *context.T) (message.Message, *netBuf, erro
 	return m, nBuf, nil
 }
 
+// handleReadData reads a message.Data from the supplied byte slice. It will
+// return a new netBuf if the payload is unencrypted, releasing the supplied
+// one and ensuring that the returned message does not use of the storage
+// provided by the netBuf passed to it as an argument.
 func (p *messagePipe) handleReadData(ctx *context.T, from []byte, nBuf *netBuf) (message.Data, *netBuf, error) {
 	m, err := message.Data{}.ReadDirect(ctx, from)
 	if err != nil {
@@ -308,6 +319,7 @@ func (p *messagePipe) handleReadData(ctx *context.T, from []byte, nBuf *netBuf) 
 	return m, nb, nil
 }
 
+// handleReadOpenFlow is like handleReadData but for message.OpenFlow.
 func (p *messagePipe) handleReadOpenFlow(ctx *context.T, from []byte, nBuf *netBuf) (message.OpenFlow, *netBuf, error) {
 	m, err := message.OpenFlow{}.ReadDirect(ctx, from)
 	if err != nil {
@@ -329,6 +341,7 @@ func (p *messagePipe) handleReadOpenFlow(ctx *context.T, from []byte, nBuf *netB
 	return m, nb, nil
 }
 
+// readSetup reads a message.Setup, which is always sent in cleartext.
 func (p *messagePipe) readSetup(ctx *context.T) (message.Setup, *netBuf, error) {
 	// Setup messages are always in the clear.
 	nBuf, plaintextBuf := getNetBuf(2048)

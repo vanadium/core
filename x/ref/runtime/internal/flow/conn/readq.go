@@ -187,20 +187,13 @@ func (r *readq) waitLocked(ctx *context.T) (err error) {
 
 func (r *readq) close(ctx *context.T) bool {
 	r.mu.Lock()
-	a, b := make([]*netBuf, 0, len(r.bufs)), make([]*netBuf, 0, len(r.bufs))
-	for _, entry := range r.bufs {
-		if entry.nBuf != nil {
-			a = append(a, entry.nBuf)
-		}
-	}
+	// Make sure to release currently held netBuf's that may be backed by
+	// sync.Pool and storage and replace them with storage allocated from the
+	// heap via a heap backed netBuf.
 	for i := r.b; i != r.e; i = (i + 1) % len(r.bufs) {
 		entry := r.bufs[i]
 		if entry.nBuf != nil {
-			b = append(b, entry.nBuf)
 			out := copyIfNeeded(entry.nBuf, entry.buf)
-			// Make sure to free the netBuf and replace it with
-			// storage allocated from the heap via a heap backed
-			// netBuf.
 			putNetBuf(entry.nBuf)
 			nb, b := newNetBufPayload(out)
 			r.bufs[i] = readqEntry{buf: b, nBuf: nb}
