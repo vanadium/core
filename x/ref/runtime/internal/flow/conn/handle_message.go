@@ -232,6 +232,8 @@ func (c *Conn) readRemoteAuthLoop(ctx *context.T) (message.Auth, error) {
 		}
 		if rauth, ok := msg.(message.Auth); ok {
 			defer putNetBuf(nBuf)
+			// Take care to return a copy of the message in order to allow
+			// the netBuf to be freed.
 			return rauth.CopyDirect(), nil
 		}
 		switch m := msg.(type) {
@@ -251,11 +253,15 @@ func (c *Conn) readRemoteAuthLoop(ctx *context.T) (message.Auth, error) {
 			// which will block until NewAccepted (which calls
 			// this method) returns. OpenFlow is generally expected
 			// to be handled by readLoop.
-			go func(m message.OpenFlow, nb *netBuf) {
-				if err := c.handleOpenFlow(ctx, m, nb); err != nil {
+
+			// Take a copy of the message since and free the netBuf here.
+			m = m.CopyDirect()
+			putNetBuf(nBuf)
+			go func(m message.OpenFlow) {
+				if err := c.handleOpenFlow(ctx, m, nil); err != nil {
 					vlog.Infof("conn.readRemoteAuth: handleMessage for openFlow for flow %v: failed: %v", m.ID, err)
 				}
-			}(m.CopyDirect(), nBuf)
+			}(m.CopyDirect())
 			continue
 		}
 		if err = c.handleAnyMessage(ctx, msg, nBuf); err != nil {
