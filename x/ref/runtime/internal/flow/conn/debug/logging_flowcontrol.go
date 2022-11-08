@@ -11,6 +11,8 @@ import (
 	"fmt"
 	"os"
 	"strings"
+
+	"v.io/v23/flow/message"
 )
 
 func FlowControl(format string, args ...interface{}) {
@@ -20,13 +22,13 @@ func FlowControl(format string, args ...interface{}) {
 	fmt.Fprintf(os.Stderr, format, args...)
 }
 
-func FormatCounters(counters map[uint64]uint64) string {
+func FormatCounters(counters []message.Counter) string {
 	out := strings.Builder{}
 	out.WriteString(fmt.Sprintf("#%v counters:: ", len(counters)))
 	i := 0
 	max := 40
-	for k, v := range counters {
-		out.WriteString(fmt.Sprintf("%v:%v ", k, v))
+	for _, v := range counters {
+		out.WriteString(fmt.Sprintf("%v:%v ", v.FlowID, v.Tokens))
 		if i >= max {
 			break
 		}
