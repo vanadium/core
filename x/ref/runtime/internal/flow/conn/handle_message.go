@@ -12,40 +12,47 @@ import (
 	"v.io/x/lib/vlog"
 )
 
-func (c *Conn) handleAnyMessage(ctx *context.T, m message.Message) error {
+func (c *Conn) handleAnyMessage(ctx *context.T, m message.Message, nBuf *netBuf) error {
+	var err error
 	switch msg := m.(type) {
 	case message.Data:
-		return c.handleData(ctx, msg)
+		return c.handleData(ctx, msg, nBuf)
 	case message.OpenFlow:
-		return c.handleOpenFlow(ctx, msg)
+		return c.handleOpenFlow(ctx, msg, nBuf)
 	case message.Release:
-		return c.handleRelease(ctx, msg)
+		err = c.handleRelease(ctx, msg)
 	case message.Auth:
-		return c.handleAuth(ctx, msg)
+		err = c.handleAuth(ctx, msg)
 	case message.HealthCheckRequest:
-		return c.handleHealthCheckRequest(ctx)
+		err = c.handleHealthCheckRequest(ctx)
 	case message.HealthCheckResponse:
-		return c.handleHealthCheckResponse(ctx)
+		err = c.handleHealthCheckResponse(ctx)
 	case message.TearDown:
-		return c.handleTearDown(ctx, msg)
+		err = c.handleTearDown(ctx, msg)
 	case message.EnterLameDuck:
-		return c.handleEnterLameDuck(ctx, msg)
+		err = c.handleEnterLameDuck(ctx, msg)
 	case message.AckLameDuck:
-		return c.handleAckLameDuck(ctx, msg)
+		err = c.handleAckLameDuck(ctx, msg)
 	default:
+		putNetBuf(nBuf)
 		return ErrUnexpectedMsg.Errorf(ctx, "unexpected message type: %T", m)
 	}
+	putNetBuf(nBuf)
+	return err
 }
 
-func (c *Conn) handleData(ctx *context.T, msg message.Data) error {
+func (c *Conn) handleData(ctx *context.T, msg message.Data, nBuf *netBuf) error {
 	c.mu.Lock()
 	if c.status == Closing {
 		c.mu.Unlock()
+		putNetBuf(nBuf)
 		return nil // Conn is already being shut down.
 	}
 	if msg.ID == blessingsFlowID {
 		c.mu.Unlock()
-		return c.blessingsFlow.writeMsg(msg.Payload)
+		err := c.blessingsFlow.writeMsg(msg.Payload)
+		putNetBuf(nBuf)
+		return err
 	}
 	f := c.flows[msg.ID]
 	if f == nil {
@@ -53,10 +60,12 @@ func (c *Conn) handleData(ctx *context.T, msg message.Data) error {
 		// all messages received for a locally close flow the same way.
 		c.flowControl.releaseOutstandingBorrowedClosed(msg.ID)
 		c.mu.Unlock()
+		putNetBuf(nBuf)
 		return nil
 	}
 	c.mu.Unlock()
-	if err := f.q.put(ctx, msg.Payload); err != nil {
+	if err := f.q.put(ctx, msg.Payload, nBuf); err != nil {
+		putNetBuf(nBuf)
 		return err
 	}
 	if msg.Flags&message.CloseFlag != 0 {
@@ -65,7 +74,7 @@ func (c *Conn) handleData(ctx *context.T, msg message.Data) error {
 	return nil
 }
 
-func (c *Conn) handleOpenFlow(ctx *context.T, msg message.OpenFlow) error {
+func (c *Conn) handleOpenFlow(ctx *context.T, msg message.OpenFlow, nBuf *netBuf) error {
 	remoteBlessings, remoteDischarges, err := c.blessingsFlow.getRemote(
 		ctx, msg.BlessingsKey, msg.DischargeKey)
 	if err != nil {
@@ -74,13 +83,16 @@ func (c *Conn) handleOpenFlow(ctx *context.T, msg message.OpenFlow) error {
 	c.mu.Lock()
 	if c.nextFid%2 == msg.ID%2 {
 		c.mu.Unlock()
+		putNetBuf(nBuf)
 		return ErrInvalidPeerFlow.Errorf(ctx, "peer has chosen flow id from local domain")
 	}
 	if c.handler == nil {
 		c.mu.Unlock()
+		putNetBuf(nBuf)
 		return ErrUnexpectedMsg.Errorf(ctx, "unexpected message type: %T", msg)
 	} else if c.status == Closing {
 		c.mu.Unlock()
+		putNetBuf(nBuf)
 		return nil // Conn is already being closed.
 	}
 	sideChannel := msg.Flags&message.SideChannelFlag != 0
@@ -101,7 +113,8 @@ func (c *Conn) handleOpenFlow(ctx *context.T, msg message.OpenFlow) error {
 
 	c.handler.HandleFlow(f) //nolint:errcheck
 
-	if err := f.q.put(ctx, msg.Payload); err != nil {
+	if err := f.q.put(ctx, msg.Payload, nBuf); err != nil {
+		putNetBuf(nBuf)
 		return err
 	}
 	if msg.Flags&message.CloseFlag != 0 {
@@ -213,12 +226,15 @@ func (c *Conn) remoteEndpointForError() string {
 // messages will be addressed to the blessings flow, ie. flow ID 1.
 func (c *Conn) readRemoteAuthLoop(ctx *context.T) (message.Auth, error) {
 	for {
-		msg, err := c.mp.readAnyMsg(ctx, nil)
+		msg, nBuf, err := c.mp.readAnyMsg(ctx)
 		if err != nil {
 			return message.Auth{}, ErrRecv.Errorf(ctx, "conn.readRemoteAuth: error reading from %v: %v", c.remoteEndpointForError(), err)
 		}
 		if rauth, ok := msg.(message.Auth); ok {
-			return rauth, nil
+			defer putNetBuf(nBuf)
+			// Take care to return a copy of the message in order to allow
+			// the netBuf to be freed.
+			return rauth.CopyDirect(), nil
 		}
 		switch m := msg.(type) {
 		case message.TearDown:
@@ -229,6 +245,7 @@ func (c *Conn) readRemoteAuthLoop(ctx *context.T) (message.Auth, error) {
 			if err := c.handleTearDown(ctx, m); err != nil {
 				vlog.Infof("conn.readRemoteAuth: handleMessage teardown: failed: %v", err)
 			}
+			putNetBuf(nBuf)
 			return message.Auth{}, ErrConnectionClosed.Errorf(ctx, "conn.readRemoteAuth: connection closed")
 		case message.OpenFlow:
 			// If we get an OpenFlow message here it needs to be handled
@@ -236,14 +253,18 @@ func (c *Conn) readRemoteAuthLoop(ctx *context.T) (message.Auth, error) {
 			// which will block until NewAccepted (which calls
 			// this method) returns. OpenFlow is generally expected
 			// to be handled by readLoop.
-			go func() {
-				if err := c.handleOpenFlow(ctx, m); err != nil {
+
+			// Take a copy of the message since and free the netBuf here.
+			m = m.CopyDirect()
+			putNetBuf(nBuf)
+			go func(m message.OpenFlow) {
+				if err := c.handleOpenFlow(ctx, m, nil); err != nil {
 					vlog.Infof("conn.readRemoteAuth: handleMessage for openFlow for flow %v: failed: %v", m.ID, err)
 				}
-			}()
+			}(m.CopyDirect())
 			continue
 		}
-		if err = c.handleAnyMessage(ctx, msg); err != nil {
+		if err = c.handleAnyMessage(ctx, msg, nBuf); err != nil {
 			return message.Auth{}, err
 		}
 	}

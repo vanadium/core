@@ -156,6 +156,7 @@ func (fc *fakeDischargeClient) Closed() <-chan struct{} { return nil }
 
 func TestUnidirectional(t *testing.T) {
 	defer goroutines.NoLeaks(t, leakWaitTime)()
+	defer netbufsFreed(t)
 
 	ctx, shutdown := test.V23Init()
 	defer shutdown()
@@ -171,8 +172,6 @@ func TestUnidirectional(t *testing.T) {
 	if derr != nil || aerr != nil {
 		t.Fatal(derr, aerr)
 	}
-	defer dc.Close(dctx, nil)
-	defer ac.Close(actx, nil)
 
 	df1 := dialFlow(t, dctx, dc, defaultBlessings(dctx), dd)
 	af1 := <-aflows
@@ -189,10 +188,16 @@ func TestUnidirectional(t *testing.T) {
 	if !errors.Is(err, ErrDialingNonServer) {
 		t.Errorf("got %v, wanted ErrDialingNonServer", err)
 	}
+	dc.Close(dctx, nil)
+	ac.Close(actx, nil)
+	<-ac.Closed()
+	<-dc.Closed()
+
 }
 
 func TestBidirectional(t *testing.T) {
 	defer goroutines.NoLeaks(t, leakWaitTime)()
+	defer netbufsFreed(t)
 
 	ctx, shutdown := test.V23Init()
 	defer shutdown()
@@ -233,6 +238,7 @@ func TestBidirectional(t *testing.T) {
 
 func TestPrivateMutualAuth(t *testing.T) {
 	defer goroutines.NoLeaks(t, leakWaitTime)()
+	defer netbufsFreed(t)
 
 	ctx, shutdown := test.V23Init()
 	defer shutdown()

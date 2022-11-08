@@ -147,8 +147,8 @@ func (c *Conn) setup(ctx *context.T, versions version.RPCVersionRange, dialer bo
 		rttstart = time.Now()
 		ch <- c.sendSetupMessage(ctx, lSetup)
 	}()
-	buf := [2048]byte{}
-	rSetup, err := c.mp.readSetup(ctx, buf[:])
+	rSetup, nBuf, err := c.mp.readSetup(ctx)
+	defer putNetBuf(nBuf)
 	if err != nil {
 		<-ch
 		return nil, naming.Endpoint{}, rttstart, ErrRecv.Errorf(ctx, "conn.setup: recv: %v", err)

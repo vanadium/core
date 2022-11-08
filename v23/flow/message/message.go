@@ -435,6 +435,10 @@ func (m Auth) Read(ctx *context.T, orig []byte) (Message, error) {
 }
 
 func (m Auth) Copy() Message {
+	return m.CopyDirect()
+}
+
+func (m Auth) CopyDirect() Auth {
 	m.ChannelBinding.Purpose = copyBytes(m.ChannelBinding.Purpose)
 	switch m.signatureType {
 	case AuthType:
@@ -460,7 +464,6 @@ type OpenFlow struct {
 	BlessingsKey, DischargeKey uint64
 	Flags                      uint64
 	Payload                    []byte
-	nocopy                     bool
 }
 
 func (m OpenFlow) Append(ctx *context.T, data []byte) ([]byte, error) {
@@ -511,17 +514,11 @@ func (m OpenFlow) ReadDirect(ctx *context.T, orig []byte) (OpenFlow, error) {
 }
 
 func (m OpenFlow) Copy() Message {
-	if m.nocopy {
-		return m
-	}
-	m.Payload = copyBytes(m.Payload)
-	return m
+	return m.CopyDirect()
 }
 
-// SetNoCopy is used to indicate whether a subsequent call to Copy
-// needs to copy the payload.
-func (m OpenFlow) SetNoCopy(nocopy bool) OpenFlow {
-	m.nocopy = nocopy
+func (m OpenFlow) CopyDirect() OpenFlow {
+	m.Payload = copyBytes(m.Payload)
 	return m
 }
 
@@ -591,7 +588,6 @@ type Data struct {
 	ID      uint64
 	Flags   uint64
 	Payload []byte
-	nocopy  bool
 }
 
 func (m Data) Append(ctx *context.T, data []byte) ([]byte, error) {
@@ -625,17 +621,12 @@ func (m Data) ReadDirect(ctx *context.T, orig []byte) (Data, error) {
 }
 
 func (m Data) Copy() Message {
-	if m.nocopy {
-		return m
-	}
 	m.Payload = copyBytes(m.Payload)
 	return m
 }
 
-// SetNoCopy is used to indicate whether a subsequent call to Copy
-// needs to copy the payload.
-func (m Data) SetNoCopy(nocopy bool) Data {
-	m.nocopy = nocopy
+func (m Data) CopyDirect() Data {
+	m.Payload = copyBytes(m.Payload)
 	return m
 }
 

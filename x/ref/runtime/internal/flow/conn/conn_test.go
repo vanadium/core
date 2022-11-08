@@ -75,6 +75,7 @@ func doRead(f flow.Flow, want []byte, wg *sync.WaitGroup) error {
 
 func TestLargeWrite(t *testing.T) {
 	defer goroutines.NoLeaks(t, leakWaitTime)()
+	defer netbufsFreed(t)
 	ctx, shutdown := test.V23Init()
 	defer shutdown()
 	df, flows, cl := setupFlow(t, "local", "", ctx, ctx, true)
@@ -111,6 +112,7 @@ func TestLargeWrite(t *testing.T) {
 
 func TestManyLargeWrites(t *testing.T) {
 	defer goroutines.NoLeaks(t, leakWaitTime)()
+	defer netbufsFreed(t)
 	ctx, shutdown := test.V23Init()
 	defer shutdown()
 	df, flows, cl := setupFlow(t, "local", "", ctx, ctx, true)
@@ -153,6 +155,8 @@ func TestManyLargeWrites(t *testing.T) {
 
 func TestConnRTT(t *testing.T) {
 	defer goroutines.NoLeaks(t, leakWaitTime)()
+	defer netbufsFreed(t)
+
 	payload := []byte{0}
 	ctx, shutdown := test.V23Init()
 	defer shutdown()
@@ -185,6 +189,7 @@ func TestConnRTT(t *testing.T) {
 
 func TestMinChannelTimeout(t *testing.T) {
 	defer goroutines.NoLeaks(t, leakWaitTime)()
+	defer netbufsFreed(t)
 
 	orig := minChannelTimeout
 	defer func() {
@@ -278,6 +283,8 @@ func TestHandshakeDespiteCancel(t *testing.T) {
 	// complete, but returning an error that indicating that it
 	// was canceled.
 	defer goroutines.NoLeaks(t, leakWaitTime)()
+	defer netbufsFreed(t)
+
 	ctx, shutdown := test.V23Init()
 	defer shutdown()
 
@@ -297,6 +304,8 @@ func TestHandshakeDespiteCancel(t *testing.T) {
 
 func TestMTUNegotiation(t *testing.T) {
 	defer goroutines.NoLeaks(t, leakWaitTime)()
+	defer netbufsFreed(t)
+
 	ctx, shutdown := test.V23Init()
 	defer shutdown()
 	network, address := "local", ":0"

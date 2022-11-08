@@ -8,6 +8,8 @@ import (
 	"bytes"
 	"fmt"
 	"io"
+	"math/rand"
+	"sync"
 	"testing"
 
 	"v.io/v23/context"
@@ -23,8 +25,15 @@ func (rr *readqRelease) release(ctx *context.T, n int) {
 	rr.n += n
 }
 
+func readqPut(ctx *context.T, r *readq, m string) {
+	nb, b := getNetBuf(len(m))
+	b = append(b[:0], []byte(m)...)
+	r.put(ctx, b, nb)
+}
+
 func TestReadqRead(t *testing.T) {
 	defer goroutines.NoLeaks(t, 0)()
+	defer netbufsFreed(t)
 
 	ctx, shutdown := test.V23Init()
 	defer shutdown()
@@ -32,10 +41,13 @@ func TestReadqRead(t *testing.T) {
 	rr := &readqRelease{}
 
 	r := newReadQ(DefaultBytesBuffered, rr.release)
-	r.put(ctx, []byte("one"))
-	r.put(ctx, []byte("two"))
-	r.put(ctx, []byte("thre"))
-	r.put(ctx, []byte("reallong"))
+
+	put := func(m string) { readqPut(ctx, r, m) }
+
+	put("one")
+	put("two")
+	put("thre")
+	put("reallong")
 	r.close(ctx)
 
 	read := make([]byte, 4)
@@ -56,6 +68,7 @@ func TestReadqRead(t *testing.T) {
 
 func TestReadqGet(t *testing.T) {
 	defer goroutines.NoLeaks(t, 0)()
+	defer netbufsFreed(t)
 
 	ctx, shutdown := test.V23Init()
 	defer shutdown()
@@ -63,10 +76,11 @@ func TestReadqGet(t *testing.T) {
 	rr := &readqRelease{}
 
 	r := newReadQ(DefaultBytesBuffered, rr.release)
-	r.put(ctx, []byte("one"))
-	r.put(ctx, []byte("two"))
-	r.put(ctx, []byte("thre"))
-	r.put(ctx, []byte("reallong"))
+	put := func(m string) { readqPut(ctx, r, m) }
+	put("one")
+	put("two")
+	put("thre")
+	put("reallong")
 	r.close(ctx)
 
 	want := []string{"one", "two", "thre", "reallong"}
@@ -86,6 +100,7 @@ func TestReadqGet(t *testing.T) {
 
 func TestReadqMixed(t *testing.T) {
 	defer goroutines.NoLeaks(t, 0)()
+	defer netbufsFreed(t)
 
 	ctx, shutdown := test.V23Init()
 	defer shutdown()
@@ -93,10 +108,11 @@ func TestReadqMixed(t *testing.T) {
 	rr := &readqRelease{}
 
 	r := newReadQ(DefaultBytesBuffered, rr.release)
-	r.put(ctx, []byte("one"))
-	r.put(ctx, []byte("two"))
-	r.put(ctx, []byte("thre"))
-	r.put(ctx, []byte("reallong"))
+	put := func(m string) { readqPut(ctx, r, m) }
+	put("one")
+	put("two")
+	put("thre")
+	put("reallong")
 	r.close(ctx)
 
 	want := []string{"one", "two", "thre", "real", "long"}
@@ -135,6 +151,8 @@ func TestReadqMixed(t *testing.T) {
 }
 
 func TestReadqQResize(t *testing.T) {
+	defer netbufsFreed(t)
+
 	ctx, shutdown := test.V23Init()
 	defer shutdown()
 
@@ -143,7 +161,7 @@ func TestReadqQResize(t *testing.T) {
 	r := newReadQ(DefaultBytesBuffered, rr.release)
 
 	for i := 0; i < 100; i++ {
-		r.put(ctx, []byte(fmt.Sprintf("%03v", i)))
+		readqPut(ctx, r, fmt.Sprintf("%03v", i))
 	}
 
 	if got, want := r.nbufs, 100; got != want {
@@ -161,12 +179,12 @@ func TestReadqQResize(t *testing.T) {
 		t.Errorf("got %v, want %v", got, want)
 	}
 
-	r.put(ctx, []byte(fmt.Sprintf("%03v", 0)))
+	r.put(ctx, []byte(fmt.Sprintf("%03v", 0)), nil)
 	if got, want := cap(r.bufs), 40; got != want {
 		t.Errorf("got %v, want %v", got, want)
 	}
 	for i := 1; i < 100; i++ {
-		r.put(ctx, []byte(fmt.Sprintf("%03v", i)))
+		readqPut(ctx, r, fmt.Sprintf("%03v", i))
 	}
 
 	for i := 0; i < 100; i++ {
@@ -175,5 +193,57 @@ func TestReadqQResize(t *testing.T) {
 		if got, want := buf[:n], []byte(fmt.Sprintf("%03v", i)); !bytes.Equal(got, want) {
 			t.Errorf("got %v, want %v", got, want)
 		}
+	}
+}
+
+func TestReadqClose(t *testing.T) {
+	defer goroutines.NoLeaks(t, 0)()
+	defer netbufsFreed(t)
+
+	ctx, shutdown := test.V23Init()
+	defer shutdown()
+
+	rr := &readqRelease{}
+
+	r := newReadQ(DefaultBytesBuffered, rr.release)
+
+	iterations := 1000
+	var wg sync.WaitGroup
+	wg.Add(2)
+	ch := make(chan struct{})
+	errCh := make(chan error, 1)
+
+	go func() {
+		defer wg.Done()
+		for i := 0; i < iterations; i++ {
+			readqPut(ctx, r, fmt.Sprintf("%03v", i))
+		}
+	}()
+
+	go func() {
+		defer wg.Done()
+		stopat := rand.Int31n(int32(iterations))
+		for i := 0; i < iterations; i++ {
+			msg, err := r.get(ctx)
+			if err == io.EOF {
+				break
+			}
+			if got, want := msg, []byte(fmt.Sprintf("%03v", i)); !bytes.Equal(got, want) {
+				errCh <- fmt.Errorf("got %s, want %s: %v", got, want, err)
+				return
+			}
+			if i == int(stopat) {
+				close(ch)
+			}
+		}
+		errCh <- nil
+	}()
+
+	<-ch
+	r.close(ctx)
+
+	wg.Wait()
+	if err := <-errCh; err != nil {
+		t.Fatal(err)
 	}
 }

@@ -164,6 +164,9 @@ func bufferingFlowTestRunner(t *testing.T, ctx *context.T, f flow.Flow, accept <
 }
 
 func TestBufferingFlow(t *testing.T) {
+	netbufsFreed(t)
+	defer netbufsFreed(t)
+
 	ctx, shutdown := test.V23Init()
 	defer shutdown()
 
@@ -257,6 +260,8 @@ func TestBufferingFlow(t *testing.T) {
 }
 
 func TestBufferingFlowLarge(t *testing.T) {
+	defer netbufsFreed(t)
+
 	ctx, shutdown := test.V23Init()
 	defer shutdown()
 
@@ -317,6 +322,7 @@ func (ef *writeErrorFlow) Flush() error {
 func TestBufferingFlowErrors(t *testing.T) {
 	ctx, shutdown := test.V23Init()
 	defer shutdown()
+	defer netbufsFreed(t)
 
 	flows, _, dc, ac := setupFlowsOpts(t, "local", "", ctx, ctx, true, 1, Opts{MTU: 2})
 

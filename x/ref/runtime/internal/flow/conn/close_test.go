@@ -65,6 +65,7 @@ func (s *set) open() int {
 
 func TestRemoteDialerClose(t *testing.T) {
 	defer goroutines.NoLeaks(t, leakWaitTime)()
+	defer netbufsFreed(t)
 
 	ctx, shutdown := test.V23Init()
 	defer shutdown()
@@ -84,6 +85,7 @@ func TestRemoteDialerClose(t *testing.T) {
 
 func TestRemoteAcceptorClose(t *testing.T) {
 	defer goroutines.NoLeaks(t, leakWaitTime)()
+	defer netbufsFreed(t)
 
 	ctx, shutdown := test.V23Init()
 	defer shutdown()
@@ -103,6 +105,7 @@ func TestRemoteAcceptorClose(t *testing.T) {
 
 func TestUnderlyingConnectionClosed(t *testing.T) {
 	defer goroutines.NoLeaks(t, leakWaitTime)()
+	defer netbufsFreed(t)
 
 	ctx, shutdown := test.V23Init()
 	defer shutdown()
@@ -119,6 +122,7 @@ func TestUnderlyingConnectionClosed(t *testing.T) {
 
 func TestDialAfterConnClose(t *testing.T) {
 	defer goroutines.NoLeaks(t, leakWaitTime)()
+	defer netbufsFreed(t)
 
 	ctx, shutdown := test.V23Init()
 	defer shutdown()
@@ -140,6 +144,7 @@ func TestDialAfterConnClose(t *testing.T) {
 
 func TestReadWriteAfterConnClose(t *testing.T) {
 	defer goroutines.NoLeaks(t, leakWaitTime)()
+	defer netbufsFreed(t)
 
 	ctx, shutdown := test.V23Init()
 	defer shutdown()
@@ -176,6 +181,7 @@ func TestReadWriteAfterConnClose(t *testing.T) {
 
 func TestFlowCancelOnWrite(t *testing.T) {
 	defer goroutines.NoLeaks(t, leakWaitTime)()
+	defer netbufsFreed(t)
 
 	ctx, shutdown := test.V23Init()
 	defer shutdown()
@@ -215,6 +221,7 @@ func TestFlowCancelOnWrite(t *testing.T) {
 
 func TestFlowCancelOnRead(t *testing.T) {
 	defer goroutines.NoLeaks(t, leakWaitTime)()
+	defer netbufsFreed(t)
 
 	ctx, shutdown := test.V23Init()
 	defer shutdown()

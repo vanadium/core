@@ -36,8 +36,8 @@ type readq struct {
 
 	mu sync.Mutex
 	// circular buffer of added buffers
-	bufsBuiltin [initialReadqBufferSize][]byte
-	bufs        [][]byte
+	bufsBuiltin [initialReadqBufferSize]readqEntry
+	bufs        []readqEntry
 	b, e        int // begin and end indices of data in those circular buffers
 
 	closed bool // set when closed.
@@ -46,6 +46,11 @@ type readq struct {
 	nbufs  int           // number of buffers
 	notify chan struct{} // used to notify any listeners when an empty readq has had data added to it.
 
+}
+
+type readqEntry struct {
+	buf  []byte
+	nBuf *netBuf
 }
 
 const initialReadqBufferSize = 40
@@ -60,9 +65,10 @@ func newReadQ(bytesBufferedPerFlow uint64, readCallback func(ctx *context.T, n i
 	return rq
 }
 
-func (r *readq) put(ctx *context.T, buf []byte) error {
+func (r *readq) put(ctx *context.T, buf []byte, nBuf *netBuf) error {
 	l := len(buf)
 	if l == 0 {
+		putNetBuf(nBuf)
 		return nil
 	}
 
@@ -70,6 +76,7 @@ func (r *readq) put(ctx *context.T, buf []byte) error {
 	defer r.mu.Unlock()
 
 	if r.closed {
+		putNetBuf(nBuf)
 		// The flow has already closed.  Simply drop the data.
 		return nil
 	}
@@ -80,7 +87,7 @@ func (r *readq) put(ctx *context.T, buf []byte) error {
 	}
 	newBufs := r.nbufs + 1
 	r.reserveLocked(newBufs)
-	r.bufs[r.e] = buf
+	r.bufs[r.e] = readqEntry{buf: buf, nBuf: nBuf}
 	r.e = (r.e + 1) % len(r.bufs)
 	r.nbufs = newBufs
 
@@ -102,10 +109,10 @@ func (r *readq) reserveLocked(n int) {
 	if n < len(r.bufs) {
 		return
 	}
-	r.moveqLocked(make([][]byte, 2*n))
+	r.moveqLocked(make([]readqEntry, 2*n))
 }
 
-func (r *readq) moveqLocked(to [][]byte) {
+func (r *readq) moveqLocked(to []readqEntry) {
 	copied := 0
 	if r.e >= r.b {
 		copied = copy(to, r.bufs[r.b:r.e])
@@ -120,14 +127,15 @@ func (r *readq) read(ctx *context.T, data []byte) (n int, err error) {
 	r.mu.Lock()
 	if err = r.waitLocked(ctx); err == nil {
 		err = nil
-		buf := r.bufs[r.b]
-		n = copy(data, buf)
-		buf = buf[n:]
-		if len(buf) > 0 {
-			r.bufs[r.b] = buf
+		entry := r.bufs[r.b]
+		n = copy(data, entry.buf)
+		entry.buf = entry.buf[n:]
+		if len(entry.buf) > 0 {
+			r.bufs[r.b] = entry
 		} else {
 			r.nbufs--
-			r.bufs[r.b] = nil // allow used buffer to be GC'ed
+			putNetBuf(entry.nBuf)
+			r.bufs[r.b] = readqEntry{}
 			r.b = (r.b + 1) % len(r.bufs)
 		}
 		r.size -= uint64(n)
@@ -140,8 +148,10 @@ func (r *readq) read(ctx *context.T, data []byte) (n int, err error) {
 func (r *readq) get(ctx *context.T) (out []byte, err error) {
 	r.mu.Lock()
 	if err = r.waitLocked(ctx); err == nil {
-		out = r.bufs[r.b]
-		r.bufs[r.b] = nil // allow used buffer to be GC'ed
+		entry := r.bufs[r.b]
+		out = copyIfNeeded(entry.nBuf, entry.buf)
+		putNetBuf(entry.nBuf)
+		r.bufs[r.b] = readqEntry{}
 		r.b = (r.b + 1) % len(r.bufs)
 		r.size -= uint64(len(out))
 		r.nbufs--
@@ -177,6 +187,18 @@ func (r *readq) waitLocked(ctx *context.T) (err error) {
 
 func (r *readq) close(ctx *context.T) bool {
 	r.mu.Lock()
+	// Make sure to release currently held netBuf's that may be backed by
+	// sync.Pool and storage and replace them with storage allocated from the
+	// heap via a heap backed netBuf.
+	for i := r.b; i != r.e; i = (i + 1) % len(r.bufs) {
+		entry := r.bufs[i]
+		if entry.nBuf != nil {
+			out := copyIfNeeded(entry.nBuf, entry.buf)
+			putNetBuf(entry.nBuf)
+			nb, b := newNetBufPayload(out)
+			r.bufs[i] = readqEntry{buf: b, nBuf: nb}
+		}
+	}
 	closed := false
 	if !r.closed {
 		r.closed = true
