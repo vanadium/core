@@ -227,7 +227,7 @@ func (p *messagePipe) writeAnyMsg(ctx *context.T, fn serialize) error {
 
 // getPlaintextData returns the plaintext data received from the remote
 // end of this message pipe. It returns the data as a slice as well as the
-// netBuf that backs that byte slice. It guarantess to release any netBufs
+// netBuf that backs that byte slice. It guarantees to release any netBufs
 // it allocates on returning an error.
 func (p *messagePipe) getPlaintextData(ctx *context.T) ([]byte, *netBuf, error) {
 	p.readMu.Lock()
