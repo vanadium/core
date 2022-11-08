@@ -464,7 +464,6 @@ type OpenFlow struct {
 	BlessingsKey, DischargeKey uint64
 	Flags                      uint64
 	Payload                    []byte
-	nocopy                     bool
 }
 
 func (m OpenFlow) Append(ctx *context.T, data []byte) ([]byte, error) {
