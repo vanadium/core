@@ -156,6 +156,7 @@ func (fc *fakeDischargeClient) Closed() <-chan struct{} { return nil }
 
 func TestUnidirectional(t *testing.T) {
 	defer goroutines.NoLeaks(t, leakWaitTime)()
+	defer netbufsFreed(t)
 
 	ctx, shutdown := test.V23Init()
 	defer shutdown()
@@ -191,7 +192,7 @@ func TestUnidirectional(t *testing.T) {
 	ac.Close(actx, nil)
 	<-ac.Closed()
 	<-dc.Closed()
-	netbufsFreed(t)
+
 }
 
 func TestBidirectional(t *testing.T) {
