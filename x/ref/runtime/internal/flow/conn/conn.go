@@ -371,44 +371,42 @@ func NewAccepted(
 
 	c.initWriters()
 	c.flowControl.init(opts.BytesBuffered)
-	done := make(chan struct{}, 1)
-	var rtt time.Duration
-	var err error
+
+	principal := v23.GetPrincipal(ctx)
+	c.localBlessings, c.localValid = principal.BlessingStore().Default()
+	if c.localBlessings.IsZero() {
+		c.localBlessings, _ = security.NamelessBlessing(principal.PublicKey())
+	}
 	var refreshTime time.Time
-	c.loopWG.Add(1)
-	go func() {
-		defer c.loopWG.Done()
-		defer close(done)
-		principal := v23.GetPrincipal(ctx)
-		c.localBlessings, c.localValid = principal.BlessingStore().Default()
-		if c.localBlessings.IsZero() {
-			c.localBlessings, _ = security.NamelessBlessing(principal.PublicKey())
-		}
-		c.localDischarges, refreshTime = slib.PrepareDischarges(
-			ctx, c.localBlessings, nil, "", nil)
-		rtt, err = c.acceptHandshake(ctx, versions, lAuthorizedPeers)
-	}()
+	c.localDischarges, refreshTime = slib.PrepareDischarges(
+		ctx, c.localBlessings, nil, "", nil)
+	handshakeCh := make(chan acceptHandshakeResult, 1)
+	var handshakeResult acceptHandshakeResult
+
+	c.loopWG.Add(3)
+	go c.acceptHandshake(ctx, versions, lAuthorizedPeers, handshakeCh)
+
 	timer := time.NewTimer(opts.HandshakeTimeout)
-	var ferr error
+	var err error
 	select {
-	case <-done:
-		ferr = err
+	case handshakeResult = <-handshakeCh:
+		err = handshakeResult.err
 	case <-timer.C:
-		ferr = verror.ErrTimeout.Errorf(ctx, "timeout")
+		err = verror.ErrTimeout.Errorf(ctx, "timeout")
 	case <-ctx.Done():
-		ferr = verror.ErrCanceled.Errorf(ctx, "canceled")
+		err = verror.ErrCanceled.Errorf(ctx, "canceled")
 	}
 	timer.Stop()
-	if ferr != nil {
+	if err != nil {
 		// Call internalClose with closedWhileAccepting set to true
 		// to avoid waiting on the go routine above to complete.
 		// This avoids blocking on the loopWG waitgroup which is
 		// pointless since we've decided to not wait on it!
-		c.internalClose(ctx, false, true, ferr)
+		c.internalClose(ctx, false, true, err)
 		<-c.closed
-		return nil, ferr
+		return nil, err
 	}
-	c.initializeHealthChecks(ctx, rtt)
+	c.initializeHealthChecks(ctx, handshakeResult.rtt)
 	c.loopWG.Add(2)
 	// NOTE: there is a race for refreshTime since it gets set above
 	// in a goroutine but read here without any synchronization.

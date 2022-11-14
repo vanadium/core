@@ -88,13 +88,23 @@ func (c *Conn) MatchesRID(ep naming.Endpoint) bool {
 		c.remote.RoutingID == ep.RoutingID
 }
 
+type acceptHandshakeResult struct {
+	rtt time.Duration
+	err error
+}
+
 func (c *Conn) acceptHandshake(
 	ctx *context.T,
 	versions version.RPCVersionRange,
-	authorizedPeers []security.BlessingPattern) (rtt time.Duration, err error) {
+	authorizedPeers []security.BlessingPattern,
+	handshakeCh chan<- acceptHandshakeResult) {
+	defer close(handshakeCh)
+	defer c.loopWG.Done()
+
 	binding, remoteEndpoint, _, err := c.setup(ctx, versions, false, c.mtu)
 	if err != nil {
-		return rtt, err
+		done <- acceptHandshakeResult{0, err}
+		return
 	}
 	c.mu.Lock()
 	c.remote = remoteEndpoint
@@ -102,7 +112,8 @@ func (c *Conn) acceptHandshake(
 	c.mu.Unlock()
 	signedBinding, err := v23.GetPrincipal(ctx).Sign(append(authAcceptorTag, binding...))
 	if err != nil {
-		return rtt, err
+		done <- acceptHandshakeResult{0, err}
+		return
 	}
 	lAuth := message.Auth{
 		ChannelBinding: signedBinding,
@@ -111,17 +122,19 @@ func (c *Conn) acceptHandshake(
 	lAuth.BlessingsKey, lAuth.DischargeKey, err = c.blessingsFlow.send(
 		ctx, c.localBlessings, c.localDischarges, authorizedPeers)
 	if err != nil {
-		return rtt, err
+		done <- acceptHandshakeResult{0, err}
+		return
 	}
 
 	rttstart := time.Now()
 	err = c.sendAuthMessage(ctx, lAuth)
 	if err != nil {
-		return rtt, err
+		done <- acceptHandshakeResult{0, err}
+		return
 	}
 	rttend, err := c.readRemoteAuth(ctx, binding, false)
-	rtt = rttend.Sub(rttstart)
-	return rtt, err
+	done <- acceptHandshakeResult{rttend.Sub(rttstart), err}
+	return
 }
 
 var emptyNaClPublicKey [32]byte
