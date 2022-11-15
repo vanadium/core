@@ -42,14 +42,28 @@ func (c *Conn) dialHandshake(
 
 	defer c.loopWG.Done()
 
+	c.mu.Lock()
+	// We only send our real blessings if we are a server in addition to being a client.
+	// Otherwise, we only send our public key through a nameless blessings object.
+	// TODO(suharshs): Should we reveal server blessings if we are connecting to proxy here.
+	if c.handler != nil {
+		c.localBlessings, c.localValid = v23.GetPrincipal(ctx).BlessingStore().Default()
+	} else {
+		c.localBlessings, _ = security.NamelessBlessing(v23.GetPrincipal(ctx).PublicKey())
+	}
+	c.mu.Unlock()
+
 	binding, remoteEndpoint, rttstart, err := c.setup(ctx, versions, true, c.mtu)
 	if err != nil {
 		handshakeCh <- dialHandshakeResult{err: err}
 		return
 	}
+
+	c.mu.Lock()
 	dialedEP := c.remote
 	c.remote.RoutingID = remoteEndpoint.RoutingID
 	c.blessingsFlow = newBlessingsFlow(c)
+	c.mu.Unlock()
 
 	rttend, err := c.readRemoteAuth(ctx, binding, true)
 	if err != nil {
@@ -116,7 +130,6 @@ func (c *Conn) dialHandshake(
 		rtt:      rtt,
 		err:      err,
 	}
-	return
 }
 
 // MatchesRID returns true if the given endpoint matches the routing
@@ -184,7 +197,6 @@ func (c *Conn) acceptHandshake(
 	}
 	rttend, err := c.readRemoteAuth(ctx, binding, false)
 	handshakeCh <- acceptHandshakeResult{rttend.Sub(rttstart), refreshTime, err}
-	return
 }
 
 var emptyNaClPublicKey [32]byte

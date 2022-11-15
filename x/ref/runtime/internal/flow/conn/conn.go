@@ -199,7 +199,7 @@ func (co *Opts) initValues(protocol string) error {
 // even if the context is canceled. The behaviour is different for a proxy
 // connection, in which case a cancelation is immediate and no attempt is made
 // to establish the connection.
-func NewDialed( //nolint:gocyclo
+func NewDialed(
 	ctx *context.T,
 	conn flow.MsgReadWriteCloser,
 	local, remote naming.Endpoint,
@@ -259,7 +259,7 @@ func NewDialed( //nolint:gocyclo
 		c.localBlessings, _ = security.NamelessBlessing(v23.GetPrincipal(ctx).PublicKey())
 	}
 
-	handshakeCh := make(chan dialHandshakeResult)
+	handshakeCh := make(chan dialHandshakeResult, 1)
 	var handshakeResult dialHandshakeResult
 	c.loopWG.Add(1)
 	go c.dialHandshake(ctx, versions, auth, handshakeCh)

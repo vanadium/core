@@ -5,6 +5,8 @@
 package conn
 
 import (
+	"fmt"
+	"os"
 	"time"
 
 	"v.io/v23/context"
@@ -192,6 +194,7 @@ func (c *Conn) handleRelease(ctx *context.T, msg message.Release) error {
 }
 
 func (c *Conn) handleAuth(ctx *context.T, msg message.Auth) error {
+	fmt.Fprintf(os.Stderr, "handleAuth: %v\n", msg)
 	// handles a blessings refresh, as sent by blessingsLoop.
 	blessings, discharges, err := c.blessingsFlow.getRemote(
 		ctx, msg.BlessingsKey, msg.DischargeKey)
@@ -261,7 +264,7 @@ func (c *Conn) readRemoteAuthLoop(ctx *context.T) (message.Auth, error) {
 				if err := c.handleOpenFlow(ctx, m, nil); err != nil {
 					vlog.Infof("conn.readRemoteAuth: handleMessage for openFlow for flow %v: failed: %v", m.ID, err)
 				}
-			}(m.CopyDirect())
+			}(m)
 			continue
 		}
 		if err = c.handleAnyMessage(ctx, msg, nBuf); err != nil {

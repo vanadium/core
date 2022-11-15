@@ -6,6 +6,7 @@ package conn
 
 import (
 	"bytes"
+	"fmt"
 	"reflect"
 	"sync"
 
@@ -245,6 +246,8 @@ func (b *blessingsFlow) send(
 	b.mu.Lock()
 	defer b.mu.Unlock()
 
+	fmt.Printf("send: %v .. %v\n", blessings, len(discharges))
+
 	buid := string(blessings.UniqueID())
 	bkey, hasB := b.outgoing.hasBlessings(buid)
 	if !hasB {
@@ -257,6 +260,7 @@ func (b *blessingsFlow) send(
 	}
 	if len(discharges) == 0 {
 		err = b.encBuf.Flush(ctx)
+		fmt.Printf("send: 2: %v: %v\n", blessings, err)
 		return bkey, 0, err
 	}
 	dlist, dkey, hasD := b.outgoing.hasDischarges(bkey)
@@ -271,6 +275,7 @@ func (b *blessingsFlow) send(
 		return 0, 0, err
 	}
 	err = b.encBuf.Flush(ctx)
+	fmt.Printf("send: 3: %v: %v\n", blessings, err)
 	return bkey, dkey, err
 }
 
