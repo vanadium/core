@@ -291,7 +291,7 @@ func (c *Conn) readRemoteAuth(ctx *context.T, binding []byte, dialer bool) (time
 		c.rPublicKey = rpk
 		c.remoteBlessings = rBlessings
 		c.remoteDischarges = rDischarges
-		fmt.Fprintf(os.Stderr, "BEFORE.... %v\n", c.remoteValid)
+		fmt.Fprintf(os.Stderr, "%p: readRemoteAuth: blessings/discharges: %v %v\n", c, len(rDischarges), len(rBlessings.ThirdPartyCaveats()))
 		c.remoteValid = make(chan struct{})
 		c.mu.Unlock()
 		fmt.Fprintf(os.Stderr, "%p: readRemoteAuth set remote valid: %v\n", c, c.remoteValid)
