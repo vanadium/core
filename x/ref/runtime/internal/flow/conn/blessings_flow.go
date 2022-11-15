@@ -237,7 +237,7 @@ func (b *blessingsFlow) encodeDischargesLocked(ctx *context.T, discharges []secu
 func (b *blessingsFlow) send(
 	ctx *context.T,
 	blessings security.Blessings,
-	discharges map[string]security.Discharge,
+	discharges []namedDischarge,
 	peers []security.BlessingPattern) (bkey, dkey uint64, err error) {
 	if blessings.IsZero() {
 		return 0, 0, nil
@@ -289,14 +289,16 @@ func dischargeMap(in []security.Discharge) map[string]security.Discharge {
 	return out
 }
 
-func equalDischarges(m map[string]security.Discharge, s []security.Discharge) bool {
+func equalDischarges(m []namedDischarge, s []security.Discharge) bool {
 	if len(m) != len(s) {
 		return false
 	}
 	for _, d := range s {
-		inm, ok := m[d.ID()]
-		if !ok || !d.Equivalent(inm) {
-			return false
+		for i := range m {
+			inm, ok := m[d.ID()]
+			if !ok || !d.Equivalent(inm) {
+				return false
+			}
 		}
 	}
 	return true

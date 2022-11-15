@@ -82,6 +82,11 @@ type healthCheckState struct {
 	closeDeadline time.Time
 }
 
+type namedDischarge struct {
+	security.WireDischarge
+	key string
+}
+
 // A Conn acts as a multiplexing encrypted channel that can host Flows.
 type Conn struct {
 	// All the variables here are set before the constructor returns
@@ -111,7 +116,7 @@ type Conn struct {
 	mu sync.Mutex // All the variables below here are protected by mu.
 
 	localBlessings, remoteBlessings   security.Blessings
-	localDischarges, remoteDischarges map[string]security.Discharge
+	localDischarges, remoteDischarges []namedDischarge
 	localValid                        <-chan struct{}
 	remoteValid                       chan struct{}
 	rPublicKey                        security.PublicKey
