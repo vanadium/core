@@ -145,7 +145,6 @@ func (c *Conn) acceptHandshake(
 	}
 	rttend, err := c.readRemoteAuth(ctx, binding, false)
 	handshakeCh <- acceptHandshakeResult{rttend.Sub(rttstart), refreshTime, err}
-	return
 }
 
 var emptyNaClPublicKey [32]byte
