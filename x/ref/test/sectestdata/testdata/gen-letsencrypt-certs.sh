@@ -3,7 +3,7 @@
 # generate letsencrypt certs using DNS challenges via google cloud dns.
 
 # google clound dns credentials file.
-service_account=<credentials-file>
+service_account=$1
 
 # update root certs
 for cert in letsencrypt-stg-int-r3.pem letsencrypt-stg-int-e1.pem; do
