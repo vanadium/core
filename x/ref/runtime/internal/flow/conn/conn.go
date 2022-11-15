@@ -427,6 +427,7 @@ func (c *Conn) blessingsLoop(
 	authorizedPeers []security.BlessingPattern) {
 	defer c.loopWG.Done()
 	for {
+		fmt.Fprintf(os.Stderr, "%p: blessingsLoop: refreshtime %v %v\n", c, time.Until(refreshTime), refreshTime.IsZero())
 		if refreshTime.IsZero() {
 			select {
 			case <-c.localValid:
@@ -445,12 +446,16 @@ func (c *Conn) blessingsLoop(
 			stopAndDrainTimer(timer)
 		}
 
+		fmt.Fprintf(os.Stderr, "%p: blessingsLoop: ready..... \n", c)
+
 		var dis map[string]security.Discharge
 		blessings, valid := v23.GetPrincipal(ctx).BlessingStore().Default()
 		dis, refreshTime = slib.PrepareDischarges(ctx, blessings, nil, "", nil)
 		// Need to access the underlying message pipe with the connections
 		// lock held.
 		bkey, dkey, err := c.blessingsFlow.send(ctx, blessings, dis, authorizedPeers)
+		fmt.Fprintf(os.Stderr, "%p: blessingsLoop: sent %v \n", c, len(dis))
+
 		if err != nil {
 			c.internalClose(ctx, false, false, err)
 			return

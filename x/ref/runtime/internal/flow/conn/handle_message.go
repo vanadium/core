@@ -195,7 +195,6 @@ func (c *Conn) handleRelease(ctx *context.T, msg message.Release) error {
 }
 
 func (c *Conn) handleAuth(ctx *context.T, msg message.Auth) error {
-	fmt.Fprintf(os.Stderr, "handleAuth: %v\n", msg)
 	// handles a blessings refresh, as sent by blessingsLoop.
 	blessings, discharges, err := c.blessingsFlow.getRemote(
 		ctx, msg.BlessingsKey, msg.DischargeKey)
@@ -206,6 +205,8 @@ func (c *Conn) handleAuth(ctx *context.T, msg message.Auth) error {
 	defer c.mu.Unlock()
 	c.remoteBlessings = blessings
 	c.remoteDischarges = discharges
+	fmt.Fprintf(os.Stderr, "%p: handleAuth: %v\n", c, len(discharges))
+
 	if c.remoteValid != nil {
 		close(c.remoteValid)
 		c.remoteValid = make(chan struct{})

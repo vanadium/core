@@ -246,7 +246,7 @@ func (b *blessingsFlow) send(
 	b.mu.Lock()
 	defer b.mu.Unlock()
 
-	fmt.Printf("%p: blessintgs flow send: %v %v\n", b, len(blessings.ThirdPartyCaveats()), len(discharges))
+	fmt.Printf("%p: blessings flow send: %v %v\n", b, len(blessings.ThirdPartyCaveats()), len(discharges))
 
 	buid := string(blessings.UniqueID())
 	bkey, hasB := b.outgoing.hasBlessings(buid)
