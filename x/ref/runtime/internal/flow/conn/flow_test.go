@@ -12,9 +12,13 @@ import (
 	"testing"
 	"time"
 
+	v23 "v.io/v23"
 	"v.io/v23/context"
 	"v.io/v23/flow"
+	"v.io/v23/naming"
 	"v.io/v23/rpc/version"
+	"v.io/x/ref/runtime/internal/flow/flowtest"
+	iversion "v.io/x/ref/runtime/internal/rpc/version"
 	"v.io/x/ref/test"
 )
 
@@ -145,6 +149,8 @@ func runFlowBenchmark(b *testing.B, ctx *context.T, dialed, accepted flow.Flow, 
 }
 
 func benchmarkFlow(b *testing.B, size int, bufferingFlow, userxbuf bool, rpcversion version.RPCVersion) {
+	defer netbufsFreed(b)
+
 	ctx, shutdown := test.V23Init()
 	defer shutdown()
 	payload := make([]byte, size)
@@ -158,7 +164,7 @@ func benchmarkFlow(b *testing.B, size int, bufferingFlow, userxbuf bool, rpcvers
 	}
 
 	aflows := make(chan flow.Flow, 1)
-	dc, _, derr, aerr := setupConns(b, "tcp", "", ctx, ctx, nil, aflows, nil, nil)
+	dc, ac, derr, aerr := setupConns(b, "tcp", "", ctx, ctx, nil, aflows, nil, nil)
 	if derr != nil || aerr != nil {
 		b.Fatal(derr, aerr)
 	}
@@ -173,11 +179,61 @@ func benchmarkFlow(b *testing.B, size int, bufferingFlow, userxbuf bool, rpcvers
 	b.ResetTimer()
 	b.SetBytes(int64(size) * 2)
 	runFlowBenchmark(b, ctx, df, af, rxbuf, payload)
+	dc.Close(ctx, nil)
+	<-dc.Closed()
+	ac.Close(ctx, nil)
+	<-ac.Closed()
+}
+
+func BenchmarkFlow__ConnectionSetup(b *testing.B) {
+	ctx, shutdown := test.V23Init()
+	defer shutdown()
+
+	network, address := "tcp", ":0"
+	versions := iversion.Supported
+
+	ridep := naming.Endpoint{Protocol: network, Address: address, RoutingID: naming.FixedRoutingID(191341)}
+	ep := naming.Endpoint{Protocol: network, Address: address}
+	dch := make(chan *Conn)
+	ach := make(chan *Conn)
+	derrch := make(chan error)
+	aerrch := make(chan error)
+	dBlessings, _ := v23.GetPrincipal(ctx).BlessingStore().Default()
+
+	dial := func(conn flow.Conn) {
+		d, _, _, err := NewDialed(ctx, conn, ep, ep, versions, peerAuthorizer{dBlessings, nil}, nil, Opts{})
+		dch <- d
+		derrch <- err
+	}
+
+	accept := func(conn flow.Conn) {
+		a, err := NewAccepted(ctx, nil, conn, ridep, versions, nil, Opts{})
+		ach <- a
+		aerrch <- err
+	}
+
+	b.ReportAllocs()
+	b.ResetTimer()
+
+	for i := 0; i < b.N; i++ {
+		dmrw, amrw := flowtest.Pipe(b, ctx, network, address)
+
+		go accept(dmrw)
+		go dial(amrw)
+
+		dconn := <-dch
+		aconn := <-ach
+
+		dconn.Close(ctx, nil)
+		aconn.Close(ctx, nil)
+	}
+
 }
 
 func BenchmarkFlow__RPC11__NewBuf___1KB(b *testing.B) {
 	benchmarkFlow(b, 1000, false, false, version.RPCVersion11)
 }
+
 func BenchmarkFlow__RPC11__NewBuf___1MB(b *testing.B) {
 	benchmarkFlow(b, 1000000, false, false, version.RPCVersion11)
 }
