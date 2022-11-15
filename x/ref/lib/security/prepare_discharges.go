@@ -48,22 +48,7 @@ func PrepareDischarges(
 	blessings security.Blessings,
 	serverBlessings []string,
 	method string,
-	args []interface{}) (map[string]security.Discharge, time.Time) {
-
-	dlist, refresh := PrepareDischargesSlice(ctx, blessings, serverBlessings, method, args)
-	dmap := make(map[string]security.Discharge, len(dlist))
-	for _, d := range dlist {
-		dmap[d.ID()] = d
-	}
-	return dmap, refresh
-}
-
-func PrepareDischargesSlice(
-	ctx *context.T,
-	blessings security.Blessings,
-	serverBlessings []string,
-	method string,
-	args []interface{}) ([]security.Discharge, time.Time) {
+	args []interface{}) (security.Discharges, time.Time) {
 	tpCavs := blessings.ThirdPartyCaveats()
 	if len(tpCavs) == 0 {
 		return nil, time.Time{}
@@ -85,21 +70,29 @@ func PrepareDischargesSlice(
 	// are fetched.
 	var minRefreshTime time.Time
 	ch := make(chan *updateResult, len(tpCavs))
-	ret := make([]security.Discharge, len(tpCavs))
+	ret := make([]security.Discharge, 0, len(tpCavs))
 	for {
-		want := len(todo)
+		want := 0
 		now := time.Now()
 		for _, w := range todo {
-			updateDischarge(ctx, now, w.impetus, w.caveat, ch)
+			if len(w.name) > 0 {
+				updateDischarge(ctx, now, w.impetus, w.caveat, ch)
+				want++
+			}
 		}
 		got := 0
 		for i := 0; i < want; i++ {
 			res := <-ch
-			id := res.discharge.ID()
-			ret[id] = res.discharge
+			ret = append(ret, res.discharge)
 			if res.done {
 				minRefreshTime = minTime(minRefreshTime, res.refreshTime)
-				delete(todo, id)
+				id := res.discharge.ID()
+				for j := range todo {
+					if todo[j].name == id {
+						todo[j] = work{}
+						break
+					}
+				}
 				got++
 			}
 		}

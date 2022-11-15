@@ -24,6 +24,43 @@ type Discharge struct {
 	wire WireDischarge
 }
 
+// Discharges represents a set of Discharges.
+type Discharges []Discharge
+
+// Find returns the Discharge with the requested id.
+func (dl Discharges) Find(id string) (Discharge, bool) {
+	for _, d := range dl {
+		if d.ID() == id {
+			return d, true
+		}
+	}
+	return Discharge{}, false
+}
+
+// Equivalent returns true if discharges contains an equivalent discharge
+// to that requested, that is, one with the same ID and that satifies
+// discharge.Equivalent.
+func (dl Discharges) Equivalent(discharge Discharge) bool {
+	id := discharge.ID()
+	for _, d := range dl {
+		if d.ID() == id {
+			return discharge.Equivalent(d)
+		}
+	}
+	return false
+}
+
+// Copy returns a copy of the Discharges.
+func (dl Discharges) Copy() Discharges {
+	// avoid unnecessary allocation.
+	if len(dl) == 0 {
+		return nil
+	}
+	ret := make([]Discharge, len(dl))
+	copy(ret, dl)
+	return ret
+}
+
 // ID returns the identifier for the third-party caveat that d is a discharge
 // for.
 func (d Discharge) ID() string {

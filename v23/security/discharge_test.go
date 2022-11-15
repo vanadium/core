@@ -69,7 +69,7 @@ func testDischargeSignatureCaching(t *testing.T, p1, p2 security.Principal) {
 		ctx, cancel = context.RootContext()
 		mkCall      = func(d security.Discharge) security.Call {
 			return security.NewCall(&security.CallParams{
-				RemoteDischarges: map[string]security.Discharge{cav.ThirdPartyDetails().ID(): d},
+				RemoteDischarges: security.Discharges{d},
 			})
 		}
 	)
@@ -137,9 +137,7 @@ func benchmarkPublicKeyDischargeVerification(caching bool, b *testing.B, signer 
 	ctx, cancel := context.RootContext()
 	defer cancel()
 	call := security.NewCall(&security.CallParams{
-		RemoteDischarges: map[string]security.Discharge{
-			cav.ThirdPartyDetails().ID(): discharge,
-		}})
+		RemoteDischarges: security.Discharges{discharge}})
 	// Validate once for the initial expensive signature validation (not stored in the cache).
 	if err := cav.Validate(ctx, call); err != nil {
 		b.Fatal(err)

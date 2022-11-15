@@ -27,7 +27,7 @@ import (
 	"v.io/x/ref/test/testutil"
 )
 
-func checkBlessings(t *testing.T, got, want security.Blessings, gotd map[string]security.Discharge) {
+func checkBlessings(t *testing.T, got, want security.Blessings, gotd security.Discharges) {
 	if !got.Equivalent(want) {
 		t.Errorf("got: %v wanted %v", got, want)
 	}
@@ -36,7 +36,7 @@ func checkBlessings(t *testing.T, got, want security.Blessings, gotd map[string]
 		t.Errorf("got %#v, wanted one caveat.", tpcav)
 	}
 	tpid := got.ThirdPartyCaveats()[0].ThirdPartyDetails().ID()
-	if _, has := gotd[tpid]; !has {
+	if _, has := gotd.Find(tpid); !has {
 		t.Errorf("got: %#v wanted %s", gotd, tpid)
 	}
 }
@@ -51,7 +51,7 @@ func checkFlowBlessings(t *testing.T, df, af flow.Flow, db, ab security.Blessing
 	checkBlessings(t, df.RemoteBlessings(), ab, df.RemoteDischarges())
 }
 
-func dialFlow(t *testing.T, ctx *context.T, dc *Conn, b security.Blessings, d map[string]security.Discharge) flow.Flow {
+func dialFlow(t *testing.T, ctx *context.T, dc *Conn, b security.Blessings, d []security.Discharge) flow.Flow {
 	df, err := dc.Dial(ctx, b, d, dc.remote, 0, false)
 	if err != nil {
 		t.Fatal(err)
@@ -85,7 +85,7 @@ func NewRoot(t *testing.T, ctx *context.T) *bcrypter.Root {
 	return bcrypter.NewRoot(defaultBlessingName(t, ctx), master)
 }
 
-func BlessWithTPCaveat(t *testing.T, ctx *context.T, p security.Principal, s string) (security.Blessings, map[string]security.Discharge) {
+func BlessWithTPCaveat(t *testing.T, ctx *context.T, p security.Principal, s string) (security.Blessings, []security.Discharge) {
 	dp := v23.GetPrincipal(ctx)
 	expcav, err := security.NewExpiryCaveat(time.Now().Add(time.Hour))
 	if err != nil {
@@ -105,10 +105,10 @@ func BlessWithTPCaveat(t *testing.T, ctx *context.T, p security.Principal, s str
 	if err != nil {
 		t.Fatal(err)
 	}
-	return b, map[string]security.Discharge{d.ID(): d}
+	return b, []security.Discharge{d}
 }
 
-func NewPrincipalWithTPCaveat(t *testing.T, rootCtx *context.T, root *bcrypter.Root, s string) (*context.T, map[string]security.Discharge) {
+func NewPrincipalWithTPCaveat(t *testing.T, rootCtx *context.T, root *bcrypter.Root, s string) (*context.T, []security.Discharge) {
 	p := testutil.NewPrincipal()
 	blessings, discharges := BlessWithTPCaveat(t, rootCtx, p, s)
 	if err := vsecurity.SetDefaultBlessings(p, blessings); err != nil {
@@ -395,5 +395,4 @@ func TestChangedDefaultBlessings(t *testing.T) {
 	if got, want := dialerConn.Status(), Closed; got != want {
 		t.Fatalf("got %v, want %v", got, want)
 	}
-
 }

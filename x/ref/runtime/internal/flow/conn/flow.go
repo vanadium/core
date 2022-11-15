@@ -23,7 +23,7 @@ type flw struct {
 	conn                              *Conn
 	q                                 *readq
 	localBlessings, remoteBlessings   security.Blessings
-	localDischarges, remoteDischarges map[string]security.Discharge
+	localDischarges, remoteDischarges security.Discharges
 	noEncrypt                         bool
 	noFragment                        bool
 	remote                            naming.Endpoint
@@ -63,7 +63,7 @@ func (c *Conn) newFlowLocked(
 	ctx *context.T,
 	id uint64,
 	localBlessings, remoteBlessings security.Blessings,
-	localDischarges, remoteDischarges map[string]security.Discharge,
+	localDischarges, remoteDischarges []security.Discharge,
 	remote naming.Endpoint,
 	dialed bool,
 	channelTimeout time.Duration,
@@ -418,7 +418,7 @@ func (f *flw) RemoteBlessings() security.Blessings {
 // flow during authentication.
 //
 // Discharges are organized in a map keyed by the discharge-identifier.
-func (f *flw) LocalDischarges() map[string]security.Discharge {
+func (f *flw) LocalDischarges() security.Discharges {
 	return f.localDischarges
 }
 
@@ -426,7 +426,7 @@ func (f *flw) LocalDischarges() map[string]security.Discharge {
 // flow during authentication.
 //
 // Discharges are organized in a map keyed by the discharge-identifier.
-func (f *flw) RemoteDischarges() map[string]security.Discharge {
+func (f *flw) RemoteDischarges() security.Discharges {
 	return f.remoteDischarges
 }
 

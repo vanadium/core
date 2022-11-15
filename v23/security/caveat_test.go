@@ -103,12 +103,11 @@ func testPublicKeyThirdPartyCaveat(t *testing.T, discharger,
 
 		ctxCancelAndCall = func(method string, discharges ...security.Discharge) (*context.T, context.CancelFunc, security.Call) {
 			params := &security.CallParams{
-				Timestamp:        now,
-				Method:           method,
-				RemoteDischarges: make(map[string]security.Discharge),
+				Timestamp: now,
+				Method:    method,
 			}
 			for _, d := range discharges {
-				params.RemoteDischarges[d.ID()] = d
+				params.RemoteDischarges = append(params.RemoteDischarges, d)
 			}
 			root, cancel := context.RootContext()
 			return root, cancel, security.NewCall(params)

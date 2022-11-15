@@ -172,7 +172,7 @@ func (b *blessingsFlow) receiveLocked(ctx *context.T, bd BlessingsFlowMessage) e
 // and buffered before calling this function.  This property is guaranteed since
 // we always send blessings and discharges before sending their bkey/dkey
 // references in the Auth message that terminates the auth handshake.
-func (b *blessingsFlow) getRemote(ctx *context.T, bkey, dkey uint64) (security.Blessings, map[string]security.Discharge, error) {
+func (b *blessingsFlow) getRemote(ctx *context.T, bkey, dkey uint64) (security.Blessings, []security.Discharge, error) {
 	defer b.mu.Unlock()
 	b.mu.Lock()
 	for {
@@ -183,7 +183,7 @@ func (b *blessingsFlow) getRemote(ctx *context.T, bkey, dkey uint64) (security.B
 			}
 			discharges, _, hasD := b.incoming.hasDischarges(dkey)
 			if hasD {
-				return blessings, dischargeMap(discharges), nil
+				return blessings, discharges, nil
 			}
 		}
 		var received BlessingsFlowMessage
@@ -237,7 +237,7 @@ func (b *blessingsFlow) encodeDischargesLocked(ctx *context.T, discharges []secu
 func (b *blessingsFlow) send(
 	ctx *context.T,
 	blessings security.Blessings,
-	discharges []namedDischarge,
+	discharges []security.Discharge,
 	peers []security.BlessingPattern) (bkey, dkey uint64, err error) {
 	if blessings.IsZero() {
 		return 0, 0, nil
@@ -263,42 +263,23 @@ func (b *blessingsFlow) send(
 	if hasD && equalDischarges(discharges, dlist) {
 		return bkey, dkey, nil
 	}
-	dlist = dischargeList(discharges)
 	dkey = b.nextKey
 	b.nextKey++
-	b.outgoing.addDischarges(bkey, dkey, dlist)
-	if err := b.encodeDischargesLocked(ctx, dlist, bkey, dkey, peers); err != nil {
+	b.outgoing.addDischarges(bkey, dkey, discharges)
+	if err := b.encodeDischargesLocked(ctx, discharges, bkey, dkey, peers); err != nil {
 		return 0, 0, err
 	}
 	err = b.encBuf.Flush(ctx)
 	return bkey, dkey, err
 }
 
-func dischargeList(in map[string]security.Discharge) []security.Discharge {
-	out := make([]security.Discharge, 0, len(in))
-	for _, d := range in {
-		out = append(out, d)
-	}
-	return out
-}
-func dischargeMap(in []security.Discharge) map[string]security.Discharge {
-	out := make(map[string]security.Discharge, len(in))
-	for _, d := range in {
-		out[d.ID()] = d
-	}
-	return out
-}
-
-func equalDischarges(m []namedDischarge, s []security.Discharge) bool {
-	if len(m) != len(s) {
+func equalDischarges(client, server security.Discharges) bool {
+	if len(client) != len(server) {
 		return false
 	}
-	for _, d := range s {
-		for i := range m {
-			inm, ok := m[d.ID()]
-			if !ok || !d.Equivalent(inm) {
-				return false
-			}
+	for _, sd := range server {
+		if !client.Equivalent(sd) {
+			return false
 		}
 	}
 	return true

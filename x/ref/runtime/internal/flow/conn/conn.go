@@ -116,7 +116,7 @@ type Conn struct {
 	mu sync.Mutex // All the variables below here are protected by mu.
 
 	localBlessings, remoteBlessings   security.Blessings
-	localDischarges, remoteDischarges []namedDischarge
+	localDischarges, remoteDischarges security.Discharges
 	localValid                        <-chan struct{}
 	remoteValid                       chan struct{}
 	rPublicKey                        security.PublicKey
@@ -453,19 +453,19 @@ func (c *Conn) blessingsLoop(
 			timer.Stop()
 		}
 
-		var dis map[string]security.Discharge
+		var discharges security.Discharges
 		blessings, valid := v23.GetPrincipal(ctx).BlessingStore().Default()
-		dis, refreshTime = slib.PrepareDischarges(ctx, blessings, nil, "", nil)
+		discharges, refreshTime = slib.PrepareDischarges(ctx, blessings, nil, "", nil)
 		// Need to access the underlying message pipe with the connections
 		// lock held.
-		bkey, dkey, err := c.blessingsFlow.send(ctx, blessings, dis, authorizedPeers)
+		bkey, dkey, err := c.blessingsFlow.send(ctx, blessings, discharges, authorizedPeers)
 		if err != nil {
 			c.internalClose(ctx, false, false, err)
 			return
 		}
 		c.mu.Lock()
 		c.localBlessings = blessings
-		c.localDischarges = dis
+		c.localDischarges = discharges
 		c.localValid = valid
 		c.mu.Unlock()
 		err = c.sendAuthMessage(ctx, message.Auth{
@@ -583,7 +583,7 @@ func (c *Conn) EnterLameDuck(ctx *context.T) chan struct{} {
 }
 
 // Dial dials a new flow on the Conn.
-func (c *Conn) Dial(ctx *context.T, blessings security.Blessings, discharges map[string]security.Discharge,
+func (c *Conn) Dial(ctx *context.T, blessings security.Blessings, discharges []security.Discharge,
 	remote naming.Endpoint, channelTimeout time.Duration, sideChannel bool) (flow.Flow, error) {
 	if c.remote.RoutingID == naming.NullRoutingID {
 		return nil, ErrDialingNonServer.Errorf(ctx, "attempting to dial on a connection with no remote server: %v", c.remote.String())
@@ -650,7 +650,7 @@ func (c *Conn) RemoteBlessings() security.Blessings {
 
 // LocalDischarges fetches the most recently sent discharges for the local
 // ends blessings.
-func (c *Conn) LocalDischarges() map[string]security.Discharge {
+func (c *Conn) LocalDischarges() security.Discharges {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 	return c.localDischarges
@@ -658,7 +658,7 @@ func (c *Conn) LocalDischarges() map[string]security.Discharge {
 
 // RemoteDischarges fetches the most recently received discharges for the remote
 // ends blessings.
-func (c *Conn) RemoteDischarges() map[string]security.Discharge {
+func (c *Conn) RemoteDischarges() security.Discharges {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 	// It may happen that in the case of bidirectional RPC the dialer of the connection
