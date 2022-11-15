@@ -388,7 +388,7 @@ func NewAccepted(
 	case <-ctx.Done():
 		err = verror.ErrCanceled.Errorf(ctx, "canceled")
 	}
-	timer.Stop()
+	stopAndDrainTimer(timer)
 	if err != nil {
 		// Call internalClose with closedWhileAccepting set to true
 		// to avoid waiting on the go routine above to complete.
@@ -414,6 +414,12 @@ func (c *Conn) initWriters() {
 	c.setupCloseSender.notify = make(chan struct{})
 }
 
+func stopAndDrainTimer(timer *time.Timer) {
+	if !timer.Stop() {
+		<-timer.C
+	}
+}
+
 func (c *Conn) blessingsLoop(
 	ctx *context.T,
 	refreshTime time.Time,
@@ -432,10 +438,10 @@ func (c *Conn) blessingsLoop(
 			case <-timer.C:
 			case <-c.localValid:
 			case <-ctx.Done():
-				timer.Stop()
+				stopAndDrainTimer(timer)
 				return
 			}
-			timer.Stop()
+			stopAndDrainTimer(timer)
 		}
 
 		var dis map[string]security.Discharge
