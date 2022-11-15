@@ -5,6 +5,8 @@
 package conn
 
 import (
+	"fmt"
+	"os"
 	"time"
 
 	"v.io/v23/context"
@@ -14,6 +16,7 @@ import (
 
 func (c *Conn) handleAnyMessage(ctx *context.T, m message.Message, nBuf *netBuf) error {
 	var err error
+	fmt.Printf("handle %T\n", m)
 	switch msg := m.(type) {
 	case message.Data:
 		return c.handleData(ctx, msg, nBuf)
@@ -192,6 +195,7 @@ func (c *Conn) handleRelease(ctx *context.T, msg message.Release) error {
 }
 
 func (c *Conn) handleAuth(ctx *context.T, msg message.Auth) error {
+	fmt.Fprintf(os.Stderr, "handleAuth: %v\n", msg)
 	// handles a blessings refresh, as sent by blessingsLoop.
 	blessings, discharges, err := c.blessingsFlow.getRemote(
 		ctx, msg.BlessingsKey, msg.DischargeKey)
@@ -227,6 +231,7 @@ func (c *Conn) remoteEndpointForError() string {
 func (c *Conn) readRemoteAuthLoop(ctx *context.T) (message.Auth, error) {
 	for {
 		msg, nBuf, err := c.mp.readAnyMsg(ctx)
+		fmt.Fprintf(os.Stderr, "readRemoteAuth: %T\n", msg)
 		if err != nil {
 			return message.Auth{}, ErrRecv.Errorf(ctx, "conn.readRemoteAuth: error reading from %v: %v", c.remoteEndpointForError(), err)
 		}
@@ -261,7 +266,7 @@ func (c *Conn) readRemoteAuthLoop(ctx *context.T) (message.Auth, error) {
 				if err := c.handleOpenFlow(ctx, m, nil); err != nil {
 					vlog.Infof("conn.readRemoteAuth: handleMessage for openFlow for flow %v: failed: %v", m.ID, err)
 				}
-			}(m.CopyDirect())
+			}(m)
 			continue
 		}
 		if err = c.handleAnyMessage(ctx, msg, nBuf); err != nil {

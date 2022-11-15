@@ -7,6 +7,8 @@ package conn
 import (
 	"bytes"
 	"crypto/rand"
+	"fmt"
+	"os"
 	"time"
 
 	"golang.org/x/crypto/nacl/box"
@@ -31,6 +33,9 @@ func (c *Conn) dialHandshake(
 	ctx *context.T,
 	versions version.RPCVersionRange,
 	auth flow.PeerAuthorizer) (names []string, rejected []security.RejectedBlessing, rtt time.Duration, err error) {
+
+	fmt.Fprintf(os.Stderr, "%p: dialHandshake\n", c)
+
 	binding, remoteEndpoint, rttstart, err := c.setup(ctx, versions, true, c.mtu)
 	if err != nil {
 		return nil, nil, 0, err
@@ -77,6 +82,8 @@ func (c *Conn) dialHandshake(
 		return names, rejected, rtt, err
 	}
 	err = c.sendAuthMessage(ctx, lAuth)
+	fmt.Fprintf(os.Stderr, "%p: dialHandshake: sent auth\n", c)
+
 	return names, rejected, rtt, err
 }
 
@@ -103,44 +110,51 @@ func (c *Conn) acceptHandshake(
 	defer close(handshakeCh)
 	defer c.loopWG.Done()
 
+	fmt.Fprintf(os.Stderr, "%p: acceptHandshake\n", c)
 	principal := v23.GetPrincipal(ctx)
-	c.localBlessings, c.localValid = principal.BlessingStore().Default()
-	if c.localBlessings.IsZero() {
-		c.localBlessings, _ = security.NamelessBlessing(principal.PublicKey())
+	localBlessings, localValid := principal.BlessingStore().Default()
+	if localBlessings.IsZero() {
+		localBlessings, _ = security.NamelessBlessing(principal.PublicKey())
 	}
-	var refreshTime time.Time
-	c.localDischarges, refreshTime = slib.PrepareDischarges(
-		ctx, c.localBlessings, nil, "", nil)
+	// PrepareDischarges may issue RPCs to validate 3rd party caveats.
+	localDischarges, refreshTime := slib.PrepareDischarges(
+		ctx, localBlessings, nil, "", nil)
 
 	binding, remoteEndpoint, _, err := c.setup(ctx, versions, false, c.mtu)
 	if err != nil {
-		handshakeCh <- acceptHandshakeResult{0, time.Time{}, err}
+		handshakeCh <- acceptHandshakeResult{err: err}
 		return
 	}
+
 	c.mu.Lock()
+	c.localBlessings = localBlessings
+	c.localValid = localValid
+	c.localDischarges = localDischarges
 	c.remote = remoteEndpoint
 	c.blessingsFlow = newBlessingsFlow(c)
 	c.mu.Unlock()
+
 	signedBinding, err := v23.GetPrincipal(ctx).Sign(append(authAcceptorTag, binding...))
 	if err != nil {
-		handshakeCh <- acceptHandshakeResult{0, time.Time{}, err}
+		handshakeCh <- acceptHandshakeResult{err: err}
 		return
 	}
+
 	lAuth := message.Auth{
 		ChannelBinding: signedBinding,
 	}
-
 	lAuth.BlessingsKey, lAuth.DischargeKey, err = c.blessingsFlow.send(
 		ctx, c.localBlessings, c.localDischarges, authorizedPeers)
 	if err != nil {
-		handshakeCh <- acceptHandshakeResult{0, time.Time{}, err}
+		handshakeCh <- acceptHandshakeResult{err: err}
 		return
 	}
 
 	rttstart := time.Now()
 	err = c.sendAuthMessage(ctx, lAuth)
+	fmt.Fprintf(os.Stderr, "%p: acceptHandshake: sent auth.....\n", c)
 	if err != nil {
-		handshakeCh <- acceptHandshakeResult{0, time.Time{}, err}
+		handshakeCh <- acceptHandshakeResult{err: err}
 		return
 	}
 	rttend, err := c.readRemoteAuth(ctx, binding, false)
@@ -277,8 +291,10 @@ func (c *Conn) readRemoteAuth(ctx *context.T, binding []byte, dialer bool) (time
 		c.rPublicKey = rpk
 		c.remoteBlessings = rBlessings
 		c.remoteDischarges = rDischarges
+		fmt.Fprintf(os.Stderr, "BEFORE.... %v\n", c.remoteValid)
 		c.remoteValid = make(chan struct{})
 		c.mu.Unlock()
+		fmt.Fprintf(os.Stderr, "%p: readRemoteAuth set remote valid: %v\n", c, c.remoteValid)
 		c.blessingsFlow.setPublicKeyBinding(rpk)
 	}
 

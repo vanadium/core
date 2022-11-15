@@ -372,7 +372,7 @@ func NewAccepted(
 	c.initWriters()
 	c.flowControl.init(opts.BytesBuffered)
 
-	handshakeCh := make(chan acceptHandshakeResult, 1)
+	handshakeCh := make(chan acceptHandshakeResult)
 	var handshakeResult acceptHandshakeResult
 
 	c.loopWG.Add(1)
@@ -592,6 +592,7 @@ func (c *Conn) Dial(ctx *context.T, blessings security.Blessings, discharges map
 	// to send the discharges before allowing a bidirectional flow dial.
 	if valid := c.remoteValid; valid != nil && len(c.remoteDischarges) == 0 && len(c.remoteBlessings.ThirdPartyCaveats()) > 0 {
 		c.mu.Unlock()
+		fmt.Printf("WTF......\n")
 		<-valid
 		c.mu.Lock()
 	}
