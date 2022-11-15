@@ -588,7 +588,7 @@ func (c *Conn) Dial(ctx *context.T, blessings security.Blessings, discharges map
 	c.mu.Lock()
 	defer c.mu.Unlock()
 
-	fmt.Fprintf(os.Stderr, "waiting...%v %v %v\n", c.remoteValid, len(c.remoteDischarges), len(c.remoteBlessings.ThirdPartyCaveats()))
+	fmt.Fprintf(os.Stderr, "%p: waiting...%v %v %v\n", c, c.remoteValid, len(c.remoteDischarges), len(c.remoteBlessings.ThirdPartyCaveats()))
 	// It may happen that in the case of bidirectional RPC the dialer of the connection
 	// has sent blessings,  but not yet discharges.  In this case we will wait for them
 	// to send the discharges before allowing a bidirectional flow dial.
@@ -980,6 +980,7 @@ func (c *Conn) sendAuthMessage(ctx *context.T, m message.Auth) error {
 		return err
 	}
 	defer c.writeq.done(w)
+	fmt.Fprintf(os.Stderr, "%p: sendAuthMessage: %#v\n", c, m)
 	return c.mp.writeAnyMsg(ctx, m.Append)
 }
 

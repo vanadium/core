@@ -117,8 +117,9 @@ func (c *Conn) acceptHandshake(
 		localBlessings, _ = security.NamelessBlessing(principal.PublicKey())
 	}
 	// PrepareDischarges may issue RPCs to validate 3rd party caveats.
-	localDischarges, refreshTime := slib.PrepareDischarges(
-		ctx, localBlessings, nil, "", nil)
+	localDischarges, refreshTime := slib.PrepareDischarges(ctx, localBlessings, nil, "", nil)
+
+	fmt.Printf("%p: acceptHandshake: localDischarges: %v %v\n", c, localDischarges, len(localDischarges))
 
 	binding, remoteEndpoint, _, err := c.setup(ctx, versions, false, c.mtu)
 	if err != nil {
@@ -152,7 +153,6 @@ func (c *Conn) acceptHandshake(
 
 	rttstart := time.Now()
 	err = c.sendAuthMessage(ctx, lAuth)
-	fmt.Fprintf(os.Stderr, "%p: acceptHandshake: sent auth.....\n", c)
 	if err != nil {
 		handshakeCh <- acceptHandshakeResult{err: err}
 		return
@@ -280,6 +280,7 @@ func (c *Conn) readRemoteAuth(ctx *context.T, binding []byte, dialer bool) (time
 	if rauth.BlessingsKey != 0 {
 		rBlessings, rDischarges, err := c.blessingsFlow.getRemote(
 			ctx, rauth.BlessingsKey, rauth.DischargeKey)
+		fmt.Fprintf(os.Stderr, "%p: readRemoteAuth: blessings/discharges: %v(%v) %v (%v %v)\n", c, len(rDischarges), rDischarges, len(rBlessings.ThirdPartyCaveats()), rauth.BlessingsKey, rauth.DischargeKey)
 		if err != nil {
 			return rttend, err
 		}
@@ -291,7 +292,9 @@ func (c *Conn) readRemoteAuth(ctx *context.T, binding []byte, dialer bool) (time
 		c.rPublicKey = rpk
 		c.remoteBlessings = rBlessings
 		c.remoteDischarges = rDischarges
-		fmt.Fprintf(os.Stderr, "%p: readRemoteAuth: blessings/discharges: %v %v\n", c, len(rDischarges), len(rBlessings.ThirdPartyCaveats()))
+		/*		if c.remoteValid != nil {
+				close(c.remoteValid)
+			}*/
 		c.remoteValid = make(chan struct{})
 		c.mu.Unlock()
 		fmt.Fprintf(os.Stderr, "%p: readRemoteAuth set remote valid: %v\n", c, c.remoteValid)

@@ -231,11 +231,12 @@ func (c *Conn) remoteEndpointForError() string {
 func (c *Conn) readRemoteAuthLoop(ctx *context.T) (message.Auth, error) {
 	for {
 		msg, nBuf, err := c.mp.readAnyMsg(ctx)
-		fmt.Fprintf(os.Stderr, "readRemoteAuth: %T\n", msg)
 		if err != nil {
 			return message.Auth{}, ErrRecv.Errorf(ctx, "conn.readRemoteAuth: error reading from %v: %v", c.remoteEndpointForError(), err)
 		}
 		if rauth, ok := msg.(message.Auth); ok {
+			fmt.Fprintf(os.Stderr, "%p: readRemoteAuth: %#v\n", c, rauth)
+
 			defer putNetBuf(nBuf)
 			// Take care to return a copy of the message in order to allow
 			// the netBuf to be freed.
