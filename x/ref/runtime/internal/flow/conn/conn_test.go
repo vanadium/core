@@ -317,14 +317,15 @@ func TestMTUNegotiation(t *testing.T) {
 	ach := make(chan *Conn)
 	derrch := make(chan error)
 	aerrch := make(chan error)
+	dBlessings, _ := v23.GetPrincipal(ctx).BlessingStore().Default()
 
-	accept := func(mtu uint64, conn flow.Conn) {
-		dBlessings, _ := v23.GetPrincipal(ctx).BlessingStore().Default()
+	dial := func(mtu uint64, conn flow.Conn) {
 		d, _, _, err := NewDialed(ctx, conn, ep, ep, versions, peerAuthorizer{dBlessings, nil}, nil, Opts{MTU: mtu})
 		dch <- d
 		derrch <- err
 	}
-	dial := func(mtu uint64, conn flow.Conn) {
+
+	accept := func(mtu uint64, conn flow.Conn) {
 		a, err := NewAccepted(ctx, nil, conn, ridep, versions, nil, Opts{MTU: mtu})
 		ach <- a
 		aerrch <- err
@@ -333,8 +334,8 @@ func TestMTUNegotiation(t *testing.T) {
 	testConn := func(dmtu, amtu, negotiated uint64) {
 		dmrw, amrw := flowtest.Pipe(t, ctx, network, address)
 
-		go dial(dmtu, dmrw)
-		go accept(amtu, amrw)
+		go accept(dmtu, dmrw)
+		go dial(amtu, amrw)
 
 		dconn := <-dch
 		aconn := <-ach
