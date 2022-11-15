@@ -18,6 +18,7 @@ import (
 	"v.io/v23/rpc/version"
 	"v.io/v23/security"
 	"v.io/v23/verror"
+	slib "v.io/x/ref/lib/security"
 	iflow "v.io/x/ref/runtime/internal/flow"
 )
 
@@ -89,8 +90,9 @@ func (c *Conn) MatchesRID(ep naming.Endpoint) bool {
 }
 
 type acceptHandshakeResult struct {
-	rtt time.Duration
-	err error
+	rtt         time.Duration
+	refreshTime time.Time
+	err         error
 }
 
 func (c *Conn) acceptHandshake(
@@ -101,9 +103,18 @@ func (c *Conn) acceptHandshake(
 	defer close(handshakeCh)
 	defer c.loopWG.Done()
 
+	principal := v23.GetPrincipal(ctx)
+	c.localBlessings, c.localValid = principal.BlessingStore().Default()
+	if c.localBlessings.IsZero() {
+		c.localBlessings, _ = security.NamelessBlessing(principal.PublicKey())
+	}
+	var refreshTime time.Time
+	c.localDischarges, refreshTime = slib.PrepareDischarges(
+		ctx, c.localBlessings, nil, "", nil)
+
 	binding, remoteEndpoint, _, err := c.setup(ctx, versions, false, c.mtu)
 	if err != nil {
-		handshakeCh <- acceptHandshakeResult{0, err}
+		handshakeCh <- acceptHandshakeResult{0, time.Time{}, err}
 		return
 	}
 	c.mu.Lock()
@@ -112,7 +123,7 @@ func (c *Conn) acceptHandshake(
 	c.mu.Unlock()
 	signedBinding, err := v23.GetPrincipal(ctx).Sign(append(authAcceptorTag, binding...))
 	if err != nil {
-		handshakeCh <- acceptHandshakeResult{0, err}
+		handshakeCh <- acceptHandshakeResult{0, time.Time{}, err}
 		return
 	}
 	lAuth := message.Auth{
@@ -122,18 +133,18 @@ func (c *Conn) acceptHandshake(
 	lAuth.BlessingsKey, lAuth.DischargeKey, err = c.blessingsFlow.send(
 		ctx, c.localBlessings, c.localDischarges, authorizedPeers)
 	if err != nil {
-		handshakeCh <- acceptHandshakeResult{0, err}
+		handshakeCh <- acceptHandshakeResult{0, time.Time{}, err}
 		return
 	}
 
 	rttstart := time.Now()
 	err = c.sendAuthMessage(ctx, lAuth)
 	if err != nil {
-		handshakeCh <- acceptHandshakeResult{0, err}
+		handshakeCh <- acceptHandshakeResult{0, time.Time{}, err}
 		return
 	}
 	rttend, err := c.readRemoteAuth(ctx, binding, false)
-	handshakeCh <- acceptHandshakeResult{rttend.Sub(rttstart), err}
+	handshakeCh <- acceptHandshakeResult{rttend.Sub(rttstart), refreshTime, err}
 	return
 }
 

@@ -372,14 +372,6 @@ func NewAccepted(
 	c.initWriters()
 	c.flowControl.init(opts.BytesBuffered)
 
-	principal := v23.GetPrincipal(ctx)
-	c.localBlessings, c.localValid = principal.BlessingStore().Default()
-	if c.localBlessings.IsZero() {
-		c.localBlessings, _ = security.NamelessBlessing(principal.PublicKey())
-	}
-	var refreshTime time.Time
-	c.localDischarges, refreshTime = slib.PrepareDischarges(
-		ctx, c.localBlessings, nil, "", nil)
 	handshakeCh := make(chan acceptHandshakeResult, 1)
 	var handshakeResult acceptHandshakeResult
 
@@ -410,7 +402,7 @@ func NewAccepted(
 	c.loopWG.Add(2)
 	// NOTE: there is a race for refreshTime since it gets set above
 	// in a goroutine but read here without any synchronization.
-	go c.blessingsLoop(ctx, refreshTime, lAuthorizedPeers)
+	go c.blessingsLoop(ctx, handshakeResult.refreshTime, lAuthorizedPeers)
 	go c.readLoop(ctx)
 	c.mu.Lock()
 	c.lastUsedTime = time.Now()
