@@ -103,7 +103,7 @@ func (c *Conn) acceptHandshake(
 
 	binding, remoteEndpoint, _, err := c.setup(ctx, versions, false, c.mtu)
 	if err != nil {
-		done <- acceptHandshakeResult{0, err}
+		handshakeCh <- acceptHandshakeResult{0, err}
 		return
 	}
 	c.mu.Lock()
@@ -112,7 +112,7 @@ func (c *Conn) acceptHandshake(
 	c.mu.Unlock()
 	signedBinding, err := v23.GetPrincipal(ctx).Sign(append(authAcceptorTag, binding...))
 	if err != nil {
-		done <- acceptHandshakeResult{0, err}
+		handshakeCh <- acceptHandshakeResult{0, err}
 		return
 	}
 	lAuth := message.Auth{
@@ -122,18 +122,18 @@ func (c *Conn) acceptHandshake(
 	lAuth.BlessingsKey, lAuth.DischargeKey, err = c.blessingsFlow.send(
 		ctx, c.localBlessings, c.localDischarges, authorizedPeers)
 	if err != nil {
-		done <- acceptHandshakeResult{0, err}
+		handshakeCh <- acceptHandshakeResult{0, err}
 		return
 	}
 
 	rttstart := time.Now()
 	err = c.sendAuthMessage(ctx, lAuth)
 	if err != nil {
-		done <- acceptHandshakeResult{0, err}
+		handshakeCh <- acceptHandshakeResult{0, err}
 		return
 	}
 	rttend, err := c.readRemoteAuth(ctx, binding, false)
-	done <- acceptHandshakeResult{rttend.Sub(rttstart), err}
+	handshakeCh <- acceptHandshakeResult{rttend.Sub(rttstart), err}
 	return
 }
 

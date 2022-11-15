@@ -383,7 +383,7 @@ func NewAccepted(
 	handshakeCh := make(chan acceptHandshakeResult, 1)
 	var handshakeResult acceptHandshakeResult
 
-	c.loopWG.Add(3)
+	c.loopWG.Add(1)
 	go c.acceptHandshake(ctx, versions, lAuthorizedPeers, handshakeCh)
 
 	timer := time.NewTimer(opts.HandshakeTimeout)
