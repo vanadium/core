@@ -5,8 +5,6 @@
 package conn
 
 import (
-	"fmt"
-	"os"
 	"time"
 
 	"v.io/v23/context"
@@ -204,7 +202,6 @@ func (c *Conn) handleAuth(ctx *context.T, msg message.Auth) error {
 	defer c.mu.Unlock()
 	c.remoteBlessings = blessings
 	c.remoteDischarges = discharges
-	fmt.Fprintf(os.Stderr, "%p: handleAuth: %v\n", c, len(discharges))
 	if c.remoteValid != nil {
 		close(c.remoteValid)
 		c.remoteValid = make(chan struct{})
