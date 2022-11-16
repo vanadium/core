@@ -16,7 +16,6 @@ import (
 
 func (c *Conn) handleAnyMessage(ctx *context.T, m message.Message, nBuf *netBuf) error {
 	var err error
-	fmt.Printf("handle %T\n", m)
 	switch msg := m.(type) {
 	case message.Data:
 		return c.handleData(ctx, msg, nBuf)
@@ -206,7 +205,6 @@ func (c *Conn) handleAuth(ctx *context.T, msg message.Auth) error {
 	c.remoteBlessings = blessings
 	c.remoteDischarges = discharges
 	fmt.Fprintf(os.Stderr, "%p: handleAuth: %v\n", c, len(discharges))
-
 	if c.remoteValid != nil {
 		close(c.remoteValid)
 		c.remoteValid = make(chan struct{})
@@ -236,8 +234,6 @@ func (c *Conn) readRemoteAuthLoop(ctx *context.T) (message.Auth, error) {
 			return message.Auth{}, ErrRecv.Errorf(ctx, "conn.readRemoteAuth: error reading from %v: %v", c.remoteEndpointForError(), err)
 		}
 		if rauth, ok := msg.(message.Auth); ok {
-			fmt.Fprintf(os.Stderr, "%p: readRemoteAuth: %#v\n", c, rauth)
-
 			defer putNetBuf(nBuf)
 			// Take care to return a copy of the message in order to allow
 			// the netBuf to be freed.

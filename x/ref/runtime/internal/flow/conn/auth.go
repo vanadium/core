@@ -7,8 +7,6 @@ package conn
 import (
 	"bytes"
 	"crypto/rand"
-	"fmt"
-	"os"
 	"time"
 
 	"golang.org/x/crypto/nacl/box"
@@ -33,8 +31,6 @@ func (c *Conn) dialHandshake(
 	ctx *context.T,
 	versions version.RPCVersionRange,
 	auth flow.PeerAuthorizer) (names []string, rejected []security.RejectedBlessing, rtt time.Duration, err error) {
-
-	fmt.Fprintf(os.Stderr, "%p: dialHandshake\n", c)
 
 	binding, remoteEndpoint, rttstart, err := c.setup(ctx, versions, true, c.mtu)
 	if err != nil {
@@ -82,8 +78,6 @@ func (c *Conn) dialHandshake(
 		return names, rejected, rtt, err
 	}
 	err = c.sendAuthMessage(ctx, lAuth)
-	fmt.Fprintf(os.Stderr, "%p: dialHandshake: sent auth\n", c)
-
 	return names, rejected, rtt, err
 }
 
@@ -110,7 +104,6 @@ func (c *Conn) acceptHandshake(
 	defer close(handshakeCh)
 	defer c.loopWG.Done()
 
-	fmt.Fprintf(os.Stderr, "%p: acceptHandshake\n", c)
 	principal := v23.GetPrincipal(ctx)
 	localBlessings, localValid := principal.BlessingStore().Default()
 	if localBlessings.IsZero() {
@@ -118,8 +111,6 @@ func (c *Conn) acceptHandshake(
 	}
 	// PrepareDischarges may issue RPCs to validate 3rd party caveats.
 	localDischarges, refreshTime := slib.PrepareDischarges(ctx, localBlessings, nil, "", nil)
-
-	fmt.Printf("%p: acceptHandshake: localDischarges: %v %v\n", c, localDischarges, len(localDischarges))
 
 	binding, remoteEndpoint, _, err := c.setup(ctx, versions, false, c.mtu)
 	if err != nil {
@@ -280,7 +271,6 @@ func (c *Conn) readRemoteAuth(ctx *context.T, binding []byte, dialer bool) (time
 	if rauth.BlessingsKey != 0 {
 		rBlessings, rDischarges, err := c.blessingsFlow.getRemote(
 			ctx, rauth.BlessingsKey, rauth.DischargeKey)
-		fmt.Fprintf(os.Stderr, "%p: readRemoteAuth: blessings/discharges: %v(%v) %v (%v %v)\n", c, len(rDischarges), rDischarges, len(rBlessings.ThirdPartyCaveats()), rauth.BlessingsKey, rauth.DischargeKey)
 		if err != nil {
 			return rttend, err
 		}
@@ -292,12 +282,8 @@ func (c *Conn) readRemoteAuth(ctx *context.T, binding []byte, dialer bool) (time
 		c.rPublicKey = rpk
 		c.remoteBlessings = rBlessings
 		c.remoteDischarges = rDischarges
-		/*		if c.remoteValid != nil {
-				close(c.remoteValid)
-			}*/
 		c.remoteValid = make(chan struct{})
 		c.mu.Unlock()
-		fmt.Fprintf(os.Stderr, "%p: readRemoteAuth set remote valid: %v\n", c, c.remoteValid)
 		c.blessingsFlow.setPublicKeyBinding(rpk)
 	}
 

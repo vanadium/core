@@ -7,7 +7,6 @@ package conn
 import (
 	"fmt"
 	"net"
-	"os"
 	"sync"
 	"time"
 
@@ -389,7 +388,7 @@ func NewAccepted(
 	case <-ctx.Done():
 		err = verror.ErrCanceled.Errorf(ctx, "canceled")
 	}
-	stopAndDrainTimer(timer)
+	timer.Stop()
 	if err != nil {
 		// Call internalClose with closedWhileAccepting set to true
 		// to avoid waiting on the go routine above to complete.
@@ -415,19 +414,12 @@ func (c *Conn) initWriters() {
 	c.setupCloseSender.notify = make(chan struct{})
 }
 
-func stopAndDrainTimer(timer *time.Timer) {
-	if !timer.Stop() {
-		<-timer.C
-	}
-}
-
 func (c *Conn) blessingsLoop(
 	ctx *context.T,
 	refreshTime time.Time,
 	authorizedPeers []security.BlessingPattern) {
 	defer c.loopWG.Done()
 	for {
-		fmt.Fprintf(os.Stderr, "%p: blessingsLoop: refreshtime %v %v\n", c, time.Until(refreshTime), refreshTime.IsZero())
 		if refreshTime.IsZero() {
 			select {
 			case <-c.localValid:
@@ -440,21 +432,17 @@ func (c *Conn) blessingsLoop(
 			case <-timer.C:
 			case <-c.localValid:
 			case <-ctx.Done():
-				stopAndDrainTimer(timer)
+				timer.Stop()
 				return
 			}
-			stopAndDrainTimer(timer)
+			timer.Stop()
 		}
-
-		fmt.Fprintf(os.Stderr, "%p: blessingsLoop: ready..... \n", c)
-
 		var dis map[string]security.Discharge
 		blessings, valid := v23.GetPrincipal(ctx).BlessingStore().Default()
 		dis, refreshTime = slib.PrepareDischarges(ctx, blessings, nil, "", nil)
 		// Need to access the underlying message pipe with the connections
 		// lock held.
 		bkey, dkey, err := c.blessingsFlow.send(ctx, blessings, dis, authorizedPeers)
-		fmt.Fprintf(os.Stderr, "%p: blessingsLoop: sent %v \n", c, len(dis))
 
 		if err != nil {
 			c.internalClose(ctx, false, false, err)
@@ -593,13 +581,11 @@ func (c *Conn) Dial(ctx *context.T, blessings security.Blessings, discharges map
 	c.mu.Lock()
 	defer c.mu.Unlock()
 
-	fmt.Fprintf(os.Stderr, "%p: waiting...%v %v %v\n", c, c.remoteValid, len(c.remoteDischarges), len(c.remoteBlessings.ThirdPartyCaveats()))
 	// It may happen that in the case of bidirectional RPC the dialer of the connection
 	// has sent blessings,  but not yet discharges.  In this case we will wait for them
 	// to send the discharges before allowing a bidirectional flow dial.
 	if valid := c.remoteValid; valid != nil && len(c.remoteDischarges) == 0 && len(c.remoteBlessings.ThirdPartyCaveats()) > 0 {
 		c.mu.Unlock()
-		fmt.Printf("WTF......\n")
 		<-valid
 		c.mu.Lock()
 	}
@@ -985,7 +971,6 @@ func (c *Conn) sendAuthMessage(ctx *context.T, m message.Auth) error {
 		return err
 	}
 	defer c.writeq.done(w)
-	fmt.Fprintf(os.Stderr, "%p: sendAuthMessage: %#v\n", c, m)
 	return c.mp.writeAnyMsg(ctx, m.Append)
 }
 
