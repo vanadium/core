@@ -361,7 +361,7 @@ func NewAccepted(
 	c.initWriters()
 	c.flowControl.init(opts.BytesBuffered)
 
-	handshakeCh := make(chan acceptHandshakeResult)
+	handshakeCh := make(chan acceptHandshakeResult, 1)
 	var handshakeResult acceptHandshakeResult
 
 	c.loopWG.Add(1)
