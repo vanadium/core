@@ -250,15 +250,6 @@ func NewDialed(
 	c.initWriters()
 	c.flowControl.init(opts.BytesBuffered)
 
-	// We only send our real blessings if we are a server in addition to being a client.
-	// Otherwise, we only send our public key through a nameless blessings object.
-	// TODO(suharshs): Should we reveal server blessings if we are connecting to proxy here.
-	if handler != nil {
-		c.localBlessings, c.localValid = v23.GetPrincipal(ctx).BlessingStore().Default()
-	} else {
-		c.localBlessings, _ = security.NamelessBlessing(v23.GetPrincipal(ctx).PublicKey())
-	}
-
 	handshakeCh := make(chan dialHandshakeResult, 1)
 	var handshakeResult dialHandshakeResult
 	c.loopWG.Add(1)
@@ -294,8 +285,7 @@ func NewDialed(
 			}
 		}
 	}
-
-	stopAndDrainTimer(timer)
+	timer.Stop()
 
 	if err != nil {
 		c.Close(ctx, err)

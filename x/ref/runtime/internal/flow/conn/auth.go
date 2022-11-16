@@ -37,25 +37,22 @@ type dialHandshakeResult struct {
 func (c *Conn) dialHandshake(
 	ctx *context.T,
 	versions version.RPCVersionRange,
-<<<<<<< HEAD
 	auth flow.PeerAuthorizer,
 	handshakeCh chan<- dialHandshakeResult) {
 
+	defer close(handshakeCh)
 	defer c.loopWG.Done()
 
-	c.mu.Lock()
+	var localBlessings security.Blessings
+	var localValid <-chan struct{}
 	// We only send our real blessings if we are a server in addition to being a client.
 	// Otherwise, we only send our public key through a nameless blessings object.
 	// TODO(suharshs): Should we reveal server blessings if we are connecting to proxy here.
 	if c.handler != nil {
-		c.localBlessings, c.localValid = v23.GetPrincipal(ctx).BlessingStore().Default()
+		localBlessings, localValid = v23.GetPrincipal(ctx).BlessingStore().Default()
 	} else {
-		c.localBlessings, _ = security.NamelessBlessing(v23.GetPrincipal(ctx).PublicKey())
+		localBlessings, _ = security.NamelessBlessing(v23.GetPrincipal(ctx).PublicKey())
 	}
-	c.mu.Unlock()
-=======
-	auth flow.PeerAuthorizer) (names []string, rejected []security.RejectedBlessing, rtt time.Duration, err error) {
->>>>>>> cos-cleanup-accept-handshake
 
 	binding, remoteEndpoint, rttstart, err := c.setup(ctx, versions, true, c.mtu)
 	if err != nil {
@@ -65,6 +62,8 @@ func (c *Conn) dialHandshake(
 
 	c.mu.Lock()
 	dialedEP := c.remote
+	c.localBlessings = localBlessings
+	c.localValid = localValid
 	c.remote.RoutingID = remoteEndpoint.RoutingID
 	c.blessingsFlow = newBlessingsFlow(c)
 	c.mu.Unlock()
