@@ -213,6 +213,20 @@ func (c *Conn) sendSetupAsync(ctx *context.T, m message.Setup, errCh chan<- erro
 	close(errCh)
 }
 
+func (c *Conn) createSetupMessage(pk *[32]byte, versions version.RPCVersionRange) message.Setup {
+	lSetup := message.Setup{
+		Versions:          versions,
+		PeerLocalEndpoint: c.local,
+		Mtu:               c.mtu,
+		SharedTokens:      c.flowControl.bytesBufferedPerFlow,
+	}
+	copy(lSetup.PeerNaClPublicKey[:], (*pk)[:])
+	if !c.remote.IsZero() {
+		lSetup.PeerRemoteEndpoint = c.remote
+	}
+	return lSetup
+}
+
 func (c *Conn) initSetupMessage(lSetup *message.Setup, pk *[32]byte, versions version.RPCVersionRange) {
 	lSetup.Versions = versions
 	lSetup.PeerLocalEndpoint = c.local
@@ -234,7 +248,6 @@ func (c *Conn) configureMTUEtc(lSetup, rSetup *message.Setup) {
 	} else {
 		c.mtu = rSetup.Mtu
 	}
-
 	lshared := lSetup.SharedTokens
 	if rSetup.SharedTokens != 0 && rSetup.SharedTokens < lshared {
 		lshared = rSetup.SharedTokens
@@ -247,8 +260,9 @@ func (c *Conn) setup(ctx *context.T, versions version.RPCVersionRange, dialer bo
 	if err != nil {
 		return nil, naming.Endpoint{}, time.Time{}, err
 	}
-	var lSetup message.Setup
-	c.initSetupMessage(&lSetup, pk, versions)
+	//	var lSetup message.Setup
+	//	c.initSetupMessage(&lSetup, pk, versions)
+	lSetup := c.createSetupMessage(pk, versions)
 	errCh := make(chan error, 1)
 	rttstart := time.Now()
 	go c.sendSetupAsync(ctx, lSetup, errCh)
