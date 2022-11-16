@@ -223,6 +223,12 @@ func BenchmarkFlow__ConnectionSetup(b *testing.B) {
 
 		dconn := <-dch
 		aconn := <-ach
+		if err := <-derrch; err != nil {
+			b.Fatal(err)
+		}
+		if err := <-aerrch; err != nil {
+			b.Fatal(err)
+		}
 
 		dconn.Close(ctx, nil)
 		aconn.Close(ctx, nil)

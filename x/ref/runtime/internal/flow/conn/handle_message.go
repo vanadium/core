@@ -261,7 +261,7 @@ func (c *Conn) readRemoteAuthLoop(ctx *context.T) (message.Auth, error) {
 				if err := c.handleOpenFlow(ctx, m, nil); err != nil {
 					vlog.Infof("conn.readRemoteAuth: handleMessage for openFlow for flow %v: failed: %v", m.ID, err)
 				}
-			}(m.CopyDirect())
+			}(m)
 			continue
 		}
 		if err = c.handleAnyMessage(ctx, msg, nBuf); err != nil {
