@@ -54,7 +54,7 @@ func (c *Conn) dialHandshake(
 		localBlessings, _ = security.NamelessBlessing(v23.GetPrincipal(ctx).PublicKey())
 	}
 
-	binding, remoteEndpoint, rttstart, err := c.setup(ctx, versions, true)
+	binding, remoteEndpoint, rttstart, err := c.setup(ctx, versions, true, c.mtu)
 	if err != nil {
 		handshakeCh <- dialHandshakeResult{err: err}
 		return
