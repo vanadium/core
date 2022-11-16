@@ -54,7 +54,7 @@ func (c *Conn) dialHandshake(
 		localBlessings, _ = security.NamelessBlessing(v23.GetPrincipal(ctx).PublicKey())
 	}
 
-	binding, remoteEndpoint, rttstart, err := c.setup(ctx, versions, true, c.mtu)
+	binding, remoteEndpoint, rttstart, err := c.setup(ctx, versions, true)
 	if err != nil {
 		handshakeCh <- dialHandshakeResult{err: err}
 		return
@@ -166,7 +166,7 @@ func (c *Conn) acceptHandshake(
 	// PrepareDischarges may issue RPCs to validate 3rd party caveats.
 	localDischarges, refreshTime := slib.PrepareDischarges(ctx, localBlessings, nil, "", nil)
 
-	binding, remoteEndpoint, _, err := c.setup(ctx, versions, false, c.mtu)
+	binding, remoteEndpoint, _, err := c.setup(ctx, versions, false)
 	if err != nil {
 		handshakeCh <- acceptHandshakeResult{err: err}
 		return
@@ -208,50 +208,26 @@ func (c *Conn) acceptHandshake(
 
 var emptyNaClPublicKey [32]byte
 
-func (c *Conn) setup(ctx *context.T, versions version.RPCVersionRange, dialer bool, mtu uint64) ([]byte, naming.Endpoint, time.Time, error) { //nolint:gocyclo
-	var rttstart time.Time
-	pk, sk, err := box.GenerateKey(rand.Reader)
-	if err != nil {
-		return nil, naming.Endpoint{}, rttstart, err
-	}
-	lSetup := message.Setup{
-		Versions:          versions,
-		PeerLocalEndpoint: c.local,
-		Mtu:               c.mtu,
-		SharedTokens:      c.flowControl.bytesBufferedPerFlow,
-	}
+func (c *Conn) sendSetupAsync(ctx *context.T, m message.Setup, errCh chan<- error) {
+	errCh <- c.sendSetupMessage(ctx, m)
+	close(errCh)
+}
+
+func (c *Conn) initSetupMessage(lSetup *message.Setup, pk *[32]byte, versions version.RPCVersionRange) {
+	lSetup.Versions = versions
+	lSetup.PeerLocalEndpoint = c.local
+	lSetup.Mtu = c.mtu
+	lSetup.SharedTokens = c.flowControl.bytesBufferedPerFlow
 	copy(lSetup.PeerNaClPublicKey[:], (*pk)[:])
 	if !c.remote.IsZero() {
 		lSetup.PeerRemoteEndpoint = c.remote
 	}
-	ch := make(chan error, 1)
-	go func() {
-		rttstart = time.Now()
-		ch <- c.sendSetupMessage(ctx, lSetup)
-	}()
-	rSetup, nBuf, err := c.mp.readSetup(ctx)
-	defer putNetBuf(nBuf)
-	if err != nil {
-		<-ch
-		return nil, naming.Endpoint{}, rttstart, ErrRecv.Errorf(ctx, "conn.setup: recv: %v", err)
-	}
-	if err := <-ch; err != nil {
-		return nil, naming.Endpoint{}, rttstart, ErrSend.Errorf(ctx, "conn.setup: remote %v: %v", c.remoteEndpointForError(), err)
-	}
-	if c.version, err = version.CommonVersion(ctx, lSetup.Versions, rSetup.Versions); err != nil {
-		return nil, naming.Endpoint{}, rttstart, err
-	}
-	if c.local.IsZero() {
-		c.local = rSetup.PeerRemoteEndpoint
-	}
+}
 
+func (c *Conn) configureMTUEtc(lSetup, rSetup *message.Setup) {
 	if rSetup.Mtu == 0 {
-		rSetup.Mtu = mtu
+		rSetup.Mtu = c.mtu
 	}
-	if lSetup.Mtu == 0 {
-		lSetup.Mtu = mtu
-	}
-
 	// Pick the smaller of the two MTUs.
 	if rSetup.Mtu > lSetup.Mtu {
 		c.mtu = lSetup.Mtu
@@ -263,8 +239,37 @@ func (c *Conn) setup(ctx *context.T, versions version.RPCVersionRange, dialer bo
 	if rSetup.SharedTokens != 0 && rSetup.SharedTokens < lshared {
 		lshared = rSetup.SharedTokens
 	}
-
 	c.flowControl.configure(c.mtu, lshared)
+}
+
+func (c *Conn) setup(ctx *context.T, versions version.RPCVersionRange, dialer bool) ([]byte, naming.Endpoint, time.Time, error) {
+	pk, sk, err := box.GenerateKey(rand.Reader)
+	if err != nil {
+		return nil, naming.Endpoint{}, time.Time{}, err
+	}
+	var lSetup message.Setup
+	c.initSetupMessage(&lSetup, pk, versions)
+	errCh := make(chan error, 1)
+	rttstart := time.Now()
+	go c.sendSetupAsync(ctx, lSetup, errCh)
+	rSetup, nBuf, err := c.mp.readSetup(ctx)
+	if err != nil {
+		<-errCh
+		return nil, naming.Endpoint{}, rttstart, ErrRecv.Errorf(ctx, "conn.setup: recv: %v", err)
+	}
+	defer putNetBuf(nBuf)
+	if err := <-errCh; err != nil {
+		return nil, naming.Endpoint{}, rttstart, ErrSend.Errorf(ctx, "conn.setup: remote %v: %v", c.remoteEndpointForError(), err)
+	}
+
+	if c.version, err = version.CommonVersion(ctx, versions, rSetup.Versions); err != nil {
+		return nil, naming.Endpoint{}, rttstart, err
+	}
+	if c.local.IsZero() {
+		c.local = rSetup.PeerRemoteEndpoint
+	}
+
+	c.configureMTUEtc(&lSetup, &rSetup)
 
 	if bytes.Equal(rSetup.PeerNaClPublicKey[:], emptyNaClPublicKey[:]) {
 		return nil, naming.Endpoint{}, rttstart, ErrMissingSetupOption.Errorf(ctx, "conn.setup: missing required setup option: peerNaClPublicKey")
