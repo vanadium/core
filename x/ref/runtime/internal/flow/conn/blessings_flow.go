@@ -245,9 +245,12 @@ func (b *blessingsFlow) send(
 	}
 	b.mu.Lock()
 	defer b.mu.Unlock()
+<<<<<<< HEAD
 
 	fmt.Printf("send: %v .. %v\n", blessings, len(discharges))
 
+=======
+>>>>>>> cos-cleanup-accept-handshake
 	buid := string(blessings.UniqueID())
 	bkey, hasB := b.outgoing.hasBlessings(buid)
 	if !hasB {
@@ -267,6 +270,7 @@ func (b *blessingsFlow) send(
 	if hasD && equalDischarges(discharges, dlist) {
 		return bkey, dkey, nil
 	}
+
 	dlist = dischargeList(discharges)
 	dkey = b.nextKey
 	b.nextKey++
@@ -280,6 +284,9 @@ func (b *blessingsFlow) send(
 }
 
 func dischargeList(in map[string]security.Discharge) []security.Discharge {
+	if len(in) == 0 {
+		return nil
+	}
 	out := make([]security.Discharge, 0, len(in))
 	for _, d := range in {
 		out = append(out, d)
@@ -287,6 +294,9 @@ func dischargeList(in map[string]security.Discharge) []security.Discharge {
 	return out
 }
 func dischargeMap(in []security.Discharge) map[string]security.Discharge {
+	if len(in) == 0 {
+		return nil
+	}
 	out := make(map[string]security.Discharge, len(in))
 	for _, d := range in {
 		out[d.ID()] = d

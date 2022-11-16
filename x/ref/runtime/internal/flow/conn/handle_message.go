@@ -5,8 +5,6 @@
 package conn
 
 import (
-	"fmt"
-	"os"
 	"time"
 
 	"v.io/v23/context"
@@ -194,7 +192,6 @@ func (c *Conn) handleRelease(ctx *context.T, msg message.Release) error {
 }
 
 func (c *Conn) handleAuth(ctx *context.T, msg message.Auth) error {
-	fmt.Fprintf(os.Stderr, "handleAuth: %v\n", msg)
 	// handles a blessings refresh, as sent by blessingsLoop.
 	blessings, discharges, err := c.blessingsFlow.getRemote(
 		ctx, msg.BlessingsKey, msg.DischargeKey)

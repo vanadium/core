@@ -371,7 +371,7 @@ func NewAccepted(
 	c.initWriters()
 	c.flowControl.init(opts.BytesBuffered)
 
-	handshakeCh := make(chan acceptHandshakeResult, 1)
+	handshakeCh := make(chan acceptHandshakeResult)
 	var handshakeResult acceptHandshakeResult
 
 	c.loopWG.Add(1)
@@ -387,7 +387,7 @@ func NewAccepted(
 	case <-ctx.Done():
 		err = verror.ErrCanceled.Errorf(ctx, "canceled")
 	}
-	stopAndDrainTimer(timer)
+	timer.Stop()
 	if err != nil {
 		// Call internalClose with closedWhileAccepting set to true
 		// to avoid waiting on the go routine above to complete.
@@ -413,12 +413,6 @@ func (c *Conn) initWriters() {
 	c.setupCloseSender.notify = make(chan struct{})
 }
 
-func stopAndDrainTimer(timer *time.Timer) {
-	if !timer.Stop() {
-		<-timer.C
-	}
-}
-
 func (c *Conn) blessingsLoop(
 	ctx *context.T,
 	refreshTime time.Time,
@@ -437,18 +431,18 @@ func (c *Conn) blessingsLoop(
 			case <-timer.C:
 			case <-c.localValid:
 			case <-ctx.Done():
-				stopAndDrainTimer(timer)
+				timer.Stop()
 				return
 			}
-			stopAndDrainTimer(timer)
+			timer.Stop()
 		}
-
 		var dis map[string]security.Discharge
 		blessings, valid := v23.GetPrincipal(ctx).BlessingStore().Default()
 		dis, refreshTime = slib.PrepareDischarges(ctx, blessings, nil, "", nil)
 		// Need to access the underlying message pipe with the connections
 		// lock held.
 		bkey, dkey, err := c.blessingsFlow.send(ctx, blessings, dis, authorizedPeers)
+
 		if err != nil {
 			c.internalClose(ctx, false, false, err)
 			return
