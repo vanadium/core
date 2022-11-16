@@ -27,24 +27,53 @@ var (
 	authAcceptorTag = []byte("AuthAcpt\x00")
 )
 
+type dialHandshakeResult struct {
+	names    []string
+	rejected []security.RejectedBlessing
+	rtt      time.Duration
+	err      error
+}
+
 func (c *Conn) dialHandshake(
 	ctx *context.T,
 	versions version.RPCVersionRange,
-	auth flow.PeerAuthorizer) (names []string, rejected []security.RejectedBlessing, rtt time.Duration, err error) {
+	auth flow.PeerAuthorizer,
+	handshakeCh chan<- dialHandshakeResult) {
+
+	defer close(handshakeCh)
+	defer c.loopWG.Done()
+
+	var localBlessings security.Blessings
+	var localValid <-chan struct{}
+	// We only send our real blessings if we are a server in addition to being a client.
+	// Otherwise, we only send our public key through a nameless blessings object.
+	// TODO(suharshs): Should we reveal server blessings if we are connecting to proxy here.
+	if c.handler != nil {
+		localBlessings, localValid = v23.GetPrincipal(ctx).BlessingStore().Default()
+	} else {
+		localBlessings, _ = security.NamelessBlessing(v23.GetPrincipal(ctx).PublicKey())
+	}
 
 	binding, remoteEndpoint, rttstart, err := c.setup(ctx, versions, true, c.mtu)
 	if err != nil {
-		return nil, nil, 0, err
+		handshakeCh <- dialHandshakeResult{err: err}
+		return
 	}
+
+	c.mu.Lock()
 	dialedEP := c.remote
+	c.localBlessings = localBlessings
+	c.localValid = localValid
 	c.remote.RoutingID = remoteEndpoint.RoutingID
 	c.blessingsFlow = newBlessingsFlow(c)
+	c.mu.Unlock()
 
 	rttend, err := c.readRemoteAuth(ctx, binding, true)
 	if err != nil {
-		return nil, nil, 0, err
+		handshakeCh <- dialHandshakeResult{err: err}
+		return
 	}
-	rtt = rttend.Sub(rttstart)
+	rtt := rttend.Sub(rttstart)
 
 	c.mu.Lock()
 	// Note that the remoteBlessings and discharges are stored in data
@@ -54,31 +83,56 @@ func (c *Conn) dialHandshake(
 	c.mu.Unlock()
 
 	if rBlessings.IsZero() {
-		err = ErrAcceptorBlessingsMissing.Errorf(ctx, "dial: acceptor did not send blessings")
-		return nil, nil, rtt, err
+		handshakeCh <- dialHandshakeResult{err: ErrAcceptorBlessingsMissing.Errorf(ctx, "dial: acceptor did not send blessings")}
+		return
 	}
+	var names []string
+	var rejected []security.RejectedBlessing
 	if c.MatchesRID(dialedEP) {
 		// If we hadn't reached the endpoint we expected we would have treated this connection as
 		// a proxy, and proxies aren't authorized.  In this case we didn't find a proxy, so go ahead
 		// and authorize the connection.
 		names, rejected, err = auth.AuthorizePeer(ctx, c.local, c.remote, rBlessings, rDischarges)
 		if err != nil {
-			return names, rejected, rtt, iflow.MaybeWrapError(verror.ErrNotTrusted, ctx, err)
+			handshakeCh <- dialHandshakeResult{
+				names:    names,
+				rejected: rejected,
+				rtt:      rtt,
+				err:      iflow.MaybeWrapError(verror.ErrNotTrusted, ctx, err),
+			}
+			return
 		}
 	}
 	signedBinding, err := v23.GetPrincipal(ctx).Sign(append(authDialerTag, binding...))
 	if err != nil {
-		return names, rejected, rtt, err
+		handshakeCh <- dialHandshakeResult{
+			names:    names,
+			rejected: rejected,
+			rtt:      rtt,
+			err:      err,
+		}
+		return
 	}
 	lAuth := message.Auth{ChannelBinding: signedBinding}
 	// The client sends its blessings without any blessing-pattern encryption to the
 	// server as it has already authorized the server. Thus the 'peers' argument to
 	// blessingsFlow.send is nil.
 	if lAuth.BlessingsKey, _, err = c.blessingsFlow.send(ctx, c.localBlessings, nil, nil); err != nil {
-		return names, rejected, rtt, err
+		handshakeCh <- dialHandshakeResult{
+			names:    names,
+			rejected: rejected,
+			rtt:      rtt,
+			err:      err,
+		}
+		return
 	}
 	err = c.sendAuthMessage(ctx, lAuth)
-	return names, rejected, rtt, err
+	handshakeCh <- dialHandshakeResult{
+		names:    names,
+		rejected: rejected,
+		rtt:      rtt,
+		err:      err,
+	}
 }
 
 // MatchesRID returns true if the given endpoint matches the routing

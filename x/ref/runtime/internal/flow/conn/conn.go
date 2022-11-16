@@ -199,7 +199,7 @@ func (co *Opts) initValues(protocol string) error {
 // even if the context is canceled. The behaviour is different for a proxy
 // connection, in which case a cancelation is immediate and no attempt is made
 // to establish the connection.
-func NewDialed( //nolint:gocyclo
+func NewDialed(
 	ctx *context.T,
 	conn flow.MsgReadWriteCloser,
 	local, remote naming.Endpoint,
@@ -209,12 +209,12 @@ func NewDialed( //nolint:gocyclo
 	opts Opts,
 ) (c *Conn, names []string, rejected []security.RejectedBlessing, err error) {
 
-	if _, err = version.CommonVersion(ctx, rpcversion.Supported, versions); err != nil {
-		return
+	if _, err := version.CommonVersion(ctx, rpcversion.Supported, versions); err != nil {
+		return nil, nil, nil, err
 	}
 
-	if err = opts.initValues(local.Protocol); err != nil {
-		return
+	if err := opts.initValues(local.Protocol); err != nil {
+		return nil, nil, nil, err
 	}
 
 	var remoteAddr net.Addr
@@ -249,61 +249,50 @@ func NewDialed( //nolint:gocyclo
 
 	c.initWriters()
 	c.flowControl.init(opts.BytesBuffered)
-	done := make(chan struct{})
-	var rtt time.Duration
+
+	handshakeCh := make(chan dialHandshakeResult, 1)
+	var handshakeResult dialHandshakeResult
 	c.loopWG.Add(1)
-	go func() {
-		defer c.loopWG.Done()
-		defer close(done)
-		// We only send our real blessings if we are a server in addition to being a client.
-		// Otherwise, we only send our public key through a nameless blessings object.
-		// TODO(suharshs): Should we reveal server blessings if we are connecting to proxy here.
-		if handler != nil {
-			c.localBlessings, c.localValid = v23.GetPrincipal(ctx).BlessingStore().Default()
-		} else {
-			c.localBlessings, _ = security.NamelessBlessing(v23.GetPrincipal(ctx).PublicKey())
-		}
-		names, rejected, rtt, err = c.dialHandshake(ctx, versions, auth)
-	}()
+	go c.dialHandshake(ctx, versions, auth, handshakeCh)
+
 	var canceled bool
 	timer := time.NewTimer(opts.HandshakeTimeout)
-	var ferr error
 	select {
-	case <-done:
-		ferr = err
+	case handshakeResult = <-handshakeCh:
+		err = handshakeResult.err
 	case <-timer.C:
-		ferr = verror.ErrTimeout.Errorf(ctx, "timeout")
+		err = verror.ErrTimeout.Errorf(ctx, "timeout")
 	case <-dctx.Done():
 		if opts.Proxy {
-			ferr = verror.ErrCanceled.Errorf(ctx, "canceled")
+			err = verror.ErrCanceled.Errorf(ctx, "canceled")
 		} else {
 			// The context has been canceled, but let's give this connection
 			// an opportunity to run to completion just in case this connection
 			// is racing to become established as per the race documented in:
 			// https://github.com/vanadium/core/issues/40.
 			select {
-			case <-done:
+			case handshakeResult = <-handshakeCh:
 				canceled = true
 				// There is always the possibility that the handshake fails
 				// (eg. the client doesn't trust the server), so make sure to
 				// record any such error.
-				ferr = err
+				err = handshakeResult.err
 				// Handshake done.
 			case <-timer.C:
 				// Report the timeout not the cancelation, hence
 				// leave canceled as false.
-				ferr = verror.ErrTimeout.Errorf(ctx, "timeout")
+				err = verror.ErrTimeout.Errorf(ctx, "timeout")
 			}
 		}
 	}
-
 	timer.Stop()
-	if ferr != nil {
-		c.Close(ctx, ferr)
-		return nil, nil, nil, ferr
+
+	if err != nil {
+		c.Close(ctx, err)
+		return nil, nil, nil, err
 	}
 
-	c.initializeHealthChecks(ctx, rtt)
+	c.initializeHealthChecks(ctx, handshakeResult.rtt)
 	// We send discharges asynchronously to prevent making a second RPC while
 	// trying to build up the connection for another. If the two RPCs happen to
 	// go to the same server a deadlock will result.
@@ -322,9 +311,9 @@ func NewDialed( //nolint:gocyclo
 	c.lastUsedTime = time.Now()
 	c.mu.Unlock()
 	if canceled {
-		ferr = verror.ErrCanceled.Errorf(ctx, "canceled")
+		err = verror.ErrCanceled.Errorf(ctx, "canceled")
 	}
-	return c, names, rejected, ferr
+	return c, handshakeResult.names, handshakeResult.rejected, err
 }
 
 // NewAccepted accepts a new Conn on the given conn.
