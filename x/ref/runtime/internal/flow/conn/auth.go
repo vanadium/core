@@ -18,6 +18,7 @@ import (
 	"v.io/v23/rpc/version"
 	"v.io/v23/security"
 	"v.io/v23/verror"
+	slib "v.io/x/ref/lib/security"
 	iflow "v.io/x/ref/runtime/internal/flow"
 )
 
@@ -26,23 +27,53 @@ var (
 	authAcceptorTag = []byte("AuthAcpt\x00")
 )
 
+type dialHandshakeResult struct {
+	names    []string
+	rejected []security.RejectedBlessing
+	rtt      time.Duration
+	err      error
+}
+
 func (c *Conn) dialHandshake(
 	ctx *context.T,
 	versions version.RPCVersionRange,
-	auth flow.PeerAuthorizer) (names []string, rejected []security.RejectedBlessing, rtt time.Duration, err error) {
-	binding, remoteEndpoint, rttstart, err := c.setup(ctx, versions, true, c.mtu)
-	if err != nil {
-		return nil, nil, 0, err
+	auth flow.PeerAuthorizer,
+	handshakeCh chan<- dialHandshakeResult) {
+
+	defer close(handshakeCh)
+	defer c.loopWG.Done()
+
+	var localBlessings security.Blessings
+	var localValid <-chan struct{}
+	// We only send our real blessings if we are a server in addition to being a client.
+	// Otherwise, we only send our public key through a nameless blessings object.
+	// TODO(suharshs): Should we reveal server blessings if we are connecting to proxy here.
+	if c.handler != nil {
+		localBlessings, localValid = v23.GetPrincipal(ctx).BlessingStore().Default()
+	} else {
+		localBlessings, _ = security.NamelessBlessing(v23.GetPrincipal(ctx).PublicKey())
 	}
+
+	binding, remoteEndpoint, rttstart, err := c.setup(ctx, versions, true)
+	if err != nil {
+		handshakeCh <- dialHandshakeResult{err: err}
+		return
+	}
+
+	c.mu.Lock()
 	dialedEP := c.remote
+	c.localBlessings = localBlessings
+	c.localValid = localValid
 	c.remote.RoutingID = remoteEndpoint.RoutingID
 	c.blessingsFlow = newBlessingsFlow(c)
+	c.mu.Unlock()
 
 	rttend, err := c.readRemoteAuth(ctx, binding, true)
 	if err != nil {
-		return nil, nil, 0, err
+		handshakeCh <- dialHandshakeResult{err: err}
+		return
 	}
-	rtt = rttend.Sub(rttstart)
+	rtt := rttend.Sub(rttstart)
 
 	c.mu.Lock()
 	// Note that the remoteBlessings and discharges are stored in data
@@ -52,31 +83,56 @@ func (c *Conn) dialHandshake(
 	c.mu.Unlock()
 
 	if rBlessings.IsZero() {
-		err = ErrAcceptorBlessingsMissing.Errorf(ctx, "dial: acceptor did not send blessings")
-		return nil, nil, rtt, err
+		handshakeCh <- dialHandshakeResult{err: ErrAcceptorBlessingsMissing.Errorf(ctx, "dial: acceptor did not send blessings")}
+		return
 	}
+	var names []string
+	var rejected []security.RejectedBlessing
 	if c.MatchesRID(dialedEP) {
 		// If we hadn't reached the endpoint we expected we would have treated this connection as
 		// a proxy, and proxies aren't authorized.  In this case we didn't find a proxy, so go ahead
 		// and authorize the connection.
 		names, rejected, err = auth.AuthorizePeer(ctx, c.local, c.remote, rBlessings, rDischarges)
 		if err != nil {
-			return names, rejected, rtt, iflow.MaybeWrapError(verror.ErrNotTrusted, ctx, err)
+			handshakeCh <- dialHandshakeResult{
+				names:    names,
+				rejected: rejected,
+				rtt:      rtt,
+				err:      iflow.MaybeWrapError(verror.ErrNotTrusted, ctx, err),
+			}
+			return
 		}
 	}
 	signedBinding, err := v23.GetPrincipal(ctx).Sign(append(authDialerTag, binding...))
 	if err != nil {
-		return names, rejected, rtt, err
+		handshakeCh <- dialHandshakeResult{
+			names:    names,
+			rejected: rejected,
+			rtt:      rtt,
+			err:      err,
+		}
+		return
 	}
 	lAuth := message.Auth{ChannelBinding: signedBinding}
 	// The client sends its blessings without any blessing-pattern encryption to the
 	// server as it has already authorized the server. Thus the 'peers' argument to
 	// blessingsFlow.send is nil.
 	if lAuth.BlessingsKey, _, err = c.blessingsFlow.send(ctx, c.localBlessings, nil, nil); err != nil {
-		return names, rejected, rtt, err
+		handshakeCh <- dialHandshakeResult{
+			names:    names,
+			rejected: rejected,
+			rtt:      rtt,
+			err:      err,
+		}
+		return
 	}
 	err = c.sendAuthMessage(ctx, lAuth)
-	return names, rejected, rtt, err
+	handshakeCh <- dialHandshakeResult{
+		names:    names,
+		rejected: rejected,
+		rtt:      rtt,
+		err:      err,
+	}
 }
 
 // MatchesRID returns true if the given endpoint matches the routing
@@ -88,50 +144,76 @@ func (c *Conn) MatchesRID(ep naming.Endpoint) bool {
 		c.remote.RoutingID == ep.RoutingID
 }
 
+type acceptHandshakeResult struct {
+	rtt         time.Duration
+	refreshTime time.Time
+	err         error
+}
+
 func (c *Conn) acceptHandshake(
 	ctx *context.T,
 	versions version.RPCVersionRange,
-	authorizedPeers []security.BlessingPattern) (rtt time.Duration, err error) {
-	binding, remoteEndpoint, _, err := c.setup(ctx, versions, false, c.mtu)
-	if err != nil {
-		return rtt, err
+	authorizedPeers []security.BlessingPattern,
+	handshakeCh chan<- acceptHandshakeResult) {
+	defer close(handshakeCh)
+	defer c.loopWG.Done()
+
+	principal := v23.GetPrincipal(ctx)
+	localBlessings, localValid := principal.BlessingStore().Default()
+	if localBlessings.IsZero() {
+		localBlessings, _ = security.NamelessBlessing(principal.PublicKey())
 	}
+	// PrepareDischarges may issue RPCs to validate 3rd party caveats.
+	localDischarges, refreshTime := slib.PrepareDischarges(ctx, localBlessings, nil, "", nil)
+
+	binding, remoteEndpoint, _, err := c.setup(ctx, versions, false)
+	if err != nil {
+		handshakeCh <- acceptHandshakeResult{err: err}
+		return
+	}
+
 	c.mu.Lock()
+	c.localBlessings = localBlessings
+	c.localValid = localValid
+	c.localDischarges = localDischarges
 	c.remote = remoteEndpoint
 	c.blessingsFlow = newBlessingsFlow(c)
 	c.mu.Unlock()
+
 	signedBinding, err := v23.GetPrincipal(ctx).Sign(append(authAcceptorTag, binding...))
 	if err != nil {
-		return rtt, err
+		handshakeCh <- acceptHandshakeResult{err: err}
+		return
 	}
+
 	lAuth := message.Auth{
 		ChannelBinding: signedBinding,
 	}
-
 	lAuth.BlessingsKey, lAuth.DischargeKey, err = c.blessingsFlow.send(
 		ctx, c.localBlessings, c.localDischarges, authorizedPeers)
 	if err != nil {
-		return rtt, err
+		handshakeCh <- acceptHandshakeResult{err: err}
+		return
 	}
 
 	rttstart := time.Now()
 	err = c.sendAuthMessage(ctx, lAuth)
 	if err != nil {
-		return rtt, err
+		handshakeCh <- acceptHandshakeResult{err: err}
+		return
 	}
 	rttend, err := c.readRemoteAuth(ctx, binding, false)
-	rtt = rttend.Sub(rttstart)
-	return rtt, err
+	handshakeCh <- acceptHandshakeResult{rttend.Sub(rttstart), refreshTime, err}
 }
 
 var emptyNaClPublicKey [32]byte
 
-func (c *Conn) setup(ctx *context.T, versions version.RPCVersionRange, dialer bool, mtu uint64) ([]byte, naming.Endpoint, time.Time, error) { //nolint:gocyclo
-	var rttstart time.Time
-	pk, sk, err := box.GenerateKey(rand.Reader)
-	if err != nil {
-		return nil, naming.Endpoint{}, rttstart, err
-	}
+func (c *Conn) sendSetupAsync(ctx *context.T, m message.Setup, errCh chan<- error) {
+	errCh <- c.sendSetupMessage(ctx, m)
+	close(errCh)
+}
+
+func (c *Conn) createSetupMessage(pk *[32]byte, versions version.RPCVersionRange) message.Setup {
 	lSetup := message.Setup{
 		Versions:          versions,
 		PeerLocalEndpoint: c.local,
@@ -142,47 +224,53 @@ func (c *Conn) setup(ctx *context.T, versions version.RPCVersionRange, dialer bo
 	if !c.remote.IsZero() {
 		lSetup.PeerRemoteEndpoint = c.remote
 	}
-	ch := make(chan error, 1)
-	go func() {
-		rttstart = time.Now()
-		ch <- c.sendSetupMessage(ctx, lSetup)
-	}()
-	rSetup, nBuf, err := c.mp.readSetup(ctx)
-	defer putNetBuf(nBuf)
-	if err != nil {
-		<-ch
-		return nil, naming.Endpoint{}, rttstart, ErrRecv.Errorf(ctx, "conn.setup: recv: %v", err)
-	}
-	if err := <-ch; err != nil {
-		return nil, naming.Endpoint{}, rttstart, ErrSend.Errorf(ctx, "conn.setup: remote %v: %v", c.remoteEndpointForError(), err)
-	}
-	if c.version, err = version.CommonVersion(ctx, lSetup.Versions, rSetup.Versions); err != nil {
-		return nil, naming.Endpoint{}, rttstart, err
-	}
-	if c.local.IsZero() {
-		c.local = rSetup.PeerRemoteEndpoint
-	}
+	return lSetup
+}
 
+func (c *Conn) configureMTUEtc(lSetup, rSetup *message.Setup) {
 	if rSetup.Mtu == 0 {
-		rSetup.Mtu = mtu
+		rSetup.Mtu = c.mtu
 	}
-	if lSetup.Mtu == 0 {
-		lSetup.Mtu = mtu
-	}
-
 	// Pick the smaller of the two MTUs.
 	if rSetup.Mtu > lSetup.Mtu {
 		c.mtu = lSetup.Mtu
 	} else {
 		c.mtu = rSetup.Mtu
 	}
-
 	lshared := lSetup.SharedTokens
 	if rSetup.SharedTokens != 0 && rSetup.SharedTokens < lshared {
 		lshared = rSetup.SharedTokens
 	}
-
 	c.flowControl.configure(c.mtu, lshared)
+}
+
+func (c *Conn) setup(ctx *context.T, versions version.RPCVersionRange, dialer bool) ([]byte, naming.Endpoint, time.Time, error) {
+	pk, sk, err := box.GenerateKey(rand.Reader)
+	if err != nil {
+		return nil, naming.Endpoint{}, time.Time{}, err
+	}
+	lSetup := c.createSetupMessage(pk, versions)
+	errCh := make(chan error, 1)
+	rttstart := time.Now()
+	go c.sendSetupAsync(ctx, lSetup, errCh)
+	rSetup, nBuf, err := c.mp.readSetup(ctx)
+	if err != nil {
+		<-errCh
+		return nil, naming.Endpoint{}, rttstart, ErrRecv.Errorf(ctx, "conn.setup: recv: %v", err)
+	}
+	defer putNetBuf(nBuf)
+	if err := <-errCh; err != nil {
+		return nil, naming.Endpoint{}, rttstart, ErrSend.Errorf(ctx, "conn.setup: remote %v: %v", c.remoteEndpointForError(), err)
+	}
+
+	if c.version, err = version.CommonVersion(ctx, versions, rSetup.Versions); err != nil {
+		return nil, naming.Endpoint{}, rttstart, err
+	}
+	if c.local.IsZero() {
+		c.local = rSetup.PeerRemoteEndpoint
+	}
+
+	c.configureMTUEtc(&lSetup, &rSetup)
 
 	if bytes.Equal(rSetup.PeerNaClPublicKey[:], emptyNaClPublicKey[:]) {
 		return nil, naming.Endpoint{}, rttstart, ErrMissingSetupOption.Errorf(ctx, "conn.setup: missing required setup option: peerNaClPublicKey")

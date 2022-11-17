@@ -244,7 +244,6 @@ func (b *blessingsFlow) send(
 	}
 	b.mu.Lock()
 	defer b.mu.Unlock()
-
 	buid := string(blessings.UniqueID())
 	bkey, hasB := b.outgoing.hasBlessings(buid)
 	if !hasB {

@@ -204,7 +204,7 @@ func (co *Opts) initValues(protocol string) error {
 // even if the context is canceled. The behaviour is different for a proxy
 // connection, in which case a cancelation is immediate and no attempt is made
 // to establish the connection.
-func NewDialed( //nolint:gocyclo
+func NewDialed(
 	ctx *context.T,
 	conn flow.MsgReadWriteCloser,
 	local, remote naming.Endpoint,
@@ -214,12 +214,12 @@ func NewDialed( //nolint:gocyclo
 	opts Opts,
 ) (c *Conn, names []string, rejected []security.RejectedBlessing, err error) {
 
-	if _, err = version.CommonVersion(ctx, rpcversion.Supported, versions); err != nil {
-		return
+	if _, err := version.CommonVersion(ctx, rpcversion.Supported, versions); err != nil {
+		return nil, nil, nil, err
 	}
 
-	if err = opts.initValues(local.Protocol); err != nil {
-		return
+	if err := opts.initValues(local.Protocol); err != nil {
+		return nil, nil, nil, err
 	}
 
 	var remoteAddr net.Addr
@@ -254,61 +254,50 @@ func NewDialed( //nolint:gocyclo
 
 	c.initWriters()
 	c.flowControl.init(opts.BytesBuffered)
-	done := make(chan struct{})
-	var rtt time.Duration
+
+	handshakeCh := make(chan dialHandshakeResult, 1)
+	var handshakeResult dialHandshakeResult
 	c.loopWG.Add(1)
-	go func() {
-		defer c.loopWG.Done()
-		defer close(done)
-		// We only send our real blessings if we are a server in addition to being a client.
-		// Otherwise, we only send our public key through a nameless blessings object.
-		// TODO(suharshs): Should we reveal server blessings if we are connecting to proxy here.
-		if handler != nil {
-			c.localBlessings, c.localValid = v23.GetPrincipal(ctx).BlessingStore().Default()
-		} else {
-			c.localBlessings, _ = security.NamelessBlessing(v23.GetPrincipal(ctx).PublicKey())
-		}
-		names, rejected, rtt, err = c.dialHandshake(ctx, versions, auth)
-	}()
+	go c.dialHandshake(ctx, versions, auth, handshakeCh)
+
 	var canceled bool
 	timer := time.NewTimer(opts.HandshakeTimeout)
-	var ferr error
 	select {
-	case <-done:
-		ferr = err
+	case handshakeResult = <-handshakeCh:
+		err = handshakeResult.err
 	case <-timer.C:
-		ferr = verror.ErrTimeout.Errorf(ctx, "timeout")
+		err = verror.ErrTimeout.Errorf(ctx, "timeout")
 	case <-dctx.Done():
 		if opts.Proxy {
-			ferr = verror.ErrCanceled.Errorf(ctx, "canceled")
+			err = verror.ErrCanceled.Errorf(ctx, "canceled")
 		} else {
 			// The context has been canceled, but let's give this connection
 			// an opportunity to run to completion just in case this connection
 			// is racing to become established as per the race documented in:
 			// https://github.com/vanadium/core/issues/40.
 			select {
-			case <-done:
+			case handshakeResult = <-handshakeCh:
 				canceled = true
 				// There is always the possibility that the handshake fails
 				// (eg. the client doesn't trust the server), so make sure to
 				// record any such error.
-				ferr = err
+				err = handshakeResult.err
 				// Handshake done.
 			case <-timer.C:
 				// Report the timeout not the cancelation, hence
 				// leave canceled as false.
-				ferr = verror.ErrTimeout.Errorf(ctx, "timeout")
+				err = verror.ErrTimeout.Errorf(ctx, "timeout")
 			}
 		}
 	}
-
 	timer.Stop()
-	if ferr != nil {
-		c.Close(ctx, ferr)
-		return nil, nil, nil, ferr
+
+	if err != nil {
+		c.Close(ctx, err)
+		return nil, nil, nil, err
 	}
 
-	c.initializeHealthChecks(ctx, rtt)
+	c.initializeHealthChecks(ctx, handshakeResult.rtt)
 	// We send discharges asynchronously to prevent making a second RPC while
 	// trying to build up the connection for another. If the two RPCs happen to
 	// go to the same server a deadlock will result.
@@ -327,9 +316,9 @@ func NewDialed( //nolint:gocyclo
 	c.lastUsedTime = time.Now()
 	c.mu.Unlock()
 	if canceled {
-		ferr = verror.ErrCanceled.Errorf(ctx, "canceled")
+		err = verror.ErrCanceled.Errorf(ctx, "canceled")
 	}
-	return c, names, rejected, ferr
+	return c, handshakeResult.names, handshakeResult.rejected, err
 }
 
 // NewAccepted accepts a new Conn on the given conn.
@@ -376,48 +365,38 @@ func NewAccepted(
 
 	c.initWriters()
 	c.flowControl.init(opts.BytesBuffered)
-	done := make(chan struct{}, 1)
-	var rtt time.Duration
-	var err error
-	var refreshTime time.Time
+
+	handshakeCh := make(chan acceptHandshakeResult, 1)
+	var handshakeResult acceptHandshakeResult
+
 	c.loopWG.Add(1)
-	go func() {
-		defer c.loopWG.Done()
-		defer close(done)
-		principal := v23.GetPrincipal(ctx)
-		c.localBlessings, c.localValid = principal.BlessingStore().Default()
-		if c.localBlessings.IsZero() {
-			c.localBlessings, _ = security.NamelessBlessing(principal.PublicKey())
-		}
-		c.localDischarges, refreshTime = slib.PrepareDischarges(
-			ctx, c.localBlessings, nil, "", nil)
-		rtt, err = c.acceptHandshake(ctx, versions, lAuthorizedPeers)
-	}()
+	go c.acceptHandshake(ctx, versions, lAuthorizedPeers, handshakeCh)
+
 	timer := time.NewTimer(opts.HandshakeTimeout)
-	var ferr error
+	var err error
 	select {
-	case <-done:
-		ferr = err
+	case handshakeResult = <-handshakeCh:
+		err = handshakeResult.err
 	case <-timer.C:
-		ferr = verror.ErrTimeout.Errorf(ctx, "timeout")
+		err = verror.ErrTimeout.Errorf(ctx, "timeout")
 	case <-ctx.Done():
-		ferr = verror.ErrCanceled.Errorf(ctx, "canceled")
+		err = verror.ErrCanceled.Errorf(ctx, "canceled")
 	}
 	timer.Stop()
-	if ferr != nil {
+	if err != nil {
 		// Call internalClose with closedWhileAccepting set to true
 		// to avoid waiting on the go routine above to complete.
 		// This avoids blocking on the loopWG waitgroup which is
 		// pointless since we've decided to not wait on it!
-		c.internalClose(ctx, false, true, ferr)
+		c.internalClose(ctx, false, true, err)
 		<-c.closed
-		return nil, ferr
+		return nil, err
 	}
-	c.initializeHealthChecks(ctx, rtt)
+	c.initializeHealthChecks(ctx, handshakeResult.rtt)
 	c.loopWG.Add(2)
 	// NOTE: there is a race for refreshTime since it gets set above
 	// in a goroutine but read here without any synchronization.
-	go c.blessingsLoop(ctx, refreshTime, lAuthorizedPeers)
+	go c.blessingsLoop(ctx, handshakeResult.refreshTime, lAuthorizedPeers)
 	go c.readLoop(ctx)
 	c.mu.Lock()
 	c.lastUsedTime = time.Now()
@@ -596,6 +575,10 @@ func (c *Conn) Dial(ctx *context.T, blessings security.Blessings, discharges []s
 	c.mu.Lock()
 	defer c.mu.Unlock()
 
+	if c.status >= Closing {
+		return nil, ErrConnectionClosed
+	}
+
 	// It may happen that in the case of bidirectional RPC the dialer of the connection
 	// has sent blessings,  but not yet discharges.  In this case we will wait for them
 	// to send the discharges before allowing a bidirectional flow dial.
@@ -755,9 +738,42 @@ func (c *Conn) internalClose(ctx *context.T, closedRemotely, closedWhileAcceptin
 	c.mu.Unlock()
 }
 
-func (c *Conn) internalCloseLocked(ctx *context.T, closedRemotely, closedWhileAccepting bool, err error) { //nolint:gocyclo
-	debug := ctx.V(2)
-	if debug {
+func (c *Conn) internalCloseAsync(ctx *context.T, flows map[uint64]*flw, closedRemotely, closedWhileAccepting bool, err error) {
+	if !closedRemotely {
+		msg := ""
+		if err != nil {
+			msg = err.Error()
+		}
+		cerr := c.sendTearDownMessage(ctx, msg)
+		if cerr != nil {
+			ctx.VI(2).Infof("Error sending tearDown on connection to %s: %v", c.remote, cerr)
+		}
+	}
+	if err == nil {
+		err = ErrConnectionClosed.Errorf(ctx, "connection closed")
+	}
+	for _, f := range flows {
+		f.close(ctx, false, err)
+	}
+	if cerr := c.mp.Close(); cerr != nil && ctx.V(2) {
+		ctx.Infof("Error closing underlying connection for %s: %v", c.remote, cerr)
+	}
+	if c.cancel != nil {
+		c.cancel()
+	}
+	if !closedWhileAccepting {
+		// given that the accept handshake timed out or was
+		// cancelled it doesn't make sense to wait for it here.
+		c.loopWG.Wait()
+	}
+	c.mu.Lock()
+	c.status = Closed
+	close(c.closed)
+	c.mu.Unlock()
+}
+
+func (c *Conn) internalCloseLocked(ctx *context.T, closedRemotely, closedWhileAccepting bool, err error) {
+	if ctx.V(2) {
 		ctx.Infof("Closing connection: %v", err)
 	}
 
@@ -774,48 +790,15 @@ func (c *Conn) internalCloseLocked(ctx *context.T, closedRemotely, closedWhileAc
 		c.remoteValid = nil
 	}
 
-	flows := make([]*flw, 0, len(c.flows))
-	for _, f := range c.flows {
-		flows = append(flows, f)
+	if c.hcstate != nil {
+		c.hcstate.requestTimer.Stop()
+		c.hcstate.closeTimer.Stop()
 	}
 
-	go func(c *Conn) {
-		if c.hcstate != nil {
-			c.hcstate.requestTimer.Stop()
-			c.hcstate.closeTimer.Stop()
-		}
-		if !closedRemotely {
-			msg := ""
-			if err != nil {
-				msg = err.Error()
-			}
-			cerr := c.sendTearDownMessage(ctx, msg)
-			if cerr != nil {
-				ctx.VI(2).Infof("Error sending tearDown on connection to %s: %v", c.remote, cerr)
-			}
-		}
-		if err == nil {
-			err = ErrConnectionClosed.Errorf(ctx, "connection closed")
-		}
-		for _, f := range flows {
-			f.close(ctx, false, err)
-		}
-		if cerr := c.mp.Close(); cerr != nil && debug {
-			ctx.Infof("Error closing underlying connection for %s: %v", c.remote, cerr)
-		}
-		if c.cancel != nil {
-			c.cancel()
-		}
-		if !closedWhileAccepting {
-			// given that the accept handshake timed out or was
-			// cancelled it doesn't make sense to wait for it here.
-			c.loopWG.Wait()
-		}
-		c.mu.Lock()
-		c.status = Closed
-		close(c.closed)
-		c.mu.Unlock()
-	}(c)
+	flows := c.flows
+	c.flows = nil
+
+	go c.internalCloseAsync(ctx, flows, closedRemotely, closedWhileAccepting, err)
 }
 
 func (c *Conn) state() Status {
