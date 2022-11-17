@@ -189,7 +189,8 @@ func BenchmarkFlow__ConnectionSetup(b *testing.B) {
 	ctx, shutdown := test.V23Init()
 	defer shutdown()
 
-	network, address := "tcp", ":0"
+	// Use the local network to avoid exhausting the number of tcp ports etc.
+	network, address := "local", ":0"
 	versions := iversion.Supported
 
 	ridep := naming.Endpoint{Protocol: network, Address: address, RoutingID: naming.FixedRoutingID(191341)}
@@ -200,13 +201,13 @@ func BenchmarkFlow__ConnectionSetup(b *testing.B) {
 	aerrch := make(chan error)
 	dBlessings, _ := v23.GetPrincipal(ctx).BlessingStore().Default()
 
-	dial := func(conn flow.Conn) {
+	dial := func(ctx *context.T, conn flow.Conn) {
 		d, _, _, err := NewDialed(ctx, conn, ep, ep, versions, peerAuthorizer{dBlessings, nil}, nil, Opts{})
 		dch <- d
 		derrch <- err
 	}
 
-	accept := func(conn flow.Conn) {
+	accept := func(ctx *context.T, conn flow.Conn) {
 		a, err := NewAccepted(ctx, nil, conn, ridep, versions, nil, Opts{})
 		ach <- a
 		aerrch <- err
@@ -218,18 +219,17 @@ func BenchmarkFlow__ConnectionSetup(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		dmrw, amrw := flowtest.Pipe(b, ctx, network, address)
 
-		go accept(dmrw)
-		go dial(amrw)
+		go accept(ctx, dmrw)
+		go dial(ctx, amrw)
 
 		dconn := <-dch
 		aconn := <-ach
 		if err := <-derrch; err != nil {
-			b.Fatal(err)
+			b.Fatalf("iteration: %v: %v", i, err)
 		}
 		if err := <-aerrch; err != nil {
-			b.Fatal(err)
+			b.Fatalf("iteration: %v: %v", i, err)
 		}
-
 		dconn.Close(ctx, nil)
 		aconn.Close(ctx, nil)
 	}

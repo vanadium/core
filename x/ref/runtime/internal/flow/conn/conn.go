@@ -733,11 +733,7 @@ func (c *Conn) internalClose(ctx *context.T, closedRemotely, closedWhileAcceptin
 	c.mu.Unlock()
 }
 
-func (c *Conn) internalCloseAsync(ctx *context.T, flows []*flw, closedRemotely, closedWhileAccepting bool, err error) {
-	if c.hcstate != nil {
-		c.hcstate.requestTimer.Stop()
-		c.hcstate.closeTimer.Stop()
-	}
+func (c *Conn) internalCloseAsync(ctx *context.T, flows map[uint64]*flw, closedRemotely, closedWhileAccepting bool, err error) {
 	if !closedRemotely {
 		msg := ""
 		if err != nil {
@@ -789,12 +785,13 @@ func (c *Conn) internalCloseLocked(ctx *context.T, closedRemotely, closedWhileAc
 		c.remoteValid = nil
 	}
 
-	flows := make([]*flw, len(c.flows))
-	i := 0
-	for _, f := range c.flows {
-		flows[i] = f
-		i++
+	if c.hcstate != nil {
+		c.hcstate.requestTimer.Stop()
+		c.hcstate.closeTimer.Stop()
 	}
+
+	flows := c.flows
+	c.flows = nil
 
 	go c.internalCloseAsync(ctx, flows, closedRemotely, closedWhileAccepting, err)
 }
