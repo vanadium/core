@@ -43,11 +43,11 @@ func (c *mockCall) Timestamp() (t time.Time) { return }
 func (c *mockCall) Method() string           { return c.m }
 func (c *mockCall) MethodTags() []*vdl.Value { return nil }
 func (c *mockCall) Suffix() string           { return "" }
-func (c *mockCall) LocalDischarges() map[string]security.Discharge {
-	return map[string]security.Discharge{c.ld.ID(): c.ld}
+func (c *mockCall) LocalDischarges() security.Discharges {
+	return security.Discharges{c.ld}
 }
-func (c *mockCall) RemoteDischarges() map[string]security.Discharge {
-	return map[string]security.Discharge{c.rd.ID(): c.rd}
+func (c *mockCall) RemoteDischarges() security.Discharges {
+	return security.Discharges{c.rd}
 }
 func (c *mockCall) LocalEndpoint() naming.Endpoint      { return c.lep }
 func (c *mockCall) RemoteEndpoint() naming.Endpoint     { return c.rep }

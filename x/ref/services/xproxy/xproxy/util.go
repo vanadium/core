@@ -22,13 +22,13 @@ func (proxyAuthorizer) AuthorizePeer(
 	ctx *context.T,
 	localEndpoint, remoteEndpoint naming.Endpoint,
 	remoteBlessings security.Blessings,
-	remoteDischarges map[string]security.Discharge,
+	remoteDischarges security.Discharges,
 ) ([]string, []security.RejectedBlessing, error) {
 	return nil, nil, nil
 }
 
 func (a proxyAuthorizer) BlessingsForPeer(ctx *context.T, serverBlessings []string) (
-	security.Blessings, map[string]security.Discharge, error) {
+	security.Blessings, security.Discharges, error) {
 	blessings := v23.GetPrincipal(ctx).BlessingStore().ForPeer(serverBlessings...)
 	discharges, _ := slib.PrepareDischarges(ctx, blessings, serverBlessings, "", nil)
 	return blessings, discharges, nil

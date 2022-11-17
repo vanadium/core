@@ -82,11 +82,6 @@ type healthCheckState struct {
 	closeDeadline time.Time
 }
 
-type namedDischarge struct {
-	security.WireDischarge
-	key string
-}
-
 // A Conn acts as a multiplexing encrypted channel that can host Flows.
 type Conn struct {
 	// All the variables here are set before the constructor returns

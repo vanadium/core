@@ -38,7 +38,7 @@ func (dl Discharges) Find(id string) (Discharge, bool) {
 }
 
 // Equivalent returns true if discharges contains an equivalent discharge
-// to that requested, that is, one with the same ID and that satifies
+// to that requested, that is, one with the same ID and that satisfies
 // discharge.Equivalent.
 func (dl Discharges) Equivalent(discharge Discharge) bool {
 	id := discharge.ID()
