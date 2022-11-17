@@ -237,7 +237,7 @@ func (b *blessingsFlow) encodeDischargesLocked(ctx *context.T, discharges []secu
 func (b *blessingsFlow) send(
 	ctx *context.T,
 	blessings security.Blessings,
-	discharges []security.Discharge,
+	discharges security.Discharges,
 	peers []security.BlessingPattern) (bkey, dkey uint64, err error) {
 	if blessings.IsZero() {
 		return 0, 0, nil

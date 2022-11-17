@@ -14,7 +14,7 @@ type cachedBlessing struct {
 }
 
 type cachedDischarge struct {
-	discharges []security.Discharge
+	discharges security.Discharges
 	dkey, bkey uint64
 }
 
@@ -43,7 +43,7 @@ func (c *inCache) hasBlessings(bkey uint64) (security.Blessings, bool) {
 	return security.Blessings{}, false
 }
 
-func (c *inCache) addDischarges(bkey, dkey uint64, discharges []security.Discharge) {
+func (c *inCache) addDischarges(bkey, dkey uint64, discharges security.Discharges) {
 	c.discharges = append(c.discharges, cachedDischarge{dkey: dkey, bkey: bkey, discharges: discharges})
 }
 
@@ -84,6 +84,6 @@ func (c *outCache) hasDischarges(bkey uint64) ([]security.Discharge, uint64, boo
 	return nil, 0, false
 }
 
-func (c *outCache) addDischarges(bkey, dkey uint64, discharges []security.Discharge) {
+func (c *outCache) addDischarges(bkey, dkey uint64, discharges security.Discharges) {
 	c.discharges = append(c.discharges, cachedDischarge{dkey: dkey, bkey: bkey, discharges: discharges})
 }
