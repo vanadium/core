@@ -33,10 +33,10 @@ type CallParams struct {
 	LocalBlessings Blessings       // Blessings presented to the remote end.
 	LocalEndpoint  naming.Endpoint // Endpoint of local end of communication.
 
-	RemoteBlessings  Blessings            // Blessings presented by the remote end.
-	RemoteDischarges map[string]Discharge // Map of third-party caveat identifiers to corresponding discharges shared by the remote end.
-	LocalDischarges  map[string]Discharge // Map of third-party caveat identifiers to corresponding discharges shared by the local end.
-	RemoteEndpoint   naming.Endpoint      // Endpoint of the remote end of communication (as seen by the local end)
+	RemoteBlessings  Blessings       // Blessings presented by the remote end.
+	RemoteDischarges []Discharge     // Map of third-party caveat identifiers to corresponding discharges shared by the remote end.
+	LocalDischarges  []Discharge     // Map of third-party caveat identifiers to corresponding discharges shared by the local end.
+	RemoteEndpoint   naming.Endpoint // Endpoint of the remote end of communication (as seen by the local end)
 }
 
 // Copy fills in p with a copy of the values in c.
@@ -58,34 +58,22 @@ func (p *CallParams) Copy(c Call) {
 	p.RemoteBlessings = c.RemoteBlessings()
 	// TODO(ataly, suharshs): Is the copying of discharge maps
 	// really needed?
-	p.LocalDischarges = copyDischargeMap(c.LocalDischarges())
-	p.RemoteDischarges = copyDischargeMap(c.RemoteDischarges())
+	p.LocalDischarges = c.LocalDischarges().Copy()
+	p.RemoteDischarges = c.RemoteDischarges().Copy()
 	p.RemoteEndpoint = c.RemoteEndpoint()
-}
-
-func copyDischargeMap(discharges map[string]Discharge) map[string]Discharge {
-	// avoid unnecessary allocation.
-	if len(discharges) == 0 {
-		return nil
-	}
-	ret := make(map[string]Discharge, len(discharges))
-	for id, d := range discharges {
-		ret[id] = d
-	}
-	return ret
 }
 
 type ctxImpl struct{ params CallParams }
 
-func (c *ctxImpl) Timestamp() time.Time                   { return c.params.Timestamp }
-func (c *ctxImpl) Method() string                         { return c.params.Method }
-func (c *ctxImpl) MethodTags() []*vdl.Value               { return c.params.MethodTags }
-func (c *ctxImpl) Suffix() string                         { return c.params.Suffix }
-func (c *ctxImpl) LocalPrincipal() Principal              { return c.params.LocalPrincipal }
-func (c *ctxImpl) LocalBlessings() Blessings              { return c.params.LocalBlessings }
-func (c *ctxImpl) RemoteBlessings() Blessings             { return c.params.RemoteBlessings }
-func (c *ctxImpl) LocalEndpoint() naming.Endpoint         { return c.params.LocalEndpoint }
-func (c *ctxImpl) RemoteEndpoint() naming.Endpoint        { return c.params.RemoteEndpoint }
-func (c *ctxImpl) LocalDischarges() map[string]Discharge  { return c.params.LocalDischarges }
-func (c *ctxImpl) RemoteDischarges() map[string]Discharge { return c.params.RemoteDischarges }
-func (c *ctxImpl) String() string                         { return fmt.Sprintf("%+v", c.params) }
+func (c *ctxImpl) Timestamp() time.Time            { return c.params.Timestamp }
+func (c *ctxImpl) Method() string                  { return c.params.Method }
+func (c *ctxImpl) MethodTags() []*vdl.Value        { return c.params.MethodTags }
+func (c *ctxImpl) Suffix() string                  { return c.params.Suffix }
+func (c *ctxImpl) LocalPrincipal() Principal       { return c.params.LocalPrincipal }
+func (c *ctxImpl) LocalBlessings() Blessings       { return c.params.LocalBlessings }
+func (c *ctxImpl) RemoteBlessings() Blessings      { return c.params.RemoteBlessings }
+func (c *ctxImpl) LocalEndpoint() naming.Endpoint  { return c.params.LocalEndpoint }
+func (c *ctxImpl) RemoteEndpoint() naming.Endpoint { return c.params.RemoteEndpoint }
+func (c *ctxImpl) LocalDischarges() Discharges     { return c.params.LocalDischarges }
+func (c *ctxImpl) RemoteDischarges() Discharges    { return c.params.RemoteDischarges }
+func (c *ctxImpl) String() string                  { return fmt.Sprintf("%+v", c.params) }

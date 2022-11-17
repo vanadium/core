@@ -378,11 +378,11 @@ type Call interface {
 	// LocalDischarges specify discharges for third-party caveats presented by
 	// the local end of the call. It maps a third-party caveat identifier to the
 	// corresponding discharge.
-	LocalDischarges() map[string]Discharge
+	LocalDischarges() Discharges
 	// RemoteDischarges specify discharges for third-party caveats presented by
 	// the remote end of the call. It maps a third-party caveat identifier to the
 	// corresponding discharge.
-	RemoteDischarges() map[string]Discharge
+	RemoteDischarges() Discharges
 	// LocalPrincipal returns the principal used to authenticate to the remote end.
 	LocalPrincipal() Principal
 	// LocalBlessings returns the blessings (bound to the local end)

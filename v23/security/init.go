@@ -56,7 +56,7 @@ func init() {
 	})
 
 	RegisterCaveatValidator(PublicKeyThirdPartyCaveat, func(ctx *context.T, call Call, params publicKeyThirdPartyCaveatParam) error {
-		discharge, ok := call.RemoteDischarges()[params.ID()]
+		discharge, ok := call.RemoteDischarges().Find(params.ID())
 		if !ok {
 			return fmt.Errorf("missing discharge for third party caveat(id=%v)", params.ID())
 		}

@@ -1019,10 +1019,10 @@ func (fs *flowServer) Recv(itemptr interface{}) error {
 func (fs *flowServer) Security() security.Call {
 	return fs
 }
-func (fs *flowServer) LocalDischarges() map[string]security.Discharge {
+func (fs *flowServer) LocalDischarges() security.Discharges {
 	return fs.flow.LocalDischarges()
 }
-func (fs *flowServer) RemoteDischarges() map[string]security.Discharge {
+func (fs *flowServer) RemoteDischarges() security.Discharges {
 	return fs.flow.RemoteDischarges()
 }
 func (fs *flowServer) Server() rpc.Server {

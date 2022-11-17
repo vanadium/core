@@ -25,7 +25,7 @@ func testDefaultAuthorizer(t *testing.T, pali, pbob, pche, pdis security.Princip
 
 		tpcav  = mkThirdPartyCaveat(t, pdis.PublicKey(), "someLocation", security.UnconstrainedUse())
 		dis, _ = pdis.MintDischarge(tpcav, security.UnconstrainedUse())
-		dismap = map[string]security.Discharge{dis.ID(): dis}
+		dismap = security.Discharges{dis}
 
 		// bless(ali, bob, "friend") will generate a blessing for ali, calling him "bob:friend".
 		bless = func(target, extend security.Blessings, extension string, caveats ...security.Caveat) security.Blessings {

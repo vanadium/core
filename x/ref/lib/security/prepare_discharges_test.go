@@ -133,7 +133,7 @@ func TestPrepareDischarges(t *testing.T) { //nolint:gocyclo
 	if len(discharges) != 2 {
 		t.Errorf("Got %d discharges, expected 2.", len(discharges))
 	}
-	dis, has := discharges[tpid]
+	dis, has := discharges.Find(tpid)
 	if !has {
 		t.Errorf("Got %#v, Expected discharge for %s", discharges, tpid)
 	}
@@ -155,7 +155,7 @@ func TestPrepareDischarges(t *testing.T) { //nolint:gocyclo
 	if len(discharges) != 2 {
 		t.Errorf("Got %d discharges, expected 2.", len(discharges))
 	}
-	dis, has = discharges[tpid]
+	dis, has = discharges.Find(tpid)
 	if !has {
 		t.Errorf("Got %#v, Expected discharge for %s", discharges, tpid)
 	}

@@ -30,6 +30,7 @@ type updateResult struct {
 }
 
 type work struct {
+	name    string
 	caveat  security.Caveat
 	impetus security.DischargeImpetus
 }
@@ -47,17 +48,21 @@ func PrepareDischarges(
 	blessings security.Blessings,
 	serverBlessings []string,
 	method string,
-	args []interface{}) (map[string]security.Discharge, time.Time) {
+	args []interface{}) (security.Discharges, time.Time) {
 	tpCavs := blessings.ThirdPartyCaveats()
 	if len(tpCavs) == 0 {
 		return nil, time.Time{}
 	}
 	// We only want to send the impetus information we really need for each
 	// discharge.
-	todo := make(map[string]work, len(tpCavs))
+	todo := make([]work, 0, len(tpCavs))
 	for _, cav := range tpCavs {
 		if tp := cav.ThirdPartyDetails(); tp != nil {
-			todo[tp.ID()] = work{cav, filteredImpetus(tp.Requirements(), serverBlessings, method, args)}
+			todo = append(todo,
+				work{tp.ID(),
+					cav,
+					filteredImpetus(tp.Requirements(), serverBlessings, method, args),
+				})
 		}
 	}
 	// Since there may be dependencies in the caveats, we keep retrying
@@ -65,21 +70,29 @@ func PrepareDischarges(
 	// are fetched.
 	var minRefreshTime time.Time
 	ch := make(chan *updateResult, len(tpCavs))
-	ret := make(map[string]security.Discharge, len(tpCavs))
+	ret := make([]security.Discharge, 0, len(tpCavs))
 	for {
-		want := len(todo)
+		want := 0
 		now := time.Now()
 		for _, w := range todo {
-			updateDischarge(ctx, now, w.impetus, w.caveat, ch)
+			if len(w.name) > 0 {
+				updateDischarge(ctx, now, w.impetus, w.caveat, ch)
+				want++
+			}
 		}
 		got := 0
 		for i := 0; i < want; i++ {
 			res := <-ch
-			id := res.discharge.ID()
-			ret[id] = res.discharge
+			ret = append(ret, res.discharge)
 			if res.done {
 				minRefreshTime = minTime(minRefreshTime, res.refreshTime)
-				delete(todo, id)
+				id := res.discharge.ID()
+				for j := range todo {
+					if todo[j].name == id {
+						todo[j] = work{}
+						break
+					}
+				}
 				got++
 			}
 		}
@@ -118,7 +131,9 @@ func updateDischarge(
 		ctx = context.WithValue(ctx, skipDischargesKey{}, true)
 		var newDis security.Discharge
 		args, res := []interface{}{caveat, impetus}, []interface{}{&newDis}
-		ctx.VI(3).Infof("Fetching discharge for %v", tp)
+		if ctx.V(3) {
+			ctx.Infof("Fetching discharge for %v", tp)
+		}
 		if err := v23.GetClient(ctx).Call(ctx, tp.Location(), "Discharge", args, res); err != nil {
 			ctx.VI(3).Infof("Discharge fetch for %v failed: %v", tp, err)
 			out <- &updateResult{discharge: dis}

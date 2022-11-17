@@ -932,12 +932,12 @@ func (a typeFlowAuthorizer) AuthorizePeer(
 	ctx *context.T,
 	localEP, remoteEP naming.Endpoint,
 	remoteBlessings security.Blessings,
-	remoteDischarges map[string]security.Discharge) ([]string, []security.RejectedBlessing, error) {
+	remoteDischarges security.Discharges) ([]string, []security.RejectedBlessing, error) {
 	return nil, nil, nil
 }
 
 func (a typeFlowAuthorizer) BlessingsForPeer(ctx *context.T, peerNames []string) (
-	security.Blessings, map[string]security.Discharge, error) {
+	security.Blessings, security.Discharges, error) {
 	return security.Blessings{}, nil, nil
 }
 
@@ -951,7 +951,7 @@ func (x peerAuthorizer) AuthorizePeer(
 	ctx *context.T,
 	localEP, remoteEP naming.Endpoint,
 	remoteBlessings security.Blessings,
-	remoteDischarges map[string]security.Discharge) ([]string, []security.RejectedBlessing, error) {
+	remoteDischarges security.Discharges) ([]string, []security.RejectedBlessing, error) {
 	localPrincipal := v23.GetPrincipal(ctx)
 	// The "Method" and "Suffix" fields of the call are not populated
 	// as they are considered irrelevant for authorizing server blessings.
@@ -971,7 +971,7 @@ func (x peerAuthorizer) AuthorizePeer(
 }
 
 func (x peerAuthorizer) BlessingsForPeer(ctx *context.T, peerNames []string) (
-	security.Blessings, map[string]security.Discharge, error) {
+	security.Blessings, security.Discharges, error) {
 	localPrincipal := v23.GetPrincipal(ctx)
 	clientB := localPrincipal.BlessingStore().ForPeer(peerNames...)
 	dis, _ := slib.PrepareDischarges(ctx, clientB, peerNames, x.method, x.args)

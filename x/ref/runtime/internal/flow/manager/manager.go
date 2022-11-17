@@ -506,13 +506,13 @@ func (proxyAuthorizer) AuthorizePeer(
 	ctx *context.T,
 	localEndpoint, remoteEndpoint naming.Endpoint,
 	remoteBlessings security.Blessings,
-	remoteDischarges map[string]security.Discharge,
+	remoteDischarges security.Discharges,
 ) ([]string, []security.RejectedBlessing, error) {
 	return nil, nil, nil
 }
 
 func (a proxyAuthorizer) BlessingsForPeer(ctx *context.T, proxyBlessings []string) (
-	security.Blessings, map[string]security.Discharge, error) {
+	security.Blessings, security.Discharges, error) {
 	blessings := v23.GetPrincipal(ctx).BlessingStore().ForPeer(proxyBlessings...)
 	discharges, _ := slib.PrepareDischarges(ctx, blessings, proxyBlessings, "", nil)
 	return blessings, discharges, nil
@@ -1122,7 +1122,7 @@ func (x *peerAuthorizer) AuthorizePeer(
 	ctx *context.T,
 	localEP, remoteEP naming.Endpoint,
 	remoteBlessings security.Blessings,
-	remoteDischarges map[string]security.Discharge) ([]string, []security.RejectedBlessing, error) {
+	remoteDischarges security.Discharges) ([]string, []security.RejectedBlessing, error) {
 	localPrincipal := v23.GetPrincipal(ctx)
 	// The "Method" and "Suffix" fields of the call are not populated
 	// as they are considered irrelevant for authorizing server blessings.
@@ -1145,6 +1145,6 @@ func (x *peerAuthorizer) AuthorizePeer(
 }
 
 func (x *peerAuthorizer) BlessingsForPeer(ctx *context.T, peerNames []string) (
-	security.Blessings, map[string]security.Discharge, error) {
+	security.Blessings, security.Discharges, error) {
 	return x.auth.BlessingsForPeer(ctx, peerNames)
 }

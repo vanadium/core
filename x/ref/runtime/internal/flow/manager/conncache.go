@@ -140,7 +140,7 @@ type CachedConn interface {
 	RemoteEndpoint() naming.Endpoint
 	LocalEndpoint() naming.Endpoint
 	RemoteBlessings() security.Blessings
-	RemoteDischarges() map[string]security.Discharge
+	RemoteDischarges() security.Discharges
 	RTT() time.Duration
 	LastUsed() time.Time
 	DebugString() string

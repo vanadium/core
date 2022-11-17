@@ -138,13 +138,13 @@ type PeerAuthorizer interface {
 		localEndpoint naming.Endpoint,
 		remoteEndpoint naming.Endpoint,
 		remoteBlessings security.Blessings,
-		remoteDischarges map[string]security.Discharge,
+		remoteDischarges security.Discharges,
 	) (peerBlessingNames []string, rejectedPeerNames []security.RejectedBlessing, _ error)
 
 	// BlessingsForPeer returns the blessings and discharges that should be
 	// presented to the remote end with peerBlessingNames.
 	BlessingsForPeer(ctx *context.T, peerBlessingNames []string) (
-		security.Blessings, map[string]security.Discharge, error)
+		security.Blessings, security.Discharges, error)
 }
 
 // ManagedConn represents the connection onto which this flow is multiplexed.
@@ -166,12 +166,12 @@ type ManagedConn interface {
 	// connection during authentication.
 	//
 	// Discharges are organized in a map keyed by the discharge-identifier.
-	RemoteDischarges() map[string]security.Discharge
+	RemoteDischarges() security.Discharges
 	// LocalDischarges returns the discharges presented by the local end of the
 	// connection during authentication.
 	//
 	// Discharges are organized in a map keyed by the discharge-identifier.
-	LocalDischarges() map[string]security.Discharge
+	LocalDischarges() security.Discharges
 
 	// CommonVersion returns the RPCVersion negotiated between the local and remote endpoints.
 	CommonVersion() version.RPCVersion
@@ -265,12 +265,12 @@ type Flow interface {
 	// flow during authentication.
 	//
 	// Discharges are organized in a map keyed by the discharge-identifier.
-	LocalDischarges() map[string]security.Discharge
+	LocalDischarges() security.Discharges
 	// RemoteDischarges returns the discharges presented by the remote end of the
 	// flow during authentication.
 	//
 	// Discharges are organized in a map keyed by the discharge-identifier.
-	RemoteDischarges() map[string]security.Discharge
+	RemoteDischarges() security.Discharges
 
 	// Conn returns the connection the flow is multiplexed on.
 	Conn() ManagedConn

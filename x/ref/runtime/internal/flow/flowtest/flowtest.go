@@ -56,12 +56,12 @@ func (AllowAllPeersAuthorizer) AuthorizePeer(
 	ctx *context.T,
 	localEndpoint, remoteEndpoint naming.Endpoint,
 	remoteBlessings security.Blessings,
-	remoteDischarges map[string]security.Discharge,
+	remoteDischarges security.Discharges,
 ) ([]string, []security.RejectedBlessing, error) {
 	return nil, nil, nil
 }
 
-func (AllowAllPeersAuthorizer) BlessingsForPeer(ctx *context.T, _ []string) (security.Blessings, map[string]security.Discharge, error) {
+func (AllowAllPeersAuthorizer) BlessingsForPeer(ctx *context.T, _ []string) (security.Blessings, security.Discharges, error) {
 	b, _ := v23.GetPrincipal(ctx).BlessingStore().Default()
 	return b, nil, nil
 }
@@ -79,7 +79,7 @@ func (p peersAuthorizer) AuthorizePeer(
 	ctx *context.T,
 	localEndpoint, remoteEndpoint naming.Endpoint,
 	remoteBlessings security.Blessings,
-	remoteDischarges map[string]security.Discharge,
+	remoteDischarges security.Discharges,
 ) ([]string, []security.RejectedBlessing, error) {
 	call := security.NewCall(&security.CallParams{
 		Timestamp:        time.Now(),
@@ -98,7 +98,7 @@ func (p peersAuthorizer) AuthorizePeer(
 	return peerNames, rejectedPeerNames, fmt.Errorf("not authorized")
 }
 
-func (peersAuthorizer) BlessingsForPeer(ctx *context.T, _ []string) (security.Blessings, map[string]security.Discharge, error) {
+func (peersAuthorizer) BlessingsForPeer(ctx *context.T, _ []string) (security.Blessings, security.Discharges, error) {
 	b, _ := v23.GetPrincipal(ctx).BlessingStore().Default()
 	return b, nil, nil
 }

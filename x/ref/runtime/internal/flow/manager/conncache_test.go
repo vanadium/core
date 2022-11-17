@@ -548,10 +548,10 @@ func (c *rttConn) RemoteBlessings() security.Blessings {
 	b, _ := v23.GetPrincipal(c.ctx).BlessingStore().Default()
 	return b
 }
-func (c *rttConn) RemoteDischarges() map[string]security.Discharge { return nil }
-func (c *rttConn) RTT() time.Duration                              { return c.rtt }
-func (c *rttConn) LastUsed() time.Time                             { return time.Now() }
-func (c *rttConn) DebugString() string                             { return "" }
+func (c *rttConn) RemoteDischarges() security.Discharges { return nil }
+func (c *rttConn) RTT() time.Duration                    { return c.rtt }
+func (c *rttConn) LastUsed() time.Time                   { return time.Now() }
+func (c *rttConn) DebugString() string                   { return "" }
 
 func isInCache(ctx *context.T, c *ConnCache, conn *connpackage.Conn) bool {
 	rep := conn.RemoteEndpoint()

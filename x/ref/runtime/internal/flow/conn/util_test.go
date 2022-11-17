@@ -154,7 +154,7 @@ func (a peerAuthorizer) AuthorizePeer(
 	ctx *context.T,
 	localEP, remoteEP naming.Endpoint,
 	remoteBlessings security.Blessings,
-	remoteDischarges map[string]security.Discharge,
+	remoteDischarges security.Discharges,
 ) ([]string, []security.RejectedBlessing, error) {
 	call := security.NewCall(&security.CallParams{
 		Timestamp:        time.Now(),
@@ -177,7 +177,7 @@ func (a peerAuthorizer) AuthorizePeer(
 }
 
 func (a peerAuthorizer) BlessingsForPeer(ctx *context.T, _ []string) (
-	security.Blessings, map[string]security.Discharge, error) {
+	security.Blessings, security.Discharges, error) {
 	dis, _ := securitylib.PrepareDischarges(ctx, a.blessings, nil, "", nil)
 	return a.blessings, dis, nil
 }
