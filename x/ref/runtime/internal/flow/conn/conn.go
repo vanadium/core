@@ -570,6 +570,10 @@ func (c *Conn) Dial(ctx *context.T, blessings security.Blessings, discharges map
 	c.mu.Lock()
 	defer c.mu.Unlock()
 
+	if c.status >= Closing {
+		return nil, ErrConnectionClosed
+	}
+
 	// It may happen that in the case of bidirectional RPC the dialer of the connection
 	// has sent blessings,  but not yet discharges.  In this case we will wait for them
 	// to send the discharges before allowing a bidirectional flow dial.
@@ -729,9 +733,42 @@ func (c *Conn) internalClose(ctx *context.T, closedRemotely, closedWhileAcceptin
 	c.mu.Unlock()
 }
 
-func (c *Conn) internalCloseLocked(ctx *context.T, closedRemotely, closedWhileAccepting bool, err error) { //nolint:gocyclo
-	debug := ctx.V(2)
-	if debug {
+func (c *Conn) internalCloseAsync(ctx *context.T, flows map[uint64]*flw, closedRemotely, closedWhileAccepting bool, err error) {
+	if !closedRemotely {
+		msg := ""
+		if err != nil {
+			msg = err.Error()
+		}
+		cerr := c.sendTearDownMessage(ctx, msg)
+		if cerr != nil {
+			ctx.VI(2).Infof("Error sending tearDown on connection to %s: %v", c.remote, cerr)
+		}
+	}
+	if err == nil {
+		err = ErrConnectionClosed.Errorf(ctx, "connection closed")
+	}
+	for _, f := range flows {
+		f.close(ctx, false, err)
+	}
+	if cerr := c.mp.Close(); cerr != nil && ctx.V(2) {
+		ctx.Infof("Error closing underlying connection for %s: %v", c.remote, cerr)
+	}
+	if c.cancel != nil {
+		c.cancel()
+	}
+	if !closedWhileAccepting {
+		// given that the accept handshake timed out or was
+		// cancelled it doesn't make sense to wait for it here.
+		c.loopWG.Wait()
+	}
+	c.mu.Lock()
+	c.status = Closed
+	close(c.closed)
+	c.mu.Unlock()
+}
+
+func (c *Conn) internalCloseLocked(ctx *context.T, closedRemotely, closedWhileAccepting bool, err error) {
+	if ctx.V(2) {
 		ctx.Infof("Closing connection: %v", err)
 	}
 
@@ -748,48 +785,15 @@ func (c *Conn) internalCloseLocked(ctx *context.T, closedRemotely, closedWhileAc
 		c.remoteValid = nil
 	}
 
-	flows := make([]*flw, 0, len(c.flows))
-	for _, f := range c.flows {
-		flows = append(flows, f)
+	if c.hcstate != nil {
+		c.hcstate.requestTimer.Stop()
+		c.hcstate.closeTimer.Stop()
 	}
 
-	go func(c *Conn) {
-		if c.hcstate != nil {
-			c.hcstate.requestTimer.Stop()
-			c.hcstate.closeTimer.Stop()
-		}
-		if !closedRemotely {
-			msg := ""
-			if err != nil {
-				msg = err.Error()
-			}
-			cerr := c.sendTearDownMessage(ctx, msg)
-			if cerr != nil {
-				ctx.VI(2).Infof("Error sending tearDown on connection to %s: %v", c.remote, cerr)
-			}
-		}
-		if err == nil {
-			err = ErrConnectionClosed.Errorf(ctx, "connection closed")
-		}
-		for _, f := range flows {
-			f.close(ctx, false, err)
-		}
-		if cerr := c.mp.Close(); cerr != nil && debug {
-			ctx.Infof("Error closing underlying connection for %s: %v", c.remote, cerr)
-		}
-		if c.cancel != nil {
-			c.cancel()
-		}
-		if !closedWhileAccepting {
-			// given that the accept handshake timed out or was
-			// cancelled it doesn't make sense to wait for it here.
-			c.loopWG.Wait()
-		}
-		c.mu.Lock()
-		c.status = Closed
-		close(c.closed)
-		c.mu.Unlock()
-	}(c)
+	flows := c.flows
+	c.flows = nil
+
+	go c.internalCloseAsync(ctx, flows, closedRemotely, closedWhileAccepting, err)
 }
 
 func (c *Conn) state() Status {
