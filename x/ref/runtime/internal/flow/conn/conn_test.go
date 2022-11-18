@@ -279,7 +279,7 @@ func deadlineInAbout(c *Conn, d time.Duration) error {
 func TestHandshakeDespiteCancel(t *testing.T) {
 	// This test is specifically for the race documented in:
 	// https://github.com/vanadium/core/issues/40
-	// Even though the dial context is cancelled the handshake should
+	// Even though the dial context is canceled the handshake should
 	// complete, but returning an error that indicating that it
 	// was canceled.
 	defer goroutines.NoLeaks(t, leakWaitTime)()
