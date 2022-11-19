@@ -252,7 +252,7 @@ func (c *Conn) readRemoteAuthLoop(ctx *context.T) (message.Auth, error) {
 			if err := c.handleRemoteAuthData(ctx, from, nBuf); err != nil {
 				return message.Auth{}, err
 			}
-		case message.AuthType:
+		case message.AuthType, message.AuthED25519Type, message.AuthRSAType:
 			// Receipt of an Auth message indicates that all blessings and
 			// discharges have been sent (and received).
 			m, err := message.ReadNoPayload(ctx, plaintext)
