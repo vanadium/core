@@ -52,9 +52,6 @@ func newMessagePipeUseFramer(rw flow.MsgReadWriteCloser) *messagePipe {
 	}
 }
 
-type sealFunc func(out, data []byte) ([]byte, error)
-type openFunc func(out, data []byte) ([]byte, bool)
-
 // messagePipe implements messagePipe for RPC11 version and beyond.
 type messagePipe struct {
 	rw                  flow.MsgReadWriteCloser
