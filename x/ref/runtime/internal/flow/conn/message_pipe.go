@@ -52,9 +52,6 @@ func newMessagePipeUseFramer(rw flow.MsgReadWriteCloser) *messagePipe {
 	}
 }
 
-type sealFunc func(out, data []byte) ([]byte, error)
-type openFunc func(out, data []byte) ([]byte, bool)
-
 // messagePipe implements messagePipe for RPC11 version and beyond.
 type messagePipe struct {
 	rw                  flow.MsgReadWriteCloser
@@ -63,8 +60,9 @@ type messagePipe struct {
 	mtu                 int
 	counterSizeEstimate int
 
-	seal sealFunc
-	open openFunc
+	encrypting    bool
+	naclBoxCipher *naclbox.T
+	aeadCipher    *aead.T
 
 	// locks are required to serialize access to the read/write operations since
 	// the messagePipe may be called by different goroutines when connections
@@ -108,16 +106,16 @@ func (p *messagePipe) enableEncryption(ctx *context.T, publicKey, secretKey, rem
 		if err != nil {
 			return nil, err
 		}
-		p.seal = cipher.Seal
-		p.open = cipher.Open
+		p.encrypting = true
+		p.naclBoxCipher = cipher
 		return cipher.ChannelBinding(), nil
 	case rpcversion >= version.RPCVersion15:
 		cipher, err := aead.NewCipher(publicKey, secretKey, remotePublicKey)
 		if err != nil {
 			return nil, err
 		}
-		p.seal = cipher.Seal
-		p.open = cipher.Open
+		p.encrypting = true
+		p.aeadCipher = cipher
 		return cipher.ChannelBinding(), nil
 	}
 	return nil, ErrRPCVersionMismatch.Errorf(ctx, "conn.message_pipe: %v is not supported", rpcversion)
@@ -144,10 +142,17 @@ func (p *messagePipe) writeFrame(ctx *context.T, wire, framedWire []byte) error 
 	return err
 }
 
+func (p *messagePipe) seal(ciphertext, plaintext []byte) ([]byte, error) {
+	if p.aeadCipher != nil {
+		return p.aeadCipher.Seal(ciphertext, plaintext)
+	}
+	return p.naclBoxCipher.Seal(ciphertext, plaintext)
+}
+
 func (p *messagePipe) writeCiphertext(ctx *context.T, fn serialize, size int) error {
 	plaintextNetBuf, plaintextBuf := getNetBuf(size)
 	defer putNetBuf(plaintextNetBuf)
-	if p.seal == nil {
+	if !p.encrypting {
 		wire, err := fn(ctx, plaintextBuf[p.frameOffset:p.frameOffset])
 		if err != nil {
 			return err
@@ -225,6 +230,13 @@ func (p *messagePipe) writeAnyMsg(ctx *context.T, fn serialize) error {
 	return p.writeCiphertext(ctx, fn, size)
 }
 
+func (p *messagePipe) open(plaintext, ciphertext []byte) ([]byte, bool) {
+	if p.aeadCipher != nil {
+		return p.aeadCipher.Open(plaintext, ciphertext)
+	}
+	return p.naclBoxCipher.Open(plaintext, ciphertext)
+}
+
 // getPlaintextData returns the plaintext data received from the remote
 // end of this message pipe. It returns the data as a slice as well as the
 // netBuf that backs that byte slice. It guarantees to release any netBufs
@@ -232,7 +244,7 @@ func (p *messagePipe) writeAnyMsg(ctx *context.T, fn serialize) error {
 func (p *messagePipe) getPlaintextData(ctx *context.T) ([]byte, *netBuf, error) {
 	p.readMu.Lock()
 	defer p.readMu.Unlock()
-	if p.open == nil {
+	if !p.encrypting {
 		// At this point we have no choice but to use a maximally sized buffer.
 		nb, buf := getNetBuf(p.mtu + estimatedMessageOverhead)
 		buf, err := p.rw.ReadMsg2(buf)
