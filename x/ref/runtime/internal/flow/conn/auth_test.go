@@ -7,6 +7,7 @@ package conn
 import (
 	"errors"
 	"reflect"
+	"strings"
 	"testing"
 	"time"
 
@@ -394,5 +395,32 @@ func TestChangedDefaultBlessings(t *testing.T) {
 	dialerConn := df1.Conn().(*Conn)
 	if got, want := dialerConn.Status(), Closed; got != want {
 		t.Fatalf("got %v, want %v", got, want)
+	}
+}
+
+func TestAuthRejection(t *testing.T) {
+	defer goroutines.NoLeaks(t, leakWaitTime)()
+	defer netbufsFreed(t)
+
+	ctx, shutdown := test.V23Init()
+	defer shutdown()
+
+	dctx, cancel := context.RootContext()
+	defer cancel()
+
+	// Tests that the acceptor will close the connection if authentication
+	// fails.
+	dctx, _ = v23.WithPrincipal(dctx, testutil.NewPrincipal("dialer"))
+	actx, _ := v23.WithPrincipal(ctx, testutil.NewPrincipal("acceptor"))
+	dAuth, aAuth := []security.BlessingPattern{"root:other"}, []security.BlessingPattern{"root"}
+	dc, ac, derr, _ := setupConns(t, "local", "", dctx, actx, nil, nil, dAuth, aAuth)
+	if derr == nil || !strings.Contains(derr.Error(), "connection closed") {
+		t.Errorf("missing or unexpected error: %v", derr)
+	}
+	if dc != nil {
+		dc.Close(dctx, nil)
+	}
+	if ac != nil {
+		ac.Close(actx, nil)
 	}
 }

@@ -9,7 +9,6 @@ import (
 
 	"v.io/v23/context"
 	"v.io/v23/flow/message"
-	"v.io/x/lib/vlog"
 )
 
 func (c *Conn) handleAnyMessage(ctx *context.T, m message.Message, nBuf *netBuf) error {
@@ -216,56 +215,70 @@ func (c *Conn) remoteEndpointForError() string {
 	return c.remote.String()
 }
 
+func (c *Conn) handleRemoteAuthData(ctx *context.T, from []byte, nBuf *netBuf) error {
+	m, nBuf, err := c.mp.handleReadData(ctx, from, nBuf)
+	if err != nil {
+		return ErrRecv.Errorf(ctx, "conn.readRemoteAuth: error reading message.Data from %v: %v", c.remoteEndpointForError(), err)
+	}
+	if err := c.handleData(ctx, m, nBuf); err != nil {
+		return ErrRecv.Errorf(ctx, "conn.readRemoteAuth: error reading message.Data from %v: %v", c.remoteEndpointForError(), err)
+	}
+	return nil
+}
+
 // handleRemoteAuth reads Data messages (containing blessings) until it sees
 // an Auth message that indicates the end of the blessings and hence the
 // auth handshake. It may encounter a TearDown message if the remote end
-// does trust the new diealer. It is called from accepthHandshake and
-// dialHandshake and therefore runs aysnchronously to the other message
-// loops and hence must be prepared to handle all message types, although
-// in practice this happens extremely very rarely. Note that the Data
-// messages will be addressed to the blessings flow, ie. flow ID 1.
+// does trust the new dialer. It is called from accepthHandshake and
+// dialHandshake (via readRemoteAuth) and runs to completion before
+// any other read loops are run by NewDialed or NewAccepted except when
+// the context is canceled or the handshake timesout. In these cases
+// NewAccepted or NewDialed will potentially leave this loop running and
+// hence it may receive other messages which can be safely ignored
+// since the connection is not going to be used.
+// Note that the Data messages will be addressed to the blessings flow,
+// ie. flow ID 1.
 func (c *Conn) readRemoteAuthLoop(ctx *context.T) (message.Auth, error) {
 	for {
-		msg, nBuf, err := c.mp.readAnyMsg(ctx)
+		plaintext, nBuf, err := c.mp.getPlaintextData(ctx)
 		if err != nil {
 			return message.Auth{}, ErrRecv.Errorf(ctx, "conn.readRemoteAuth: error reading from %v: %v", c.remoteEndpointForError(), err)
 		}
-		if rauth, ok := msg.(message.Auth); ok {
+		msgType, from := plaintext[0], plaintext[1:]
+		switch msgType {
+		case message.DataType:
+			// Data messages carry the blessings and discharges. handleRemoteAuthData
+			// takes ownership of the nBuf.
+			if err := c.handleRemoteAuthData(ctx, from, nBuf); err != nil {
+				return message.Auth{}, err
+			}
+		case message.AuthType, message.AuthED25519Type, message.AuthRSAType:
+			// Receipt of an Auth message indicates that all blessings and
+			// discharges have been sent (and received).
+			m, err := message.ReadNoPayload(ctx, plaintext)
 			defer putNetBuf(nBuf)
-			// Take care to return a copy of the message in order to allow
-			// the netBuf to be freed.
-			return rauth.CopyDirect(), nil
-		}
-		switch m := msg.(type) {
-		case message.TearDown:
+			if err != nil {
+				return message.Auth{}, ErrRecv.Errorf(ctx, "conn.readRemoteAuth: error reading message.AuthType from %v: %v", c.remoteEndpointForError(), err)
+			}
+			return m.(message.Auth).CopyDirect(), nil
+		case message.TearDownType:
 			// A teardown message may be sent by the client if it decides
 			// that it doesn't trust the server. We handle it here and return
 			// a connection closed error rather than waiting for the readMsg
 			// above to fail when it tries to read from the closed connection.
-			if err := c.handleTearDown(ctx, m); err != nil {
-				vlog.Infof("conn.readRemoteAuth: handleMessage teardown: failed: %v", err)
+			m, err := message.ReadNoPayload(ctx, plaintext)
+			defer putNetBuf(nBuf)
+			if err != nil {
+				return message.Auth{}, ErrRecv.Errorf(ctx, "conn.readRemoteAuth: error reading message.TearDownType from %v: %v", c.remoteEndpointForError(), err)
 			}
-			putNetBuf(nBuf)
+			if err := c.handleTearDown(ctx, m.(message.TearDown)); err != nil {
+				ctx.Infof("conn.readRemoteAuth: handleMessage teardown: failed: %v", err)
+			}
 			return message.Auth{}, ErrConnectionClosed.Errorf(ctx, "conn.readRemoteAuth: connection closed")
-		case message.OpenFlow:
-			// If we get an OpenFlow message here it needs to be handled
-			// asynchronously since it will call the flow handler
-			// which will block until NewAccepted (which calls
-			// this method) returns. OpenFlow is generally expected
-			// to be handled by readLoop.
-
-			// Take a copy of the message since and free the netBuf here.
-			m = m.CopyDirect()
+		default:
 			putNetBuf(nBuf)
-			go func(m message.OpenFlow) {
-				if err := c.handleOpenFlow(ctx, m, nil); err != nil {
-					vlog.Infof("conn.readRemoteAuth: handleMessage for openFlow for flow %v: failed: %v", m.ID, err)
-				}
-			}(m)
-			continue
-		}
-		if err = c.handleAnyMessage(ctx, msg, nBuf); err != nil {
-			return message.Auth{}, err
+			ctx.Infof("conn.readRemoteAuth: unexpected message type received: %v", msgType)
+			return message.Auth{}, ErrConnectionClosed.Errorf(ctx, "conn.readRemoteAuth:  unexpected message type received: %v", msgType)
 		}
 	}
 }
