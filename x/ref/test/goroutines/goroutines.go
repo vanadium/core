@@ -131,7 +131,7 @@ func (g *Goroutine) writeTo(w io.Writer) {
 type Frame struct {
 	Call   string
 	File   string
-	Line   int
+	Line   int64
 	Offset int64
 }
 
@@ -149,7 +149,7 @@ func parseFrame(scanner *bufio.Scanner) (*Frame, error) {
 	if err != nil {
 		return nil, err
 	}
-	f.Line = int(line)
+	f.Line = line
 	if len(matches[3]) > 0 {
 		offset, err := strconv.ParseInt(string(matches[3]), 16, 64)
 		if err != nil {
