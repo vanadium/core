@@ -29,7 +29,7 @@ var ignoredGoroutines = []string{
 }
 
 type Goroutine struct {
-	ID      int
+	ID      int64
 	State   string
 	Stack   []*Frame
 	Creator *Frame
@@ -95,7 +95,7 @@ func parseGoroutine(scanner *bufio.Scanner) (*Goroutine, error) {
 	if err != nil {
 		return nil, err
 	}
-	g.ID = int(id)
+	g.ID = id
 	g.State = string(matches[2])
 
 	for scanner.Scan() {
@@ -131,8 +131,8 @@ func (g *Goroutine) writeTo(w io.Writer) {
 type Frame struct {
 	Call   string
 	File   string
-	Line   int
-	Offset int
+	Line   int64
+	Offset int64
 }
 
 func parseFrame(scanner *bufio.Scanner) (*Frame, error) {
@@ -149,13 +149,13 @@ func parseFrame(scanner *bufio.Scanner) (*Frame, error) {
 	if err != nil {
 		return nil, err
 	}
-	f.Line = int(line)
+	f.Line = line
 	if len(matches[3]) > 0 {
 		offset, err := strconv.ParseInt(string(matches[3]), 16, 64)
 		if err != nil {
 			return nil, err
 		}
-		f.Offset = int(offset)
+		f.Offset = offset
 	}
 	return f, nil
 }

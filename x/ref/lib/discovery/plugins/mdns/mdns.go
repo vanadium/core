@@ -400,7 +400,7 @@ func newAdInfo(service mdns.ServiceInstance) (*idiscovery.AdInfo, error) { //nol
 					return nil, err
 				}
 			case attrStatus:
-				status, err := strconv.Atoi(v)
+				status, err := strconv.ParseInt(v, 10, 8)
 				if err != nil {
 					return nil, err
 				}

@@ -96,7 +96,7 @@ func (p *proxy) index(w http.ResponseWriter, r *http.Request) {
 // sendProfile sends the requested profile as a response.
 func (p *proxy) sendProfile(name string, w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/plain; charset=utf-8")
-	debug, _ := strconv.Atoi(r.FormValue("debug"))
+	debug, _ := strconv.ParseInt(r.FormValue("debug"), 10, 32)
 	c := pprof.PProfClient(p.name)
 	ctx, _ := vtrace.WithNewTrace(p.ctx, "proxy.sendProfile", nil)
 	prof, err := c.Profile(ctx, name, int32(debug))
@@ -123,7 +123,7 @@ func (p *proxy) sendProfile(name string, w http.ResponseWriter, r *http.Request)
 
 // profile replies with a CPU profile.
 func (p *proxy) profile(w http.ResponseWriter, r *http.Request) {
-	sec, _ := strconv.ParseUint(r.FormValue("seconds"), 10, 64)
+	sec, _ := strconv.ParseUint(r.FormValue("seconds"), 10, 32)
 	if sec == 0 {
 		sec = 30
 	}
