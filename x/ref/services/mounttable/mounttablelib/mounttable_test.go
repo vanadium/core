@@ -195,7 +195,7 @@ func newMT(t *testing.T, permsFile, persistDir, statsDir string, rootCtx *contex
 
 	// Add mount table service.
 	clock := timekeeper.NewManualTime()
-	mt, err := mounttablelib.NewMountTableDispatcherWithClock(ctx, permsFile, persistDir, statsDir, clock)
+	mt, err := mounttablelib.NewMountTableDispatcherWithClock(ctx, permsFile, persistDir, statsDir, clock, 0)
 	if err != nil {
 		boom(t, "mounttablelib.NewMountTableDispatcher: %v", err)
 	}

@@ -6,6 +6,7 @@ package util
 
 import (
 	"bytes"
+	"fmt"
 	"html/template"
 	"net/http"
 
@@ -25,7 +26,8 @@ func HTTPBadRequest(w http.ResponseWriter, req *http.Request, err error) {
 // also has the string representation of err.
 func HTTPServerError(w http.ResponseWriter, err error) {
 	w.WriteHeader(http.StatusInternalServerError)
-	if e := tmplServerError.Execute(w, err); e != nil {
+	logger.Global().Errorf("HTTPServerError: %v", err)
+	if e := tmplServerError.Execute(w, fmt.Errorf("unexpected server error")); e != nil {
 		logger.Global().Errorf("Failed to execute Server Error template: %v", e)
 	}
 }

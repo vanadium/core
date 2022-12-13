@@ -64,6 +64,10 @@ func (a *Assets) File(name string) ([]byte, error) {
 		}
 		return data, nil
 	}
+	name = filepath.Base(filepath.Clean(name))
+	if strings.Contains(name, "..") {
+		return nil, fmt.Errorf("relative path name")
+	}
 	return ioutil.ReadFile(filepath.Join(a.dir, name))
 }
 

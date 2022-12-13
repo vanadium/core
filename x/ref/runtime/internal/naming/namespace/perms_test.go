@@ -55,7 +55,7 @@ func initTest() (rootCtx *context.T, aliceCtx *context.T, bobCtx *context.T, shu
 
 // Create a new mounttable service.
 func newMT(t *testing.T, ctx *context.T) (func(), string) {
-	estr, stopFunc, err := mounttablelib.StartServers(ctx, v23.GetListenSpec(ctx), "", "", "", "", "mounttable")
+	estr, stopFunc, err := mounttablelib.StartServers(ctx, v23.GetListenSpec(ctx), "", "", "", "", "mounttable", 0)
 	if err != nil {
 		t.Fatalf("r.NewServer: %s", err)
 	}
