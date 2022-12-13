@@ -111,7 +111,7 @@ func VWireIntNStringFromNative(wire *VWireIntNString, native VNativeWireIntNStri
 	if native == "" {
 		*wire = 0
 	} else {
-		x, err := strconv.Atoi(string(native))
+		x, err := strconv.ParseInt(string(native), 10, 32)
 		if err != nil {
 			return err
 		}
@@ -131,7 +131,7 @@ func VWireIntNStructFromNative(wire *VWireIntNStruct, native VNativeWireIntNStru
 	if native.X == "" {
 		*wire = 0
 	} else {
-		x, err := strconv.Atoi(native.X)
+		x, err := strconv.ParseInt(native.X, 10, 32)
 		if err != nil {
 			return err
 		}

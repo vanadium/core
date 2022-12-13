@@ -68,7 +68,7 @@ func StartSSHAgent() (func(), string, error) {
 	second := lines[1]
 	pidstr := strings.TrimPrefix(second, "SSH_AGENT_PID=")
 	pidstr = strings.TrimSuffix(pidstr, "; export SSH_AGENT_PID;")
-	pid, err := strconv.ParseInt(pidstr, 10, 64)
+	pid, err := strconv.ParseInt(pidstr, 10, 32)
 	if err != nil {
 		return func() {}, "", fmt.Errorf("failed to parse pid from %v", second)
 	}

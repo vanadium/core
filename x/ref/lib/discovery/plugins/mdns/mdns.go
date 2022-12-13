@@ -10,8 +10,8 @@
 //
 // For example, a vanadium printer service is advertised as
 //
-//    v23._tcp.local.
-//    _<printer_service_uuid>._sub._v23._tcp.local.
+//	v23._tcp.local.
+//	_<printer_service_uuid>._sub._v23._tcp.local.
 package mdns
 
 import (
@@ -399,7 +399,7 @@ func newAdInfo(service mdns.ServiceInstance) (*idiscovery.AdInfo, error) { //nol
 					return nil, err
 				}
 			case attrStatus:
-				status, err := strconv.Atoi(v)
+				status, err := strconv.ParseInt(v, 10, 8)
 				if err != nil {
 					return nil, err
 				}
