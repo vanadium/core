@@ -213,7 +213,7 @@ func registerSQLTLSConfig(cfg *SQLConfig, configID string) error {
 // hashing.
 func (sc *SQLConfig) hash() string {
 	scn := sc.normalizePaths("")
-	fieldsToHash := []interface{}{
+	fieldsToHash := [6]interface{}{
 		scn.DataSourceName, scn.TLSDisable, scn.TLSServerName,
 		scn.RootCertPath, scn.ClientCertPath, scn.ClientKeyPath,
 	}
