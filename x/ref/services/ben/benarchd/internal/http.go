@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"net/http"
 	"path"
+	"path/filepath"
 	"strings"
 	"time"
 
@@ -26,7 +27,9 @@ type handler struct {
 }
 
 func (h *handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	if file := path.Base(r.URL.Path); strings.HasSuffix(file, ".css") || strings.HasSuffix(file, ".js") {
+	base := path.Base(r.URL.Path)
+	if file := base; strings.HasSuffix(file, ".css") || strings.HasSuffix(file, ".js") {
+		file = filepath.Clean(filepath.Base(file))
 		data, err := h.assets.File(file)
 		if err != nil {
 			w.WriteHeader(http.StatusNotFound)
