@@ -61,7 +61,7 @@ func handleLiteral(lit tokPos, tt reflect.Type) (reflect.Value, error) {
 			// The go parser has already made sure this token is an int.
 			panic(fmt.Sprintf("%v: not an int: %v", lit.lit, err))
 		}
-		if iv > math.MaxInt32 {
+		if iv > math.MaxInt {
 			return reflect.ValueOf(iv), nil
 		}
 		return reflect.ValueOf(int(iv)), nil
