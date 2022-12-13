@@ -107,11 +107,19 @@ func (g *googleOAuth) ExchangeAuthCodeForEmail(authcode string, url string) (str
 	return gtoken.Email, nil
 }
 
+var accessTokenRE = regexp.MustCompile(`^[a-zA-Z0-9-._~+/]+$`)
+
 // GetEmailAndClientID uses Google's tokeninfo API to determine the email and clientID
 // associated with the token.
 func (g *googleOAuth) GetEmailAndClientID(accessToken string) (string, string, error) {
 	// As per https://developers.google.com/accounts/docs/OAuth2UserAgent#validatetoken
 	// we obtain the 'info' for the token via an HTTP roundtrip to Google.
+
+	// Validate access token:
+	if len(accessToken) > 64 || !accessTokenRE.MatchString(accessToken) {
+		return "", "", fmt.Errorf("access token is incorrectly formatted or too large")
+	}
+
 	tokeninfo, err := http.Get(g.verifyURL + "access_token=" + accessToken)
 	if err != nil {
 		return "", "", fmt.Errorf("unable to use token: %v", err)
