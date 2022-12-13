@@ -61,7 +61,7 @@ func (a *Assets) File(name string) ([]byte, error) {
 	if n := strings.Count(name, "."); n > 1 {
 		return nil, fmt.Errorf("invalid filename, too many .'s")
 	}
-	if sname, err := filepath.EvalSymLinks(name); err != nil || name != sname {
+	if sname, err := filepath.EvalSymlinks(name); err != nil || name != sname {
 		return nil, fmt.Errorf("invalid filename, symlinks not allowed")
 	}
 
