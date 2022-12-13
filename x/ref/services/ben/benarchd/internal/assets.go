@@ -71,7 +71,7 @@ func (a *Assets) File(name string) ([]byte, error) {
 		}
 		return data, nil
 	}
-	return ioutil.ReadFile(filepath.Join(a.dir, basename))
+	return ioutil.ReadFile(filepath.Join(a.dir, filepath.Clean(filepath.Base(basename))))
 }
 
 func (a *Assets) Template(name string) (*template.Template, error) {
