@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"go/scanner"
 	"go/token"
+	"math"
 	"reflect"
 	"strconv"
 	"time"

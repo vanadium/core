@@ -6,6 +6,7 @@ package util
 
 import (
 	"bytes"
+	"fmt"
 	"html/template"
 	"net/http"
 
