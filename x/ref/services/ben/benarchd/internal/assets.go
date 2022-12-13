@@ -57,22 +57,21 @@ type Assets struct {
 }
 
 func (a *Assets) File(name string) ([]byte, error) {
-	name = filepath.Base(filepath.Clean(name))
-	if n := strings.Count(name, "."); n > 1 {
+	basename := filepath.Base(filepath.Clean(name))
+	if n := strings.Count(basename, "."); n > 1 {
 		return nil, fmt.Errorf("invalid filename, too many .'s")
 	}
-	if sname, err := filepath.EvalSymlinks(name); err != nil || name != sname {
+	if sname, err := filepath.EvalSymlinks(basename); err != nil || basename != sname {
 		return nil, fmt.Errorf("invalid filename, symlinks not allowed")
 	}
-
 	if a.dir == "" {
-		data, err := assets.Asset(name)
+		data, err := assets.Asset(basename)
 		if err != nil {
 			return nil, fmt.Errorf("failed to load compiled-in asset %q: %v", name, err)
 		}
 		return data, nil
 	}
-	return ioutil.ReadFile(filepath.Join(a.dir, name))
+	return ioutil.ReadFile(filepath.Join(a.dir, basename))
 }
 
 func (a *Assets) Template(name string) (*template.Template, error) {
