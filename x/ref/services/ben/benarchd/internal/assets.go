@@ -57,13 +57,6 @@ type Assets struct {
 }
 
 func (a *Assets) File(name string) ([]byte, error) {
-	name = filepath.Base(filepath.Clean(name))
-	if n := strings.Count(name, "."); n > 1 {
-		return nil, fmt.Errorf("invalid filename, too many .'s")
-	}
-	if sname, err := filepath.EvalSymlinks(name); err != nil || name != sname {
-		return nil, fmt.Errorf("invalid filename, symlinks not allowed")
-	}
 	if a.dir == "" {
 		data, err := assets.Asset(name)
 		if err != nil {
@@ -71,6 +64,7 @@ func (a *Assets) File(name string) ([]byte, error) {
 		}
 		return data, nil
 	}
+	name = filepath.Clean(filepath.Base(filepath.Clean(name)))
 	return ioutil.ReadFile(filepath.Join(a.dir, name))
 }
 
