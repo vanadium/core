@@ -204,7 +204,7 @@ func registerSQLTLSConfig(cfg *SQLConfig, configID string) error {
 		ServerName:   cfg.TLSServerName,
 		// SSLv3 is more vulnerable than TLSv1.0, see https://en.wikipedia.org/wiki/POODLE
 		// TODO(ivanpi): Increase when Cloud SQL starts supporting higher TLS versions.
-		MinVersion: tls.VersionTLS11,
+		MinVersion: tls.VersionTLS12,
 		ClientAuth: tls.RequireAndVerifyClientCert,
 	})
 }
