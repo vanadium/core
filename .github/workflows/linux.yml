@@ -1,0 +1,86 @@
+name: linux
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    strategy:
+      matrix:
+        go-version: [1.18.x, 1.20.x]
+        os: [ubuntu-latest]
+    runs-on: ${{ matrix.os }}
+    env:
+      VDLPATH: $GITHUB_WORKSPACE
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Go
+        uses: actions/setup-go@v3
+        with:
+          go-version: ${{ matrix.go-version }}
+          cache: true
+
+      - name: Test
+        run: |
+          echo "VDLPATH: $VDLPATH"
+          go test --race --covermode=atomic ./...
+          cd x/ref/examples
+          go test --race --covermode=atomic ./...
+
+  integration-tests:
+    runs-on: ubuntu-latest
+    env:
+      VDLPATH: $GITHUB_WORKSPACE
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Go
+        uses: actions/setup-go@v3
+        with:
+          go-version: 1.20.x
+          cache: true
+
+      - name: Install openssl
+        run: |
+          uname -a
+          sudo apt-get update -y
+          sudo apt-get install -y pkg-config openssl libssl-dev
+
+      - name: Test
+        run: |
+          echo "VDLPATH: $VDLPATH"
+          go test --race --covermode=atomic ./...
+          cd x/ref/examples
+          go test --race --covermode=atomic ./...
+
+  linting:
+    runs-on: ubuntu-latest
+    env:
+      VDLPATH: $GITHUB_WORKSPACE
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          path: github.com/vanadium/go.lib
+
+      - name: Set up Go
+        uses: actions/setup-go@v3
+        with:
+          go-version: 1.20.x
+          cache: true
+
+      - name: Lint
+        uses: golangci/golangci-lint-action@v3
+        with:
+          version: latest
+
+      - name: Vulnerabilities
+        run: |
+          go install golang.org/x/vuln/cmd/govulncheck@latest
+          govulncheck ./...
