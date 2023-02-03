@@ -29,7 +29,6 @@ require (
 	github.com/tklauser/numcpus v0.6.0 // indirect
 	github.com/yusufpapurcu/wmi v1.2.2 // indirect
 	golang.org/x/sys v0.4.0 // indirect
-	golang.org/x/xerrors v0.0.0-20220411194840-2f41105eb62f // indirect
 )
 
 replace v.io/x/ref/lib/flags/sitedefaults => ./x/ref/lib/flags/sitedefaults
