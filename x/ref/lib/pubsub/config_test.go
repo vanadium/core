@@ -271,8 +271,8 @@ func testStream(t *testing.T, consumerBufSize int) {
 		t.Fatal(err)
 	}
 
-	rand.Seed(time.Now().UnixNano())
-	limit := rand.Intn(5000)
+	rnd := rand.New(rand.NewSource(time.Now().UnixNano()))
+	limit := rnd.Intn(5000)
 	if limit < 100 {
 		limit = 100
 	}
