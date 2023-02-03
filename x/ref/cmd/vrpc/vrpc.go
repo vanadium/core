@@ -39,6 +39,7 @@ var (
 	flagShowReserved   bool
 	flagShallowResolve bool
 	flagJSON           bool
+	flagTimeout        time.Duration
 	insecureOpts       = []rpc.CallOpt{
 		options.ServerAuthorizer{Authorizer: security.AllowEveryone()},
 		options.NameResolutionAuthorizer{Authorizer: security.AllowEveryone()},
@@ -63,6 +64,7 @@ func init() {
 	cmdVRPC.Flags.BoolVar(&flagShallowResolve, "s", false, "if true, perform a shallow resolve")
 
 	cmdVRPC.Flags.BoolVar(&flagJSON, "json", false, "if true, output a JSON representation of the response")
+	cmdVRPC.Flags.DurationVar(&flagTimeout, "timeout", time.Minute, "time to wait for response to succeed before failing with a timeout error")
 }
 
 var cmdVRPC = &cmdline.Command{
@@ -185,7 +187,7 @@ func runSignature(ctx *context.T, env *cmdline.Env, args []string) error {
 	}
 	// Get the interface or method signature, and pretty-print.  We print the
 	// named types after the signatures, to aid in readability.
-	ctx, cancel := context.WithTimeout(ctx, time.Minute)
+	ctx, cancel := context.WithTimeout(ctx, flagTimeout)
 	defer cancel()
 	var types vdlgen.NamedTypes
 	opts, err := rpcOpts(ctx, server)
@@ -243,7 +245,7 @@ func runCall(ctx *context.T, env *cmdline.Env, args []string) error { //nolint:g
 		return err
 	}
 	// Get the method signature and parse args.
-	ctx, cancel := context.WithTimeout(ctx, time.Minute)
+	ctx, cancel := context.WithTimeout(ctx, flagTimeout)
 	defer cancel()
 	methodSig, err := reserved.MethodSignature(ctx, server, method, opts...)
 	if err != nil {
@@ -329,7 +331,7 @@ func runIdentify(ctx *context.T, env *cmdline.Env, args []string) error {
 		return env.UsageErrorf("wrong number of arguments")
 	}
 	server := args[0]
-	ctx, cancel := context.WithTimeout(ctx, time.Minute)
+	ctx, cancel := context.WithTimeout(ctx, flagTimeout)
 	defer cancel()
 	opts, err := rpcOpts(ctx, server)
 	if err != nil {
