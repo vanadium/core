@@ -21,6 +21,7 @@ type Player struct {
 	gamesPlayed     *counter.Counter
 	gamesWon        *counter.Counter
 	gamesInProgress *stats.Integer
+	rnd             *rand.Rand
 }
 
 func NewPlayer() *Player {
@@ -28,6 +29,7 @@ func NewPlayer() *Player {
 		gamesPlayed:     stats.NewCounter("player/games-played"),
 		gamesWon:        stats.NewCounter("player/games-won"),
 		gamesInProgress: stats.NewInteger("player/games-in-progress"),
+		rnd:             rand.New(rand.NewSource(time.Now().UnixNano())),
 	}
 }
 
@@ -83,9 +85,9 @@ func (p *Player) InitiateGame(ctx *context.T) error {
 }
 
 func (p *Player) createGame(ctx *context.T, judge string) (rps.GameId, rps.GameOptions, error) {
-	numRounds := 3 + rand.Intn(3)
+	numRounds := 3 + p.rnd.Intn(3)
 	gameType := rps.Classic
-	if rand.Intn(2) == 1 {
+	if p.rnd.Intn(2) == 1 {
 		gameType = rps.LizardSpock
 	}
 	gameOpts := rps.GameOptions{NumRounds: int32(numRounds), GameType: gameType}
@@ -127,7 +129,7 @@ func (p *Player) playGame(outer *context.T, judge string, gameID rps.GameId) (rp
 			outer.VI(1).Infof("My opponent is %q", v.Value)
 		case rps.JudgeActionMoveOptions:
 			opts := v.Value
-			n := rand.Intn(len(opts))
+			n := p.rnd.Intn(len(opts))
 			outer.VI(1).Infof("My turn to play. Picked %q from %v", opts[n], opts)
 			if err := sender.Send(rps.PlayerActionMove{Value: opts[n]}); err != nil {
 				return rps.PlayResult{}, err
