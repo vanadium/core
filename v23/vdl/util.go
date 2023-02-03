@@ -24,6 +24,7 @@ const (
 )
 
 var (
+	//nolint:unused
 	bitlenReflect = [...]uintptr{
 		reflect.Uint8:   8,
 		reflect.Uint16:  16,
@@ -39,7 +40,7 @@ var (
 		reflect.Float32: 32,
 		reflect.Float64: 64,
 	}
-
+	//nolint:unused
 	bitlenVDL = [...]uintptr{
 		Byte:    8,
 		Uint16:  16,

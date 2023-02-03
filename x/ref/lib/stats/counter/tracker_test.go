@@ -161,7 +161,7 @@ func max(a, b int64) int64 {
 }
 
 func TestTrackerConcurrent(t *testing.T) {
-	rand.Seed(time.Now().UnixNano())
+	rnd := rand.New(rand.NewSource(time.Now().UnixNano()))
 
 	const numGoRoutines = 100
 	const numPushPerGoRoutine = 5000
@@ -174,7 +174,7 @@ func TestTrackerConcurrent(t *testing.T) {
 		go func(i int) {
 			var localMin, localMax int64 = math.MaxInt64, math.MinInt64
 			for j := 0; j < numPushPerGoRoutine; j++ {
-				v := rand.Int63()
+				v := rnd.Int63()
 				tracker.Push(v)
 				localMin, localMax = min(localMin, v), max(localMax, v)
 			}
@@ -203,7 +203,7 @@ func TestTrackerConcurrent(t *testing.T) {
 
 func BenchmarkTrackerPush(b *testing.B) {
 	const numVals = 10000
-	vals := rand.Perm(numVals)
+	vals := rand.New(rand.NewSource(time.Now().UnixNano())).Perm(numVals)
 	tracker := counter.NewTracker()
 
 	b.SetParallelism(100)

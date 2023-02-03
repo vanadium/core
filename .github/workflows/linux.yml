@@ -25,7 +25,8 @@ jobs:
 
       - name: Test
         run: |
-          echo "VDLPATH=$GITHUB_WORKSPACE" >> $GITHUB_ENV
+          VDLPATH=$GITHUB_WORKSPACE
+          echo "VDLPATH, $VDLPATH"
           go test --race --covermode=atomic --timeout=15m ./...
           cd x/ref/examples
           go test --race --covermode=atomic ./...
@@ -50,8 +51,6 @@ jobs:
 
       - name: Test
         run: |
-          echo "VDLPATH=$GITHUB_WORKSPACE" >> $GITHUB_ENV
-          echo $GITHUB_WORKSPACE
           make test-integration test-openssl-integration
 
   linting:
