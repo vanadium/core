@@ -25,9 +25,7 @@ jobs:
 
       - name: Install tools
         run: |
-          go mod download golang.org/x/tools
-          go install golang.org/x/tools/cmd/goimports
-          go mod tidy
+          go install golang.org/x/tools/cmd/goimports@latest
 
       - name: Test
         run: |
