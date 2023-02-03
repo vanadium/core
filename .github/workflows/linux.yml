@@ -25,8 +25,7 @@ jobs:
 
       - name: Test
         run: |
-          VDLPATH=$GITHUB_WORKSPACE
-          echo "VDLPATH, $VDLPATH"
+          export VDLPATH=$GITHUB_WORKSPACE
           go test --race --covermode=atomic --timeout=15m ./...
           cd x/ref/examples
           go test --race --covermode=atomic ./...
