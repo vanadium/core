@@ -1,0 +1,55 @@
+name: linux
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    strategy:
+      matrix:
+        go-version: [1.20.x]
+        os: [windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Go
+        uses: actions/setup-go@v3
+        with:
+          go-version: ${{ matrix.go-version }}
+          cache: true
+
+      - name: Install tools
+        run: |
+          go install golang.org/x/tools/cmd/goimports@latest
+
+      - name: Test
+        run: |
+          export VDLPATH=$GITHUB_WORKSPACE
+          go test --race --covermode=atomic --timeout=15m ./...
+          cd x/ref/examples
+          go test --race --covermode=atomic ./...
+
+  integration-tests:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Go
+        uses: actions/setup-go@v3
+        with:
+          go-version: 1.20.x
+          cache: true
+
+      - name: Install openssl
+        run: |
+          choco install openssl
+
+      - name: Test
+        run: |
+          make test-integration test-openssl-integration
