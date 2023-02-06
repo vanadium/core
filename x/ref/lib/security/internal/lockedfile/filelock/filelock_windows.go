@@ -8,7 +8,7 @@
 package filelock
 
 import (
-	"internal/syscall/windows"
+	"golang.org/x/sys/windows"
 	"os"
 	"syscall"
 )

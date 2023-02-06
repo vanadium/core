@@ -2,8 +2,8 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-//go:build linux || darwin
-// +build linux darwin
+//go:build linux || darwin || windows
+// +build linux darwin windows
 
 // Package roaming implements a RuntimeFactory suitable for a variety of network
 // configurations, including 1-1 NATs, dhcp auto-configuration, Amazon Web
