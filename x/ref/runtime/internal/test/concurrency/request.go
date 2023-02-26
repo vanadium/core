@@ -32,7 +32,6 @@ type request interface {
 }
 
 type defaultRequest struct {
-	request
 	done chan struct{}
 }
 
