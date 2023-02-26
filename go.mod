@@ -15,7 +15,7 @@ require (
 	golang.org/x/sync v0.0.0-20220722155255-886fb9371eb4
 	golang.org/x/term v0.5.0
 	golang.org/x/text v0.7.0
-	v.io/x/lib v0.1.13
+	v.io/x/lib v0.1.14
 	v.io/x/ref/internal/logger v0.1.1
 	v.io/x/ref/lib/flags/sitedefaults v0.1.1
 	v.io/x/ref/test/compatibility/modules/simple v0.0.0-20220116222041-f948f3a44e0d
