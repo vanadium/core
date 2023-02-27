@@ -1,12 +1,12 @@
 module v.io/x/ref/test/compatibility/modules/simple
 
-go 1.17
+go 1.18
 
 replace v.io => ../../../../../..
 
 require (
 	v.io v0.1.21
-	v.io/x/lib v0.1.13
+	v.io/x/lib v0.1.14
 )
 
 require (

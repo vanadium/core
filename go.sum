@@ -79,3 +79,5 @@ gopkg.in/yaml.v3 v3.0.1 h1:fxVm/GzAzEWqLHuvctI91KS9hhNmmWOoWu0XTYJS7CA=
 gopkg.in/yaml.v3 v3.0.1/go.mod h1:K4uyk7z7BCEPqu6E+C64Yfv1cQ7kz7rIZviUmN+EgEM=
 v.io/x/lib v0.1.13 h1:OqTreO0u9DO/4ehxgZi0ED7JBYRr6/NVjDC1UMxvjxo=
 v.io/x/lib v0.1.13/go.mod h1:N/kxyn9njW2LNCVv19Y4eO/7lc6NUDWzQ4UBDY9FVGA=
+v.io/x/lib v0.1.14 h1:9lEPlCzmqHi2leZ9M1MVO/nzXNT3kfmKlQ/MIgNQcR8=
+v.io/x/lib v0.1.14/go.mod h1:Mtxe8WzL1qVnKqd+/sV1zSnHAaXfIyMMO3nIHnW+rbw=

@@ -1,5 +1,5 @@
 module v.io/x/ref/internal/logger
 
-go 1.15
+go 1.18
 
-require v.io/x/lib v0.1.13
+require v.io/x/lib v0.1.14
