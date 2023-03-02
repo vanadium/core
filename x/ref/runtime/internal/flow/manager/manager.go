@@ -855,7 +855,7 @@ func (m *manager) internalDial(
 				if sideChannelChan == sc {
 					cached = c
 					if i > 0 {
-						ctx.Infof("internalDial: side channel for %v, conn %p, index: %v", remote, c, i)
+						ctx.VI(1).Infof("internalDial: side channel for %v, conn %p, index: %v", remote, c, i)
 					}
 					break
 				}
