@@ -9,7 +9,6 @@ package main
 
 import (
 	"fmt"
-	"math/rand"
 	"time"
 
 	"v.io/x/lib/cmdline"
@@ -54,7 +53,6 @@ with other players, in a loop. As soon as one game is over, it starts a new one.
 
 func runBot(ctx *context.T, env *cmdline.Env, args []string) error {
 	auth := internal.NewAuthorizer(aclFile)
-	rand.Seed(time.Now().UnixNano())
 	rpsService := NewRPS(ctx)
 	if name == "" {
 		name = internal.CreateName(ctx)

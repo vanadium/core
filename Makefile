@@ -98,3 +98,8 @@ modtidy:
 	for modfile in $$(find . -name go.mod); do \
 		(cd $$(dirname $$modfile); echo "go mod tidy in $$(pwd)"; go mod tidy) ; \
 	done	
+
+modupdate:
+	for modfile in $$(find . -name go.mod); do \
+		(cd $$(dirname $$modfile); echo "go get -u ./... in $$(pwd)"; go get -u ./...) ; \
+	done	

@@ -1,5 +1,6 @@
-[![CircleCI](https://circleci.com/gh/vanadium/core.svg?style=svg)](https://circleci.com/gh/vanadium/core)
-![GithubActions](https://github.com/cosnicolaou/pbzip2/actions/workflows/macos.yml/badge.svg)
+![macos](https://github.com/vanadium/core/actions/workflows/macos.yml/badge.svg)
+![linux](https://github.com/vanadium/core/actions/workflows/linux.yml/badge.svg)
+![CodeQL](https://github.com/vanadium/core/actions/workflows/codeql.yml/badge.svg)
 
 # Vanadium Core
 
