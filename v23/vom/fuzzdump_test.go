@@ -3,7 +3,6 @@
 // license that can be found in the LICENSE file.
 
 //go:build fuzzdump
-// +build fuzzdump
 
 package vom_test
 

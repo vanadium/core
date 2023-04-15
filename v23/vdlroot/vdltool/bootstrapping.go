@@ -34,7 +34,6 @@
 //
 
 //go:build vdltoolbootstrapping
-// +build vdltoolbootstrapping
 
 package vdltool
 

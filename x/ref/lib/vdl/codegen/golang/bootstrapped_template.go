@@ -6,7 +6,6 @@
 // file contains the functions used for normal operation.
 //
 //go:build !vdltoolbootstrapping
-// +build !vdltoolbootstrapping
 
 package golang
 

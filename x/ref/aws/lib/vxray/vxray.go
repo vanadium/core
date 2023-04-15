@@ -11,11 +11,11 @@
 //
 // vxray is installed on a per-context basis, via the InitXRay function:
 //
-//     ctx, _ = vxray.InitXRay(ctx,
-//                             v23.GetRuntimeFlags().VtraceFlags,
-//                             xray.Config{ServiceVersion: ""},
-//                             vxray.EC2Plugin(),
-//                             vxray.MergeLogging(true))
+//	ctx, _ = vxray.InitXRay(ctx,
+//	                        v23.GetRuntimeFlags().VtraceFlags,
+//	                        xray.Config{ServiceVersion: ""},
+//	                        vxray.EC2Plugin(),
+//	                        vxray.MergeLogging(true))
 //
 // Once so initialized any spans created using the returned context
 // will be backed by xray. All of the existing vtrace functionality is
@@ -24,9 +24,11 @@
 // xray is http centric and makes sampling decisions when a new trace/segment
 // is created. The vtrace.SamplingRequest struct is mapped to the http
 // primites that xray expects. In particular:
-//     SamplingRequest.Local is mapped to http.Request.Host
-//     SamplingRequest.Name is mapped to http.Request.URL.Path
-//     SamplingRequest.Method is mapped to http.Request.Method
+//
+//	SamplingRequest.Local is mapped to http.Request.Host
+//	SamplingRequest.Name is mapped to http.Request.URL.Path
+//	SamplingRequest.Method is mapped to http.Request.Method
+//
 // These mappings are used purely for sampling decisions, in addition,
 // the name of the top-level span, is treated as the xray ServiceName can
 // also be used for sampling decisions. Note that SamplingRequest.Name need

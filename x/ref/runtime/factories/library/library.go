@@ -3,7 +3,6 @@
 // license that can be found in the LICENSE file.
 
 //go:build linux || darwin
-// +build linux darwin
 
 // Package library implements a RuntimeFactory suitable for building a Vanadium
 // library that is linked into other applications. It is configured via a set
