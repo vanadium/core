@@ -30,9 +30,3 @@ require (
 	github.com/yusufpapurcu/wmi v1.2.2 // indirect
 	golang.org/x/sys v0.5.0 // indirect
 )
-
-replace v.io/x/ref/lib/flags/sitedefaults => ./x/ref/lib/flags/sitedefaults
-
-replace v.io/x/ref/internal/logger => ./x/ref/internal/logger
-
-replace v.io/x/ref/test/compatibility/modules/simple => ./x/ref/test/compatibility/modules/simple
