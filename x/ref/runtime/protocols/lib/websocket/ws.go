@@ -12,12 +12,10 @@ import (
 	"net/url"
 	"time"
 
-	"v.io/x/ref/runtime/protocols/lib/tcputil"
-
 	"github.com/gorilla/websocket"
-
 	"v.io/v23/context"
 	"v.io/v23/flow"
+	"v.io/x/ref/runtime/protocols/lib/tcputil"
 )
 
 // TODO(jhahn): Figure out a way for this mapping to be shared.
@@ -46,11 +44,18 @@ func (WS) Dial(ctx *context.T, protocol, address string, timeout time.Duration) 
 		return nil, err
 	}
 
-	//nolint:staticcheck //lint:ignore SA1019
-	ws, _, err := websocket.NewClient(conn, u, http.Header{}, bufferSize, bufferSize)
+	dialer := &websocket.Dialer{
+		ReadBufferSize:  bufferSize,
+		WriteBufferSize: bufferSize,
+		NetDial: func(net, addr string) (net.Conn, error) {
+			return conn, nil
+		},
+	}
+	ws, resp, err := dialer.DialContext(ctx, u.String(), http.Header{})
 	if err != nil {
 		return nil, err
 	}
+	resp.Body.Close()
 	var zero time.Time
 	conn.SetDeadline(zero) //nolint:errcheck
 	return WebsocketConn(ws), nil
