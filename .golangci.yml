@@ -8,6 +8,10 @@ run:
 linters-settings:
   gocyclo:
     min-complexity: 15
+  revive:
+    rules:
+      - name: unused-parameter
+        disabled: true
 
 linters:
   enable:

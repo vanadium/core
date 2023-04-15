@@ -14,7 +14,6 @@
 // package are used by the vdl tool chain.
 
 //go:build !vdltoolbootstrapping && !vdlbootstrapping
-// +build !vdltoolbootstrapping,!vdlbootstrapping
 
 package vdlroot
 

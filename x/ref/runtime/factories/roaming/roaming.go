@@ -3,7 +3,6 @@
 // license that can be found in the LICENSE file.
 
 //go:build linux || darwin
-// +build linux darwin
 
 // Package roaming implements a RuntimeFactory suitable for a variety of network
 // configurations, including 1-1 NATs, dhcp auto-configuration, Amazon Web

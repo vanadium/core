@@ -3,7 +3,6 @@
 // license that can be found in the LICENSE file.
 
 //go:build !openssl
-// +build !openssl
 
 package sectestdata
 

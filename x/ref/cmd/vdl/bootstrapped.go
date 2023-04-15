@@ -3,7 +3,6 @@
 // license that can be found in the LICENSE file.
 
 //go:build !vdlbootstrapping && !vdltoolbootstrapping
-// +build !vdlbootstrapping,!vdltoolbootstrapping
 
 package main
 

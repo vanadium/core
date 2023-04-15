@@ -4,7 +4,6 @@
 // v.io/v23/vdlroot
 //
 //go:build vdlbootstrapping || vdltoolbootstrapping
-// +build vdlbootstrapping vdltoolbootstrapping
 
 package vdl
 

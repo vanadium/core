@@ -3,7 +3,6 @@
 // license that can be found in the LICENSE file.
 
 //go:build !android && !darwin
-// +build !android,!darwin
 
 package factory
 

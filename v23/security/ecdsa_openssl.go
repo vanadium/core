@@ -3,7 +3,6 @@
 // license that can be found in the LICENSE file.
 
 //go:build openssl
-// +build openssl
 
 // OpenSSL's libcrypto may have faster implementations of ECDSA signing and
 // verification on some architectures (not amd64 after Go 1.6 which includes

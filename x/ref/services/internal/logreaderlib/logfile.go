@@ -3,7 +3,6 @@
 // license that can be found in the LICENSE file.
 
 //go:build !android
-// +build !android
 
 // Package logreaderlib implements the LogFile interface from
 // v.io/v23/services/logreader, which can be used to allow remote access to log
