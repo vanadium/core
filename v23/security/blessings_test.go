@@ -60,6 +60,7 @@ func TestByteSize(t *testing.T) {
 
 func verifyBlessingSignatures(t *testing.T, blessings ...security.Blessings) {
 	for _, b := range blessings {
+		b := b
 		if err := security.ExposeVerifySignature(&b); err != nil {
 			_, _, line, _ := runtime.Caller(1)
 			t.Fatalf("line %v: invalid signature for blessing %v: %v", line, b.String(), err)

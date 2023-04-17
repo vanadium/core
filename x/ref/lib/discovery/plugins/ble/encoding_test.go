@@ -15,7 +15,7 @@ import (
 )
 
 func TestEncode(t *testing.T) { //nolint:gocyclo
-	rand := rand.New(rand.NewSource(0))
+	rand := rand.New(rand.NewSource(0)) //nolint:gosec
 	randBytes := func(n int) []byte {
 		p := make([]byte, rand.Intn(n))
 		rand.Read(p)

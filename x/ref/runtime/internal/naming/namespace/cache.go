@@ -53,7 +53,7 @@ func isStale(now time.Time, e naming.MountEntry) bool {
 
 // randomDrop randomly removes one cache entry.  Assumes we've already locked the cache.
 func (c *ttlCache) randomDrop() {
-	n := rand.Intn(len(c.entries))
+	n := rand.Intn(len(c.entries)) //nolint:gosec
 	for k := range c.entries {
 		if n == 0 {
 			delete(c.entries, k)

@@ -116,7 +116,7 @@ func TestIntegrityAndAuthenticity(t *testing.T) {
 	tamper := func(b []byte) []byte {
 		c := make([]byte, len(b))
 		copy(c, b)
-		c[mrand.Int()%len(b)]++
+		c[mrand.Int()%len(b)]++ //nolint:gosec
 		return c
 	}
 

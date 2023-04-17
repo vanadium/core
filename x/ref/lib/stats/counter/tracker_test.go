@@ -161,7 +161,7 @@ func max(a, b int64) int64 {
 }
 
 func TestTrackerConcurrent(t *testing.T) {
-	rnd := rand.New(rand.NewSource(time.Now().UnixNano()))
+	rnd := rand.New(rand.NewSource(time.Now().UnixNano())) //nolint:gosec
 	var rndMu sync.Mutex
 
 	const numGoRoutines = 100
@@ -206,7 +206,7 @@ func TestTrackerConcurrent(t *testing.T) {
 
 func BenchmarkTrackerPush(b *testing.B) {
 	const numVals = 10000
-	vals := rand.New(rand.NewSource(time.Now().UnixNano())).Perm(numVals)
+	vals := rand.New(rand.NewSource(time.Now().UnixNano())).Perm(numVals) //nolint:gosec
 	tracker := counter.NewTracker()
 
 	b.SetParallelism(100)

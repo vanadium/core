@@ -154,7 +154,7 @@ func TestCanLockExistingFile(t *testing.T) {
 	defer remove()
 	path := filepath.Join(dir, "existing.txt")
 
-	if err := os.WriteFile(path, []byte("ok"), 0777); err != nil {
+	if err := os.WriteFile(path, []byte("ok"), 0600); err != nil {
 		t.Fatalf("os.WriteFile: %v", err)
 	}
 
@@ -200,7 +200,7 @@ func TestSpuriousEDEADLK(t *testing.T) {
 		}
 		defer b.Close()
 
-		if err := os.WriteFile(filepath.Join(dir, "locked"), []byte("ok"), 0666); err != nil {
+		if err := os.WriteFile(filepath.Join(dir, "locked"), []byte("ok"), 0600); err != nil {
 			t.Fatal(err)
 		}
 
@@ -225,7 +225,7 @@ func TestSpuriousEDEADLK(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	cmd := exec.Command(os.Args[0], "-test.run="+t.Name())
+	cmd := exec.Command(os.Args[0], "-test.run="+t.Name()) //nolint:gosec
 	cmd.Env = append(os.Environ(), fmt.Sprintf("%s=%s", dirVar, dir))
 
 	qDone := make(chan struct{})

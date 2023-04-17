@@ -76,7 +76,7 @@ func CallSumStream(ctx *context.T, server string, maxChunkCnt, maxPayloadSize in
 		ctx.Fatalf("Stream failed: %v", err)
 	}
 
-	chunkCnt := rand.Intn(maxChunkCnt) + 1
+	chunkCnt := rand.Intn(maxChunkCnt) + 1 //nolint:gosec
 	args := make([]stress.SumArg, chunkCnt)
 	done := make(chan error, 1)
 	go func() {

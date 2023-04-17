@@ -644,7 +644,11 @@ func startPprofProxyHTTPServer(ctx *context.T, name string) (string, error) {
 		return "", err
 	}
 	http.Handle("/", pproflib.PprofProxy(ctx, "", name))
-	go http.Serve(ln, nil) //nolint:errcheck
+	s := &http.Server{
+		ReadTimeout:       time.Second,
+		WriteTimeout:      time.Second,
+		ReadHeaderTimeout: time.Second}
+	go s.Serve(ln) //nolint:errcheck
 	go func() {
 		<-ctx.Done()
 		ln.Close()

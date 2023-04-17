@@ -46,7 +46,7 @@ func NewTypeGenerator() *TypeGenerator {
 		BaseTypesPerKind: []int{3, 1},
 		FieldsPerKind:    []int{-1, 2, 1},
 		MaxArrayLen:      3,
-		rng:              rand.New(rand.NewSource(time.Now().Unix())),
+		rng:              rand.New(rand.NewSource(time.Now().Unix())), //nolint:gosec
 	}
 }
 

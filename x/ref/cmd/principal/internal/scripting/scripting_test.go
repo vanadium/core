@@ -85,7 +85,7 @@ func TestPrincipal(t *testing.T) {
 
 	sshFile := filepath.Join(t.TempDir(), "ssh")
 	pkBytes := sectestdata.SSHPublicKeyBytes(keys.ECDSA256, sectestdata.SSHKeyPublic)
-	err = os.WriteFile(sshFile, pkBytes, 0666)
+	err = os.WriteFile(sshFile, pkBytes, 0600)
 	fail(t, err)
 
 	pk, err := seclib.ParsePublicKey(pkBytes)
@@ -127,7 +127,7 @@ func TestPublicKey(t *testing.T) {
 	fail(t, err)
 
 	ssh := filepath.Join(t.TempDir(), "ssh")
-	err = os.WriteFile(ssh, sectestdata.SSHPublicKeyBytes(keys.ECDSA256, sectestdata.SSHKeyPublic), 0666)
+	err = os.WriteFile(ssh, sectestdata.SSHPublicKeyBytes(keys.ECDSA256, sectestdata.SSHKeyPublic), 0600)
 	fail(t, err)
 
 	out := execute(t, ctx, fmt.Sprintf("k1 := decodePublicKeyBase64(%q)", b1)+`
@@ -215,7 +215,7 @@ Expires at 2020-01-12 23:00:00 +0000 UTC
 	}
 
 	pubKeyFile := filepath.Join(t.TempDir(), "ssl")
-	err := os.WriteFile(pubKeyFile, sectestdata.X509PublicKeyBytes(keys.ED25519), 0666)
+	err := os.WriteFile(pubKeyFile, sectestdata.X509PublicKeyBytes(keys.ED25519), 0600)
 	fail(t, err)
 
 	out = execute(t, ctx, `

@@ -8,7 +8,7 @@ import (
 	"crypto"
 	"crypto/ecdsa"
 	"crypto/ed25519"
-	"crypto/md5"
+	"crypto/md5" //nolint:gosec
 	"crypto/rsa"
 	"crypto/x509"
 	"encoding"
@@ -108,7 +108,7 @@ func (pk publicKeyCommon) MarshalBinary() ([]byte, error) {
 
 func (pk publicKeyCommon) String() string {
 	const hextable = "0123456789abcdef"
-	hash := md5.Sum(pk.keyBytes)
+	hash := md5.Sum(pk.keyBytes) //nolint:gosec
 	var repr [md5.Size * 3]byte
 	for i, v := range hash {
 		repr[i*3] = hextable[v>>4]

@@ -6,7 +6,6 @@ package security
 
 import (
 	"crypto"
-	"crypto/sha1"
 	"crypto/sha256"
 	"crypto/sha512"
 )
@@ -84,9 +83,9 @@ func messageDigest(hash crypto.Hash, purpose, message []byte, key PublicKey) []b
 
 func cryptoSum(hash crypto.Hash, data []byte) []byte {
 	switch hash {
-	case crypto.SHA1:
-		h := sha1.Sum(data)
-		return h[:]
+	//	case crypto.SHA1:
+	//		h := sha1.Sum(data)
+	//		return h[:]
 	case crypto.SHA256:
 		h := sha256.Sum256(data)
 		return h[:]
@@ -102,8 +101,8 @@ func cryptoSum(hash crypto.Hash, data []byte) []byte {
 
 func cryptoHash(h Hash) crypto.Hash {
 	switch h {
-	case SHA1Hash:
-		return crypto.SHA1
+	//	case SHA1Hash:
+	//		return crypto.SHA1
 	case SHA256Hash:
 		return crypto.SHA256
 	case SHA384Hash:

@@ -112,11 +112,11 @@ func TestDurationToFromNative(t *testing.T) {
 }
 
 func randGoDuration() gotime.Duration {
-	return gotime.Duration(rand.Int63())
+	return gotime.Duration(rand.Int63()) //nolint:gosec
 }
 
 func randomDuration() Duration {
-	return Duration{rand.Int63(), int32(rand.Intn(nanosPerSecond))}
+	return Duration{rand.Int63(), int32(rand.Intn(nanosPerSecond))} //nolint:gosec
 }
 
 func TestDurationToNativeError(t *testing.T) {

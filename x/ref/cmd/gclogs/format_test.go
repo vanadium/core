@@ -58,7 +58,7 @@ func TestParseFileInfo(t *testing.T) {
 	defer os.RemoveAll(tmpdir)
 
 	name := "program.host.user.log.vanadium.INFO.20141204-131502.12345"
-	if err := os.WriteFile(filepath.Join(tmpdir, name), []byte{}, 0644); err != nil {
+	if err := os.WriteFile(filepath.Join(tmpdir, name), []byte{}, 0600); err != nil {
 		t.Fatalf("os.WriteFile failed: %v", err)
 	}
 	link := "program.INFO"

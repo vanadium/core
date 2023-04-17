@@ -9,6 +9,7 @@ import (
 	"net"
 	"net/http"
 	"testing"
+	"time"
 
 	"v.io/x/ref/runtime/internal/cloudvm/cloudpaths"
 )
@@ -46,6 +47,10 @@ func StartGCPMetadataServer(t *testing.T) (string, func()) {
 		func(w http.ResponseWriter, r *http.Request) {
 			respond(w, r, "")
 		})
-	go http.Serve(l, nil)
+	s := &http.Server{
+		ReadTimeout:  time.Second,
+		WriteTimeout: time.Second,
+	}
+	go s.Serve(l)
 	return "http://" + l.Addr().String(), func() { l.Close() }
 }

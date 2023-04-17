@@ -422,7 +422,7 @@ func useSSHPublicKeyAsPrincipal(ctx context.Context, from, to, name string) erro
 	if err := store.WriteKeyPair(ctx, pubBytes, privBytes); err != nil {
 		return err
 	}
-	return os.WriteFile(filepath.Join(to, directoryLockfileName), nil, 0666)
+	return os.WriteFile(filepath.Join(to, directoryLockfileName), nil, 0600)
 }
 
 func createAliceAndBob(ctx context.Context, t *testing.T, creator func(dir string, pass []byte) (security.Principal, error)) (principals, daemons map[string]security.Principal) {

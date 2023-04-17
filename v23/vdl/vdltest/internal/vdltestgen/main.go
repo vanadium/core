@@ -51,7 +51,7 @@ const (
 	vdltestPkgName     = "v.io/v23/vdl/vdltest"
 	typeGenFileName    = "type_gen.vdl"
 	typeManualFileName = "type_manual.vdl"
-	passGenFileName    = "entry_pass_gen.vdl"
+	passGenFileName    = "entry_pass_gen.vdl" //nolint:gosec
 	failGenFileName    = "entry_fail_gen.vdl"
 )
 

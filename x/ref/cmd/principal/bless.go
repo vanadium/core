@@ -166,7 +166,12 @@ func getMacaroonForBlessRPC(key security.PublicKey, blessServerURL string, bless
 		tmplArgs.Blessings = blessed
 		ln.Close()
 	})
-	go http.Serve(ln, nil) //nolint:errcheck
+	s := &http.Server{
+		ReadTimeout:       5 * time.Second,
+		WriteTimeout:      5 * time.Second,
+		ReadHeaderTimeout: 5 * time.Second,
+	}
+	go s.Serve(ln) //nolint:errcheck
 
 	// Print the link to start the flow.
 	url, err := seekBlessingsURL(key, blessServerURL, redirectURL, state)

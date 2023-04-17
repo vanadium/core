@@ -144,12 +144,14 @@ func newTLSConfigs() (client, server *tls.Config, err error) {
 		Certificates:           []tls.Certificate{serverCert},
 		ClientCAs:              certpool,
 		ClientAuth:             tls.RequireAndVerifyClientCert,
+		MinVersion:             tls.VersionTLS13,
 		SessionTicketsDisabled: true,
 	}
 	client = &tls.Config{
 		Certificates:           []tls.Certificate{clientCert},
 		RootCAs:                certpool,
 		ServerName:             "127.0.0.1",
+		MinVersion:             tls.VersionTLS13,
 		SessionTicketsDisabled: true,
 	}
 	return client, server, nil

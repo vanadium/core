@@ -377,7 +377,7 @@ func TestWriteqFIFOOrdering(t *testing.T) {
 			if active := wq.getActive(); active != &w.writer {
 				errCh <- fmt.Errorf("invariant violated: active: got %p, want %p", active, &w.writer)
 			}
-			time.Sleep(time.Duration(rand.Int31n(100)) * time.Millisecond)
+			time.Sleep(time.Duration(rand.Int31n(100)) * time.Millisecond) //nolint: gosec
 			doneCh <- doneRecord{w, n}
 			wq.done(&w.writer)
 			wg.Done()
@@ -522,7 +522,7 @@ func TestWriteqConcurrency(t *testing.T) {
 					errCh <- fmt.Errorf("invariant violated: active: got %p, want %p", active, &shared.writer)
 					return
 				}
-				time.Sleep(time.Duration(rand.Int31n(100)) * time.Nanosecond)
+				time.Sleep(time.Duration(rand.Int31n(100)) * time.Nanosecond) //nolint: gosec
 				wq.done(&shared.writer)
 			}
 		}(i)
@@ -618,7 +618,7 @@ func TestWriteqContextCancel(t *testing.T) {
 		go func(cancel func()) {
 			<-startCancel
 			defer done.Done()
-			time.Sleep(time.Duration(rand.Int31n(100)) * time.Nanosecond)
+			time.Sleep(time.Duration(rand.Int31n(100)) * time.Nanosecond) //nolint: gosec
 			cancel()
 		}(cancel)
 	}
