@@ -43,9 +43,9 @@ func TestPProfProxy(t *testing.T) {
 	}
 	defer ln.Close()
 	srv := &http.Server{
-		ReadTimeout:       time.Second,
-		WriteTimeout:      time.Second,
-		ReadHeaderTimeout: time.Second,
+		ReadTimeout:       5 * time.Second,
+		WriteTimeout:      5 * time.Second,
+		ReadHeaderTimeout: 5 * time.Second,
 		Handler:           pproflib.PprofProxy(ctx, "/myprefix", endpoints[0].Name()),
 	}
 	go srv.Serve(ln) //nolint:errcheck
