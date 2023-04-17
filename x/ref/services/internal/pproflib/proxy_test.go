@@ -60,6 +60,7 @@ func TestPProfProxy(t *testing.T) {
 		if err == nil && resp.StatusCode == 200 {
 			break
 		}
+		resp.Body.Close()
 		time.Sleep(time.Second)
 	}
 
