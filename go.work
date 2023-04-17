@@ -1,0 +1,10 @@
+go 1.18
+
+use (
+	.
+	./x/ref/aws
+	./x/ref/examples
+	./x/ref/internal/logger
+	./x/ref/lib/flags/sitedefaults
+	./x/ref/test/compatibility/modules/simple
+)

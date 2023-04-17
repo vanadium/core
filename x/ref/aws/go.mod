@@ -2,8 +2,6 @@ module v.io/x/ref/aws
 
 go 1.18
 
-replace v.io => ../../..
-
 require (
 	github.com/aws/aws-xray-sdk-go v1.8.0
 	v.io v0.1.21

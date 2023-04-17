@@ -2,8 +2,6 @@ module v.io/x/ref/examples
 
 go 1.18
 
-replace v.io => ../../..
-
 require (
 	github.com/creack/pty v1.1.18
 	v.io v0.1.21
