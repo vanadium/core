@@ -80,7 +80,13 @@ func Serve(ctx *context.T, httpAddr, name string, timeout time.Duration, assets 
 		<-ctx.Done()
 		ln.Close()
 	}()
-	return http.Serve(ln, mux)
+	s := &http.Server{
+		ReadTimeout:       time.Second,
+		WriteTimeout:      time.Second,
+		ReadHeaderTimeout: time.Second,
+		Handler:           mux,
+	}
+	return s.Serve(ln)
 }
 
 // CreateServeMux returns a ServeMux object that has handlers set up.

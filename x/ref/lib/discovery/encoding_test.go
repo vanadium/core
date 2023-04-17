@@ -17,7 +17,7 @@ import (
 )
 
 func TestEncodingBuffer(t *testing.T) {
-	rand := rand.New(rand.NewSource(0))
+	rand := rand.New(rand.NewSource(0)) //nolint:gosec
 	randBytes := func() []byte {
 		p := make([]byte, rand.Intn(128))
 		rand.Read(p)
@@ -109,7 +109,7 @@ func TestPackEncryptionKeys(t *testing.T) {
 }
 
 func TestEncodeWireCiphertext(t *testing.T) {
-	rand := rand.New(rand.NewSource(0))
+	rand := rand.New(rand.NewSource(0)) //nolint:gosec
 	for i := 0; i < 1; i++ {
 		v, ok := quick.Value(reflect.TypeOf(bcrypter.WireCiphertext{}), rand)
 		if !ok {

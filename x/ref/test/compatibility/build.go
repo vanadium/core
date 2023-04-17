@@ -105,7 +105,7 @@ func readFile(dir, file string) string {
 }
 
 func (o builder) run(ctx context.Context, dir string, args ...string) error {
-	cmd := exec.CommandContext(ctx, args[0], args[1:]...)
+	cmd := exec.CommandContext(ctx, args[0], args[1:]...) //nolint:gosec
 	cmd.Dir = dir
 	cmd.Env = append(cmd.Env,
 		"GOPATH="+o.gopath,

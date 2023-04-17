@@ -57,6 +57,7 @@ func TestMultipleGoRoutines(t *testing.T) {
 	const numWritesPerWriter int = 1000
 	const totalWrites int = numWriters * numWritesPerWriter
 	s := &http.Server{
+		ReadHeaderTimeout: time.Second,
 		Handler: http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			if r.Method != "GET" {
 				http.Error(w, "Method not allowed.", http.StatusMethodNotAllowed)

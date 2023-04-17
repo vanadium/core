@@ -14,7 +14,7 @@ import (
 )
 
 func TestServiceUuid(t *testing.T) {
-	rand := rand.New(rand.NewSource(0))
+	rand := rand.New(rand.NewSource(0)) //nolint:gosec
 	randString := func() string {
 		p := make([]byte, rand.Intn(32))
 		rand.Read(p)

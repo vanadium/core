@@ -39,7 +39,7 @@ func NewValueGenerator(types []*vdl.Type) *ValueGenerator {
 		RandomZeroPercentage: 20,
 		MaxLen:               3,
 		MaxCycleDepth:        3,
-		rng:                  rand.New(rand.NewSource(time.Now().Unix())),
+		rng:                  rand.New(rand.NewSource(time.Now().Unix())), //nolint:gosec
 	}
 }
 

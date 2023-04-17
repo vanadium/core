@@ -56,7 +56,7 @@ func NewEntryGenerator(sourceTypes []*vdl.Type) *EntryGenerator {
 		valueGen:          NewValueGenerator(sourceTypes),
 		hasher:            fnv.New64a(),
 		randSeed:          now,
-		rng:               rand.New(rand.NewSource(now)),
+		rng:               rand.New(rand.NewSource(now)), //nolint:gosec
 	}
 	for _, tt := range sourceTypes {
 		kind := tt.NonOptional().Kind()

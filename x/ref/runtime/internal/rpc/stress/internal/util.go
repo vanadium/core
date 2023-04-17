@@ -5,7 +5,7 @@
 package internal
 
 import (
-	"crypto/md5"
+	"crypto/md5" //nolint:gosec
 	crand "crypto/rand"
 	"encoding/binary"
 	"math/rand"
@@ -16,9 +16,9 @@ import (
 // newSumArg returns a randomly generated SumArg.
 func newSumArg(maxPayloadSize int) (stress.SumArg, error) {
 	var arg stress.SumArg
-	arg.ABool = rand.Intn(2) == 0
-	arg.AInt64 = rand.Int63()
-	arg.AListOfBytes = make([]byte, rand.Intn(maxPayloadSize)+1)
+	arg.ABool = rand.Intn(2) == 0                                //nolint:gosec
+	arg.AInt64 = rand.Int63()                                    //nolint:gosec
+	arg.AListOfBytes = make([]byte, rand.Intn(maxPayloadSize)+1) //nolint:gosec
 	_, err := crand.Read(arg.AListOfBytes)
 	return arg, err
 }
@@ -31,7 +31,7 @@ func lenSumArg(arg *stress.SumArg) int {
 
 // doSum returns the MD5 checksum of the SumArg.
 func doSum(arg *stress.SumArg) ([]byte, error) {
-	h := md5.New()
+	h := md5.New() //nolint:gosec
 	if arg.ABool {
 		if err := binary.Write(h, binary.LittleEndian, arg.AInt64); err != nil {
 			return nil, err

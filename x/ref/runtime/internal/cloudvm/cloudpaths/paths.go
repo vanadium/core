@@ -7,7 +7,7 @@ package cloudpaths
 // AWS constants for its EC2 metadata service.
 const (
 	AWSHost            = "http://169.254.169.254"
-	AWSTokenPath       = "/latest/api/token"
+	AWSTokenPath       = "/latest/api/token" //nolint:gosec
 	AWSIdentityDocPath = "/latest/dynamic/instance-identity/document"
 	AWSPublicIPPath    = "/latest/meta-data/public-ipv4"
 	AWSPrivateIPPath   = "/latest/meta-data/local-ipv4"

@@ -62,7 +62,7 @@ func genEntries() chan entry {
 			modes := []vdltest.GenMode{vdltest.GenFull, vdltest.GenPosMax, vdltest.GenNegMax, vdltest.GenPosMin, vdltest.GenNegMin, vdltest.GenRandom}
 			for i := 0; i < numValuesPerTypeList; i++ {
 				out <- entry{
-					Value: valgen.Gen(types[rand.Intn(len(types))], modes[rand.Intn(len(modes))]),
+					Value: valgen.Gen(types[rand.Intn(len(types))], modes[rand.Intn(len(modes))]), //nolint:gosec
 					Types: types,
 				}
 			}

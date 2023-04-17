@@ -91,7 +91,7 @@ func TestHashAd(t *testing.T) {
 }
 
 func TestHashAdCoverage(t *testing.T) {
-	rand := rand.New(rand.NewSource(0))
+	rand := rand.New(rand.NewSource(0)) //nolint:gosec
 	gen := func(v reflect.Value) {
 		for {
 			r, ok := quick.Value(v.Type(), rand)

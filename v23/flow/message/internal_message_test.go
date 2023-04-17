@@ -21,7 +21,7 @@ import (
 func randomTestCases() []uint64 {
 	c := make([]uint64, 4096)
 	for i := range c {
-		c[i] = rand.Uint64()
+		c[i] = rand.Uint64() //nolint:gosec
 	}
 	return c
 }
@@ -29,7 +29,7 @@ func randomTestCases() []uint64 {
 func randomMaxTestCases(limit int64) []uint64 {
 	c := make([]uint64, 4096)
 	for i := range c {
-		c[i] = uint64(rand.Int63n(limit))
+		c[i] = uint64(rand.Int63n(limit)) //nolint:gosec
 	}
 	return c
 }
@@ -38,7 +38,7 @@ func randomLargeTestCases() []uint64 {
 	c := make([]uint64, 4096)
 	for i := range c {
 		for c[i] < math.MaxUint32 {
-			c[i] = rand.Uint64()
+			c[i] = rand.Uint64() //nolint:gosec
 		}
 	}
 	return c

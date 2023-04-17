@@ -92,7 +92,7 @@ func NewRandGenerator(logger loggingFunc) *Random {
 		}
 	}
 	logger("Seeded pseudo-random number generator with %v", seed)
-	return &Random{rand: rand.New(rand.NewSource(seed))}
+	return &Random{rand: rand.New(rand.NewSource(seed))} //nolint:gosec
 }
 
 // TODO(caprita): Consider deprecating InitRandGenerator in favor of using

@@ -124,7 +124,7 @@ func (s *Store) rootRecordingLocked(traceid, parentid uniqueid.Id, name string) 
 		return ts
 	}
 	sr := s.opts.SampleRate
-	if traceid == parentid && sr > 0.0 && (sr >= 1.0 || rand.Float64() < sr) {
+	if traceid == parentid && sr > 0.0 && (sr >= 1.0 || rand.Float64() < sr) { //nolint:gosec
 		// If this is a root span, we may automatically sample it for collection.
 		return s.forceCollectLocked(traceid, s.defaultLevel)
 	}

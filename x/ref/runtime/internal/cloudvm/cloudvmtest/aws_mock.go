@@ -79,7 +79,10 @@ func StartAWSMetadataServer(t *testing.T, imdsv2Only bool) (string, func()) {
 		})
 
 	srv := http.Server{
-		Handler: mux,
+		Handler:           mux,
+		ReadTimeout:       time.Second,
+		WriteTimeout:      time.Second,
+		ReadHeaderTimeout: time.Second,
 	}
 	go srv.Serve(l)
 	return "http://" + l.Addr().String(), func() { l.Close() }

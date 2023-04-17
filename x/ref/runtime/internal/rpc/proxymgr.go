@@ -49,7 +49,7 @@ func newProxyManager(s serverProxyAPI, proxyName string, policy rpc.ProxyPolicy,
 		limit:          limit,
 		proxyName:      proxyName,
 		active:         map[string]bool{},
-		rand:           rand.New(rand.NewSource(time.Now().UnixNano())),
+		rand:           rand.New(rand.NewSource(time.Now().UnixNano())), //nolint: gosec
 	}
 	switch policy {
 	case rpc.UseFirstProxy, rpc.UseRandomProxy:

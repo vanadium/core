@@ -61,7 +61,7 @@ func defaultBlessingName() string {
 		"apple", "banana", "cherry", "dragonfruit", "elderberry", "fig", "grape", "honeydew",
 	}
 	name := fmt.Sprintf("anonymous-%s-%d",
-		options[rand.New(rand.NewSource(time.Now().Unix())).Intn(len(options))],
+		options[rand.New(rand.NewSource(time.Now().Unix())).Intn(len(options))], //nolint: gosec
 		os.Getpid())
 	host, _ := os.Hostname()
 	// (none) is a common default hostname and contains parentheses,

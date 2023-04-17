@@ -40,7 +40,7 @@ func setup(t *testing.T, workdir, username string) (tmpdir string) {
 	for _, l := range logfiles {
 		l.name = strings.ReplaceAll(l.name, "%USER%", username)
 		filename := filepath.Join(tmpdir, l.name)
-		if err := os.WriteFile(filename, []byte{}, 0644); err != nil {
+		if err := os.WriteFile(filename, []byte{}, 0600); err != nil {
 			t.Fatalf("os.WriteFile failed: %v", err)
 		}
 		mtime := time.Now().Add(-l.age)

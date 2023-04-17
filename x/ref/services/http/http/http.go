@@ -5,6 +5,8 @@
 package main
 
 import (
+	"time"
+
 	"v.io/x/ref/services/http/httplib"
 
 	"flag"
@@ -48,7 +50,13 @@ func findPortAndListen(mux *http.ServeMux) {
 		if err == nil {
 			log.Println("Monitoring on " + fmtPort(currPort) + "/debug/requests...")
 			defer ln.Close()
-			http.Serve(ln, mux) //nolint:errcheck
+			s := &http.Server{
+				ReadTimeout:       time.Second,
+				WriteTimeout:      time.Second,
+				ReadHeaderTimeout: time.Second,
+				Handler:           mux,
+			}
+			s.Serve(ln) //nolint:errcheck
 			break
 		}
 		currPort++

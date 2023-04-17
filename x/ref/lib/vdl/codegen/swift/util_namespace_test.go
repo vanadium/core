@@ -87,7 +87,7 @@ func createTmpVdlPath(t *testing.T, modules []moduleConfig, pkgs []pkgConfig) (s
 		}
 		sh.Cmd("mkdir", "-p", filepath.Join(tempDir, module.Path)).Run()
 		moduleConfigPath := filepath.Join(tempDir, module.Path, "swiftmodule")
-		err := os.WriteFile(moduleConfigPath, []byte(module.Name), 0644)
+		err := os.WriteFile(moduleConfigPath, []byte(module.Name), 0600)
 		if err != nil {
 			sh.Cleanup()
 			t.Fatalf("Unable to create temp vdl.config file: %v", err)
@@ -101,7 +101,7 @@ func createTmpVdlPath(t *testing.T, modules []moduleConfig, pkgs []pkgConfig) (s
 		sh.Cmd("mkdir", "-p", filepath.Join(tempDir, pkg.Path)).Run()
 		for file, contents := range pkg.Files {
 			vdlPath := filepath.Join(tempDir, pkg.Path, file)
-			err := os.WriteFile(vdlPath, []byte(contents), 0644)
+			err := os.WriteFile(vdlPath, []byte(contents), 0600)
 			if err != nil {
 				sh.Cleanup()
 				t.Fatalf("Unable to create temp vdl file at %v: %v", vdlPath, err)

@@ -222,7 +222,7 @@ func TestReadqClose(t *testing.T) {
 
 	go func() {
 		defer wg.Done()
-		stopat := rand.Int31n(int32(iterations))
+		stopat := rand.Int31n(int32(iterations)) //nolint: gosec
 		for i := 0; i < iterations; i++ {
 			msg, err := r.get(ctx)
 			if err == io.EOF {

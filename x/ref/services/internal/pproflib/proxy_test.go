@@ -42,8 +42,13 @@ func TestPProfProxy(t *testing.T) {
 		t.Fatal(err)
 	}
 	defer ln.Close()
-	//nolint:errcheck
-	go http.Serve(ln, pproflib.PprofProxy(ctx, "/myprefix", endpoints[0].Name()))
+	srv := &http.Server{
+		ReadTimeout:       time.Second,
+		WriteTimeout:      time.Second,
+		ReadHeaderTimeout: time.Second,
+		Handler:           pproflib.PprofProxy(ctx, "/myprefix", endpoints[0].Name()),
+	}
+	go srv.Serve(ln) //nolint:errcheck
 	testcases := []string{
 		"/myprefix/pprof/",
 		"/myprefix/pprof/cmdline",
@@ -55,8 +60,7 @@ func TestPProfProxy(t *testing.T) {
 
 	// Make sure the web server is up and running before starting tests.
 	for {
-		url := fmt.Sprintf("http://%s/myprefix/pprof/", ln.Addr())
-		resp, err := http.Get(url)
+		resp, err := http.Get(fmt.Sprintf("http://%s/myprefix/pprof/", ln.Addr()))
 		if err == nil && resp.StatusCode == 200 {
 			break
 		}
@@ -66,7 +70,7 @@ func TestPProfProxy(t *testing.T) {
 
 	for _, c := range testcases {
 		url := fmt.Sprintf("http://%s%s", ln.Addr(), c)
-		resp, err := http.Get(url)
+		resp, err := http.Get(url) //nolint:gosec
 		if err != nil {
 			t.Fatalf("%v: http.Get failed: %v", url, err)
 		}

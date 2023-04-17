@@ -16,6 +16,7 @@ linters-settings:
 linters:
   enable:
     - bodyclose
+    - gosec
     - gocritic
     - gocyclo
     - gofmt

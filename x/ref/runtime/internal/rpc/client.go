@@ -1015,7 +1015,7 @@ func shouldRetry(action verror.ActionCode, requireResolve bool, connOpts *connec
 // from forming.  The first time you retry n should be 0, then 1 etc.
 func backoff(n uint, deadline time.Time) bool {
 	// This is ((100 to 200) * 2^n) ms.
-	b := time.Duration((100+rand.Intn(100))<<n) * time.Millisecond
+	b := time.Duration((100+rand.Intn(100))<<n) * time.Millisecond //nolint: gosec
 	if b > maxBackoff {
 		b = maxBackoff
 	}

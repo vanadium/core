@@ -13,7 +13,7 @@ import (
 )
 
 func TestUpdateBasic(t *testing.T) {
-	rand := rand.New(rand.NewSource(0))
+	rand := rand.New(rand.NewSource(0)) //nolint:gosec
 	for i := 0; i < 10; i++ {
 		v, ok := quick.Value(reflect.TypeOf(AdInfo{}), rand)
 		if !ok {
