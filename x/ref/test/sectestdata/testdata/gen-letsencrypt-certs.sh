@@ -2,7 +2,9 @@
 
 # generate letsencrypt certs using DNS challenges via google cloud dns.
 
-# google clound dns credentials file.
+# google clound dns credentials file. The credentials file, which must
+# be in json format is obtained by creating a new key for the service
+# account via console.cloud.google.com.
 service_account=$1
 
 # update root certs
