@@ -1,7 +1,7 @@
 #!/bin/bash
 
 for file in *.letsencrypt letsencrypt-stg-int-*.pem; do
-    rm ${file}.fingeprint
+    rm -f ${file}.fingeprint
 done
 
 for file in *.letsencrypt letsencrypt-stg-int-*.pem; do
