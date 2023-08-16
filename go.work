@@ -6,5 +6,6 @@ use (
 	./x/ref/examples
 	./x/ref/internal/logger
 	./x/ref/lib/flags/sitedefaults
+	./x/ref/runtime/internal/rpc/benchmark
 	./x/ref/test/compatibility/modules/simple
 )
