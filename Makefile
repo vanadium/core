@@ -94,12 +94,18 @@ bootstrapvdl:
 	go run v.io/x/ref/cmd/vdl generate --show-warnings=true --lang=go v.io/...
 	git diff --exit-code
 
+SUB_MODULES=./x/ref/runtime/internal/rpc/benchmark/go.mod \
+	./x/ref/internal/logger/go.mod \
+	./x/ref/examples/go.mod \
+	./x/ref/lib/flags/sitedefaults/go.mod \
+	./x/ref/aws/go.mod
+
 modtidy:
-	for modfile in $$(find . -name go.mod); do \
+	for modfile in $(SUB_MODULES); do \
 		(cd $$(dirname $$modfile); echo "go mod tidy in $$(pwd)"; go mod tidy) ; \
 	done	
 
 modupdate:
-	for modfile in $$(find . -name go.mod); do \
+	for modfile in $(SUB_MODULES); do \
 		(cd $$(dirname $$modfile); echo "go get -u ./... in $$(pwd)"; go get -u ./...) ; \
 	done	
