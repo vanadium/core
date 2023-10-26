@@ -519,7 +519,8 @@ func TestEncodeToValueOptional(t *testing.T) {
 		}
 
 		// optional version.
-		if err := Write(enc, &tc.input); err != nil {
+		tmp := tc.input
+		if err := Write(enc, &tmp); err != nil {
 			t.Fatalf("val %v: %v", tc.input, err)
 		}
 		if got, want := value.String(), "?"+typeStr+"("+tc.output+")"; got != want {

@@ -172,7 +172,8 @@ func TestEncodeFromRawBytes(t *testing.T) {
 			t.Errorf("%s: Encode goValue failed: %v", test.name, err)
 			continue
 		}
-		fullBytesFromRaw, err := vom.Encode(&test.rawBytes)
+		tmp := test.rawBytes
+		fullBytesFromRaw, err := vom.Encode(&tmp)
 		if err != nil {
 			t.Errorf("%s: Encode RawBytes failed: %v", test.name, err)
 			continue
@@ -300,7 +301,8 @@ func TestWrappedRawBytes(t *testing.T) {
 			t.Errorf("%s: Decode failed: %v", test.name, err)
 			continue
 		}
-		if got, want := any.X, &test.rawBytes; !reflect.DeepEqual(got, want) {
+		tmp := test.rawBytes
+		if got, want := any.X, &tmp; !reflect.DeepEqual(got, want) {
 			t.Errorf("%s\nGOT  %v\nWANT %v", test.name, got, want)
 		}
 	}
