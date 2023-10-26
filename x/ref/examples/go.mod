@@ -5,7 +5,7 @@ go 1.18
 require (
 	github.com/creack/pty v1.1.18
 	v.io v0.2.0
-	v.io/x/lib v0.1.15
+	v.io/x/lib v0.1.16
 	v.io/x/ref/internal/logger v0.1.1
 )
 

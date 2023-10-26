@@ -5,7 +5,7 @@ go 1.18
 require (
 	google.golang.org/protobuf v1.31.0
 	v.io v0.2.0
-	v.io/x/lib v0.1.15
+	v.io/x/lib v0.1.16
 )
 
 require (
