@@ -492,18 +492,18 @@ func TestEncodeToValueOptional(t *testing.T) {
 	}
 
 	for _, tc := range []struct {
-		input  structTypeOptional
+		input  *structTypeOptional
 		output string
 	}{
-		{structTypeOptional{}, `{A: nil, B: nil, C: nil, D: nil}`},
-		{structTypeOptional{
+		{&structTypeOptional{}, `{A: nil, B: nil, C: nil, D: nil}`},
+		{&structTypeOptional{
 			C: "hello",
 			D: &optionalStructType{A: 11, B: "world"},
 		},
 			`{A: nil, B: nil, C: "hello", D: {A: 11, B: "world"}}`},
 	} {
 
-		if err := Write(enc, tc.input); err != nil {
+		if err := Write(enc, *tc.input); err != nil {
 			t.Fatalf("val %v: %v", tc.input, err)
 		}
 		if got, want := value.String(), typeStr+tc.output; got != want {
@@ -514,13 +514,12 @@ func TestEncodeToValueOptional(t *testing.T) {
 		if err := Read(value.Decoder(), &w); err != nil {
 			t.Fatal(err)
 		}
-		if got, want := w, tc.input; !reflect.DeepEqual(got, want) {
+		if got, want := w, *tc.input; !reflect.DeepEqual(got, want) {
 			t.Errorf("got %v, want %v", got, want)
 		}
 
 		// optional version.
-		tmp := tc.input
-		if err := Write(enc, &tmp); err != nil {
+		if err := Write(enc, tc.input); err != nil {
 			t.Fatalf("val %v: %v", tc.input, err)
 		}
 		if got, want := value.String(), "?"+typeStr+"("+tc.output+")"; got != want {
@@ -530,7 +529,7 @@ func TestEncodeToValueOptional(t *testing.T) {
 		if err := Read(value.Decoder(), &w); err != nil {
 			t.Fatal(err)
 		}
-		if got, want := w, tc.input; !reflect.DeepEqual(got, want) {
+		if got, want := w, *tc.input; !reflect.DeepEqual(got, want) {
 			t.Errorf("got %v, want %v", got, want)
 		}
 	}

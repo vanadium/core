@@ -46,19 +46,19 @@ func TestIPHostPortFlag(t *testing.T) {
 	ip6 := []*net.IPAddr{{IP: net.ParseIP("FE80:0000:0000:0000:0202:B3FF:FE1E:8329")}}
 	cases := []struct {
 		input string
-		want  flags.IPHostPortFlag
+		want  *flags.IPHostPortFlag
 		str   string
 	}{
-		{"", flags.IPHostPortFlag{Port: ""}, ""},
-		{":0", flags.IPHostPortFlag{Port: "0"}, ":0"},
-		{":22", flags.IPHostPortFlag{Port: "22"}, ":22"},
-		{"127.0.0.1", flags.IPHostPortFlag{IP: lh, Port: "0"}, "127.0.0.1:0"},
-		{"127.0.0.1:10", flags.IPHostPortFlag{IP: lh, Port: "10"}, "127.0.0.1:10"},
-		{"[]:0", flags.IPHostPortFlag{Port: "0"}, ":0"},
-		{"[FE80:0000:0000:0000:0202:B3FF:FE1E:8329]:100", flags.IPHostPortFlag{IP: ip6, Port: "100"}, "[fe80::202:b3ff:fe1e:8329]:100"},
+		{"", &flags.IPHostPortFlag{Port: ""}, ""},
+		{":0", &flags.IPHostPortFlag{Port: "0"}, ":0"},
+		{":22", &flags.IPHostPortFlag{Port: "22"}, ":22"},
+		{"127.0.0.1", &flags.IPHostPortFlag{IP: lh, Port: "0"}, "127.0.0.1:0"},
+		{"127.0.0.1:10", &flags.IPHostPortFlag{IP: lh, Port: "10"}, "127.0.0.1:10"},
+		{"[]:0", &flags.IPHostPortFlag{Port: "0"}, ":0"},
+		{"[FE80:0000:0000:0000:0202:B3FF:FE1E:8329]:100", &flags.IPHostPortFlag{IP: ip6, Port: "100"}, "[fe80::202:b3ff:fe1e:8329]:100"},
 	}
 	for _, c := range cases {
-		got, want := &flags.IPHostPortFlag{}, &c.want
+		got, want := &flags.IPHostPortFlag{}, c.want
 		c.want.Address = c.input
 		if err := got.Set(c.input); err != nil || !reflect.DeepEqual(got, want) {
 			if err != nil {
