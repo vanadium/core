@@ -632,7 +632,7 @@ type execSelectErrorTest struct {
 type execResolveFieldTest struct {
 	k string
 	v *vom.RawBytes
-	f queryparser.Field
+	f *queryparser.Field
 	r *vom.RawBytes
 }
 
@@ -3501,7 +3501,7 @@ func TestResolveField(t *testing.T) {
 		{
 			custTable.rows[0].key,
 			custTable.rows[0].value,
-			queryparser.Field{
+			&queryparser.Field{
 				Segments: []queryparser.Segment{
 					{
 						Value: "k",
@@ -3515,7 +3515,7 @@ func TestResolveField(t *testing.T) {
 		{
 			custTable.rows[0].key,
 			custTable.rows[0].value,
-			queryparser.Field{
+			&queryparser.Field{
 				Segments: []queryparser.Segment{
 					{
 						Value: "v",
@@ -3537,7 +3537,7 @@ func TestResolveField(t *testing.T) {
 	}
 
 	for _, test := range basic {
-		r := internal.ResolveField(db, test.k, vdl.ValueOf(test.v), &test.f)
+		r := internal.ResolveField(db, test.k, vdl.ValueOf(test.v), test.f)
 		if !reflect.DeepEqual(r, vdl.ValueOf(test.r)) {
 			t.Errorf("got %v(%s), want %v(%s)", r, r.Type(), vdl.ValueOf(test.r), test.r.Type)
 		}

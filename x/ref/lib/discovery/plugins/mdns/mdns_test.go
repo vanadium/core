@@ -218,9 +218,9 @@ func TestLargeAdvertisements(t *testing.T) {
 	ctx, shutdown := test.TestContext()
 	defer shutdown()
 
-	tests := []struct{ adinfo, want idiscovery.AdInfo }{
+	tests := []struct{ adinfo, want *idiscovery.AdInfo }{
 		{
-			idiscovery.AdInfo{ // Fit at the maximum size.
+			&idiscovery.AdInfo{ // Fit at the maximum size.
 				Ad: discovery.Advertisement{
 					Id:            discovery.AdId{1},
 					InterfaceName: "v.io/i",
@@ -234,7 +234,7 @@ func TestLargeAdvertisements(t *testing.T) {
 				TimestampNs:         1001,
 				DirAddrs:            []string{"/@6@wsh@foo.com:1234@@/d"},
 			},
-			idiscovery.AdInfo{
+			&idiscovery.AdInfo{
 				Ad: discovery.Advertisement{
 					Id:            discovery.AdId{1},
 					InterfaceName: "v.io/i",
@@ -250,7 +250,7 @@ func TestLargeAdvertisements(t *testing.T) {
 			},
 		},
 		{
-			idiscovery.AdInfo{ // Not all required fields can fit.
+			&idiscovery.AdInfo{ // Not all required fields can fit.
 				Ad: discovery.Advertisement{
 					Id:            discovery.AdId{1},
 					InterfaceName: "v.io/i",
@@ -265,7 +265,7 @@ func TestLargeAdvertisements(t *testing.T) {
 				TimestampNs: 1001,
 				DirAddrs:    []string{"/@6@wsh@foo.com:1234@@/d"},
 			},
-			idiscovery.AdInfo{
+			&idiscovery.AdInfo{
 				Ad: discovery.Advertisement{
 					Id:            discovery.AdId{1},
 					InterfaceName: "v.io/i",
@@ -279,7 +279,7 @@ func TestLargeAdvertisements(t *testing.T) {
 			},
 		},
 		{
-			idiscovery.AdInfo{ // Not all required fields can fit.
+			&idiscovery.AdInfo{ // Not all required fields can fit.
 				Ad: discovery.Advertisement{
 					Id:            discovery.AdId{1},
 					InterfaceName: "v.io/i",
@@ -295,7 +295,7 @@ func TestLargeAdvertisements(t *testing.T) {
 				TimestampNs: 1001,
 				DirAddrs:    []string{"/@6@wsh@foo.com:1234@@/d"},
 			},
-			idiscovery.AdInfo{
+			&idiscovery.AdInfo{
 				Ad: discovery.Advertisement{
 					Id:            discovery.AdId{1},
 					InterfaceName: "v.io/i",
@@ -309,7 +309,7 @@ func TestLargeAdvertisements(t *testing.T) {
 			},
 		},
 		{
-			idiscovery.AdInfo{ // None of optional fields can fit.
+			&idiscovery.AdInfo{ // None of optional fields can fit.
 				Ad: discovery.Advertisement{
 					Id:            discovery.AdId{1},
 					InterfaceName: "v.io/i",
@@ -321,7 +321,7 @@ func TestLargeAdvertisements(t *testing.T) {
 				TimestampNs: 1001,
 				DirAddrs:    []string{"/@6@wsh@foo.com:1234@@/d"},
 			},
-			idiscovery.AdInfo{
+			&idiscovery.AdInfo{
 				Ad: discovery.Advertisement{
 					Id:            discovery.AdId{1},
 					InterfaceName: "v.io/i",
@@ -336,7 +336,7 @@ func TestLargeAdvertisements(t *testing.T) {
 			},
 		},
 		{
-			idiscovery.AdInfo{ // Not all optional fields can fit.
+			&idiscovery.AdInfo{ // Not all optional fields can fit.
 				Ad: discovery.Advertisement{
 					Id:            discovery.AdId{1},
 					InterfaceName: "v.io/i",
@@ -354,7 +354,7 @@ func TestLargeAdvertisements(t *testing.T) {
 				TimestampNs: 1001,
 				DirAddrs:    []string{"/@6@wsh@foo.com:1234@@/d"},
 			},
-			idiscovery.AdInfo{
+			&idiscovery.AdInfo{
 				Ad: discovery.Advertisement{
 					Id:            discovery.AdId{1},
 					InterfaceName: "v.io/i",
@@ -383,12 +383,12 @@ func TestLargeAdvertisements(t *testing.T) {
 	}
 
 	for i, test := range tests {
-		stop, err := testutil.Advertise(ctx, p1, &test.adinfo)
+		stop, err := testutil.Advertise(ctx, p1, test.adinfo)
 		if err != nil {
 			t.Errorf("[%d]: %v", i, err)
 			continue
 		}
-		if err := testutil.ScanAndMatch(ctx, p2, "", test.want); err != nil {
+		if err := testutil.ScanAndMatch(ctx, p2, "", *test.want); err != nil {
 			t.Errorf("[%d]: %v", i, err)
 		}
 		stop()
