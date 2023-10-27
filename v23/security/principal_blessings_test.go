@@ -376,19 +376,19 @@ func testAddToRoots(t *testing.T, tpFunc func(t testing.TB) security.Principal, 
 
 	tests := []struct {
 		add           security.Blessings
-		root          security.Certificate
+		root          *security.Certificate
 		recognized    []string
 		notRecognized []string
 	}{
 		{
 			add:           aliceFriendSpouse,
-			root:          security.Certificate{PublicKey: publicKeyBytes(p1)},
+			root:          &security.Certificate{PublicKey: publicKeyBytes(p1)},
 			recognized:    s{"alice:friend", "alice:friend:device", "alice:friend:device:app", "alice:friend:spouse", "alice:friend:spouse:friend"},
 			notRecognized: s{"alice:device", "bob", "bob:friend", "bob:friend:spouse"},
 		},
 		{
 			add:           charlieFamilyDaughter,
-			root:          security.Certificate{PublicKey: publicKeyBytes(p2)},
+			root:          &security.Certificate{PublicKey: publicKeyBytes(p2)},
 			recognized:    s{"charlie", "charlie:friend", "charlie:friend:device", "charlie:family", "charlie:family:daughter", "charlie:family:friend", "charlie:family:friend:device"},
 			notRecognized: s{"alice", "bob", "alice:family", "alice:family:daughter"},
 		},
@@ -403,7 +403,7 @@ func testAddToRoots(t *testing.T, tpFunc func(t testing.TB) security.Principal, 
 			if tp.Roots().Recognized(test.root.PublicKey, b) != nil {
 				t.Errorf("added roots for: %v but did not recognize blessing: %v", test.add, b)
 			}
-			if tp.Roots().RecognizedCert(&test.root, b) != nil {
+			if tp.Roots().RecognizedCert(test.root, b) != nil {
 				t.Errorf("added roots for: %v but did not recognize blessing: %v", test.add, b)
 			}
 		}
@@ -411,7 +411,7 @@ func testAddToRoots(t *testing.T, tpFunc func(t testing.TB) security.Principal, 
 			if tp.Roots().Recognized(test.root.PublicKey, b) == nil {
 				t.Errorf("added roots for: %v but recognized blessing: %v", test.add, b)
 			}
-			if tp.Roots().RecognizedCert(&test.root, b) == nil {
+			if tp.Roots().RecognizedCert(test.root, b) == nil {
 				t.Errorf("added roots for: %v but recognized blessing: %v", test.add, b)
 			}
 		}
