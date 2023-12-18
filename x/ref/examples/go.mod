@@ -14,7 +14,7 @@ require (
 	github.com/gorilla/websocket v1.5.1 // indirect
 	github.com/vanadium/go-mdns-sd v0.0.0-20230219002252-724533cf06f5 // indirect
 	github.com/youmark/pkcs8 v0.0.0-20201027041543-1326539a0a0a // indirect
-	golang.org/x/crypto v0.16.0 // indirect
+	golang.org/x/crypto v0.17.0 // indirect
 	golang.org/x/net v0.19.0 // indirect
 	golang.org/x/sys v0.15.0 // indirect
 	golang.org/x/term v0.15.0 // indirect
