@@ -79,7 +79,7 @@ func testDefaultAuthorizer(t *testing.T, pali, pbob, pche, pdis security.Princip
 	// All tests are run as if "ali" is the local end and "bob" is the remote.
 	tests := []struct {
 		local, remote security.Blessings
-		call          security.CallParams
+		call          *security.CallParams
 		authorized    bool
 	}{
 		{
@@ -102,7 +102,7 @@ func testDefaultAuthorizer(t *testing.T, pali, pbob, pche, pdis security.Princip
 			// ali talking to ali:friend
 			local:      ali,
 			remote:     B(ali, "friend", tpcav),
-			call:       security.CallParams{RemoteDischarges: dismap},
+			call:       &security.CallParams{RemoteDischarges: dismap},
 			authorized: true,
 		},
 		{
@@ -121,16 +121,19 @@ func testDefaultAuthorizer(t *testing.T, pali, pbob, pche, pdis security.Princip
 			// {ali, bob:friend, che:friend} talking to {bob:friend:spouse, che:family}
 			local:      U(ali, A(bob, "friend"), A(che, "friend")),
 			remote:     U(B(bob, "friend:spouse", tpcav), B(che, "family")),
-			call:       security.CallParams{RemoteDischarges: dismap},
+			call:       &security.CallParams{RemoteDischarges: dismap},
 			authorized: true,
 		},
 	}
 	for _, test := range tests {
+		if test.call == nil {
+			test.call = &security.CallParams{}
+		}
 		test.call.LocalPrincipal = pali
 		test.call.LocalBlessings = test.local
 		test.call.RemoteBlessings = test.remote
 		ctx, cancel := context.RootContext()
-		err := authorizer.Authorize(ctx, security.NewCall(&test.call))
+		err := authorizer.Authorize(ctx, security.NewCall(test.call))
 		if (err == nil) != test.authorized {
 			t.Errorf("call: %v. Got %v", test.call, err)
 		}

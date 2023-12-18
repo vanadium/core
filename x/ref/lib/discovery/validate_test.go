@@ -15,11 +15,11 @@ import (
 
 func TestValidateAd(t *testing.T) {
 	tests := []struct {
-		ad    discovery.Advertisement
+		ad    *discovery.Advertisement
 		valid bool
 	}{
 		{
-			discovery.Advertisement{
+			&discovery.Advertisement{
 				Id:            discovery.AdId{1, 2, 3},
 				InterfaceName: "v.io/v23/a",
 				Addresses:     []string{"/h:123/x"},
@@ -36,7 +36,7 @@ func TestValidateAd(t *testing.T) {
 			true,
 		},
 		{
-			discovery.Advertisement{
+			&discovery.Advertisement{
 				Id:            discovery.AdId{1, 2, 3},
 				InterfaceName: "v.io/v23/a",
 				Addresses:     []string{"/h:123/x"},
@@ -47,7 +47,7 @@ func TestValidateAd(t *testing.T) {
 			true,
 		},
 		{
-			discovery.Advertisement{
+			&discovery.Advertisement{
 				Id:            discovery.AdId{}, // Invalid id.
 				InterfaceName: "v.io/v23/a",
 				Addresses:     []string{"/h:123/x"},
@@ -55,21 +55,21 @@ func TestValidateAd(t *testing.T) {
 			false,
 		},
 		{
-			discovery.Advertisement{ // No interface name.
+			&discovery.Advertisement{ // No interface name.
 				Id:        discovery.AdId{1, 2, 3},
 				Addresses: []string{"/h:123/z"},
 			},
 			false,
 		},
 		{
-			discovery.Advertisement{ // No addresses.
+			&discovery.Advertisement{ // No addresses.
 				Id:            discovery.AdId{1, 2, 3},
 				InterfaceName: "v.io/v23/a",
 			},
 			false,
 		},
 		{
-			discovery.Advertisement{
+			&discovery.Advertisement{
 				Id:            discovery.AdId{1, 2, 3},
 				InterfaceName: "v.io/v23/a",
 				Addresses:     []string{"/h:123/x"},
@@ -80,7 +80,7 @@ func TestValidateAd(t *testing.T) {
 			false,
 		},
 		{
-			discovery.Advertisement{
+			&discovery.Advertisement{
 				Id:            discovery.AdId{1, 2, 3},
 				InterfaceName: "v.io/v23/a",
 				Addresses:     []string{"/h:123/x"},
@@ -91,7 +91,7 @@ func TestValidateAd(t *testing.T) {
 			false,
 		},
 		{
-			discovery.Advertisement{
+			&discovery.Advertisement{
 				Id:            discovery.AdId{1, 2, 3},
 				InterfaceName: "v.io/v23/a",
 				Addresses:     []string{"/h:123/x"},
@@ -102,7 +102,7 @@ func TestValidateAd(t *testing.T) {
 			false,
 		},
 		{
-			discovery.Advertisement{
+			&discovery.Advertisement{
 				Id:            discovery.AdId{1, 2, 3},
 				InterfaceName: "v.io/v23/a",
 				Addresses:     []string{"/h:123/x"},
@@ -113,7 +113,7 @@ func TestValidateAd(t *testing.T) {
 			false,
 		},
 		{
-			discovery.Advertisement{
+			&discovery.Advertisement{
 				Id:            discovery.AdId{1, 2, 3},
 				InterfaceName: "v.io/v23/a",
 				Addresses:     []string{"/h:123/x"},
@@ -124,7 +124,7 @@ func TestValidateAd(t *testing.T) {
 			false,
 		},
 		{
-			discovery.Advertisement{ // Too large.
+			&discovery.Advertisement{ // Too large.
 				Id:            discovery.AdId{1, 2, 3},
 				InterfaceName: strings.Repeat("i", 100),
 				Addresses:     []string{strings.Repeat("a", 100), strings.Repeat("b", 100)},
@@ -138,7 +138,7 @@ func TestValidateAd(t *testing.T) {
 			false,
 		},
 		{
-			discovery.Advertisement{
+			&discovery.Advertisement{
 				Id:            discovery.AdId{1, 2, 3},
 				InterfaceName: "v.io/v23/a",
 				Addresses:     []string{"/h:123/x"},
@@ -147,7 +147,7 @@ func TestValidateAd(t *testing.T) {
 			false,
 		},
 		{
-			discovery.Advertisement{
+			&discovery.Advertisement{
 				Id:            discovery.AdId{1, 2, 3},
 				InterfaceName: "v.io/v23/a",
 				Addresses:     []string{"/h:123/x"},
@@ -159,7 +159,7 @@ func TestValidateAd(t *testing.T) {
 			false,
 		},
 		{
-			discovery.Advertisement{
+			&discovery.Advertisement{
 				Id:            discovery.AdId{1, 2, 3},
 				InterfaceName: "v.io/v23/a",
 				Addresses:     []string{"/h:123/x"},
@@ -169,7 +169,7 @@ func TestValidateAd(t *testing.T) {
 		},
 		// Real advertisement seen in the wild, with blessings replaced by equal-length strings
 		{
-			discovery.Advertisement{
+			&discovery.Advertisement{
 				Id:            discovery.AdId{0xd2, 0xa9, 0x48, 0x63, 0x5a, 0xbd, 0xd6, 0x85, 0xde, 0x3b, 0x2c, 0x1a, 0x4a, 0x23, 0xe7, 0x3e},
 				InterfaceName: "v.io/x/ref/services/syncbase/server/interfaces/Sync",
 				Addresses: []string{
@@ -190,7 +190,7 @@ func TestValidateAd(t *testing.T) {
 	}
 
 	for i, test := range tests {
-		err := validateAd(&test.ad)
+		err := validateAd(test.ad)
 		if test.valid {
 			if err != nil {
 				t.Errorf("[%d]: unexpected error: %v", i, err)

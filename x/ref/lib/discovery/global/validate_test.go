@@ -12,11 +12,11 @@ import (
 
 func TestValidateAd(t *testing.T) {
 	tests := []struct {
-		ad    discovery.Advertisement
+		ad    *discovery.Advertisement
 		valid bool
 	}{
 		{
-			discovery.Advertisement{
+			&discovery.Advertisement{
 				Id:            discovery.AdId{1, 2, 3},
 				Addresses:     []string{"/h:123/x"},
 				Attributes:    discovery.Attributes{"k": "v"},
@@ -25,7 +25,7 @@ func TestValidateAd(t *testing.T) {
 			true,
 		},
 		{
-			discovery.Advertisement{
+			&discovery.Advertisement{
 				Id:            discovery.AdId{}, // Invalid id.
 				Addresses:     []string{"/h:123/x"},
 				InterfaceName: "foo/bar/baz",
@@ -33,21 +33,21 @@ func TestValidateAd(t *testing.T) {
 			false,
 		},
 		{
-			discovery.Advertisement{ // No addresses.
+			&discovery.Advertisement{ // No addresses.
 				Id:            discovery.AdId{1, 2, 3},
 				InterfaceName: "foo/bar/baz",
 			},
 			false,
 		},
 		{
-			discovery.Advertisement{ // Has no interface name.
+			&discovery.Advertisement{ // Has no interface name.
 				Id:        discovery.AdId{1, 2, 3},
 				Addresses: []string{"/h:123/x"},
 			},
 			false,
 		},
 		{
-			discovery.Advertisement{
+			&discovery.Advertisement{
 				Id:            discovery.AdId{1, 2, 3},
 				InterfaceName: "foo/bar/baz",
 				Addresses:     []string{"/h:123/x"},
@@ -60,7 +60,7 @@ func TestValidateAd(t *testing.T) {
 	}
 
 	for i, test := range tests {
-		err := validateAd(&test.ad)
+		err := validateAd(test.ad)
 		if test.valid {
 			if err != nil {
 				t.Errorf("[%d]: unexpected error: %v", i, err)

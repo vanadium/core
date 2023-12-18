@@ -64,8 +64,14 @@ func TestGet(t *testing.T) {
 	bycreator := map[string]*Goroutine{}
 	for _, g := range gs {
 		key := ""
-		if g.Creator != nil {
-			key = g.Creator.Call
+		if g.Creator == nil {
+			continue
+		}
+		key = g.Creator.Call
+		if idx := strings.Index(key, " in "); idx != -1 {
+			// go 1.21 changed the format of the creator string to
+			// v.io/x/ref/test/goroutines.runGoA in goroutine 1 [running]:
+			key = key[:idx]
 		}
 		bycreator[key] = g
 	}
@@ -77,6 +83,7 @@ func TestGet(t *testing.T) {
 				t.Logf("%v", g.Creator.Call)
 			}
 		}
+		t.Logf("bycreator: %v", bycreator)
 		t.Errorf("runGoA is missing")
 		panic("runGo is missing")
 	case len(a.Stack) < 1:
