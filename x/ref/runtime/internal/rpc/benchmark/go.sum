@@ -59,6 +59,8 @@ golang.org/x/xerrors v0.0.0-20191204190536-9bdfabe68543/go.mod h1:I/5z698sn9Ka8T
 google.golang.org/protobuf v1.26.0-rc.1/go.mod h1:jlhhOSvTdKEhbULTjvd4ARK9grFBp09yW+WbY/TyQbw=
 google.golang.org/protobuf v1.31.0 h1:g0LDEJHgrBl9N9r17Ru3sqWhkIx2NB67okBHPwC7hs8=
 google.golang.org/protobuf v1.31.0/go.mod h1:HV8QOd/L58Z+nl8r43ehVNZIU/HEI6OcFqwMG9pJV4I=
+google.golang.org/protobuf v1.32.0 h1:pPC6BG5ex8PDFnkbrGU3EixyhKcQ2aDuBS36lqK/C7I=
+google.golang.org/protobuf v1.32.0/go.mod h1:c6P6GXX6sHbq/GpV6MGZEdwhWPcYBgnhAHhKbcUYpos=
 v.io v0.2.0 h1:ZkuugtTT7gzXPK/yehK08ysFSNW8QqlVxQcgAxVuhRk=
 v.io v0.2.0/go.mod h1:cbYlOXtCT+mmKr1mMdRUHLrdTN+4omjAULjpixRCg1A=
 v.io/x/lib v0.1.6/go.mod h1:aLm+mPXyXf4Vd/n+1f4LcSQFFgqNhNzwQvHYfXoOLlE=
@@ -68,6 +70,8 @@ v.io/x/lib v0.1.16 h1:51OtWUAJtRhiwi3Ug3tv4WMjev9nlzHbYO5nz7zCdmo=
 v.io/x/lib v0.1.16/go.mod h1:GiRiI83Rg3GMJPjD6KtvX4FtnMqyJxWGVAoH6cflQ0Q=
 v.io/x/lib v0.1.17 h1:idQNidOA9rxinRO0lgNA5633FjkIOpMfQrcbsHnhAN0=
 v.io/x/lib v0.1.17/go.mod h1:p+bOWzLs7abf+ONXTwIccdFlO10gkvKXEn0erWDMhMY=
+v.io/x/lib v0.1.18 h1:WLdxdvYKC5boIYtClQZefZ70J85dRw0hae6XNqR9Zsg=
+v.io/x/lib v0.1.18/go.mod h1:oDWVbZUuSOBRD5Xkxwe2qBD98oQGjJe1u7Z3CUzGDpE=
 v.io/x/ref/internal/logger v0.1.1 h1:FZwqC6myQ4xMTgz6jIgZwQlIpuy/PtwTHY95qQFEzso=
 v.io/x/ref/internal/logger v0.1.1/go.mod h1:00nuJdZEVCzMOn9y474jZ+e6B9R/ydLW7d6IQFl/NHU=
 v.io/x/ref/lib/flags/sitedefaults v0.1.1 h1:jAeEpnfOK5ddeqjqJPi2X5WgbeYkCA+ogawkJyDgZMI=
