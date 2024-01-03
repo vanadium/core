@@ -30,7 +30,7 @@ jobs:
       - name: Test
         run: |
           export VDLPATH=$GITHUB_WORKSPACE
-          go test -v --race --covermode=atomic --timeout=15m ./x/ref/services/xproxy/xproxy
+          go test --race --covermode=atomic --timeout=15m ./...
           cd x/ref/examples
           go test --race --covermode=atomic ./...
 

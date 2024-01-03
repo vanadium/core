@@ -302,7 +302,7 @@ func (pm *proxyManager) manageProxyConnections(ctx *context.T) {
 				}
 				pm.updateAvailableProxies(ctx)
 				if pm.canGrow() {
-					return
+					break
 				}
 			}
 		}
