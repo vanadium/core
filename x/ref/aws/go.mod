@@ -27,7 +27,7 @@ require (
 	golang.org/x/text v0.14.0 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20240125205218-1f4bbc51befe // indirect
 	google.golang.org/grpc v1.61.0 // indirect
-	google.golang.org/protobuf v1.32.0 // indirect
+	google.golang.org/protobuf v1.33.0 // indirect
 	v.io/x/lib v0.1.18 // indirect
 	v.io/x/ref/internal/logger v0.1.1 // indirect
 	v.io/x/ref/lib/flags/sitedefaults v0.1.1 // indirect
