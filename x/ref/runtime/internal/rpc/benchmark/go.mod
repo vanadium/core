@@ -3,7 +3,7 @@ module v.io/x/ref/runtime/internal/rpc/benchmark
 go 1.18
 
 require (
-	google.golang.org/protobuf v1.32.0
+	google.golang.org/protobuf v1.33.0
 	v.io v0.2.0
 	v.io/x/lib v0.1.18
 )
