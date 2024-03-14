@@ -28,7 +28,7 @@ require (
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20240311173647-c811ad7063a7 // indirect
 	google.golang.org/grpc v1.62.1 // indirect
 	google.golang.org/protobuf v1.33.0 // indirect
-	v.io/x/lib v0.1.18 // indirect
+	v.io/x/lib v0.1.19 // indirect
 	v.io/x/ref/internal/logger v0.1.1 // indirect
 	v.io/x/ref/lib/flags/sitedefaults v0.1.1 // indirect
 )
