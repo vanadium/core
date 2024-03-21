@@ -16,7 +16,11 @@ import (
 	"v.io/x/ref/test"
 )
 
-var errRetryThis = verror.NewIDAction("retry_test.retryThis", verror.RetryBackoff)
+var errRetryThis verror.IDAction
+
+func init() {
+	errRetryThis = verror.NewIDAction("retry_test.retryThis", verror.RetryBackoff)
+}
 
 type retryServer struct {
 	called int // number of times TryAgain has been called

@@ -15,9 +15,13 @@ import (
 )
 
 var (
-	errDumperClosed  = verror.NewID("errDumperClosed")
-	errDumperFlushed = verror.NewID("errDumperFlushed")
+	errDumperClosed, errDumperFlushed verror.IDAction
 )
+
+func init() {
+	errDumperClosed = verror.NewID("errDumperClosed")
+	errDumperFlushed = verror.NewID("errDumperFlushed")
+}
 
 // Dump returns a human-readable dump of the given vom data, in the default
 // string format.

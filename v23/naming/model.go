@@ -13,11 +13,11 @@ const (
 )
 
 var (
-	ErrNameExists              = verror.NewID("nameExists")
-	ErrNoSuchName              = verror.NewID("nameDoesntExist")
-	ErrNoSuchNameRoot          = verror.NewID("rootNameDoesntExist")
-	ErrResolutionDepthExceeded = verror.NewID("resolutionDepthExceeded")
-	ErrNoMountTable            = verror.NewID("noMounttable")
+	ErrNameExists              = verror.NewID("v.io/v23/naming.nameExists")
+	ErrNoSuchName              = verror.NewID("v.io/v23/naming.nameDoesntExist")
+	ErrNoSuchNameRoot          = verror.NewID("v.io/v23/naming.rootNameDoesntExist")
+	ErrResolutionDepthExceeded = verror.NewID("v.io/v23/naming.resolutionDepthExceeded")
+	ErrNoMountTable            = verror.NewID("v.io/v23/naming.noMounttable")
 )
 
 // Names returns the servers represented by MountEntry as names, including

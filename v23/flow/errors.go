@@ -11,13 +11,13 @@ import "v.io/v23/verror"
 // These were previously defined in errors.vdl using the ID values
 // below rather than the more conventional Err<Name>.
 var (
-	ErrAuth          = verror.NewID("Auth")
-	ErrNotTrusted    = verror.NewID("NotTrusted")
-	ErrNetwork       = verror.NewID("Network")
-	ErrDialFailed    = verror.NewID("DialFailed")
-	ErrResolveFailed = verror.NewID("ResolveFailed")
-	ErrProxy         = verror.NewID("Proxy")
-	ErrBadArg        = verror.NewID("BadArg")
-	ErrBadState      = verror.NewID("BadState")
-	ErrAborted       = verror.NewID("Aborted")
+	ErrAuth          = verror.NewID("v.io/v23/flow.Auth")
+	ErrNotTrusted    = verror.NewID("v.io/v23/flow.NotTrusted")
+	ErrNetwork       = verror.NewID("v.io/v23/flow.Network")
+	ErrDialFailed    = verror.NewID("v.io/v23/flow.DialFailed")
+	ErrResolveFailed = verror.NewID("v.io/v23/flow.ResolveFailed")
+	ErrProxy         = verror.NewID("v.io/v23/flow.Proxy")
+	ErrBadArg        = verror.NewID("v.io/v23/flow.BadArg")
+	ErrBadState      = verror.NewID("v.io/v23/flow.BadState")
+	ErrAborted       = verror.NewID("v.io/v23/flow.Aborted")
 )

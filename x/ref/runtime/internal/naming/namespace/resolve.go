@@ -17,9 +17,11 @@ import (
 	"v.io/v23/verror"
 )
 
-var (
+var errNoServers verror.IDAction
+
+func init() {
 	errNoServers = verror.NewIDAction("errNoServers", verror.NoRetry)
-)
+}
 
 // resolveAgainstMountTable asks each server in e.Servers that might be a mounttable to resolve e.Name.  The requests
 // are parallelized by the client rpc code.

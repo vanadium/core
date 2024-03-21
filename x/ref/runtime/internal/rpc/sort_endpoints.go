@@ -18,9 +18,13 @@ import (
 )
 
 var (
-	errNoCompatibleServers        = verror.NewID("errNoComaptibleServers")
+	errNoCompatibleServers        verror.IDAction
 	defaultPreferredProtocolOrder = mkProtocolRankMap([]string{"unixfd", "wsh", "tcp4", "tcp", "*"})
 )
+
+func init() {
+	errNoCompatibleServers = verror.NewID("errNoComaptibleServers")
+}
 
 type serverLocality int
 

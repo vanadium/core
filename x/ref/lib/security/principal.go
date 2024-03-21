@@ -17,9 +17,9 @@ import (
 
 var (
 	// ErrBadPassphrase is a possible return error from LoadPersistentPrincipal()
-	ErrBadPassphrase = verror.NewID("errBadPassphrase")
+	ErrBadPassphrase = verror.NewID("v.io/x/ref/lib/security.errBadPassphrase")
 	// ErrPassphraseRequired is a possible return error from LoadPersistentPrincipal()
-	ErrPassphraseRequired = verror.NewID("errPassphraseRequired")
+	ErrPassphraseRequired = verror.NewID("v.io/x/ref/lib/security.errPassphraseRequired")
 )
 
 // NewPrincipal mints a new private (ecdsa) key and generates a principal

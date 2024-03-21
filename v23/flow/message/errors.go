@@ -12,10 +12,10 @@ import (
 )
 
 var (
-	ErrInvalidMsg         = verror.NewID("InvalidMsg")
-	ErrInvalidSetupOption = verror.NewID("InvalidSetupOption")
-	ErrUnknownMsg         = verror.NewID("UnknownMsg")
-	ErrMissingBlessings   = verror.NewID("MissingBlessings")
+	ErrInvalidMsg         = verror.NewID("v.io/v23/flow/messages.InvalidMsg")
+	ErrInvalidSetupOption = verror.NewID("v.io/v23/flow/messages.InvalidSetupOption")
+	ErrUnknownMsg         = verror.NewID("v.io/v23/flow/messages.UnknownMsg")
+	ErrMissingBlessings   = verror.NewID("v.io/v23/flow/messages.MissingBlessings")
 )
 
 // NewErrInvalidMsg creates an instance ErrInvalidMsg with the specified parameters which can be
