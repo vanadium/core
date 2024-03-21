@@ -35,21 +35,38 @@ const (
 )
 
 var (
-	errClientCloseAlreadyCalled  = verror.NewID("errCloseAlreadyCalled")
+	errClientCloseAlreadyCalled  verror.IDAction
+	errClientFinishAlreadyCalled verror.IDAction
+	errRequestEncoding           verror.IDAction
+	errArgEncoding               verror.IDAction
+	errResponseDecoding          verror.IDAction
+	errResultDecoding            verror.IDAction
+	errRemainingStreamResults    verror.IDAction
+	errPeerAuthorizeFailed       verror.IDAction
+	errTypeFlowFailure           verror.IDAction
+
+	// These were originally defined in vdl and hence the same IDs that
+	// vdl would generate must be used here to ensure backwards compatibility.
+	errBadNumInputArgs verror.IDAction
+	errBadInputArg     verror.IDAction
+)
+
+func init() {
+	errClientCloseAlreadyCalled = verror.NewID("errCloseAlreadyCalled")
 	errClientFinishAlreadyCalled = verror.NewID("errFinishAlreadyCalled")
-	errRequestEncoding           = verror.NewID("errRequestEncoding")
-	errArgEncoding               = verror.NewID("errArgEncoding")
-	errResponseDecoding          = verror.NewID("errResponseDecoding")
-	errResultDecoding            = verror.NewID("errResultDecoding")
-	errRemainingStreamResults    = verror.NewID("errRemaingStreamResults")
-	errPeerAuthorizeFailed       = verror.NewID("errPeerAuthorizedFailed")
-	errTypeFlowFailure           = verror.NewID("errTypeFlowFailure")
+	errRequestEncoding = verror.NewID("errRequestEncoding")
+	errArgEncoding = verror.NewID("errArgEncoding")
+	errResponseDecoding = verror.NewID("errResponseDecoding")
+	errResultDecoding = verror.NewID("errResultDecoding")
+	errRemainingStreamResults = verror.NewID("errRemaingStreamResults")
+	errPeerAuthorizeFailed = verror.NewID("errPeerAuthorizedFailed")
+	errTypeFlowFailure = verror.NewID("errTypeFlowFailure")
 
 	// These were originally defined in vdl and hence the same IDs that
 	// vdl would generate must be used here to ensure backwards compatibility.
 	errBadNumInputArgs = verror.NewID("badNumInputArgs")
-	errBadInputArg     = verror.NewID("badInputArg")
-)
+	errBadInputArg = verror.NewID("badInputArg")
+}
 
 func preferNonTimeout(curr, prev error) error {
 	if prev != nil && errors.Is(curr, verror.ErrTimeout) {
