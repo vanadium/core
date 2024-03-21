@@ -159,8 +159,8 @@ func TestExistingKeys(t *testing.T) {
 	}{
 		{
 			sectestdata.X509PrivateKeyBytes(keys.ED25519, sectestdata.X509Private),
-			"f5:e1:5a:64:8e:c8:98:e0:20:4e:99:9a:5b:54:9b:af",
-			// generated using: openssl pkey -in ed25519.vanadium.io.key -pubout -outform der | openssl md5 -c
+			"95:ba:85:d9:7d:bc:27:36:99:d7:cb:ce:eb:d9:49:34",
+			// generated using: openssl pkey -in ../../test/sectestdata/testdata/ed25519.vanadium.io.key -pubout -outform der | openssl md5 -c
 		},
 		{
 			sectestdata.SSHPrivateKeyBytes(keys.ECDSA256, sectestdata.SSHKeyPrivate),
