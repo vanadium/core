@@ -15,7 +15,7 @@ require (
 	github.com/vanadium/go-mdns-sd v0.0.0-20230219002252-724533cf06f5 // indirect
 	github.com/youmark/pkcs8 v0.0.0-20201027041543-1326539a0a0a // indirect
 	golang.org/x/crypto v0.21.0 // indirect
-	golang.org/x/net v0.22.0 // indirect
+	golang.org/x/net v0.23.0 // indirect
 	golang.org/x/sys v0.18.0 // indirect
 	golang.org/x/term v0.18.0 // indirect
 	v.io/x/ref/lib/flags/sitedefaults v0.1.1 // indirect
