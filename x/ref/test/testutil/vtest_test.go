@@ -5,6 +5,7 @@
 package testutil_test
 
 import (
+	"fmt"
 	"testing"
 
 	"v.io/x/ref/test/testutil"
@@ -13,17 +14,21 @@ import (
 func TestCallAndRecover(t *testing.T) {
 	tests := []struct {
 		f      func()
-		expect interface{}
+		expect any
 	}{
 		{func() {}, nil},
-		{func() { panic(nil) }, nil},
 		{func() { panic(123) }, 123},
 		{func() { panic("abc") }, "abc"},
 	}
-	for _, test := range tests {
+	for i, test := range tests {
 		got := testutil.CallAndRecover(test.f)
 		if got != test.expect {
-			t.Errorf(`CallAndRecover got "%v", want "%v"`, got, test.expect)
+			t.Errorf(`%v: CallAndRecover got "%v" (%T), want "%v" (%T )`, i, got, got, test.expect, test.expect)
 		}
+	}
+	got := fmt.Sprintf("%v", testutil.CallAndRecover(func() { panic(nil) }))
+	if got != "panic called with nil argument" && got != "<nil>" {
+		// pre go1.22 returns and go1.22 returns "panic called with nil argument
+		t.Errorf("CallAndRecover got %v, want nil", got)
 	}
 }
