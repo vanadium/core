@@ -46,3 +46,5 @@ require (
 	golang.org/x/sys v0.19.0 // indirect
 	google.golang.org/protobuf v1.34.0 // indirect
 )
+
+replace github.com/youmark/pkcs8 => github.com/youmark/pkcs8 v0.0.0-20201027041543-1326539a0a0a

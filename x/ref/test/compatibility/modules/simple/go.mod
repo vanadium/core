@@ -34,3 +34,5 @@ require (
 replace v.io/x/lib v0.1.20 => v.io/x/lib v0.1.14
 
 replace v.io v0.2.0 => v.io v0.1.21
+
+replace github.com/youmark/pkcs8 => github.com/youmark/pkcs8 v0.0.0-20201027041543-1326539a0a0a

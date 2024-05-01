@@ -20,3 +20,5 @@ require (
 	golang.org/x/term v0.19.0 // indirect
 	v.io/x/ref/lib/flags/sitedefaults v0.1.1 // indirect
 )
+
+replace github.com/youmark/pkcs8 => github.com/youmark/pkcs8 v0.0.0-20201027041543-1326539a0a0a
