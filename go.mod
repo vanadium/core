@@ -6,9 +6,9 @@ require (
 	github.com/davecgh/go-spew v1.1.1
 	github.com/google/uuid v1.6.0
 	github.com/gorilla/websocket v1.5.1
-	github.com/shirou/gopsutil/v3 v3.24.3
+	github.com/shirou/gopsutil/v3 v3.24.4
 	github.com/vanadium/go-mdns-sd v0.0.0-20230219002252-724533cf06f5
-	github.com/youmark/pkcs8 v0.0.0-20201027041543-1326539a0a0a
+	github.com/youmark/pkcs8 v0.0.0-20240424034433-3c2c7870ae76
 	golang.org/x/crypto v0.22.0
 	golang.org/x/mod v0.17.0
 	golang.org/x/net v0.24.0
@@ -38,10 +38,13 @@ require (
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/power-devops/perfstat v0.0.0-20240221224432-82ca36839d55 // indirect
 	github.com/shoenig/go-m1cpu v0.1.6 // indirect
-	github.com/tklauser/go-sysconf v0.3.13 // indirect
-	github.com/tklauser/numcpus v0.7.0 // indirect
+	github.com/tklauser/go-sysconf v0.3.14 // indirect
+	github.com/tklauser/numcpus v0.8.0 // indirect
 	github.com/yusufpapurcu/wmi v1.2.4 // indirect
 	go.opencensus.io v0.22.5 // indirect
+	golang.org/dl v0.0.0-20240403152604-14e4fcb94860 // indirect
 	golang.org/x/sys v0.19.0 // indirect
-	google.golang.org/protobuf v1.28.1 // indirect
+	google.golang.org/protobuf v1.34.0 // indirect
 )
+
+replace github.com/youmark/pkcs8 => github.com/youmark/pkcs8 v0.0.0-20201027041543-1326539a0a0a
