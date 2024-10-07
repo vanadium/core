@@ -1,7 +1,10 @@
-go 1.22
+go 1.22.0
+
+toolchain go1.23.1
 
 use (
 	.
+	../go.lib
 	./x/ref/aws
 	./x/ref/examples
 	./x/ref/internal/logger

@@ -42,7 +42,7 @@ func VanadiumSSLData() (map[string]crypto.PrivateKey, map[string]*x509.Certifica
 		if err != nil {
 			panic(err)
 		}
-		c, err := loadCerts(fileContents(vanadiumSSLCerts, host+".vanadium.io.crt"))
+		c, _, err := loadCerts(fileContents(vanadiumSSLCerts, host+".vanadium.io.crt"))
 		if err != nil {
 			panic(err)
 		}
@@ -54,7 +54,7 @@ func VanadiumSSLData() (map[string]crypto.PrivateKey, map[string]*x509.Certifica
 		cert = c
 		break
 	}
-	opts, err := loadCA(cert, vanadiumSSLCA)
+	opts, err := loadCA(cert, nil, [][]byte{vanadiumSSLCA})
 	if err != nil {
 		panic(err)
 	}
@@ -63,11 +63,11 @@ func VanadiumSSLData() (map[string]crypto.PrivateKey, map[string]*x509.Certifica
 
 func X509VerifyOptions(typ keys.CryptoAlgo) x509.VerifyOptions {
 	host := typ.String()
-	cert, err := loadCerts(fileContents(vanadiumSSLCerts, host+".vanadium.io.crt"))
+	cert, pem, err := loadCerts(fileContents(vanadiumSSLCerts, host+".vanadium.io.crt"))
 	if err != nil {
 		panic(err)
 	}
-	opts, err := loadCA(cert[0], vanadiumSSLCA)
+	opts, err := loadCA(cert[0], pem, [][]byte{vanadiumSSLCA})
 	if err != nil {
 		panic(err)
 	}
@@ -75,7 +75,7 @@ func X509VerifyOptions(typ keys.CryptoAlgo) x509.VerifyOptions {
 }
 
 func X509Certificate(typ keys.CryptoAlgo) *x509.Certificate {
-	cert, err := loadCerts(fileContents(vanadiumSSLCerts, typ.String()+".vanadium.io.crt"))
+	cert, _, err := loadCerts(fileContents(vanadiumSSLCerts, typ.String()+".vanadium.io.crt"))
 	if err != nil {
 		panic(err)
 	}
@@ -83,7 +83,7 @@ func X509Certificate(typ keys.CryptoAlgo) *x509.Certificate {
 }
 
 func X509PublicKey(typ keys.CryptoAlgo) crypto.PublicKey {
-	cert, err := loadCerts(fileContents(vanadiumSSLCerts, typ.String()+".vanadium.io.crt"))
+	cert, _, err := loadCerts(fileContents(vanadiumSSLCerts, typ.String()+".vanadium.io.crt"))
 	if err != nil {
 		panic(err)
 	}

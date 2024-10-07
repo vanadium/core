@@ -13,20 +13,20 @@ import (
 )
 
 const (
-	letsEncryptStagingE1 = "letsencrypt-stg-int-e1.pem"
-	letsEncryptStagingR3 = "letsencrypt-stg-int-r3.pem"
+	LetsEncryptStagingRootRSA   = "letsencrypt-stg-root-x1.pem"
+	LetsEncryptStagingRootECDSA = "letsencrypt-stg-root-x2.pem"
 )
 
-//go:embed testdata/letsencrypt-stg-int-e1.pem testdata/www.labdrive.io.letsencrypt testdata/www.labdrive.io.letsencrypt.key testdata/www.labdrive.io.letsencrypt.fingerprint testdata/letsencrypt-stg-int-e1.pem.fingerprint
+//go:embed testdata/letsencrypt-stg-root-x1.pem testdata/letsencrypt-stg-root-x2.pem testdata/www.labdrive.io.letsencrypt testdata/www.labdrive.io.letsencrypt.key testdata/www.labdrive.io.letsencrypt.fingerprint testdata/letsencrypt-stg-root-x1.pem.fingerprint testdata/letsencrypt-stg-root-x2.pem.fingerprint
 var letsEncryptSingleHostFS embed.FS
 
-//go:embed testdata/letsencrypt-stg-int-e1.pem testdata/abc.labdrive.io.letsencrypt testdata/abc.labdrive.io.letsencrypt.key testdata/abc.labdrive.io.letsencrypt.fingerprint testdata/letsencrypt-stg-int-e1.pem.fingerprint
+//go:embed testdata/letsencrypt-stg-root-x1.pem testdata/letsencrypt-stg-root-x2.pem testdata/abc.labdrive.io.letsencrypt testdata/abc.labdrive.io.letsencrypt.key testdata/abc.labdrive.io.letsencrypt.fingerprint testdata/letsencrypt-stg-root-x1.pem.fingerprint testdata/letsencrypt-stg-root-x2.pem.fingerprint
 var letsEncryptMultiHostFS embed.FS
 
-//go:embed testdata/letsencrypt-stg-int-r3.pem testdata/star.labdrive.io.letsencrypt testdata/star.labdrive.io.letsencrypt.key testdata/star.labdrive.io.letsencrypt.fingerprint testdata/letsencrypt-stg-int-r3.pem.fingerprint
+//go:embed testdata/letsencrypt-stg-root-x1.pem testdata/letsencrypt-stg-root-x2.pem testdata/star.labdrive.io.letsencrypt testdata/star.labdrive.io.letsencrypt.key testdata/star.labdrive.io.letsencrypt.fingerprint testdata/letsencrypt-stg-root-x1.pem.fingerprint testdata/letsencrypt-stg-root-x2.pem.fingerprint
 var letsEncryptWildcardFS embed.FS
 
-//go:embed testdata/letsencrypt-stg-int-r3.pem testdata/ab-star.labdrive.io.letsencrypt testdata/ab-star.labdrive.io.letsencrypt.key testdata/ab-star.labdrive.io.letsencrypt.fingerprint  testdata/letsencrypt-stg-int-r3.pem.fingerprint
+//go:embed testdata/letsencrypt-stg-root-x1.pem testdata/letsencrypt-stg-root-x2.pem testdata/ab-star.labdrive.io.letsencrypt testdata/ab-star.labdrive.io.letsencrypt.key testdata/ab-star.labdrive.io.letsencrypt.fingerprint testdata/letsencrypt-stg-root-x1.pem.fingerprint testdata/letsencrypt-stg-root-x2.pem.fingerprint
 var letsEncryptMultipleWildcardFS embed.FS
 
 // CertType specifies the type of cert to be used.
@@ -34,13 +34,13 @@ type CertType int
 
 // Supported cert types are below.
 const (
-	// SingleHostCert refers to a cert and key for www.labdrive.io
+	// SingleHostCert refers to a cert and key for www.labdrive.io (ECDSA)
 	SingleHostCert CertType = iota
-	// MultipleHostsCert refers to a cert and key for {a,b,c}.labdrive.io
+	// MultipleHostsCert refers to a cert and key for {a,b,c}.labdrive.io (ECDSA)
 	MultipleHostsCert
-	// WildcardCert refers to a cert and key for *.labdrive.io
+	// WildcardCert refers to a cert and key for *.labdrive.io (RSA)
 	WildcardCert
-	// Cert with multiple wildcard domains for *.labdrive.io and *.labdr.io
+	// Cert with multiple wildcard domains for *.labdrive.io and *.labdr.io (RSA)
 	MultipleWildcardCert
 )
 
@@ -64,39 +64,43 @@ func (c CertType) String() string {
 func LetsEncryptData(certType CertType) (crypto.PrivateKey, []*x509.Certificate, x509.VerifyOptions) {
 	switch certType {
 	case SingleHostCert:
-		return letsEncryptData(letsEncryptSingleHostFS, "www.labdrive.io.letsencrypt.key", "www.labdrive.io.letsencrypt", letsEncryptStagingE1)
+		return letsEncryptData(letsEncryptSingleHostFS, "www.labdrive.io.letsencrypt.key", "www.labdrive.io.letsencrypt")
 	case MultipleHostsCert:
-		return letsEncryptData(letsEncryptMultiHostFS, "abc.labdrive.io.letsencrypt.key", "abc.labdrive.io.letsencrypt", letsEncryptStagingE1)
+		return letsEncryptData(letsEncryptMultiHostFS, "abc.labdrive.io.letsencrypt.key", "abc.labdrive.io.letsencrypt")
 	case WildcardCert:
-		return letsEncryptData(letsEncryptWildcardFS, "star.labdrive.io.letsencrypt.key", "star.labdrive.io.letsencrypt", letsEncryptStagingR3)
+		return letsEncryptData(letsEncryptWildcardFS, "star.labdrive.io.letsencrypt.key", "star.labdrive.io.letsencrypt")
 	case MultipleWildcardCert:
-		return letsEncryptData(letsEncryptMultipleWildcardFS, "ab-star.labdrive.io.letsencrypt.key", "ab-star.labdrive.io.letsencrypt", letsEncryptStagingR3)
+		return letsEncryptData(letsEncryptMultipleWildcardFS, "ab-star.labdrive.io.letsencrypt.key", "ab-star.labdrive.io.letsencrypt")
 	default:
 		panic(fmt.Sprintf("unsupported cert type: %v", certType))
 	}
 }
 
-func loadCertSet(keyBytes, certByes, caBytes []byte) (crypto.PrivateKey, []*x509.Certificate, x509.VerifyOptions) {
+func loadCertSet(keyBytes, certByes []byte, roots [][]byte) (crypto.PrivateKey, []*x509.Certificate, x509.VerifyOptions) {
 	key, err := loadPrivateKey(keyBytes)
 	if err != nil {
 		panic(err)
 	}
-	certs, err := loadCerts(certByes)
+	certs, pemBytes, err := loadCerts(certByes)
 	if err != nil {
 		panic(err)
 	}
-	opts, err := loadCA(certs[0], caBytes)
+	opts, err := loadCA(certs[0], pemBytes, roots)
 	if err != nil {
 		panic(err)
 	}
 	return key, certs, opts
 }
 
-func letsEncryptData(fs embed.FS, key, cert, ca string) (crypto.PrivateKey, []*x509.Certificate, x509.VerifyOptions) {
+func letsEncryptData(fs embed.FS, key, cert string) (crypto.PrivateKey, []*x509.Certificate, x509.VerifyOptions) {
+	roots := [][]byte{
+		mustBytesFromFS(fs, "testdata", LetsEncryptStagingRootRSA),
+		mustBytesFromFS(fs, "testdata", LetsEncryptStagingRootECDSA),
+	}
 	return loadCertSet(
 		mustBytesFromFS(fs, "testdata", key),
 		mustBytesFromFS(fs, "testdata", cert),
-		mustBytesFromFS(fs, "testdata", ca),
+		roots,
 	)
 }
 

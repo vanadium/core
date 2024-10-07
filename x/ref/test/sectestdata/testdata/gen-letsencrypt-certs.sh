@@ -7,10 +7,14 @@
 # account via console.cloud.google.com.
 service_account=$1
 
-# update root certs
-for cert in letsencrypt-stg-int-r3.pem letsencrypt-stg-int-e1.pem; do
+# update root and intermediate certs
+for cert in letsencrypt-stg-root-x1.pem letsencrypt-stg-root-x2.pem; do
     curl -o ${cert} https://letsencrypt.org/certs/staging/${cert}
 done
+
+#for cert in e1.pem e2.pem r3.pem r4.peml; do
+#    curl -o letsencrypt-stg-int-${cert} https://letsencrypt.org/certs/staging/letsencrypt-stg-int-${cert}
+#done
 
 run_certbot() {
 type="$1"
@@ -46,6 +50,8 @@ docker run \
   cp "${workdir}/live/${to}/fullchain.pem" ${to}.letsencrypt
   cp "${workdir}/live/${to}/privkey.pem" ${to}.letsencrypt.key
 }
+
+docker pull certbot/dns-google
 
 run_certbot ecdsa www.labdrive.io 'www.labdrive.io'
 run_certbot ecdsa abc.labdrive.io 'a.labdrive.io' 'b.labdrive.io' 'c.labdrive.io'

@@ -130,8 +130,8 @@ func TestLetsEncryptKeys(t *testing.T) {
 	defer os.RemoveAll(letsencryptDir)
 
 	for _, certname := range []string{
+		sectestdata.LetsEncryptStagingRootECDSA,
 		"www.labdrive.io.letsencrypt",
-		"letsencrypt-stg-int-e1.pem",
 	} {
 		filename := filepath.Join(letsencryptDir, certname)
 		data, err := os.ReadFile(filename)
@@ -143,11 +143,12 @@ func TestLetsEncryptKeys(t *testing.T) {
 			t.Fatalf("%v: %v", filename, err)
 		}
 		cert := key.(*x509.Certificate)
-		pk, err := security.NewPublicKey(cert.PublicKey)
-		if err != nil {
+		if _, err := cert.Verify(opts); err != nil {
 			t.Fatalf("%v: %v", filename, err)
 		}
-		if _, err := cert.Verify(opts); err != nil {
+
+		pk, err := security.NewPublicKey(cert.PublicKey)
+		if err != nil {
 			t.Fatalf("%v: %v", filename, err)
 		}
 
