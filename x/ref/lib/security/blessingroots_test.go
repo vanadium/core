@@ -247,7 +247,7 @@ func TestBlessingRootsX509(t *testing.T) {
 			"x509: certificate signed by unknown authority",
 			"x509: certificate has expired or is not yet valid",
 			"x509: “www.labdrive.io” certificate is not trusted",
-			"x509: “(STAGING) Pretend Pear X1” certificate is not trusted") {
+			"certificate is not trusted") {
 			t.Errorf("%v: %v: %v: missing or wrong error: %v", i, tc.certType, tc.pattern, err)
 		}
 	}

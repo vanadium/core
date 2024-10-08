@@ -131,7 +131,7 @@ func TestLetsEncryptKeys(t *testing.T) {
 
 	for _, certname := range []string{
 		"www.labdrive.io.letsencrypt",
-		"letsencrypt-stg-int-e1.pem",
+		sectestdata.LetsEncryptStagingRootECDSA,
 	} {
 		filename := filepath.Join(letsencryptDir, certname)
 		data, err := os.ReadFile(filename)
