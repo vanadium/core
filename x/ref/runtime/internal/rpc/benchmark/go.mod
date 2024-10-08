@@ -1,8 +1,6 @@
 module v.io/x/ref/runtime/internal/rpc/benchmark
 
-go 1.21
-
-toolchain go1.23.1
+go 1.20
 
 require (
 	google.golang.org/protobuf v1.35.1

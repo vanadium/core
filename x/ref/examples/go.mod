@@ -1,6 +1,6 @@
 module v.io/x/ref/examples
 
-go 1.18
+go 1.20
 
 require (
 	github.com/creack/pty v1.1.23

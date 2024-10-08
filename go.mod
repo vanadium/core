@@ -1,8 +1,6 @@
 module v.io
 
-go 1.22.0
-
-toolchain go1.23.1
+go 1.20
 
 require (
 	github.com/davecgh/go-spew v1.1.1

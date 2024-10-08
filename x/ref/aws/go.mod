@@ -1,8 +1,6 @@
 module v.io/x/ref/aws
 
-go 1.21
-
-toolchain go1.23.1
+go 1.20
 
 require (
 	github.com/aws/aws-xray-sdk-go v1.8.4

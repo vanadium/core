@@ -1,3 +1,3 @@
 module v.io/x/ref/lib/flags/sitedefaults
 
-go 1.18
+go 1.20
