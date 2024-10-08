@@ -4,7 +4,6 @@ toolchain go1.23.1
 
 use (
 	.
-	../go.lib
 	./x/ref/aws
 	./x/ref/examples
 	./x/ref/internal/logger
