@@ -256,7 +256,7 @@ func equalPtrValTypes(valptrs, vals []interface{}) bool {
 	}
 	for ix, val := range vals {
 		valptr := valptrs[ix]
-		if reflect.TypeOf(valptr) != reflect.PtrTo(reflect.TypeOf(val)) {
+		if reflect.TypeOf(valptr) != reflect.PointerTo(reflect.TypeOf(val)) {
 			return false
 		}
 	}

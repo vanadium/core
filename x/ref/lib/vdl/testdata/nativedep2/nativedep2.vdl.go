@@ -53,7 +53,7 @@ func (x *MyTime) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 	case err != nil:
 		return err
 	default:
-		*x = MyTime(value)
+		*x = MyTime(value) //nolint:gosec // disable G115
 	}
 	return nil
 }

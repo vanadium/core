@@ -165,10 +165,10 @@ func (d *decoder81) skipValue(tt *vdl.Type) error { //nolint:gocyclo
 			switch index, err := binaryDecodeUint(d.buf); {
 			case err != nil:
 				return err
-			case index >= uint64(tt.NumField()):
+			case index >= uint64(tt.NumField()): //nolint:gosec // disable G115
 				return fmt.Errorf("vom: skipValue: struct field index out of range: %v >= %v", index, tt.NumField())
 			default:
-				ttfield := tt.Field(int(index))
+				ttfield := tt.Field(int(index)) //nolint:gosec // disable G115
 				if err := d.skipValue(ttfield.Type); err != nil {
 					return err
 				}
@@ -178,10 +178,10 @@ func (d *decoder81) skipValue(tt *vdl.Type) error { //nolint:gocyclo
 		switch index, err := binaryDecodeUint(d.buf); {
 		case err != nil:
 			return err
-		case index >= uint64(tt.NumField()):
+		case index >= uint64(tt.NumField()): //nolint:gosec // disable G115
 			return fmt.Errorf("vom: skipValue: union field index out of range: %v >= %v", index, tt.NumField())
 		default:
-			ttfield := tt.Field(int(index))
+			ttfield := tt.Field(int(index)) //nolint:gosec // disable G115
 			return d.skipValue(ttfield.Type)
 		}
 	case vdl.Optional:
@@ -286,7 +286,7 @@ func (d *decoder81) nextMessage() (TypeId, error) { //nolint:gocyclo
 		if err != nil {
 			return 0, err
 		}
-		for i := 0; i < int(l); i++ {
+		for i := 0; i < int(l); i++ { //nolint:gosec // disable G115
 			refID, err := binaryDecodeUint(d.buf)
 			if err != nil {
 				return 0, err
@@ -299,7 +299,7 @@ func (d *decoder81) nextMessage() (TypeId, error) { //nolint:gocyclo
 		if err != nil {
 			return 0, err
 		}
-		for i := 0; i < int(l); i++ {
+		for i := 0; i < int(l); i++ { //nolint:gosec // disable G115
 			refAnyLen, err := binaryDecodeLen(d.buf)
 			if err != nil {
 				return 0, err
@@ -313,7 +313,7 @@ func (d *decoder81) nextMessage() (TypeId, error) { //nolint:gocyclo
 		if err != nil {
 			return 0, err
 		}
-		d.buf.SetLimit(int(chunkLen))
+		d.buf.SetLimit(int(chunkLen)) //nolint:gosec // disable G115
 	}
 
 	return tid, nil

@@ -152,7 +152,7 @@ func (x *GameTypeTag) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 	case err != nil:
 		return err
 	default:
-		*x = GameTypeTag(value)
+		*x = GameTypeTag(value) //nolint:gosec // disable G115
 	}
 	return nil
 }
@@ -221,14 +221,14 @@ func (x *GameOptions) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 			case err != nil:
 				return err
 			default:
-				x.NumRounds = int32(value)
+				x.NumRounds = int32(value) //nolint:gosec // disable G115
 			}
 		case 1:
 			switch value, err := dec.ReadValueUint(8); {
 			case err != nil:
 				return err
 			default:
-				x.GameType = GameTypeTag(value)
+				x.GameType = GameTypeTag(value) //nolint:gosec // disable G115
 			}
 		}
 	}
@@ -480,7 +480,7 @@ func (x *WinnerTag) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 	case err != nil:
 		return err
 	default:
-		*x = WinnerTag(value)
+		*x = WinnerTag(value) //nolint:gosec // disable G115
 	}
 	return nil
 }
@@ -610,7 +610,7 @@ func (x *Round) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 			case err != nil:
 				return err
 			default:
-				x.Winner = WinnerTag(value)
+				x.Winner = WinnerTag(value) //nolint:gosec // disable G115
 			}
 		case 3:
 			var wire vdltime.Time
@@ -843,7 +843,7 @@ func (x *ScoreCard) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 			case err != nil:
 				return err
 			default:
-				x.Winner = WinnerTag(value)
+				x.Winner = WinnerTag(value) //nolint:gosec // disable G115
 			}
 		}
 	}
@@ -1078,7 +1078,7 @@ func VDLReadJudgeAction(dec vdl.Decoder, x *JudgeAction) error { //nolint:gocycl
 		case err != nil:
 			return err
 		default:
-			field.Value = int32(value)
+			field.Value = int32(value) //nolint:gosec // disable G115
 		}
 		*x = field
 	case 1:

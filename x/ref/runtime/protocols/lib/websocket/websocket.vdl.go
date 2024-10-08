@@ -28,7 +28,7 @@ var (
 
 // ErrorfListenerClosed calls ErrListenerClosed.Errorf with the supplied arguments.
 func ErrorfListenerClosed(ctx *context.T, format string) error {
-	return ErrListenerClosed.Errorf(ctx, format)
+	return ErrListenerClosed.Errorf(ctx, format) //nolint:govet  // non-constant format string
 }
 
 // MessageListenerClosed calls ErrListenerClosed.Message with the supplied arguments.
@@ -54,7 +54,7 @@ func ParamsErrListenerClosed(argumentError error) (verrorComponent string, verro
 
 // ErrorfListenCalledInNaCl calls ErrListenCalledInNaCl.Errorf with the supplied arguments.
 func ErrorfListenCalledInNaCl(ctx *context.T, format string) error {
-	return ErrListenCalledInNaCl.Errorf(ctx, format)
+	return ErrListenCalledInNaCl.Errorf(ctx, format) //nolint:govet  // non-constant format string
 }
 
 // MessageListenCalledInNaCl calls ErrListenCalledInNaCl.Message with the supplied arguments.

@@ -505,7 +505,7 @@ func rvOnlyFrom(values []interface{}, from []reflect.Type) (result []interface{}
 
 // vvFromUint returns all *Values that can represent u without loss of precision.
 func vvFromUint(u uint64) (result []*vdl.Value) {
-	i, f := int64(u), float64(u)
+	i, f := int64(u), float64(u) //nolint:gosec // disable G115
 	switch {
 	case u <= math.MaxInt8:
 		result = append(result,
@@ -661,16 +661,16 @@ func vvFromInt(i int64) (result []*vdl.Value) { //nolint:gocyclo
 func rvFromInt(i int64) (result []interface{}) { //nolint:gocyclo
 	switch {
 	case math.MinInt8 <= i && i <= math.MaxInt8:
-		result = append(result, int8(i), vdl.NInt8(i))
+		result = append(result, int8(i), vdl.NInt8(i)) //nolint:gosec // disable G115
 		fallthrough
 	case math.MinInt16 <= i && i <= math.MaxInt16:
-		result = append(result, int16(i), vdl.NInt16(i))
+		result = append(result, int16(i), vdl.NInt16(i)) //nolint:gosec // disable G115
 		fallthrough
 	case -1<<24 <= i && i <= 1<<24:
 		result = append(result, float32(i), vdl.NFloat32(i))
 		fallthrough
 	case math.MinInt32 <= i && i <= math.MaxInt32:
-		result = append(result, int32(i), vdl.NInt32(i))
+		result = append(result, int32(i), vdl.NInt32(i)) //nolint:gosec // disable G115
 		fallthrough
 	case -1<<53 <= i && i <= 1<<53:
 		result = append(result, float64(i), vdl.NFloat64(i))
@@ -1078,7 +1078,7 @@ func testConvert(t *testing.T, prefix string, dst, src, want interface{}, deref 
 				}
 			}
 			err := vdl.Convert(rvDst.Interface(), rvSrc.Interface())
-			vdl.ExpectErr(t, err, expectedErr, tname)
+			vdl.ExpectErr(t, err, expectedErr, tname) //nolint:govet // non-constant format string
 			if expectedErr == "" {
 				expectConvert(t, tname, dst, eWant, deref)
 			}

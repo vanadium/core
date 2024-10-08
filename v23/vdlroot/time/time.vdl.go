@@ -117,7 +117,7 @@ func (x *Duration) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 			case err != nil:
 				return err
 			default:
-				x.Nanos = int32(value)
+				x.Nanos = int32(value) //nolint:gosec // disable G115
 			}
 		}
 	}
@@ -208,7 +208,7 @@ func (x *Time) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 			case err != nil:
 				return err
 			default:
-				x.Nanos = int32(value)
+				x.Nanos = int32(value) //nolint:gosec // disable G115
 			}
 		}
 	}

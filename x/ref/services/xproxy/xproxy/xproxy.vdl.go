@@ -31,7 +31,7 @@ var (
 
 // ErrorfNotListening calls ErrNotListening.Errorf with the supplied arguments.
 func ErrorfNotListening(ctx *context.T, format string) error {
-	return ErrNotListening.Errorf(ctx, format)
+	return ErrNotListening.Errorf(ctx, format) //nolint:govet  // non-constant format string
 }
 
 // MessageNotListening calls ErrNotListening.Message with the supplied arguments.
@@ -57,7 +57,7 @@ func ParamsErrNotListening(argumentError error) (verrorComponent string, verrorO
 
 // ErrorfUnexpectedMessage calls ErrUnexpectedMessage.Errorf with the supplied arguments.
 func ErrorfUnexpectedMessage(ctx *context.T, format string, msgType string) error {
-	return ErrUnexpectedMessage.Errorf(ctx, format, msgType)
+	return ErrUnexpectedMessage.Errorf(ctx, format, msgType) //nolint:govet  // non-constant format string
 }
 
 // MessageUnexpectedMessage calls ErrUnexpectedMessage.Message with the supplied arguments.
@@ -96,7 +96,7 @@ func ParamsErrUnexpectedMessage(argumentError error) (verrorComponent string, ve
 
 // ErrorfFailedToResolveToEndpoint calls ErrFailedToResolveToEndpoint.Errorf with the supplied arguments.
 func ErrorfFailedToResolveToEndpoint(ctx *context.T, format string, name string) error {
-	return ErrFailedToResolveToEndpoint.Errorf(ctx, format, name)
+	return ErrFailedToResolveToEndpoint.Errorf(ctx, format, name) //nolint:govet  // non-constant format string
 }
 
 // MessageFailedToResolveToEndpoint calls ErrFailedToResolveToEndpoint.Message with the supplied arguments.
@@ -135,7 +135,7 @@ func ParamsErrFailedToResolveToEndpoint(argumentError error) (verrorComponent st
 
 // ErrorfProxyAlreadyClosed calls ErrProxyAlreadyClosed.Errorf with the supplied arguments.
 func ErrorfProxyAlreadyClosed(ctx *context.T, format string) error {
-	return ErrProxyAlreadyClosed.Errorf(ctx, format)
+	return ErrProxyAlreadyClosed.Errorf(ctx, format) //nolint:govet  // non-constant format string
 }
 
 // MessageProxyAlreadyClosed calls ErrProxyAlreadyClosed.Message with the supplied arguments.
@@ -161,7 +161,7 @@ func ParamsErrProxyAlreadyClosed(argumentError error) (verrorComponent string, v
 
 // ErrorfProxyResponse calls ErrProxyResponse.Errorf with the supplied arguments.
 func ErrorfProxyResponse(ctx *context.T, format string, msg string) error {
-	return ErrProxyResponse.Errorf(ctx, format, msg)
+	return ErrProxyResponse.Errorf(ctx, format, msg) //nolint:govet  // non-constant format string
 }
 
 // MessageProxyResponse calls ErrProxyResponse.Message with the supplied arguments.

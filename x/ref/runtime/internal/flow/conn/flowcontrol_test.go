@@ -328,7 +328,7 @@ func TestFlowControlBorrowing(t *testing.T) {
 			MTU:           mtu,
 			BytesBuffered: bytesBuffered})
 
-		perFlowBufSize := (bytesBuffered / uint64(numFlowsBeforeStarvation))
+		perFlowBufSize := (bytesBuffered / uint64(numFlowsBeforeStarvation)) //nolint:gosec // disable G115
 		written := 0
 		read := 0
 		for i := 0; i < nflows; i++ {
@@ -338,11 +338,11 @@ func TestFlowControlBorrowing(t *testing.T) {
 			if err != nil {
 				t.Fatal(err)
 			}
-			written += int(perFlowBufSize)
+			written += int(perFlowBufSize) //nolint:gosec // disable G115
 
 			totalBorrowed, shared := borrowedInvariant(dc)
 
-			borrowed := uint64((i%numFlowsBeforeStarvation)+1) * perFlowBufSize
+			borrowed := uint64((i%numFlowsBeforeStarvation)+1) * perFlowBufSize //nolint:gosec // disable G115
 
 			flowControlReleasedInvariantBidirectional(dc, ac)
 
@@ -360,13 +360,13 @@ func TestFlowControlBorrowing(t *testing.T) {
 				// to send a release message to the dialer to free up some
 				// borrowed tokens for more flows to be opened.
 				need := written - read
-				n, err := readFromFlows(accept, int(perFlowBufSize), need)
+				n, err := readFromFlows(accept, int(perFlowBufSize), need) //nolint:gosec // disable G115
 				if err != nil {
 					t.Fatal(err)
 				}
 				read += n
 				totalBorrowed, _ = borrowedInvariant(dc)
-				if got, want := int(totalBorrowed), (numFlowsBeforeStarvation * int(perFlowBufSize)); got != 0 && got != want {
+				if got, want := int(totalBorrowed), (numFlowsBeforeStarvation * int(perFlowBufSize)); got != 0 && got != want { //nolint:gosec // disable G115
 					t.Errorf("%v: %v: got %v, want either 0 or %v", i, numFlowsBeforeStarvation, got, want)
 				}
 
@@ -375,7 +375,7 @@ func TestFlowControlBorrowing(t *testing.T) {
 			}
 
 			totalBorrowed, _ = borrowedInvariant(ac)
-			if got, want := int(totalBorrowed), 0; got != want {
+			if got, want := int(totalBorrowed), 0; got != want { //nolint:gosec // disable G115
 				t.Errorf("%v: %v: got %v, want either 0 or %v", i, numFlowsBeforeStarvation, got, want)
 			}
 

@@ -407,7 +407,7 @@ func (x *Change) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 			case err != nil:
 				return err
 			default:
-				x.State = int32(value)
+				x.State = int32(value) //nolint:gosec // disable G115
 			}
 		case 2:
 			x.Value = new(vom.RawBytes)
@@ -455,7 +455,7 @@ var (
 
 // ErrorfUnknownResumeMarker calls ErrUnknownResumeMarker.Errorf with the supplied arguments.
 func ErrorfUnknownResumeMarker(ctx *context.T, format string) error {
-	return ErrUnknownResumeMarker.Errorf(ctx, format)
+	return ErrUnknownResumeMarker.Errorf(ctx, format) //nolint:govet  // non-constant format string
 }
 
 // MessageUnknownResumeMarker calls ErrUnknownResumeMarker.Message with the supplied arguments.

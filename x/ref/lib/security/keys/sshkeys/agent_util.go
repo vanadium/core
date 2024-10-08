@@ -155,7 +155,7 @@ func parseECDSAKey(key ssh.PublicKey) (*ecdsa.PublicKey, error) {
 	default:
 		return nil, fmt.Errorf("uncrecognised ecdsa curve: %v", sshWire.ID)
 	}
-	pk.X, pk.Y = elliptic.Unmarshal(pk.Curve, sshWire.Key)
+	pk.X, pk.Y = elliptic.Unmarshal(pk.Curve, sshWire.Key) //nolint:staticcheck // deprecation of elliptic.Unmarshal
 	if pk.X == nil || pk.Y == nil {
 		return nil, fmt.Errorf("invalid curve point")
 	}

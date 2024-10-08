@@ -60,7 +60,7 @@ func (x *WireString) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 	case err != nil:
 		return err
 	default:
-		*x = WireString(value)
+		*x = WireString(value) //nolint:gosec // disable G115
 	}
 	return nil
 }
@@ -88,7 +88,7 @@ func (x *WireTime) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 	case err != nil:
 		return err
 	default:
-		*x = WireTime(value)
+		*x = WireTime(value) //nolint:gosec // disable G115
 	}
 	return nil
 }
@@ -116,7 +116,7 @@ func (x *WireSamePkg) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 	case err != nil:
 		return err
 	default:
-		*x = WireSamePkg(value)
+		*x = WireSamePkg(value) //nolint:gosec // disable G115
 	}
 	return nil
 }
@@ -144,7 +144,7 @@ func (x *WireMultiImport) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 	case err != nil:
 		return err
 	default:
-		*x = WireMultiImport(value)
+		*x = WireMultiImport(value) //nolint:gosec // disable G115
 	}
 	return nil
 }
@@ -172,7 +172,7 @@ func (x *WireRenameMe) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 	case err != nil:
 		return err
 	default:
-		*x = WireRenameMe(value)
+		*x = WireRenameMe(value) //nolint:gosec // disable G115
 	}
 	return nil
 }
@@ -321,7 +321,7 @@ func (x *WireAll) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 			case err != nil:
 				return err
 			default:
-				x.E = WireRenameMe(value)
+				x.E = WireRenameMe(value) //nolint:gosec // disable G115
 			}
 		}
 	}
@@ -350,7 +350,7 @@ func (x *ignoreme) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 	case err != nil:
 		return err
 	default:
-		*x = ignoreme(value)
+		*x = ignoreme(value) //nolint:gosec // disable G115
 	}
 	return nil
 }

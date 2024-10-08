@@ -363,7 +363,7 @@ func VDLReadPrimitive(dec vdl.Decoder, x *Primitive) error { //nolint:gocyclo
 		case err != nil:
 			return err
 		default:
-			field.Value = byte(value)
+			field.Value = byte(value) //nolint:gosec // disable G115
 		}
 		*x = field
 	case 2:
@@ -715,7 +715,7 @@ func (x *Version) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 	case err != nil:
 		return err
 	default:
-		*x = Version(value)
+		*x = Version(value) //nolint:gosec // disable G115
 	}
 	return nil
 }
@@ -744,7 +744,7 @@ func (x *TypeId) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 	case err != nil:
 		return err
 	default:
-		*x = TypeId(value)
+		*x = TypeId(value) //nolint:gosec // disable G115
 	}
 	return nil
 }
@@ -820,7 +820,7 @@ func (x *wireNamed) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 			case err != nil:
 				return err
 			default:
-				x.Base = TypeId(value)
+				x.Base = TypeId(value) //nolint:gosec // disable G115
 			}
 		}
 	}
@@ -1025,7 +1025,7 @@ func (x *wireArray) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 			case err != nil:
 				return err
 			default:
-				x.Elem = TypeId(value)
+				x.Elem = TypeId(value) //nolint:gosec // disable G115
 			}
 		case 2:
 			switch value, err := dec.ReadValueUint(64); {
@@ -1109,7 +1109,7 @@ func (x *wireList) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 			case err != nil:
 				return err
 			default:
-				x.Elem = TypeId(value)
+				x.Elem = TypeId(value) //nolint:gosec // disable G115
 			}
 		}
 	}
@@ -1186,7 +1186,7 @@ func (x *wireSet) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 			case err != nil:
 				return err
 			default:
-				x.Key = TypeId(value)
+				x.Key = TypeId(value) //nolint:gosec // disable G115
 			}
 		}
 	}
@@ -1269,14 +1269,14 @@ func (x *wireMap) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 			case err != nil:
 				return err
 			default:
-				x.Key = TypeId(value)
+				x.Key = TypeId(value) //nolint:gosec // disable G115
 			}
 		case 2:
 			switch value, err := dec.ReadValueUint(64); {
 			case err != nil:
 				return err
 			default:
-				x.Elem = TypeId(value)
+				x.Elem = TypeId(value) //nolint:gosec // disable G115
 			}
 		}
 	}
@@ -1353,7 +1353,7 @@ func (x *wireField) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 			case err != nil:
 				return err
 			default:
-				x.Type = TypeId(value)
+				x.Type = TypeId(value) //nolint:gosec // disable G115
 			}
 		}
 	}
@@ -1642,7 +1642,7 @@ func (x *wireOptional) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 			case err != nil:
 				return err
 			default:
-				x.Elem = TypeId(value)
+				x.Elem = TypeId(value) //nolint:gosec // disable G115
 			}
 		}
 	}

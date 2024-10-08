@@ -248,7 +248,7 @@ func runLogsRead(ctx *context.T, env *cmdline.Env, args []string) error {
 		defer cancel()
 	}
 	lf := logreader.LogFileClient(name)
-	stream, err := lf.ReadLog(ctx, startPos, int32(numEntries), follow)
+	stream, err := lf.ReadLog(ctx, startPos, int32(numEntries), follow) //nolint:gosec // disable G115
 	if err != nil {
 		return err
 	}

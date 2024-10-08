@@ -266,7 +266,7 @@ func TestBufferingFlowLarge(t *testing.T) {
 	defer shutdown()
 
 	mtu := bufferingFlowInternalArraySize * 2
-	flows, accept, dc, ac := setupFlowsOpts(t, "local", "", ctx, ctx, true, 2, Opts{MTU: uint64(mtu)})
+	flows, accept, dc, ac := setupFlowsOpts(t, "local", "", ctx, ctx, true, 2, Opts{MTU: uint64(mtu)}) //nolint:gosec // disable G115
 
 	// Series of writes followed by a close but using buffers larger than the internal
 	// array of 4k to test assigning a new netBuf to replace that array.

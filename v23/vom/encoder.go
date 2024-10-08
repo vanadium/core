@@ -215,7 +215,7 @@ func (e *encoder81) encodeWireType(tid TypeId, wt wireType, typeIncomplete bool)
 	}
 	// Set up the state that would normally be set in startMessage, and use
 	// VDLWrite to encode wt as a regular value.
-	e.mid = int64(-tid)
+	e.mid = int64(-tid) //nolint:gosec // disable G115
 	e.typeIncomplete = typeIncomplete
 	e.hasAny = false
 	e.hasTypeObject = false
@@ -252,7 +252,7 @@ func (e *encoder81) NilValue(tt *vdl.Type) error {
 		}
 		binaryEncodeUint(e.buf, e.tids.ReferenceTypeID(tid))
 		anyRef = e.anyLens.StartAny(e.buf.Len())
-		binaryEncodeUint(e.buf, uint64(anyRef.index))
+		binaryEncodeUint(e.buf, uint64(anyRef.index)) //nolint:gosec // disable G115
 	}
 	// Encode the nil control byte.
 	binaryEncodeControl(e.buf, WireCtrlNil)
@@ -300,7 +300,7 @@ func (e *encoder81) StartValue(tt *vdl.Type) error {
 			}
 			binaryEncodeUint(e.buf, e.tids.ReferenceTypeID(tid))
 			anyRef = e.anyLens.StartAny(e.buf.Len())
-			binaryEncodeUint(e.buf, uint64(anyRef.index))
+			binaryEncodeUint(e.buf, uint64(anyRef.index)) //nolint:gosec // disable G115
 		}
 	}
 	// Add entry to the stack.
@@ -343,7 +343,7 @@ func (e *encoder81) startMessage(tt *vdl.Type) error {
 		e.hasTypeObject = containsTypeObject(tt)
 	}
 	e.typeIncomplete = false
-	e.mid = int64(tid)
+	e.mid = int64(tid) //nolint:gosec // disable G115
 	if e.hasAny || e.hasTypeObject {
 		e.tids = newTypeIDList()
 	} else {
@@ -405,12 +405,12 @@ func (e *encoder81) finishMessage() error {
 		if e.hasAny {
 			binaryEncodeUint(e.bufHeader, uint64(len(anyLens)))
 			for _, anyLen := range anyLens {
-				binaryEncodeUint(e.bufHeader, uint64(anyLen))
+				binaryEncodeUint(e.bufHeader, uint64(anyLen)) //nolint:gosec // disable G115
 			}
 		}
 		msg := e.buf.Bytes()
 		if e.hasLen {
-			binaryEncodeUint(e.bufHeader, uint64(len(msg)-paddingLen))
+			binaryEncodeUint(e.bufHeader, uint64(len(msg)-paddingLen)) //nolint:gosec // disable G115
 		}
 		if _, err := e.writer.Write(e.bufHeader.Bytes()); err != nil {
 			return err
@@ -421,7 +421,7 @@ func (e *encoder81) finishMessage() error {
 	msg := e.buf.Bytes()
 	header := msg[:paddingLen]
 	if e.hasLen {
-		start := binaryEncodeUintEnd(header, uint64(len(msg)-paddingLen))
+		start := binaryEncodeUintEnd(header, uint64(len(msg)-paddingLen)) //nolint:gosec // disable G115
 		header = header[:start]
 	}
 	start := binaryEncodeIntEnd(header, e.mid)
@@ -440,7 +440,7 @@ func (e *encoder81) NextEntry(done bool) error {
 		case top.Type.Kind() == vdl.Array:
 			binaryEncodeUint(e.buf, 0)
 		case top.LenHint >= 0:
-			binaryEncodeUint(e.buf, uint64(top.LenHint))
+			binaryEncodeUint(e.buf, uint64(top.LenHint)) //nolint:gosec // disable G115
 		}
 	}
 	if done && top.Type.Kind() != vdl.Array && top.LenHint == -1 {
@@ -465,7 +465,7 @@ func (e *encoder81) NextField(index int) error {
 	if index < -1 || index >= top.Type.NumField() {
 		return fmt.Errorf("vom: NextField called with invalid index %d", index)
 	}
-	binaryEncodeUint(e.buf, uint64(index))
+	binaryEncodeUint(e.buf, uint64(index)) //nolint:gosec // disable G115
 	top.Index = index
 	return nil
 }
@@ -604,12 +604,12 @@ type typeIDList struct {
 func (l *typeIDList) ReferenceTypeID(tid TypeId) uint64 {
 	for index, existingTid := range l.tids {
 		if existingTid == tid {
-			return uint64(index)
+			return uint64(index) //nolint:gosec // disable G115
 		}
 	}
 
 	l.tids = append(l.tids, tid)
-	return uint64(len(l.tids) - 1)
+	return uint64(len(l.tids) - 1) //nolint:gosec // disable G115
 }
 
 func (l *typeIDList) Reset() error {
@@ -651,7 +651,7 @@ func (l *anyLenList) StartAny(startMarker int) anyStartRef {
 	index := len(l.lens) - 1
 	return anyStartRef{
 		index:  index,
-		marker: startMarker + lenUint(uint64(index)),
+		marker: startMarker + lenUint(uint64(index)), //nolint:gosec // disable G115
 	}
 }
 

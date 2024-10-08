@@ -144,7 +144,7 @@ func (fs *flowControlConnStats) configure(mtu, shared uint64) {
 	fs.mtu = mtu
 	fs.shared, fs.maxShared = shared, shared
 	bytesPerCounter := binaryEncodeUintSize(fs.bytesBufferedPerFlow)
-	fs.releaseMessageLimit = int(mtu) / (bytesPerFlowID + bytesPerCounter)
+	fs.releaseMessageLimit = int(mtu) / (bytesPerFlowID + bytesPerCounter) //nolint:gosec // disable G115
 }
 
 // newCounters creates a new entry for the specific flow id.
@@ -306,13 +306,13 @@ func (fs *flowControlFlowStats) getTokensLocked(ctx *context.T, encapsulated boo
 		}
 		fs.shared.shared -= max
 		fs.borrowed += max
-		return true, fs.shared.sharedCh, int(max)
+		return true, fs.shared.sharedCh, int(max) //nolint:gosec // disable G115
 	}
 	if fs.released < max {
 		max = fs.released
 	}
 	fs.released -= max
-	return false, fs.shared.sharedCh, int(max)
+	return false, fs.shared.sharedCh, int(max) //nolint:gosec // disable G115
 }
 
 func (fs *flowControlFlowStats) returnTokensLocked(ctx *context.T, borrowed bool, unused int) {
@@ -320,11 +320,11 @@ func (fs *flowControlFlowStats) returnTokensLocked(ctx *context.T, borrowed bool
 		return
 	}
 	if borrowed {
-		fs.shared.shared += uint64(unused)
-		fs.borrowed -= uint64(unused)
+		fs.shared.shared += uint64(unused) //nolint:gosec // disable G115
+		fs.borrowed -= uint64(unused)      //nolint:gosec // disable G115
 		return
 	}
-	fs.released += uint64(unused)
+	fs.released += uint64(unused) //nolint:gosec // disable G115
 }
 
 func (fs *flowControlFlowStats) clearLocked() {

@@ -74,7 +74,7 @@ func Coalesce(slices []*Slice, maxSize uint) []*Slice {
 	c := slices[0]
 	for i := 1; i != len(slices); i++ {
 		s := slices[i]
-		if uint(len(c.Contents)+len(s.Contents)) <= maxSize &&
+		if uint(len(c.Contents)+len(s.Contents)) <= maxSize && //nolint:gosec // disable G115
 			c.iobuf != nil && s.iobuf == c.iobuf &&
 			c.base+uint(len(c.Contents)) == s.base {
 			// The two slices are adjacent.  Merge them.

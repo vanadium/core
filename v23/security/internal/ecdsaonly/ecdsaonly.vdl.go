@@ -52,7 +52,7 @@ func (x *Hash) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 	case err != nil:
 		return err
 	default:
-		*x = Hash(value)
+		*x = Hash(value) //nolint:gosec // disable G115
 	}
 	return nil
 }
@@ -149,7 +149,7 @@ func (x *Signature) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 			case err != nil:
 				return err
 			default:
-				x.Hash = Hash(value)
+				x.Hash = Hash(value) //nolint:gosec // disable G115
 			}
 		case 2:
 			if err := dec.ReadValueBytes(-1, &x.R); err != nil {

@@ -138,7 +138,7 @@ func (r *readq) read(ctx *context.T, data []byte) (n int, err error) {
 			r.bufs[r.b] = readqEntry{}
 			r.b = (r.b + 1) % len(r.bufs)
 		}
-		r.size -= uint64(n)
+		r.size -= uint64(n) //nolint:gosec // disable G115
 	}
 	r.mu.Unlock()
 	r.readCallback(ctx, n)

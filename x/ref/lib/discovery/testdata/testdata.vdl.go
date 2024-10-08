@@ -261,7 +261,7 @@ func (x *PackEncryptionKeysTest) VDLRead(dec vdl.Decoder) error { //nolint:gocyc
 			case err != nil:
 				return err
 			default:
-				x.Algo = discovery.EncryptionAlgorithm(value)
+				x.Algo = discovery.EncryptionAlgorithm(value) //nolint:gosec // disable G115
 			}
 		case 1:
 			if err := vdlReadAnonList2(dec, &x.Keys); err != nil {

@@ -662,7 +662,7 @@ func vdlReadAnonMap2(dec vdl.Decoder, x *map[byte][]*vdl.Value) error {
 			if tmpMap == nil {
 				tmpMap = make(map[byte][]*vdl.Value)
 			}
-			tmpMap[byte(key)] = elem
+			tmpMap[byte(key)] = elem //nolint:gosec // disable G115
 		}
 	}
 }
@@ -793,7 +793,7 @@ func (x *NBool) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 	case err != nil:
 		return err
 	default:
-		*x = NBool(value)
+		*x = NBool(value) //nolint:gosec // disable G115
 	}
 	return nil
 }
@@ -821,7 +821,7 @@ func (x *NString) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 	case err != nil:
 		return err
 	default:
-		*x = NString(value)
+		*x = NString(value) //nolint:gosec // disable G115
 	}
 	return nil
 }
@@ -902,7 +902,7 @@ func (x *NByte) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 	case err != nil:
 		return err
 	default:
-		*x = NByte(value)
+		*x = NByte(value) //nolint:gosec // disable G115
 	}
 	return nil
 }
@@ -930,7 +930,7 @@ func (x *NUint16) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 	case err != nil:
 		return err
 	default:
-		*x = NUint16(value)
+		*x = NUint16(value) //nolint:gosec // disable G115
 	}
 	return nil
 }
@@ -958,7 +958,7 @@ func (x *NUint32) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 	case err != nil:
 		return err
 	default:
-		*x = NUint32(value)
+		*x = NUint32(value) //nolint:gosec // disable G115
 	}
 	return nil
 }
@@ -986,7 +986,7 @@ func (x *NUint64) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 	case err != nil:
 		return err
 	default:
-		*x = NUint64(value)
+		*x = NUint64(value) //nolint:gosec // disable G115
 	}
 	return nil
 }
@@ -1014,7 +1014,7 @@ func (x *NInt8) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 	case err != nil:
 		return err
 	default:
-		*x = NInt8(value)
+		*x = NInt8(value) //nolint:gosec // disable G115
 	}
 	return nil
 }
@@ -1042,7 +1042,7 @@ func (x *NInt16) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 	case err != nil:
 		return err
 	default:
-		*x = NInt16(value)
+		*x = NInt16(value) //nolint:gosec // disable G115
 	}
 	return nil
 }
@@ -1070,7 +1070,7 @@ func (x *NInt32) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 	case err != nil:
 		return err
 	default:
-		*x = NInt32(value)
+		*x = NInt32(value) //nolint:gosec // disable G115
 	}
 	return nil
 }
@@ -1098,7 +1098,7 @@ func (x *NInt64) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 	case err != nil:
 		return err
 	default:
-		*x = NInt64(value)
+		*x = NInt64(value) //nolint:gosec // disable G115
 	}
 	return nil
 }
@@ -1126,7 +1126,7 @@ func (x *NFloat32) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 	case err != nil:
 		return err
 	default:
-		*x = NFloat32(value)
+		*x = NFloat32(value) //nolint:gosec // disable G115
 	}
 	return nil
 }
@@ -1154,7 +1154,7 @@ func (x *NFloat64) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 	case err != nil:
 		return err
 	default:
-		*x = NFloat64(value)
+		*x = NFloat64(value) //nolint:gosec // disable G115
 	}
 	return nil
 }
@@ -1720,7 +1720,7 @@ func (x *MBool) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 	case err != nil:
 		return err
 	default:
-		*x = MBool(value)
+		*x = MBool(value) //nolint:gosec // disable G115
 	}
 	return nil
 }
@@ -1847,14 +1847,14 @@ func (x *MStruct) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 			case err != nil:
 				return err
 			default:
-				x.B = NBool(value)
+				x.B = NBool(value) //nolint:gosec // disable G115
 			}
 		case 2:
 			switch value, err := dec.ReadValueBool(); {
 			case err != nil:
 				return err
 			default:
-				x.C = MBool(value)
+				x.C = MBool(value) //nolint:gosec // disable G115
 			}
 		case 3:
 			if err := dec.StartValue(vdlTypeOptional33); err != nil {
@@ -2000,7 +2000,7 @@ func (x *MMap) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 			if tmpMap == nil {
 				tmpMap = make(MMap)
 			}
-			tmpMap[NFloat32(key)] = elem
+			tmpMap[NFloat32(key)] = elem //nolint:gosec // disable G115
 		}
 	}
 }
@@ -2077,7 +2077,7 @@ func (x *MInt8Slice) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 		case done:
 			return dec.FinishValue()
 		default:
-			*x = append(*x, int8(elem))
+			*x = append(*x, int8(elem)) //nolint:gosec // disable G115
 		}
 	}
 }
@@ -3472,7 +3472,7 @@ func (x *XyzStruct) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 			case err != nil:
 				return err
 			default:
-				x.Y = MBool(value)
+				x.Y = MBool(value) //nolint:gosec // disable G115
 			}
 		case 2:
 			switch value, err := dec.ReadValueString(); {
@@ -3548,14 +3548,14 @@ func (x *YzStruct) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 			case err != nil:
 				return err
 			default:
-				x.Y = NBool(value)
+				x.Y = NBool(value) //nolint:gosec // disable G115
 			}
 		case 1:
 			switch value, err := dec.ReadValueString(); {
 			case err != nil:
 				return err
 			default:
-				x.Z = NString(value)
+				x.Z = NString(value) //nolint:gosec // disable G115
 			}
 		}
 	}
@@ -3694,7 +3694,7 @@ func (x *MapOnlyStruct) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 			case err != nil:
 				return err
 			default:
-				x.Key2 = uint32(value)
+				x.Key2 = uint32(value) //nolint:gosec // disable G115
 			}
 		}
 	}
@@ -4252,7 +4252,7 @@ func (x *SetOnlyA2) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 			if tmpMap == nil {
 				tmpMap = make(SetOnlyA2)
 			}
-			tmpMap[NBool(key)] = struct{}{}
+			tmpMap[NBool(key)] = struct{}{} //nolint:gosec // disable G115
 		}
 	}
 }
@@ -4305,7 +4305,7 @@ func (x *SetOnlyB) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 			if tmpMap == nil {
 				tmpMap = make(SetOnlyB)
 			}
-			tmpMap[int16(key)] = struct{}{}
+			tmpMap[int16(key)] = struct{}{} //nolint:gosec // disable G115
 		}
 	}
 }
@@ -4358,7 +4358,7 @@ func (x *SetOnlyB2) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 			if tmpMap == nil {
 				tmpMap = make(SetOnlyB2)
 			}
-			tmpMap[NInt16(key)] = struct{}{}
+			tmpMap[NInt16(key)] = struct{}{} //nolint:gosec // disable G115
 		}
 	}
 }
@@ -4416,12 +4416,12 @@ func (x *MapOnlyA) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 			case err != nil:
 				return err
 			default:
-				elem = uint32(value)
+				elem = uint32(value) //nolint:gosec // disable G115
 			}
 			if tmpMap == nil {
 				tmpMap = make(MapOnlyA)
 			}
-			tmpMap[uint32(key)] = elem
+			tmpMap[uint32(key)] = elem //nolint:gosec // disable G115
 		}
 	}
 }
@@ -4605,12 +4605,12 @@ func (x *MapOnlyB2) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 			case err != nil:
 				return err
 			default:
-				elem = NString(value)
+				elem = NString(value) //nolint:gosec // disable G115
 			}
 			if tmpMap == nil {
 				tmpMap = make(MapOnlyB2)
 			}
-			tmpMap[NBool(key)] = elem
+			tmpMap[NBool(key)] = elem //nolint:gosec // disable G115
 		}
 	}
 }
@@ -5459,21 +5459,21 @@ func (x *StructManyTypes) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 			case err != nil:
 				return err
 			default:
-				x.AByte = byte(value)
+				x.AByte = byte(value) //nolint:gosec // disable G115
 			}
 		case 2:
 			switch value, err := dec.ReadValueInt(16); {
 			case err != nil:
 				return err
 			default:
-				x.Int16 = int16(value)
+				x.Int16 = int16(value) //nolint:gosec // disable G115
 			}
 		case 3:
 			switch value, err := dec.ReadValueInt(32); {
 			case err != nil:
 				return err
 			default:
-				x.Int32 = int32(value)
+				x.Int32 = int32(value) //nolint:gosec // disable G115
 			}
 		case 4:
 			switch value, err := dec.ReadValueInt(64); {
@@ -5487,14 +5487,14 @@ func (x *StructManyTypes) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 			case err != nil:
 				return err
 			default:
-				x.Uint16 = uint16(value)
+				x.Uint16 = uint16(value) //nolint:gosec // disable G115
 			}
 		case 6:
 			switch value, err := dec.ReadValueUint(32); {
 			case err != nil:
 				return err
 			default:
-				x.Uint32 = uint32(value)
+				x.Uint32 = uint32(value) //nolint:gosec // disable G115
 			}
 		case 7:
 			switch value, err := dec.ReadValueUint(64); {
@@ -5519,7 +5519,7 @@ func (x *StructManyTypes) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 			case err != nil:
 				return err
 			default:
-				x.Float32 = float32(value)
+				x.Float32 = float32(value) //nolint:gosec // disable G115
 			}
 		case 11:
 			switch value, err := dec.ReadValueFloat(64); {

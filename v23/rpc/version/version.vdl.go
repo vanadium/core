@@ -27,7 +27,7 @@ var (
 
 // ErrorfNoCompatibleVersion calls ErrNoCompatibleVersion.Errorf with the supplied arguments.
 func ErrorfNoCompatibleVersion(ctx *context.T, format string, lmin uint64, lmax uint64, rmin uint64, rmax uint64) error {
-	return ErrNoCompatibleVersion.Errorf(ctx, format, lmin, lmax, rmin, rmax)
+	return ErrNoCompatibleVersion.Errorf(ctx, format, lmin, lmax, rmin, rmax) //nolint:govet  // non-constant format string
 }
 
 // MessageNoCompatibleVersion calls ErrNoCompatibleVersion.Message with the supplied arguments.

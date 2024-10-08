@@ -106,14 +106,14 @@ func (t *statsTable) Print(w io.Writer) error {
 	if err := t.printRow(w, info, statRowBreak); err != nil {
 		return err
 	}
-	if err := fp(w, "|"+strings.Repeat(" ", info.RowNameSize)); err != nil {
+	if err := fp(w, "%s", "|"+strings.Repeat(" ", info.RowNameSize)); err != nil {
 		return err
 	}
 	for _, header := range info.Headers {
 		// Just like in computeInfo, we only trim spaces from the header for
 		// printing, but leave them intact for lookups.
 		centered := centerString(strings.TrimSpace(header), info.ColumnSize(header))
-		if err := fp(w, "|"+centered); err != nil {
+		if err := fp(w, "%s", "|"+centered); err != nil {
 			return err
 		}
 	}
@@ -139,7 +139,7 @@ func (t *statsTable) printRow(w io.Writer, info statsTableInfo, row statRow) err
 		for _, header := range info.Headers {
 			total += info.ColumnSize(header) + 1 // +1 for column borders
 		}
-		return fp(w, strings.Repeat("-", total)+"\n")
+		return fp(w, "%s", strings.Repeat("-", total)+"\n")
 	}
 	// Print each column.
 	if err := fp(w, "|%-[1]*[2]s", info.RowNameSize, row.Name); err != nil {

@@ -185,7 +185,7 @@ func createByteList(length int) []byte {
 func createList(length int) []int32 {
 	l := make([]int32, length)
 	for i := range l {
-		l[i] = int32(i)
+		l[i] = int32(i) //nolint:gosec // disable G115
 	}
 	return l
 }

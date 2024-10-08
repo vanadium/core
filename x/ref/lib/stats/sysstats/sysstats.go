@@ -228,7 +228,7 @@ func updateStats(rootName string, s interface{}, fieldNames []string) { //nolint
 		case int64:
 			v = t
 		case uint:
-			v = int64(t)
+			v = int64(t) //nolint:gosec // disable G115
 		case uint8:
 			v = int64(t)
 		case uint16:
@@ -236,7 +236,7 @@ func updateStats(rootName string, s interface{}, fieldNames []string) { //nolint
 		case uint32:
 			v = int64(t)
 		case uint64:
-			v = int64(t)
+			v = int64(t) //nolint:gosec // disable G115
 		case float32:
 			v = int64(t)
 		case float64:

@@ -506,7 +506,7 @@ func (x *TraceFlags) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 	case err != nil:
 		return err
 	default:
-		*x = TraceFlags(value)
+		*x = TraceFlags(value) //nolint:gosec // disable G115
 	}
 	return nil
 }
@@ -622,14 +622,14 @@ func (x *Request) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 			case err != nil:
 				return err
 			default:
-				x.Flags = TraceFlags(value)
+				x.Flags = TraceFlags(value) //nolint:gosec // disable G115
 			}
 		case 4:
 			switch value, err := dec.ReadValueInt(32); {
 			case err != nil:
 				return err
 			default:
-				x.LogLevel = int32(value)
+				x.LogLevel = int32(value) //nolint:gosec // disable G115
 			}
 		}
 	}
@@ -711,7 +711,7 @@ func (x *Response) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 			case err != nil:
 				return err
 			default:
-				x.Flags = TraceFlags(value)
+				x.Flags = TraceFlags(value) //nolint:gosec // disable G115
 			}
 		case 1:
 			if err := x.Trace.VDLRead(dec); err != nil {

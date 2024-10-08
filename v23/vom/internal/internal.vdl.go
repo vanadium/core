@@ -72,7 +72,7 @@ func (x *VNumber) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 	case err != nil:
 		return err
 	default:
-		*x = VNumber(value)
+		*x = VNumber(value) //nolint:gosec // disable G115
 	}
 	return nil
 }
@@ -100,7 +100,7 @@ func (x *VString) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 	case err != nil:
 		return err
 	default:
-		*x = VString(value)
+		*x = VString(value) //nolint:gosec // disable G115
 	}
 	return nil
 }
@@ -273,7 +273,7 @@ func (x *VArray) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 		case done:
 			return fmt.Errorf("short array, got len %d < 3 %T)", index, *x)
 		default:
-			x[index] = int32(elem)
+			x[index] = int32(elem) //nolint:gosec // disable G115
 		}
 	}
 	switch done, err := dec.NextEntry(); {
@@ -330,7 +330,7 @@ func (x *VList) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 		case done:
 			return dec.FinishValue()
 		default:
-			*x = append(*x, int32(elem))
+			*x = append(*x, int32(elem)) //nolint:gosec // disable G115
 		}
 	}
 }
@@ -584,7 +584,7 @@ func (x *VSmallStruct) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 			case err != nil:
 				return err
 			default:
-				x.A = int32(value)
+				x.A = int32(value) //nolint:gosec // disable G115
 			}
 		case 1:
 			switch value, err := dec.ReadValueString(); {
@@ -955,350 +955,350 @@ func (x *VLargeStruct) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 			case err != nil:
 				return err
 			default:
-				x.F1 = int32(value)
+				x.F1 = int32(value) //nolint:gosec // disable G115
 			}
 		case 1:
 			switch value, err := dec.ReadValueInt(32); {
 			case err != nil:
 				return err
 			default:
-				x.F2 = int32(value)
+				x.F2 = int32(value) //nolint:gosec // disable G115
 			}
 		case 2:
 			switch value, err := dec.ReadValueInt(32); {
 			case err != nil:
 				return err
 			default:
-				x.F3 = int32(value)
+				x.F3 = int32(value) //nolint:gosec // disable G115
 			}
 		case 3:
 			switch value, err := dec.ReadValueInt(32); {
 			case err != nil:
 				return err
 			default:
-				x.F4 = int32(value)
+				x.F4 = int32(value) //nolint:gosec // disable G115
 			}
 		case 4:
 			switch value, err := dec.ReadValueInt(32); {
 			case err != nil:
 				return err
 			default:
-				x.F5 = int32(value)
+				x.F5 = int32(value) //nolint:gosec // disable G115
 			}
 		case 5:
 			switch value, err := dec.ReadValueInt(32); {
 			case err != nil:
 				return err
 			default:
-				x.F6 = int32(value)
+				x.F6 = int32(value) //nolint:gosec // disable G115
 			}
 		case 6:
 			switch value, err := dec.ReadValueInt(32); {
 			case err != nil:
 				return err
 			default:
-				x.F7 = int32(value)
+				x.F7 = int32(value) //nolint:gosec // disable G115
 			}
 		case 7:
 			switch value, err := dec.ReadValueInt(32); {
 			case err != nil:
 				return err
 			default:
-				x.F8 = int32(value)
+				x.F8 = int32(value) //nolint:gosec // disable G115
 			}
 		case 8:
 			switch value, err := dec.ReadValueInt(32); {
 			case err != nil:
 				return err
 			default:
-				x.F9 = int32(value)
+				x.F9 = int32(value) //nolint:gosec // disable G115
 			}
 		case 9:
 			switch value, err := dec.ReadValueInt(32); {
 			case err != nil:
 				return err
 			default:
-				x.F10 = int32(value)
+				x.F10 = int32(value) //nolint:gosec // disable G115
 			}
 		case 10:
 			switch value, err := dec.ReadValueInt(32); {
 			case err != nil:
 				return err
 			default:
-				x.F11 = int32(value)
+				x.F11 = int32(value) //nolint:gosec // disable G115
 			}
 		case 11:
 			switch value, err := dec.ReadValueInt(32); {
 			case err != nil:
 				return err
 			default:
-				x.F12 = int32(value)
+				x.F12 = int32(value) //nolint:gosec // disable G115
 			}
 		case 12:
 			switch value, err := dec.ReadValueInt(32); {
 			case err != nil:
 				return err
 			default:
-				x.F13 = int32(value)
+				x.F13 = int32(value) //nolint:gosec // disable G115
 			}
 		case 13:
 			switch value, err := dec.ReadValueInt(32); {
 			case err != nil:
 				return err
 			default:
-				x.F14 = int32(value)
+				x.F14 = int32(value) //nolint:gosec // disable G115
 			}
 		case 14:
 			switch value, err := dec.ReadValueInt(32); {
 			case err != nil:
 				return err
 			default:
-				x.F15 = int32(value)
+				x.F15 = int32(value) //nolint:gosec // disable G115
 			}
 		case 15:
 			switch value, err := dec.ReadValueInt(32); {
 			case err != nil:
 				return err
 			default:
-				x.F16 = int32(value)
+				x.F16 = int32(value) //nolint:gosec // disable G115
 			}
 		case 16:
 			switch value, err := dec.ReadValueInt(32); {
 			case err != nil:
 				return err
 			default:
-				x.F17 = int32(value)
+				x.F17 = int32(value) //nolint:gosec // disable G115
 			}
 		case 17:
 			switch value, err := dec.ReadValueInt(32); {
 			case err != nil:
 				return err
 			default:
-				x.F18 = int32(value)
+				x.F18 = int32(value) //nolint:gosec // disable G115
 			}
 		case 18:
 			switch value, err := dec.ReadValueInt(32); {
 			case err != nil:
 				return err
 			default:
-				x.F19 = int32(value)
+				x.F19 = int32(value) //nolint:gosec // disable G115
 			}
 		case 19:
 			switch value, err := dec.ReadValueInt(32); {
 			case err != nil:
 				return err
 			default:
-				x.F20 = int32(value)
+				x.F20 = int32(value) //nolint:gosec // disable G115
 			}
 		case 20:
 			switch value, err := dec.ReadValueInt(32); {
 			case err != nil:
 				return err
 			default:
-				x.F21 = int32(value)
+				x.F21 = int32(value) //nolint:gosec // disable G115
 			}
 		case 21:
 			switch value, err := dec.ReadValueInt(32); {
 			case err != nil:
 				return err
 			default:
-				x.F22 = int32(value)
+				x.F22 = int32(value) //nolint:gosec // disable G115
 			}
 		case 22:
 			switch value, err := dec.ReadValueInt(32); {
 			case err != nil:
 				return err
 			default:
-				x.F23 = int32(value)
+				x.F23 = int32(value) //nolint:gosec // disable G115
 			}
 		case 23:
 			switch value, err := dec.ReadValueInt(32); {
 			case err != nil:
 				return err
 			default:
-				x.F24 = int32(value)
+				x.F24 = int32(value) //nolint:gosec // disable G115
 			}
 		case 24:
 			switch value, err := dec.ReadValueInt(32); {
 			case err != nil:
 				return err
 			default:
-				x.F25 = int32(value)
+				x.F25 = int32(value) //nolint:gosec // disable G115
 			}
 		case 25:
 			switch value, err := dec.ReadValueInt(32); {
 			case err != nil:
 				return err
 			default:
-				x.F26 = int32(value)
+				x.F26 = int32(value) //nolint:gosec // disable G115
 			}
 		case 26:
 			switch value, err := dec.ReadValueInt(32); {
 			case err != nil:
 				return err
 			default:
-				x.F27 = int32(value)
+				x.F27 = int32(value) //nolint:gosec // disable G115
 			}
 		case 27:
 			switch value, err := dec.ReadValueInt(32); {
 			case err != nil:
 				return err
 			default:
-				x.F28 = int32(value)
+				x.F28 = int32(value) //nolint:gosec // disable G115
 			}
 		case 28:
 			switch value, err := dec.ReadValueInt(32); {
 			case err != nil:
 				return err
 			default:
-				x.F29 = int32(value)
+				x.F29 = int32(value) //nolint:gosec // disable G115
 			}
 		case 29:
 			switch value, err := dec.ReadValueInt(32); {
 			case err != nil:
 				return err
 			default:
-				x.F30 = int32(value)
+				x.F30 = int32(value) //nolint:gosec // disable G115
 			}
 		case 30:
 			switch value, err := dec.ReadValueInt(32); {
 			case err != nil:
 				return err
 			default:
-				x.F31 = int32(value)
+				x.F31 = int32(value) //nolint:gosec // disable G115
 			}
 		case 31:
 			switch value, err := dec.ReadValueInt(32); {
 			case err != nil:
 				return err
 			default:
-				x.F32 = int32(value)
+				x.F32 = int32(value) //nolint:gosec // disable G115
 			}
 		case 32:
 			switch value, err := dec.ReadValueInt(32); {
 			case err != nil:
 				return err
 			default:
-				x.F33 = int32(value)
+				x.F33 = int32(value) //nolint:gosec // disable G115
 			}
 		case 33:
 			switch value, err := dec.ReadValueInt(32); {
 			case err != nil:
 				return err
 			default:
-				x.F34 = int32(value)
+				x.F34 = int32(value) //nolint:gosec // disable G115
 			}
 		case 34:
 			switch value, err := dec.ReadValueInt(32); {
 			case err != nil:
 				return err
 			default:
-				x.F35 = int32(value)
+				x.F35 = int32(value) //nolint:gosec // disable G115
 			}
 		case 35:
 			switch value, err := dec.ReadValueInt(32); {
 			case err != nil:
 				return err
 			default:
-				x.F36 = int32(value)
+				x.F36 = int32(value) //nolint:gosec // disable G115
 			}
 		case 36:
 			switch value, err := dec.ReadValueInt(32); {
 			case err != nil:
 				return err
 			default:
-				x.F37 = int32(value)
+				x.F37 = int32(value) //nolint:gosec // disable G115
 			}
 		case 37:
 			switch value, err := dec.ReadValueInt(32); {
 			case err != nil:
 				return err
 			default:
-				x.F38 = int32(value)
+				x.F38 = int32(value) //nolint:gosec // disable G115
 			}
 		case 38:
 			switch value, err := dec.ReadValueInt(32); {
 			case err != nil:
 				return err
 			default:
-				x.F39 = int32(value)
+				x.F39 = int32(value) //nolint:gosec // disable G115
 			}
 		case 39:
 			switch value, err := dec.ReadValueInt(32); {
 			case err != nil:
 				return err
 			default:
-				x.F40 = int32(value)
+				x.F40 = int32(value) //nolint:gosec // disable G115
 			}
 		case 40:
 			switch value, err := dec.ReadValueInt(32); {
 			case err != nil:
 				return err
 			default:
-				x.F41 = int32(value)
+				x.F41 = int32(value) //nolint:gosec // disable G115
 			}
 		case 41:
 			switch value, err := dec.ReadValueInt(32); {
 			case err != nil:
 				return err
 			default:
-				x.F42 = int32(value)
+				x.F42 = int32(value) //nolint:gosec // disable G115
 			}
 		case 42:
 			switch value, err := dec.ReadValueInt(32); {
 			case err != nil:
 				return err
 			default:
-				x.F43 = int32(value)
+				x.F43 = int32(value) //nolint:gosec // disable G115
 			}
 		case 43:
 			switch value, err := dec.ReadValueInt(32); {
 			case err != nil:
 				return err
 			default:
-				x.F44 = int32(value)
+				x.F44 = int32(value) //nolint:gosec // disable G115
 			}
 		case 44:
 			switch value, err := dec.ReadValueInt(32); {
 			case err != nil:
 				return err
 			default:
-				x.F45 = int32(value)
+				x.F45 = int32(value) //nolint:gosec // disable G115
 			}
 		case 45:
 			switch value, err := dec.ReadValueInt(32); {
 			case err != nil:
 				return err
 			default:
-				x.F46 = int32(value)
+				x.F46 = int32(value) //nolint:gosec // disable G115
 			}
 		case 46:
 			switch value, err := dec.ReadValueInt(32); {
 			case err != nil:
 				return err
 			default:
-				x.F47 = int32(value)
+				x.F47 = int32(value) //nolint:gosec // disable G115
 			}
 		case 47:
 			switch value, err := dec.ReadValueInt(32); {
 			case err != nil:
 				return err
 			default:
-				x.F48 = int32(value)
+				x.F48 = int32(value) //nolint:gosec // disable G115
 			}
 		case 48:
 			switch value, err := dec.ReadValueInt(32); {
 			case err != nil:
 				return err
 			default:
-				x.F49 = int32(value)
+				x.F49 = int32(value) //nolint:gosec // disable G115
 			}
 		case 49:
 			switch value, err := dec.ReadValueInt(32); {
 			case err != nil:
 				return err
 			default:
-				x.F50 = int32(value)
+				x.F50 = int32(value) //nolint:gosec // disable G115
 			}
 		}
 	}
@@ -1428,7 +1428,7 @@ func VDLReadVSmallUnion(dec vdl.Decoder, x *VSmallUnion) error { //nolint:gocycl
 		case err != nil:
 			return err
 		default:
-			field.Value = int32(value)
+			field.Value = int32(value) //nolint:gosec // disable G115
 		}
 		*x = field
 	case 1:
@@ -1526,7 +1526,7 @@ func (x *VStructWithOptional) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 			case err != nil:
 				return err
 			default:
-				x.F1 = int32(value)
+				x.F1 = int32(value) //nolint:gosec // disable G115
 			}
 		case 1:
 			if err := dec.StartValue(vdlTypeOptional15); err != nil {

@@ -70,7 +70,7 @@ func (x *BlessingPatternChunk) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 	case err != nil:
 		return err
 	default:
-		*x = BlessingPatternChunk(value)
+		*x = BlessingPatternChunk(value) //nolint:gosec // disable G115
 	}
 	return nil
 }
@@ -225,7 +225,7 @@ func vdlReadAnonSet1(dec vdl.Decoder, x *map[BlessingPatternChunk]struct{}) erro
 			if tmpMap == nil {
 				tmpMap = make(map[BlessingPatternChunk]struct{})
 			}
-			tmpMap[BlessingPatternChunk(key)] = struct{}{}
+			tmpMap[BlessingPatternChunk(key)] = struct{}{} //nolint:gosec // disable G115
 		}
 	}
 }
@@ -396,7 +396,7 @@ var (
 
 // ErrorfNoBlessings calls ErrNoBlessings.Errorf with the supplied arguments.
 func ErrorfNoBlessings(ctx *context.T, format string) error {
-	return ErrNoBlessings.Errorf(ctx, format)
+	return ErrNoBlessings.Errorf(ctx, format) //nolint:govet  // non-constant format string
 }
 
 // MessageNoBlessings calls ErrNoBlessings.Message with the supplied arguments.
@@ -422,7 +422,7 @@ func ParamsErrNoBlessings(argumentError error) (verrorComponent string, verrorOp
 
 // ErrorfExcessiveContention calls ErrExcessiveContention.Errorf with the supplied arguments.
 func ErrorfExcessiveContention(ctx *context.T, format string) error {
-	return ErrExcessiveContention.Errorf(ctx, format)
+	return ErrExcessiveContention.Errorf(ctx, format) //nolint:govet  // non-constant format string
 }
 
 // MessageExcessiveContention calls ErrExcessiveContention.Message with the supplied arguments.
@@ -448,7 +448,7 @@ func ParamsErrExcessiveContention(argumentError error) (verrorComponent string, 
 
 // ErrorfCycleFound calls ErrCycleFound.Errorf with the supplied arguments.
 func ErrorfCycleFound(ctx *context.T, format string, name string, visited string) error {
-	return ErrCycleFound.Errorf(ctx, format, name, visited)
+	return ErrCycleFound.Errorf(ctx, format, name, visited) //nolint:govet  // non-constant format string
 }
 
 // MessageCycleFound calls ErrCycleFound.Message with the supplied arguments.

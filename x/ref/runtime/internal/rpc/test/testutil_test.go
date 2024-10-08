@@ -53,7 +53,7 @@ func (c *fakeClock) Now() int64 {
 
 func (c *fakeClock) Advance(steps uint) {
 	c.Lock()
-	c.time += int64(steps)
+	c.time += int64(steps) //nolint:gosec // disable G115
 	c.Unlock()
 }
 

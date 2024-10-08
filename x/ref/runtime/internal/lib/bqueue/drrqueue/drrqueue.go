@@ -147,7 +147,7 @@ func (w *writer) IsDrained() bool {
 // is cancelled.
 func (w *writer) Put(buf *iobuf.Slice, cancel <-chan struct{}) error {
 	// Block until there is space in the Writer.
-	if err := w.free.DecN(uint(buf.Size()), cancel); err != nil {
+	if err := w.free.DecN(uint(buf.Size()), cancel); err != nil { //nolint:gosec // disable G115
 		return err
 	}
 	return w.putContents(buf)
@@ -155,7 +155,7 @@ func (w *writer) Put(buf *iobuf.Slice, cancel <-chan struct{}) error {
 
 // TryPut is like Put, but it is nonblocking.
 func (w *writer) TryPut(buf *iobuf.Slice) error {
-	if err := w.free.TryDecN(uint(buf.Size())); err != nil {
+	if err := w.free.TryDecN(uint(buf.Size())); err != nil { //nolint:gosec // disable G115
 		return err
 	}
 	return w.putContents(buf)
@@ -238,7 +238,7 @@ func (w *writer) getContents(deficit int) ([]*iobuf.Slice, bool) {
 //
 // REQUIRES: w.mutex is locked.
 func (w *writer) updateStateLocked(overrideBusy bool, consumed int) {
-	w.free.IncN(uint(consumed))
+	w.free.IncN(uint(consumed)) //nolint:gosec // disable G115
 
 	// The w.isActive state does not depend on the deficit.
 	isActive := (w.size == 0 && w.isClosed) ||
@@ -280,7 +280,7 @@ func (q *T) NewWriter(id bqueue.ID, p bqueue.Priority, bytes int) (bqueue.Writer
 		free:     vsync.NewSemaphore(),
 		isActive: idle,
 	}
-	w.free.IncN(uint(bytes))
+	w.free.IncN(uint(bytes)) //nolint:gosec // disable G115
 
 	q.mutex.Lock()
 	defer q.mutex.Unlock()
@@ -365,8 +365,8 @@ func (q *T) nextWriter(flush bqueue.FlushFunc) (*writer, int, error) {
 //
 // REQUIRES: q.mutex is locked.
 func (q *T) addPriorityLocked(p bqueue.Priority) {
-	if int(p) >= len(q.active) {
-		newActive := make([][]*writer, int(p)+1)
+	if int(p) >= len(q.active) { //nolint:gosec // disable G115
+		newActive := make([][]*writer, int(p)+1) //nolint:gosec // disable G115
 		copy(newActive, q.active)
 		q.active = newActive
 	}

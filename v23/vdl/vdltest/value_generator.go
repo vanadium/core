@@ -213,7 +213,7 @@ func (g *ValueGenerator) genNonNilValue(tt *vdl.Type, mode GenMode, depth int) *
 		return vdl.ZeroValue(tt)
 	}
 	kind := tt.Kind()
-	bitlen := uint(kind.BitLen())
+	bitlen := uint(kind.BitLen()) //nolint:gosec // disable G115
 	switch kind {
 	case vdl.Bool:
 		switch mode {
@@ -395,7 +395,7 @@ func (g *ValueGenerator) randomInt(bitlen uint) int64 {
 	// The shift uses 65 since the topmost bit is the sign bit.  I.e. 32 bit
 	// numbers should be shifted by 33 rather than 32.
 	shift := 65 - bitlen
-	return (int64(u<<shift) >> shift) * neg
+	return (int64(u<<shift) >> shift) * neg //nolint:gosec // disable G115
 }
 
 func (g *ValueGenerator) maxFloat(kind vdl.Kind) float64 {

@@ -136,11 +136,11 @@ func (k Kind) BitLen() int {
 type kindBitMask uint32
 
 func (k *kindBitMask) Set(kind Kind) {
-	*k |= (1 << uint(kind))
+	*k |= (1 << uint(kind)) //nolint:gosec // disable G115
 }
 
 func (k kindBitMask) IsSet(kind Kind) bool {
-	return (k & (1 << uint(kind))) != 0
+	return (k & (1 << uint(kind))) != 0 //nolint:gosec // disable G115
 }
 
 // SplitIdent splits the given identifier into its package path and local name.

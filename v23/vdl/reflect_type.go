@@ -75,7 +75,7 @@ func normalizeType(rt reflect.Type) reflect.Type {
 	for rt.Kind() == reflect.Ptr {
 		if ni := nativeInfoFromNative(rt); ni != nil {
 			if hasPtr {
-				return normalizeType(reflect.PtrTo(ni.WireType))
+				return normalizeType(reflect.PointerTo(ni.WireType))
 			}
 			return normalizeType(ni.WireType)
 		}
@@ -84,13 +84,13 @@ func normalizeType(rt reflect.Type) reflect.Type {
 	}
 	if ni := nativeInfoFromNative(rt); ni != nil {
 		if hasPtr {
-			return normalizeType(reflect.PtrTo(ni.WireType))
+			return normalizeType(reflect.PointerTo(ni.WireType))
 		}
 		return normalizeType(ni.WireType)
 	}
 	rtAtMostOnePtr := rt
 	if hasPtr {
-		rtAtMostOnePtr = reflect.PtrTo(rt)
+		rtAtMostOnePtr = reflect.PointerTo(rt)
 	}
 	// Handle errors that are implemented by arbitrary rv values.  E.g. the Go
 	// standard errors.errorString implements the error interface, but is an

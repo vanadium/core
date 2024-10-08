@@ -478,7 +478,7 @@ func (x *Hash) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 	case err != nil:
 		return err
 	default:
-		*x = Hash(value)
+		*x = Hash(value) //nolint:gosec // disable G115
 	}
 	return nil
 }
@@ -600,7 +600,7 @@ func (x *Signature) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 			case err != nil:
 				return err
 			default:
-				x.Hash = Hash(value)
+				x.Hash = Hash(value) //nolint:gosec // disable G115
 			}
 		case 2:
 			if err := dec.ReadValueBytes(-1, &x.R); err != nil {
@@ -764,7 +764,7 @@ func (x *BlessingPattern) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 	case err != nil:
 		return err
 	default:
-		*x = BlessingPattern(value)
+		*x = BlessingPattern(value) //nolint:gosec // disable G115
 	}
 	return nil
 }
@@ -864,7 +864,7 @@ func (x *EcdsaOnlySignature) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 			case err != nil:
 				return err
 			default:
-				x.Hash = Hash(value)
+				x.Hash = Hash(value) //nolint:gosec // disable G115
 			}
 		case 2:
 			if err := dec.ReadValueBytes(-1, &x.R); err != nil {
@@ -1047,7 +1047,7 @@ func vdlReadAnonList2(dec vdl.Decoder, x *[]BlessingPattern) error {
 		case done:
 			return dec.FinishValue()
 		default:
-			*x = append(*x, BlessingPattern(elem))
+			*x = append(*x, BlessingPattern(elem)) //nolint:gosec // disable G115
 		}
 	}
 }
@@ -1803,7 +1803,7 @@ var (
 
 // ErrorfCaveatNotRegistered calls ErrCaveatNotRegistered.Errorf with the supplied arguments.
 func ErrorfCaveatNotRegistered(ctx *context.T, format string, id uniqueid.Id) error {
-	return ErrCaveatNotRegistered.Errorf(ctx, format, id)
+	return ErrCaveatNotRegistered.Errorf(ctx, format, id) //nolint:govet  // non-constant format string
 }
 
 // MessageCaveatNotRegistered calls ErrCaveatNotRegistered.Message with the supplied arguments.
@@ -1842,7 +1842,7 @@ func ParamsErrCaveatNotRegistered(argumentError error) (verrorComponent string, 
 
 // ErrorfCaveatParamAny calls ErrCaveatParamAny.Errorf with the supplied arguments.
 func ErrorfCaveatParamAny(ctx *context.T, format string, id uniqueid.Id) error {
-	return ErrCaveatParamAny.Errorf(ctx, format, id)
+	return ErrCaveatParamAny.Errorf(ctx, format, id) //nolint:govet  // non-constant format string
 }
 
 // MessageCaveatParamAny calls ErrCaveatParamAny.Message with the supplied arguments.
@@ -1881,7 +1881,7 @@ func ParamsErrCaveatParamAny(argumentError error) (verrorComponent string, verro
 
 // ErrorfCaveatParamTypeMismatch calls ErrCaveatParamTypeMismatch.Errorf with the supplied arguments.
 func ErrorfCaveatParamTypeMismatch(ctx *context.T, format string, id uniqueid.Id, got *vdl.Type, want *vdl.Type) error {
-	return ErrCaveatParamTypeMismatch.Errorf(ctx, format, id, got, want)
+	return ErrCaveatParamTypeMismatch.Errorf(ctx, format, id, got, want) //nolint:govet  // non-constant format string
 }
 
 // MessageCaveatParamTypeMismatch calls ErrCaveatParamTypeMismatch.Message with the supplied arguments.
@@ -1936,7 +1936,7 @@ func ParamsErrCaveatParamTypeMismatch(argumentError error) (verrorComponent stri
 
 // ErrorfCaveatParamCoding calls ErrCaveatParamCoding.Errorf with the supplied arguments.
 func ErrorfCaveatParamCoding(ctx *context.T, format string, id uniqueid.Id, typ *vdl.Type, err error) error {
-	return ErrCaveatParamCoding.Errorf(ctx, format, id, typ, err)
+	return ErrCaveatParamCoding.Errorf(ctx, format, id, typ, err) //nolint:govet  // non-constant format string
 }
 
 // MessageCaveatParamCoding calls ErrCaveatParamCoding.Message with the supplied arguments.
@@ -1991,7 +1991,7 @@ func ParamsErrCaveatParamCoding(argumentError error) (verrorComponent string, ve
 
 // ErrorfCaveatValidation calls ErrCaveatValidation.Errorf with the supplied arguments.
 func ErrorfCaveatValidation(ctx *context.T, format string, err error) error {
-	return ErrCaveatValidation.Errorf(ctx, format, err)
+	return ErrCaveatValidation.Errorf(ctx, format, err) //nolint:govet  // non-constant format string
 }
 
 // MessageCaveatValidation calls ErrCaveatValidation.Message with the supplied arguments.
@@ -2030,7 +2030,7 @@ func ParamsErrCaveatValidation(argumentError error) (verrorComponent string, ver
 
 // ErrorfConstCaveatValidation calls ErrConstCaveatValidation.Errorf with the supplied arguments.
 func ErrorfConstCaveatValidation(ctx *context.T, format string) error {
-	return ErrConstCaveatValidation.Errorf(ctx, format)
+	return ErrConstCaveatValidation.Errorf(ctx, format) //nolint:govet  // non-constant format string
 }
 
 // MessageConstCaveatValidation calls ErrConstCaveatValidation.Message with the supplied arguments.
@@ -2056,7 +2056,7 @@ func ParamsErrConstCaveatValidation(argumentError error) (verrorComponent string
 
 // ErrorfExpiryCaveatValidation calls ErrExpiryCaveatValidation.Errorf with the supplied arguments.
 func ErrorfExpiryCaveatValidation(ctx *context.T, format string, currentTime time.Time, expiryTime time.Time) error {
-	return ErrExpiryCaveatValidation.Errorf(ctx, format, currentTime, expiryTime)
+	return ErrExpiryCaveatValidation.Errorf(ctx, format, currentTime, expiryTime) //nolint:govet  // non-constant format string
 }
 
 // MessageExpiryCaveatValidation calls ErrExpiryCaveatValidation.Message with the supplied arguments.
@@ -2103,7 +2103,7 @@ func ParamsErrExpiryCaveatValidation(argumentError error) (verrorComponent strin
 
 // ErrorfNotBeforeCaveatValidation calls ErrNotBeforeCaveatValidation.Errorf with the supplied arguments.
 func ErrorfNotBeforeCaveatValidation(ctx *context.T, format string, currentTime time.Time, expiryTime time.Time) error {
-	return ErrNotBeforeCaveatValidation.Errorf(ctx, format, currentTime, expiryTime)
+	return ErrNotBeforeCaveatValidation.Errorf(ctx, format, currentTime, expiryTime) //nolint:govet  // non-constant format string
 }
 
 // MessageNotBeforeCaveatValidation calls ErrNotBeforeCaveatValidation.Message with the supplied arguments.
@@ -2150,7 +2150,7 @@ func ParamsErrNotBeforeCaveatValidation(argumentError error) (verrorComponent st
 
 // ErrorfMethodCaveatValidation calls ErrMethodCaveatValidation.Errorf with the supplied arguments.
 func ErrorfMethodCaveatValidation(ctx *context.T, format string, invokedMethod string, permittedMethods []string) error {
-	return ErrMethodCaveatValidation.Errorf(ctx, format, invokedMethod, permittedMethods)
+	return ErrMethodCaveatValidation.Errorf(ctx, format, invokedMethod, permittedMethods) //nolint:govet  // non-constant format string
 }
 
 // MessageMethodCaveatValidation calls ErrMethodCaveatValidation.Message with the supplied arguments.
@@ -2197,7 +2197,7 @@ func ParamsErrMethodCaveatValidation(argumentError error) (verrorComponent strin
 
 // ErrorfPeerBlessingsCaveatValidation calls ErrPeerBlessingsCaveatValidation.Errorf with the supplied arguments.
 func ErrorfPeerBlessingsCaveatValidation(ctx *context.T, format string, peerBlessings []string, permittedPatterns []BlessingPattern) error {
-	return ErrPeerBlessingsCaveatValidation.Errorf(ctx, format, peerBlessings, permittedPatterns)
+	return ErrPeerBlessingsCaveatValidation.Errorf(ctx, format, peerBlessings, permittedPatterns) //nolint:govet  // non-constant format string
 }
 
 // MessagePeerBlessingsCaveatValidation calls ErrPeerBlessingsCaveatValidation.Message with the supplied arguments.
@@ -2244,7 +2244,7 @@ func ParamsErrPeerBlessingsCaveatValidation(argumentError error) (verrorComponen
 
 // ErrorfUnrecognizedRoot calls ErrUnrecognizedRoot.Errorf with the supplied arguments.
 func ErrorfUnrecognizedRoot(ctx *context.T, format string, rootKey string, details error) error {
-	return ErrUnrecognizedRoot.Errorf(ctx, format, rootKey, details)
+	return ErrUnrecognizedRoot.Errorf(ctx, format, rootKey, details) //nolint:govet  // non-constant format string
 }
 
 // MessageUnrecognizedRoot calls ErrUnrecognizedRoot.Message with the supplied arguments.
@@ -2291,7 +2291,7 @@ func ParamsErrUnrecognizedRoot(argumentError error) (verrorComponent string, ver
 
 // ErrorfAuthorizationFailed calls ErrAuthorizationFailed.Errorf with the supplied arguments.
 func ErrorfAuthorizationFailed(ctx *context.T, format string, remote []string, remoteErr []RejectedBlessing, local []string) error {
-	return ErrAuthorizationFailed.Errorf(ctx, format, remote, remoteErr, local)
+	return ErrAuthorizationFailed.Errorf(ctx, format, remote, remoteErr, local) //nolint:govet  // non-constant format string
 }
 
 // MessageAuthorizationFailed calls ErrAuthorizationFailed.Message with the supplied arguments.
@@ -2346,7 +2346,7 @@ func ParamsErrAuthorizationFailed(argumentError error) (verrorComponent string, 
 
 // ErrorfInvalidSigningBlessingCaveat calls ErrInvalidSigningBlessingCaveat.Errorf with the supplied arguments.
 func ErrorfInvalidSigningBlessingCaveat(ctx *context.T, format string, id uniqueid.Id) error {
-	return ErrInvalidSigningBlessingCaveat.Errorf(ctx, format, id)
+	return ErrInvalidSigningBlessingCaveat.Errorf(ctx, format, id) //nolint:govet  // non-constant format string
 }
 
 // MessageInvalidSigningBlessingCaveat calls ErrInvalidSigningBlessingCaveat.Message with the supplied arguments.
@@ -2385,7 +2385,7 @@ func ParamsErrInvalidSigningBlessingCaveat(argumentError error) (verrorComponent
 
 // ErrorfPublicKeyNotAllowed calls ErrPublicKeyNotAllowed.Errorf with the supplied arguments.
 func ErrorfPublicKeyNotAllowed(ctx *context.T, format string, got string, want string) error {
-	return ErrPublicKeyNotAllowed.Errorf(ctx, format, got, want)
+	return ErrPublicKeyNotAllowed.Errorf(ctx, format, got, want) //nolint:govet  // non-constant format string
 }
 
 // MessagePublicKeyNotAllowed calls ErrPublicKeyNotAllowed.Message with the supplied arguments.
@@ -2432,7 +2432,7 @@ func ParamsErrPublicKeyNotAllowed(argumentError error) (verrorComponent string, 
 
 // ErrorfEndpointAuthorizationFailed calls ErrEndpointAuthorizationFailed.Errorf with the supplied arguments.
 func ErrorfEndpointAuthorizationFailed(ctx *context.T, format string, endpoint string, remote []string, rejected []RejectedBlessing) error {
-	return ErrEndpointAuthorizationFailed.Errorf(ctx, format, endpoint, remote, rejected)
+	return ErrEndpointAuthorizationFailed.Errorf(ctx, format, endpoint, remote, rejected) //nolint:govet  // non-constant format string
 }
 
 // MessageEndpointAuthorizationFailed calls ErrEndpointAuthorizationFailed.Message with the supplied arguments.

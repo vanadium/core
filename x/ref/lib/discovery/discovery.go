@@ -101,7 +101,7 @@ func newDiscovery(ctx *context.T, plugins []Plugin) (*idiscovery, error) {
 	if len(plugins) == 0 {
 		return nil, ErrorfNoDiscoveryPlugin(ctx, "no discovery plugin")
 	}
-	if actual, limit := int32(len(plugins)), int32(32); actual > limit {
+	if actual, limit := int32(len(plugins)), int32(32); actual > limit { //nolint:gosec // disable G115
 		// Because adref used in scan.go uses a 32-bit bitmap to
 		// associate ads with the plugin that found them.
 		return nil, ErrorfTooManyPlugins(ctx, "too many plugins (%v), support at most %v", actual, limit)

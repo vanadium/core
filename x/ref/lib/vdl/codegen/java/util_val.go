@@ -72,7 +72,7 @@ func javaVal(v *vdl.Value, env *compile.Env) string { //nolint:gocyclo
 	case vdl.Uint64:
 		// Note: this is formatting the number as an int because Java will error on unsigned contants that use the
 		// full 64-bits.
-		return fmt.Sprintf("new %s(%s)", javaType(v.Type(), true, env), strconv.FormatInt(int64(v.Uint()), 10)+longSuffix)
+		return fmt.Sprintf("new %s(%s)", javaType(v.Type(), true, env), strconv.FormatInt(int64(v.Uint()), 10)+longSuffix) //nolint:gosec // disable G115
 	case vdl.Int64:
 		return strconv.FormatInt(v.Int(), 10) + longSuffix
 	case vdl.Float32, vdl.Float64:

@@ -92,7 +92,7 @@ func (x *NamedBool) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 	case err != nil:
 		return err
 	default:
-		*x = NamedBool(value)
+		*x = NamedBool(value) //nolint:gosec // disable G115
 	}
 	return nil
 }
@@ -120,7 +120,7 @@ func (x *NamedByte) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 	case err != nil:
 		return err
 	default:
-		*x = NamedByte(value)
+		*x = NamedByte(value) //nolint:gosec // disable G115
 	}
 	return nil
 }
@@ -148,7 +148,7 @@ func (x *NamedUint16) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 	case err != nil:
 		return err
 	default:
-		*x = NamedUint16(value)
+		*x = NamedUint16(value) //nolint:gosec // disable G115
 	}
 	return nil
 }
@@ -176,7 +176,7 @@ func (x *NamedUint32) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 	case err != nil:
 		return err
 	default:
-		*x = NamedUint32(value)
+		*x = NamedUint32(value) //nolint:gosec // disable G115
 	}
 	return nil
 }
@@ -204,7 +204,7 @@ func (x *NamedUint64) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 	case err != nil:
 		return err
 	default:
-		*x = NamedUint64(value)
+		*x = NamedUint64(value) //nolint:gosec // disable G115
 	}
 	return nil
 }
@@ -232,7 +232,7 @@ func (x *NamedInt8) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 	case err != nil:
 		return err
 	default:
-		*x = NamedInt8(value)
+		*x = NamedInt8(value) //nolint:gosec // disable G115
 	}
 	return nil
 }
@@ -260,7 +260,7 @@ func (x *NamedInt16) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 	case err != nil:
 		return err
 	default:
-		*x = NamedInt16(value)
+		*x = NamedInt16(value) //nolint:gosec // disable G115
 	}
 	return nil
 }
@@ -288,7 +288,7 @@ func (x *NamedInt32) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 	case err != nil:
 		return err
 	default:
-		*x = NamedInt32(value)
+		*x = NamedInt32(value) //nolint:gosec // disable G115
 	}
 	return nil
 }
@@ -316,7 +316,7 @@ func (x *NamedInt64) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 	case err != nil:
 		return err
 	default:
-		*x = NamedInt64(value)
+		*x = NamedInt64(value) //nolint:gosec // disable G115
 	}
 	return nil
 }
@@ -344,7 +344,7 @@ func (x *NamedFloat32) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 	case err != nil:
 		return err
 	default:
-		*x = NamedFloat32(value)
+		*x = NamedFloat32(value) //nolint:gosec // disable G115
 	}
 	return nil
 }
@@ -372,7 +372,7 @@ func (x *NamedFloat64) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 	case err != nil:
 		return err
 	default:
-		*x = NamedFloat64(value)
+		*x = NamedFloat64(value) //nolint:gosec // disable G115
 	}
 	return nil
 }
@@ -400,7 +400,7 @@ func (x *NamedString) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 	case err != nil:
 		return err
 	default:
-		*x = NamedString(value)
+		*x = NamedString(value) //nolint:gosec // disable G115
 	}
 	return nil
 }
@@ -577,7 +577,7 @@ func (x *NamedList) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 		case done:
 			return dec.FinishValue()
 		default:
-			*x = append(*x, uint32(elem))
+			*x = append(*x, uint32(elem)) //nolint:gosec // disable G115
 		}
 	}
 }
@@ -688,7 +688,7 @@ func (x *NamedMap) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 			case err != nil:
 				return err
 			default:
-				elem = float32(value)
+				elem = float32(value) //nolint:gosec // disable G115
 			}
 			if tmpMap == nil {
 				tmpMap = make(NamedMap)
@@ -781,7 +781,7 @@ func (x *NamedStruct) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 			case err != nil:
 				return err
 			default:
-				x.C = int32(value)
+				x.C = int32(value) //nolint:gosec // disable G115
 			}
 		}
 	}
@@ -929,7 +929,7 @@ func VDLReadNamedUnion(dec vdl.Decoder, x *NamedUnion) error { //nolint:gocyclo
 		case err != nil:
 			return err
 		default:
-			field.Value = int32(value)
+			field.Value = int32(value) //nolint:gosec // disable G115
 		}
 		*x = field
 	}
@@ -1274,21 +1274,21 @@ func (x *Scalars) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 			case err != nil:
 				return err
 			default:
-				x.A1 = byte(value)
+				x.A1 = byte(value) //nolint:gosec // disable G115
 			}
 		case 2:
 			switch value, err := dec.ReadValueUint(16); {
 			case err != nil:
 				return err
 			default:
-				x.A2 = uint16(value)
+				x.A2 = uint16(value) //nolint:gosec // disable G115
 			}
 		case 3:
 			switch value, err := dec.ReadValueUint(32); {
 			case err != nil:
 				return err
 			default:
-				x.A3 = uint32(value)
+				x.A3 = uint32(value) //nolint:gosec // disable G115
 			}
 		case 4:
 			switch value, err := dec.ReadValueUint(64); {
@@ -1302,21 +1302,21 @@ func (x *Scalars) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 			case err != nil:
 				return err
 			default:
-				x.A5 = int8(value)
+				x.A5 = int8(value) //nolint:gosec // disable G115
 			}
 		case 6:
 			switch value, err := dec.ReadValueInt(16); {
 			case err != nil:
 				return err
 			default:
-				x.A6 = int16(value)
+				x.A6 = int16(value) //nolint:gosec // disable G115
 			}
 		case 7:
 			switch value, err := dec.ReadValueInt(32); {
 			case err != nil:
 				return err
 			default:
-				x.A7 = int32(value)
+				x.A7 = int32(value) //nolint:gosec // disable G115
 			}
 		case 8:
 			switch value, err := dec.ReadValueInt(64); {
@@ -1330,7 +1330,7 @@ func (x *Scalars) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 			case err != nil:
 				return err
 			default:
-				x.A9 = float32(value)
+				x.A9 = float32(value) //nolint:gosec // disable G115
 			}
 		case 10:
 			switch value, err := dec.ReadValueFloat(64); {
@@ -1367,84 +1367,84 @@ func (x *Scalars) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 			case err != nil:
 				return err
 			default:
-				x.B0 = NamedBool(value)
+				x.B0 = NamedBool(value) //nolint:gosec // disable G115
 			}
 		case 16:
 			switch value, err := dec.ReadValueUint(8); {
 			case err != nil:
 				return err
 			default:
-				x.B1 = NamedByte(value)
+				x.B1 = NamedByte(value) //nolint:gosec // disable G115
 			}
 		case 17:
 			switch value, err := dec.ReadValueUint(16); {
 			case err != nil:
 				return err
 			default:
-				x.B2 = NamedUint16(value)
+				x.B2 = NamedUint16(value) //nolint:gosec // disable G115
 			}
 		case 18:
 			switch value, err := dec.ReadValueUint(32); {
 			case err != nil:
 				return err
 			default:
-				x.B3 = NamedUint32(value)
+				x.B3 = NamedUint32(value) //nolint:gosec // disable G115
 			}
 		case 19:
 			switch value, err := dec.ReadValueUint(64); {
 			case err != nil:
 				return err
 			default:
-				x.B4 = NamedUint64(value)
+				x.B4 = NamedUint64(value) //nolint:gosec // disable G115
 			}
 		case 20:
 			switch value, err := dec.ReadValueInt(8); {
 			case err != nil:
 				return err
 			default:
-				x.B5 = NamedInt8(value)
+				x.B5 = NamedInt8(value) //nolint:gosec // disable G115
 			}
 		case 21:
 			switch value, err := dec.ReadValueInt(16); {
 			case err != nil:
 				return err
 			default:
-				x.B6 = NamedInt16(value)
+				x.B6 = NamedInt16(value) //nolint:gosec // disable G115
 			}
 		case 22:
 			switch value, err := dec.ReadValueInt(32); {
 			case err != nil:
 				return err
 			default:
-				x.B7 = NamedInt32(value)
+				x.B7 = NamedInt32(value) //nolint:gosec // disable G115
 			}
 		case 23:
 			switch value, err := dec.ReadValueInt(64); {
 			case err != nil:
 				return err
 			default:
-				x.B8 = NamedInt64(value)
+				x.B8 = NamedInt64(value) //nolint:gosec // disable G115
 			}
 		case 24:
 			switch value, err := dec.ReadValueFloat(32); {
 			case err != nil:
 				return err
 			default:
-				x.B9 = NamedFloat32(value)
+				x.B9 = NamedFloat32(value) //nolint:gosec // disable G115
 			}
 		case 25:
 			switch value, err := dec.ReadValueFloat(64); {
 			case err != nil:
 				return err
 			default:
-				x.B10 = NamedFloat64(value)
+				x.B10 = NamedFloat64(value) //nolint:gosec // disable G115
 			}
 		case 26:
 			switch value, err := dec.ReadValueString(); {
 			case err != nil:
 				return err
 			default:
-				x.B11 = NamedString(value)
+				x.B11 = NamedString(value) //nolint:gosec // disable G115
 			}
 		case 27:
 			switch value, err := dec.ReadValueString(); {
@@ -1666,21 +1666,21 @@ func (x *KeyScalars) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 			case err != nil:
 				return err
 			default:
-				x.A1 = byte(value)
+				x.A1 = byte(value) //nolint:gosec // disable G115
 			}
 		case 2:
 			switch value, err := dec.ReadValueUint(16); {
 			case err != nil:
 				return err
 			default:
-				x.A2 = uint16(value)
+				x.A2 = uint16(value) //nolint:gosec // disable G115
 			}
 		case 3:
 			switch value, err := dec.ReadValueUint(32); {
 			case err != nil:
 				return err
 			default:
-				x.A3 = uint32(value)
+				x.A3 = uint32(value) //nolint:gosec // disable G115
 			}
 		case 4:
 			switch value, err := dec.ReadValueUint(64); {
@@ -1694,21 +1694,21 @@ func (x *KeyScalars) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 			case err != nil:
 				return err
 			default:
-				x.A5 = int8(value)
+				x.A5 = int8(value) //nolint:gosec // disable G115
 			}
 		case 6:
 			switch value, err := dec.ReadValueInt(16); {
 			case err != nil:
 				return err
 			default:
-				x.A6 = int16(value)
+				x.A6 = int16(value) //nolint:gosec // disable G115
 			}
 		case 7:
 			switch value, err := dec.ReadValueInt(32); {
 			case err != nil:
 				return err
 			default:
-				x.A7 = int32(value)
+				x.A7 = int32(value) //nolint:gosec // disable G115
 			}
 		case 8:
 			switch value, err := dec.ReadValueInt(64); {
@@ -1722,7 +1722,7 @@ func (x *KeyScalars) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 			case err != nil:
 				return err
 			default:
-				x.A9 = float32(value)
+				x.A9 = float32(value) //nolint:gosec // disable G115
 			}
 		case 10:
 			switch value, err := dec.ReadValueFloat(64); {
@@ -1743,84 +1743,84 @@ func (x *KeyScalars) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 			case err != nil:
 				return err
 			default:
-				x.B0 = NamedBool(value)
+				x.B0 = NamedBool(value) //nolint:gosec // disable G115
 			}
 		case 13:
 			switch value, err := dec.ReadValueUint(8); {
 			case err != nil:
 				return err
 			default:
-				x.B1 = NamedByte(value)
+				x.B1 = NamedByte(value) //nolint:gosec // disable G115
 			}
 		case 14:
 			switch value, err := dec.ReadValueUint(16); {
 			case err != nil:
 				return err
 			default:
-				x.B2 = NamedUint16(value)
+				x.B2 = NamedUint16(value) //nolint:gosec // disable G115
 			}
 		case 15:
 			switch value, err := dec.ReadValueUint(32); {
 			case err != nil:
 				return err
 			default:
-				x.B3 = NamedUint32(value)
+				x.B3 = NamedUint32(value) //nolint:gosec // disable G115
 			}
 		case 16:
 			switch value, err := dec.ReadValueUint(64); {
 			case err != nil:
 				return err
 			default:
-				x.B4 = NamedUint64(value)
+				x.B4 = NamedUint64(value) //nolint:gosec // disable G115
 			}
 		case 17:
 			switch value, err := dec.ReadValueInt(8); {
 			case err != nil:
 				return err
 			default:
-				x.B5 = NamedInt8(value)
+				x.B5 = NamedInt8(value) //nolint:gosec // disable G115
 			}
 		case 18:
 			switch value, err := dec.ReadValueInt(16); {
 			case err != nil:
 				return err
 			default:
-				x.B6 = NamedInt16(value)
+				x.B6 = NamedInt16(value) //nolint:gosec // disable G115
 			}
 		case 19:
 			switch value, err := dec.ReadValueInt(32); {
 			case err != nil:
 				return err
 			default:
-				x.B7 = NamedInt32(value)
+				x.B7 = NamedInt32(value) //nolint:gosec // disable G115
 			}
 		case 20:
 			switch value, err := dec.ReadValueInt(64); {
 			case err != nil:
 				return err
 			default:
-				x.B8 = NamedInt64(value)
+				x.B8 = NamedInt64(value) //nolint:gosec // disable G115
 			}
 		case 21:
 			switch value, err := dec.ReadValueFloat(32); {
 			case err != nil:
 				return err
 			default:
-				x.B9 = NamedFloat32(value)
+				x.B9 = NamedFloat32(value) //nolint:gosec // disable G115
 			}
 		case 22:
 			switch value, err := dec.ReadValueFloat(64); {
 			case err != nil:
 				return err
 			default:
-				x.B10 = NamedFloat64(value)
+				x.B10 = NamedFloat64(value) //nolint:gosec // disable G115
 			}
 		case 23:
 			switch value, err := dec.ReadValueString(); {
 			case err != nil:
 				return err
 			default:
-				x.B13 = NamedString(value)
+				x.B13 = NamedString(value) //nolint:gosec // disable G115
 			}
 		}
 	}
@@ -2687,14 +2687,14 @@ func (x *Args) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 			case err != nil:
 				return err
 			default:
-				x.A = int32(value)
+				x.A = int32(value) //nolint:gosec // disable G115
 			}
 		case 1:
 			switch value, err := dec.ReadValueInt(32); {
 			case err != nil:
 				return err
 			default:
-				x.B = int32(value)
+				x.B = int32(value) //nolint:gosec // disable G115
 			}
 		}
 	}
@@ -2883,7 +2883,7 @@ var (
 
 // ErrorfNoParams1 calls ErrNoParams1.Errorf with the supplied arguments.
 func ErrorfNoParams1(ctx *context.T, format string) error {
-	return ErrNoParams1.Errorf(ctx, format)
+	return ErrNoParams1.Errorf(ctx, format) //nolint:govet  // non-constant format string
 }
 
 // MessageNoParams1 calls ErrNoParams1.Message with the supplied arguments.
@@ -2909,7 +2909,7 @@ func ParamsErrNoParams1(argumentError error) (verrorComponent string, verrorOper
 
 // ErrorfNoParams2 calls ErrNoParams2.Errorf with the supplied arguments.
 func ErrorfNoParams2(ctx *context.T, format string) error {
-	return ErrNoParams2.Errorf(ctx, format)
+	return ErrNoParams2.Errorf(ctx, format) //nolint:govet  // non-constant format string
 }
 
 // MessageNoParams2 calls ErrNoParams2.Message with the supplied arguments.
@@ -2935,7 +2935,7 @@ func ParamsErrNoParams2(argumentError error) (verrorComponent string, verrorOper
 
 // ErrorfWithParams1 calls ErrWithParams1.Errorf with the supplied arguments.
 func ErrorfWithParams1(ctx *context.T, format string, x string, y int32) error {
-	return ErrWithParams1.Errorf(ctx, format, x, y)
+	return ErrWithParams1.Errorf(ctx, format, x, y) //nolint:govet  // non-constant format string
 }
 
 // MessageWithParams1 calls ErrWithParams1.Message with the supplied arguments.
@@ -2982,7 +2982,7 @@ func ParamsErrWithParams1(argumentError error) (verrorComponent string, verrorOp
 
 // ErrorfWithParams2 calls ErrWithParams2.Errorf with the supplied arguments.
 func ErrorfWithParams2(ctx *context.T, format string, x string, y int32) error {
-	return ErrWithParams2.Errorf(ctx, format, x, y)
+	return ErrWithParams2.Errorf(ctx, format, x, y) //nolint:govet  // non-constant format string
 }
 
 // MessageWithParams2 calls ErrWithParams2.Message with the supplied arguments.
@@ -3029,7 +3029,7 @@ func ParamsErrWithParams2(argumentError error) (verrorComponent string, verrorOp
 
 // errorfNotExported calls errNotExported.Errorf with the supplied arguments.
 func errorfNotExported(ctx *context.T, format string, x string, y int32) error {
-	return errNotExported.Errorf(ctx, format, x, y)
+	return errNotExported.Errorf(ctx, format, x, y) //nolint:govet  // non-constant format string
 }
 
 // messageNotExported calls errNotExported.Message with the supplied arguments.

@@ -478,7 +478,7 @@ func (x *VBool) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 	case err != nil:
 		return err
 	default:
-		*x = VBool(value)
+		*x = VBool(value) //nolint:gosec // disable G115
 	}
 	return nil
 }
@@ -506,7 +506,7 @@ func (x *VString) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 	case err != nil:
 		return err
 	default:
-		*x = VString(value)
+		*x = VString(value) //nolint:gosec // disable G115
 	}
 	return nil
 }
@@ -534,7 +534,7 @@ func (x *VByte) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 	case err != nil:
 		return err
 	default:
-		*x = VByte(value)
+		*x = VByte(value) //nolint:gosec // disable G115
 	}
 	return nil
 }
@@ -844,7 +844,7 @@ func (x *VUint16) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 	case err != nil:
 		return err
 	default:
-		*x = VUint16(value)
+		*x = VUint16(value) //nolint:gosec // disable G115
 	}
 	return nil
 }
@@ -872,7 +872,7 @@ func (x *VUint32) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 	case err != nil:
 		return err
 	default:
-		*x = VUint32(value)
+		*x = VUint32(value) //nolint:gosec // disable G115
 	}
 	return nil
 }
@@ -900,7 +900,7 @@ func (x *VUint64) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 	case err != nil:
 		return err
 	default:
-		*x = VUint64(value)
+		*x = VUint64(value) //nolint:gosec // disable G115
 	}
 	return nil
 }
@@ -928,7 +928,7 @@ func (x *VInt8) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 	case err != nil:
 		return err
 	default:
-		*x = VInt8(value)
+		*x = VInt8(value) //nolint:gosec // disable G115
 	}
 	return nil
 }
@@ -956,7 +956,7 @@ func (x *VInt16) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 	case err != nil:
 		return err
 	default:
-		*x = VInt16(value)
+		*x = VInt16(value) //nolint:gosec // disable G115
 	}
 	return nil
 }
@@ -984,7 +984,7 @@ func (x *VInt32) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 	case err != nil:
 		return err
 	default:
-		*x = VInt32(value)
+		*x = VInt32(value) //nolint:gosec // disable G115
 	}
 	return nil
 }
@@ -1012,7 +1012,7 @@ func (x *VInt64) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 	case err != nil:
 		return err
 	default:
-		*x = VInt64(value)
+		*x = VInt64(value) //nolint:gosec // disable G115
 	}
 	return nil
 }
@@ -1040,7 +1040,7 @@ func (x *VFloat32) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 	case err != nil:
 		return err
 	default:
-		*x = VFloat32(value)
+		*x = VFloat32(value) //nolint:gosec // disable G115
 	}
 	return nil
 }
@@ -1068,7 +1068,7 @@ func (x *VFloat64) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 	case err != nil:
 		return err
 	default:
-		*x = VFloat64(value)
+		*x = VFloat64(value) //nolint:gosec // disable G115
 	}
 	return nil
 }
@@ -1215,7 +1215,7 @@ func (x *VArray3_VBool) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 		case done:
 			return fmt.Errorf("short array, got len %d < 3 %T)", index, *x)
 		default:
-			x[index] = VBool(elem)
+			x[index] = VBool(elem) //nolint:gosec // disable G115
 		}
 	}
 	switch done, err := dec.NextEntry(); {
@@ -1313,7 +1313,7 @@ func (x *VArray3_VString) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 		case done:
 			return fmt.Errorf("short array, got len %d < 3 %T)", index, *x)
 		default:
-			x[index] = VString(elem)
+			x[index] = VString(elem) //nolint:gosec // disable G115
 		}
 	}
 	switch done, err := dec.NextEntry(); {
@@ -1732,7 +1732,7 @@ func (x *VArray1_Uint32) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 		case done:
 			return fmt.Errorf("short array, got len %d < 1 %T)", index, *x)
 		default:
-			x[index] = uint32(elem)
+			x[index] = uint32(elem) //nolint:gosec // disable G115
 		}
 	}
 	switch done, err := dec.NextEntry(); {
@@ -2142,7 +2142,7 @@ func (x *VList_VBool) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 		case done:
 			return dec.FinishValue()
 		default:
-			*x = append(*x, VBool(elem))
+			*x = append(*x, VBool(elem)) //nolint:gosec // disable G115
 		}
 	}
 }
@@ -2242,7 +2242,7 @@ func (x *VList_VString) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 		case done:
 			return dec.FinishValue()
 		default:
-			*x = append(*x, VString(elem))
+			*x = append(*x, VString(elem)) //nolint:gosec // disable G115
 		}
 	}
 }
@@ -2675,7 +2675,7 @@ func (x *VList_VUint16) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 		case done:
 			return dec.FinishValue()
 		default:
-			*x = append(*x, VUint16(elem))
+			*x = append(*x, VUint16(elem)) //nolint:gosec // disable G115
 		}
 	}
 }
@@ -2725,7 +2725,7 @@ func (x *VList_VFloat32) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 		case done:
 			return dec.FinishValue()
 		default:
-			*x = append(*x, VFloat32(elem))
+			*x = append(*x, VFloat32(elem)) //nolint:gosec // disable G115
 		}
 	}
 }
@@ -2775,7 +2775,7 @@ func (x *VList_VFloat64) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 		case done:
 			return dec.FinishValue()
 		default:
-			*x = append(*x, VFloat64(elem))
+			*x = append(*x, VFloat64(elem)) //nolint:gosec // disable G115
 		}
 	}
 }
@@ -3033,7 +3033,7 @@ func (x *VSet_VBool) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 			if tmpMap == nil {
 				tmpMap = make(VSet_VBool)
 			}
-			tmpMap[VBool(key)] = struct{}{}
+			tmpMap[VBool(key)] = struct{}{} //nolint:gosec // disable G115
 		}
 	}
 }
@@ -3139,7 +3139,7 @@ func (x *VSet_VString) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 			if tmpMap == nil {
 				tmpMap = make(VSet_VString)
 			}
-			tmpMap[VString(key)] = struct{}{}
+			tmpMap[VString(key)] = struct{}{} //nolint:gosec // disable G115
 		}
 	}
 }
@@ -3192,7 +3192,7 @@ func (x *VSet_Byte) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 			if tmpMap == nil {
 				tmpMap = make(VSet_Byte)
 			}
-			tmpMap[byte(key)] = struct{}{}
+			tmpMap[byte(key)] = struct{}{} //nolint:gosec // disable G115
 		}
 	}
 }
@@ -3245,7 +3245,7 @@ func (x *VSet_VByte) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 			if tmpMap == nil {
 				tmpMap = make(VSet_VByte)
 			}
-			tmpMap[VByte(key)] = struct{}{}
+			tmpMap[VByte(key)] = struct{}{} //nolint:gosec // disable G115
 		}
 	}
 }
@@ -3585,7 +3585,7 @@ func (x *VSet_VUint64) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 			if tmpMap == nil {
 				tmpMap = make(VSet_VUint64)
 			}
-			tmpMap[VUint64(key)] = struct{}{}
+			tmpMap[VUint64(key)] = struct{}{} //nolint:gosec // disable G115
 		}
 	}
 }
@@ -3638,7 +3638,7 @@ func (x *VSet_Float32) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 			if tmpMap == nil {
 				tmpMap = make(VSet_Float32)
 			}
-			tmpMap[float32(key)] = struct{}{}
+			tmpMap[float32(key)] = struct{}{} //nolint:gosec // disable G115
 		}
 	}
 }
@@ -3759,12 +3759,12 @@ func (x *VMap_VBool_VBool) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 			case err != nil:
 				return err
 			default:
-				elem = VBool(value)
+				elem = VBool(value) //nolint:gosec // disable G115
 			}
 			if tmpMap == nil {
 				tmpMap = make(VMap_VBool_VBool)
 			}
-			tmpMap[VBool(key)] = elem
+			tmpMap[VBool(key)] = elem //nolint:gosec // disable G115
 		}
 	}
 }
@@ -3885,12 +3885,12 @@ func (x *VMap_VString_VString) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 			case err != nil:
 				return err
 			default:
-				elem = VString(value)
+				elem = VString(value) //nolint:gosec // disable G115
 			}
 			if tmpMap == nil {
 				tmpMap = make(VMap_VString_VString)
 			}
-			tmpMap[VString(key)] = elem
+			tmpMap[VString(key)] = elem //nolint:gosec // disable G115
 		}
 	}
 }
@@ -3948,12 +3948,12 @@ func (x *VMap_Byte_Byte) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 			case err != nil:
 				return err
 			default:
-				elem = byte(value)
+				elem = byte(value) //nolint:gosec // disable G115
 			}
 			if tmpMap == nil {
 				tmpMap = make(VMap_Byte_Byte)
 			}
-			tmpMap[byte(key)] = elem
+			tmpMap[byte(key)] = elem //nolint:gosec // disable G115
 		}
 	}
 }
@@ -4011,12 +4011,12 @@ func (x *VMap_VByte_VByte) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 			case err != nil:
 				return err
 			default:
-				elem = VByte(value)
+				elem = VByte(value) //nolint:gosec // disable G115
 			}
 			if tmpMap == nil {
 				tmpMap = make(VMap_VByte_VByte)
 			}
-			tmpMap[VByte(key)] = elem
+			tmpMap[VByte(key)] = elem //nolint:gosec // disable G115
 		}
 	}
 }
@@ -4346,12 +4346,12 @@ func (x *VMap_VUint32_VUint32) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 			case err != nil:
 				return err
 			default:
-				elem = VUint32(value)
+				elem = VUint32(value) //nolint:gosec // disable G115
 			}
 			if tmpMap == nil {
 				tmpMap = make(VMap_VUint32_VUint32)
 			}
-			tmpMap[VUint32(key)] = elem
+			tmpMap[VUint32(key)] = elem //nolint:gosec // disable G115
 		}
 	}
 }
@@ -4409,12 +4409,12 @@ func (x *VMap_VInt32_VInt32) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 			case err != nil:
 				return err
 			default:
-				elem = VInt32(value)
+				elem = VInt32(value) //nolint:gosec // disable G115
 			}
 			if tmpMap == nil {
 				tmpMap = make(VMap_VInt32_VInt32)
 			}
-			tmpMap[VInt32(key)] = elem
+			tmpMap[VInt32(key)] = elem //nolint:gosec // disable G115
 		}
 	}
 }
@@ -4865,7 +4865,7 @@ func (x *VStructDepth1_All) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 			case err != nil:
 				return err
 			default:
-				x.F2 = VBool(value)
+				x.F2 = VBool(value) //nolint:gosec // disable G115
 			}
 		case 3:
 			switch value, err := dec.ReadValueString(); {
@@ -4879,7 +4879,7 @@ func (x *VStructDepth1_All) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 			case err != nil:
 				return err
 			default:
-				x.F4 = VString(value)
+				x.F4 = VString(value) //nolint:gosec // disable G115
 			}
 		case 5:
 			switch value, err := dec.ReadValueTypeObject(); {
@@ -4893,14 +4893,14 @@ func (x *VStructDepth1_All) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 			case err != nil:
 				return err
 			default:
-				x.F6 = byte(value)
+				x.F6 = byte(value) //nolint:gosec // disable G115
 			}
 		case 7:
 			switch value, err := dec.ReadValueUint(8); {
 			case err != nil:
 				return err
 			default:
-				x.F7 = VByte(value)
+				x.F7 = VByte(value) //nolint:gosec // disable G115
 			}
 		case 8:
 			switch value, err := dec.ReadValueString(); {
@@ -4937,28 +4937,28 @@ func (x *VStructDepth1_All) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 			case err != nil:
 				return err
 			default:
-				x.F13 = uint16(value)
+				x.F13 = uint16(value) //nolint:gosec // disable G115
 			}
 		case 14:
 			switch value, err := dec.ReadValueUint(16); {
 			case err != nil:
 				return err
 			default:
-				x.F14 = VUint16(value)
+				x.F14 = VUint16(value) //nolint:gosec // disable G115
 			}
 		case 15:
 			switch value, err := dec.ReadValueUint(32); {
 			case err != nil:
 				return err
 			default:
-				x.F15 = uint32(value)
+				x.F15 = uint32(value) //nolint:gosec // disable G115
 			}
 		case 16:
 			switch value, err := dec.ReadValueUint(32); {
 			case err != nil:
 				return err
 			default:
-				x.F16 = VUint32(value)
+				x.F16 = VUint32(value) //nolint:gosec // disable G115
 			}
 		case 17:
 			switch value, err := dec.ReadValueUint(64); {
@@ -4972,49 +4972,49 @@ func (x *VStructDepth1_All) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 			case err != nil:
 				return err
 			default:
-				x.F18 = VUint64(value)
+				x.F18 = VUint64(value) //nolint:gosec // disable G115
 			}
 		case 19:
 			switch value, err := dec.ReadValueInt(8); {
 			case err != nil:
 				return err
 			default:
-				x.F19 = int8(value)
+				x.F19 = int8(value) //nolint:gosec // disable G115
 			}
 		case 20:
 			switch value, err := dec.ReadValueInt(8); {
 			case err != nil:
 				return err
 			default:
-				x.F20 = VInt8(value)
+				x.F20 = VInt8(value) //nolint:gosec // disable G115
 			}
 		case 21:
 			switch value, err := dec.ReadValueInt(16); {
 			case err != nil:
 				return err
 			default:
-				x.F21 = int16(value)
+				x.F21 = int16(value) //nolint:gosec // disable G115
 			}
 		case 22:
 			switch value, err := dec.ReadValueInt(16); {
 			case err != nil:
 				return err
 			default:
-				x.F22 = VInt16(value)
+				x.F22 = VInt16(value) //nolint:gosec // disable G115
 			}
 		case 23:
 			switch value, err := dec.ReadValueInt(32); {
 			case err != nil:
 				return err
 			default:
-				x.F23 = int32(value)
+				x.F23 = int32(value) //nolint:gosec // disable G115
 			}
 		case 24:
 			switch value, err := dec.ReadValueInt(32); {
 			case err != nil:
 				return err
 			default:
-				x.F24 = VInt32(value)
+				x.F24 = VInt32(value) //nolint:gosec // disable G115
 			}
 		case 25:
 			switch value, err := dec.ReadValueInt(64); {
@@ -5028,21 +5028,21 @@ func (x *VStructDepth1_All) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 			case err != nil:
 				return err
 			default:
-				x.F26 = VInt64(value)
+				x.F26 = VInt64(value) //nolint:gosec // disable G115
 			}
 		case 27:
 			switch value, err := dec.ReadValueFloat(32); {
 			case err != nil:
 				return err
 			default:
-				x.F27 = float32(value)
+				x.F27 = float32(value) //nolint:gosec // disable G115
 			}
 		case 28:
 			switch value, err := dec.ReadValueFloat(32); {
 			case err != nil:
 				return err
 			default:
-				x.F28 = VFloat32(value)
+				x.F28 = VFloat32(value) //nolint:gosec // disable G115
 			}
 		case 29:
 			switch value, err := dec.ReadValueFloat(64); {
@@ -5056,7 +5056,7 @@ func (x *VStructDepth1_All) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 			case err != nil:
 				return err
 			default:
-				x.F30 = VFloat64(value)
+				x.F30 = VFloat64(value) //nolint:gosec // disable G115
 			}
 		case 31:
 			if err := dec.StartValue(vdlTypeOptional35); err != nil {
@@ -5279,7 +5279,7 @@ func (x *VStructDepth1_VBool) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 			case err != nil:
 				return err
 			default:
-				x.F2 = VBool(value)
+				x.F2 = VBool(value) //nolint:gosec // disable G115
 			}
 		}
 	}
@@ -5405,7 +5405,7 @@ func (x *VStructDepth1_VString) VDLRead(dec vdl.Decoder) error { //nolint:gocycl
 			case err != nil:
 				return err
 			default:
-				x.F4 = VString(value)
+				x.F4 = VString(value) //nolint:gosec // disable G115
 			}
 		}
 	}
@@ -5533,7 +5533,7 @@ func (x *VStructDepth1_Byte) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 			case err != nil:
 				return err
 			default:
-				x.F6 = byte(value)
+				x.F6 = byte(value) //nolint:gosec // disable G115
 			}
 		}
 	}
@@ -5596,7 +5596,7 @@ func (x *VStructDepth1_VByte) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 			case err != nil:
 				return err
 			default:
-				x.F7 = VByte(value)
+				x.F7 = VByte(value) //nolint:gosec // disable G115
 			}
 		}
 	}
@@ -5978,7 +5978,7 @@ func (x *VStructDepth1_Uint16) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 			case err != nil:
 				return err
 			default:
-				x.F13 = uint16(value)
+				x.F13 = uint16(value) //nolint:gosec // disable G115
 			}
 		}
 	}
@@ -6041,7 +6041,7 @@ func (x *VStructDepth1_VUint16) VDLRead(dec vdl.Decoder) error { //nolint:gocycl
 			case err != nil:
 				return err
 			default:
-				x.F14 = VUint16(value)
+				x.F14 = VUint16(value) //nolint:gosec // disable G115
 			}
 		}
 	}
@@ -6104,7 +6104,7 @@ func (x *VStructDepth1_Uint32) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 			case err != nil:
 				return err
 			default:
-				x.F15 = uint32(value)
+				x.F15 = uint32(value) //nolint:gosec // disable G115
 			}
 		}
 	}
@@ -6167,7 +6167,7 @@ func (x *VStructDepth1_VUint32) VDLRead(dec vdl.Decoder) error { //nolint:gocycl
 			case err != nil:
 				return err
 			default:
-				x.F16 = VUint32(value)
+				x.F16 = VUint32(value) //nolint:gosec // disable G115
 			}
 		}
 	}
@@ -6293,7 +6293,7 @@ func (x *VStructDepth1_VUint64) VDLRead(dec vdl.Decoder) error { //nolint:gocycl
 			case err != nil:
 				return err
 			default:
-				x.F18 = VUint64(value)
+				x.F18 = VUint64(value) //nolint:gosec // disable G115
 			}
 		}
 	}
@@ -6356,7 +6356,7 @@ func (x *VStructDepth1_Int8) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 			case err != nil:
 				return err
 			default:
-				x.F19 = int8(value)
+				x.F19 = int8(value) //nolint:gosec // disable G115
 			}
 		}
 	}
@@ -6419,7 +6419,7 @@ func (x *VStructDepth1_VInt8) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 			case err != nil:
 				return err
 			default:
-				x.F20 = VInt8(value)
+				x.F20 = VInt8(value) //nolint:gosec // disable G115
 			}
 		}
 	}
@@ -6482,7 +6482,7 @@ func (x *VStructDepth1_Int16) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 			case err != nil:
 				return err
 			default:
-				x.F21 = int16(value)
+				x.F21 = int16(value) //nolint:gosec // disable G115
 			}
 		}
 	}
@@ -6545,7 +6545,7 @@ func (x *VStructDepth1_VInt16) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 			case err != nil:
 				return err
 			default:
-				x.F22 = VInt16(value)
+				x.F22 = VInt16(value) //nolint:gosec // disable G115
 			}
 		}
 	}
@@ -6608,7 +6608,7 @@ func (x *VStructDepth1_Int32) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 			case err != nil:
 				return err
 			default:
-				x.F23 = int32(value)
+				x.F23 = int32(value) //nolint:gosec // disable G115
 			}
 		}
 	}
@@ -6671,7 +6671,7 @@ func (x *VStructDepth1_VInt32) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 			case err != nil:
 				return err
 			default:
-				x.F24 = VInt32(value)
+				x.F24 = VInt32(value) //nolint:gosec // disable G115
 			}
 		}
 	}
@@ -6797,7 +6797,7 @@ func (x *VStructDepth1_VInt64) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 			case err != nil:
 				return err
 			default:
-				x.F26 = VInt64(value)
+				x.F26 = VInt64(value) //nolint:gosec // disable G115
 			}
 		}
 	}
@@ -6860,7 +6860,7 @@ func (x *VStructDepth1_Float32) VDLRead(dec vdl.Decoder) error { //nolint:gocycl
 			case err != nil:
 				return err
 			default:
-				x.F27 = float32(value)
+				x.F27 = float32(value) //nolint:gosec // disable G115
 			}
 		}
 	}
@@ -6923,7 +6923,7 @@ func (x *VStructDepth1_VFloat32) VDLRead(dec vdl.Decoder) error { //nolint:gocyc
 			case err != nil:
 				return err
 			default:
-				x.F28 = VFloat32(value)
+				x.F28 = VFloat32(value) //nolint:gosec // disable G115
 			}
 		}
 	}
@@ -7049,7 +7049,7 @@ func (x *VStructDepth1_VFloat64) VDLRead(dec vdl.Decoder) error { //nolint:gocyc
 			case err != nil:
 				return err
 			default:
-				x.F30 = VFloat64(value)
+				x.F30 = VFloat64(value) //nolint:gosec // disable G115
 			}
 		}
 	}
@@ -8130,7 +8130,7 @@ func VDLReadVUnionDepth1_All(dec vdl.Decoder, x *VUnionDepth1_All) error { //nol
 		case err != nil:
 			return err
 		default:
-			field.Value = VBool(value)
+			field.Value = VBool(value) //nolint:gosec // disable G115
 		}
 		*x = field
 	case 3:
@@ -8148,7 +8148,7 @@ func VDLReadVUnionDepth1_All(dec vdl.Decoder, x *VUnionDepth1_All) error { //nol
 		case err != nil:
 			return err
 		default:
-			field.Value = VString(value)
+			field.Value = VString(value) //nolint:gosec // disable G115
 		}
 		*x = field
 	case 5:
@@ -8166,7 +8166,7 @@ func VDLReadVUnionDepth1_All(dec vdl.Decoder, x *VUnionDepth1_All) error { //nol
 		case err != nil:
 			return err
 		default:
-			field.Value = byte(value)
+			field.Value = byte(value) //nolint:gosec // disable G115
 		}
 		*x = field
 	case 7:
@@ -8175,7 +8175,7 @@ func VDLReadVUnionDepth1_All(dec vdl.Decoder, x *VUnionDepth1_All) error { //nol
 		case err != nil:
 			return err
 		default:
-			field.Value = VByte(value)
+			field.Value = VByte(value) //nolint:gosec // disable G115
 		}
 		*x = field
 	case 8:
@@ -8224,7 +8224,7 @@ func VDLReadVUnionDepth1_All(dec vdl.Decoder, x *VUnionDepth1_All) error { //nol
 		case err != nil:
 			return err
 		default:
-			field.Value = uint16(value)
+			field.Value = uint16(value) //nolint:gosec // disable G115
 		}
 		*x = field
 	case 14:
@@ -8233,7 +8233,7 @@ func VDLReadVUnionDepth1_All(dec vdl.Decoder, x *VUnionDepth1_All) error { //nol
 		case err != nil:
 			return err
 		default:
-			field.Value = VUint16(value)
+			field.Value = VUint16(value) //nolint:gosec // disable G115
 		}
 		*x = field
 	case 15:
@@ -8242,7 +8242,7 @@ func VDLReadVUnionDepth1_All(dec vdl.Decoder, x *VUnionDepth1_All) error { //nol
 		case err != nil:
 			return err
 		default:
-			field.Value = uint32(value)
+			field.Value = uint32(value) //nolint:gosec // disable G115
 		}
 		*x = field
 	case 16:
@@ -8251,7 +8251,7 @@ func VDLReadVUnionDepth1_All(dec vdl.Decoder, x *VUnionDepth1_All) error { //nol
 		case err != nil:
 			return err
 		default:
-			field.Value = VUint32(value)
+			field.Value = VUint32(value) //nolint:gosec // disable G115
 		}
 		*x = field
 	case 17:
@@ -8269,7 +8269,7 @@ func VDLReadVUnionDepth1_All(dec vdl.Decoder, x *VUnionDepth1_All) error { //nol
 		case err != nil:
 			return err
 		default:
-			field.Value = VUint64(value)
+			field.Value = VUint64(value) //nolint:gosec // disable G115
 		}
 		*x = field
 	case 19:
@@ -8278,7 +8278,7 @@ func VDLReadVUnionDepth1_All(dec vdl.Decoder, x *VUnionDepth1_All) error { //nol
 		case err != nil:
 			return err
 		default:
-			field.Value = int8(value)
+			field.Value = int8(value) //nolint:gosec // disable G115
 		}
 		*x = field
 	case 20:
@@ -8287,7 +8287,7 @@ func VDLReadVUnionDepth1_All(dec vdl.Decoder, x *VUnionDepth1_All) error { //nol
 		case err != nil:
 			return err
 		default:
-			field.Value = VInt8(value)
+			field.Value = VInt8(value) //nolint:gosec // disable G115
 		}
 		*x = field
 	case 21:
@@ -8296,7 +8296,7 @@ func VDLReadVUnionDepth1_All(dec vdl.Decoder, x *VUnionDepth1_All) error { //nol
 		case err != nil:
 			return err
 		default:
-			field.Value = int16(value)
+			field.Value = int16(value) //nolint:gosec // disable G115
 		}
 		*x = field
 	case 22:
@@ -8305,7 +8305,7 @@ func VDLReadVUnionDepth1_All(dec vdl.Decoder, x *VUnionDepth1_All) error { //nol
 		case err != nil:
 			return err
 		default:
-			field.Value = VInt16(value)
+			field.Value = VInt16(value) //nolint:gosec // disable G115
 		}
 		*x = field
 	case 23:
@@ -8314,7 +8314,7 @@ func VDLReadVUnionDepth1_All(dec vdl.Decoder, x *VUnionDepth1_All) error { //nol
 		case err != nil:
 			return err
 		default:
-			field.Value = int32(value)
+			field.Value = int32(value) //nolint:gosec // disable G115
 		}
 		*x = field
 	case 24:
@@ -8323,7 +8323,7 @@ func VDLReadVUnionDepth1_All(dec vdl.Decoder, x *VUnionDepth1_All) error { //nol
 		case err != nil:
 			return err
 		default:
-			field.Value = VInt32(value)
+			field.Value = VInt32(value) //nolint:gosec // disable G115
 		}
 		*x = field
 	case 25:
@@ -8341,7 +8341,7 @@ func VDLReadVUnionDepth1_All(dec vdl.Decoder, x *VUnionDepth1_All) error { //nol
 		case err != nil:
 			return err
 		default:
-			field.Value = VInt64(value)
+			field.Value = VInt64(value) //nolint:gosec // disable G115
 		}
 		*x = field
 	case 27:
@@ -8350,7 +8350,7 @@ func VDLReadVUnionDepth1_All(dec vdl.Decoder, x *VUnionDepth1_All) error { //nol
 		case err != nil:
 			return err
 		default:
-			field.Value = float32(value)
+			field.Value = float32(value) //nolint:gosec // disable G115
 		}
 		*x = field
 	case 28:
@@ -8359,7 +8359,7 @@ func VDLReadVUnionDepth1_All(dec vdl.Decoder, x *VUnionDepth1_All) error { //nol
 		case err != nil:
 			return err
 		default:
-			field.Value = VFloat32(value)
+			field.Value = VFloat32(value) //nolint:gosec // disable G115
 		}
 		*x = field
 	case 29:
@@ -8377,7 +8377,7 @@ func VDLReadVUnionDepth1_All(dec vdl.Decoder, x *VUnionDepth1_All) error { //nol
 		case err != nil:
 			return err
 		default:
-			field.Value = VFloat64(value)
+			field.Value = VFloat64(value) //nolint:gosec // disable G115
 		}
 		*x = field
 	case 31:
@@ -8661,7 +8661,7 @@ func VDLReadVUnionDepth1_VBool(dec vdl.Decoder, x *VUnionDepth1_VBool) error { /
 		case err != nil:
 			return err
 		default:
-			field.Value = VBool(value)
+			field.Value = VBool(value) //nolint:gosec // disable G115
 		}
 		*x = field
 	}
@@ -8821,7 +8821,7 @@ func VDLReadVUnionDepth1_VString(dec vdl.Decoder, x *VUnionDepth1_VString) error
 		case err != nil:
 			return err
 		default:
-			field.Value = VString(value)
+			field.Value = VString(value) //nolint:gosec // disable G115
 		}
 		*x = field
 	}
@@ -8981,7 +8981,7 @@ func VDLReadVUnionDepth1_Byte(dec vdl.Decoder, x *VUnionDepth1_Byte) error { //n
 		case err != nil:
 			return err
 		default:
-			field.Value = byte(value)
+			field.Value = byte(value) //nolint:gosec // disable G115
 		}
 		*x = field
 	}
@@ -9061,7 +9061,7 @@ func VDLReadVUnionDepth1_VByte(dec vdl.Decoder, x *VUnionDepth1_VByte) error { /
 		case err != nil:
 			return err
 		default:
-			field.Value = VByte(value)
+			field.Value = VByte(value) //nolint:gosec // disable G115
 		}
 		*x = field
 	}
@@ -9545,7 +9545,7 @@ func VDLReadVUnionDepth1_Uint16(dec vdl.Decoder, x *VUnionDepth1_Uint16) error {
 		case err != nil:
 			return err
 		default:
-			field.Value = uint16(value)
+			field.Value = uint16(value) //nolint:gosec // disable G115
 		}
 		*x = field
 	}
@@ -9625,7 +9625,7 @@ func VDLReadVUnionDepth1_VUint16(dec vdl.Decoder, x *VUnionDepth1_VUint16) error
 		case err != nil:
 			return err
 		default:
-			field.Value = VUint16(value)
+			field.Value = VUint16(value) //nolint:gosec // disable G115
 		}
 		*x = field
 	}
@@ -9705,7 +9705,7 @@ func VDLReadVUnionDepth1_Uint32(dec vdl.Decoder, x *VUnionDepth1_Uint32) error {
 		case err != nil:
 			return err
 		default:
-			field.Value = uint32(value)
+			field.Value = uint32(value) //nolint:gosec // disable G115
 		}
 		*x = field
 	}
@@ -9785,7 +9785,7 @@ func VDLReadVUnionDepth1_VUint32(dec vdl.Decoder, x *VUnionDepth1_VUint32) error
 		case err != nil:
 			return err
 		default:
-			field.Value = VUint32(value)
+			field.Value = VUint32(value) //nolint:gosec // disable G115
 		}
 		*x = field
 	}
@@ -9945,7 +9945,7 @@ func VDLReadVUnionDepth1_VUint64(dec vdl.Decoder, x *VUnionDepth1_VUint64) error
 		case err != nil:
 			return err
 		default:
-			field.Value = VUint64(value)
+			field.Value = VUint64(value) //nolint:gosec // disable G115
 		}
 		*x = field
 	}
@@ -10025,7 +10025,7 @@ func VDLReadVUnionDepth1_Int8(dec vdl.Decoder, x *VUnionDepth1_Int8) error { //n
 		case err != nil:
 			return err
 		default:
-			field.Value = int8(value)
+			field.Value = int8(value) //nolint:gosec // disable G115
 		}
 		*x = field
 	}
@@ -10105,7 +10105,7 @@ func VDLReadVUnionDepth1_VInt8(dec vdl.Decoder, x *VUnionDepth1_VInt8) error { /
 		case err != nil:
 			return err
 		default:
-			field.Value = VInt8(value)
+			field.Value = VInt8(value) //nolint:gosec // disable G115
 		}
 		*x = field
 	}
@@ -10185,7 +10185,7 @@ func VDLReadVUnionDepth1_Int16(dec vdl.Decoder, x *VUnionDepth1_Int16) error { /
 		case err != nil:
 			return err
 		default:
-			field.Value = int16(value)
+			field.Value = int16(value) //nolint:gosec // disable G115
 		}
 		*x = field
 	}
@@ -10265,7 +10265,7 @@ func VDLReadVUnionDepth1_VInt16(dec vdl.Decoder, x *VUnionDepth1_VInt16) error {
 		case err != nil:
 			return err
 		default:
-			field.Value = VInt16(value)
+			field.Value = VInt16(value) //nolint:gosec // disable G115
 		}
 		*x = field
 	}
@@ -10345,7 +10345,7 @@ func VDLReadVUnionDepth1_Int32(dec vdl.Decoder, x *VUnionDepth1_Int32) error { /
 		case err != nil:
 			return err
 		default:
-			field.Value = int32(value)
+			field.Value = int32(value) //nolint:gosec // disable G115
 		}
 		*x = field
 	}
@@ -10425,7 +10425,7 @@ func VDLReadVUnionDepth1_VInt32(dec vdl.Decoder, x *VUnionDepth1_VInt32) error {
 		case err != nil:
 			return err
 		default:
-			field.Value = VInt32(value)
+			field.Value = VInt32(value) //nolint:gosec // disable G115
 		}
 		*x = field
 	}
@@ -10585,7 +10585,7 @@ func VDLReadVUnionDepth1_VInt64(dec vdl.Decoder, x *VUnionDepth1_VInt64) error {
 		case err != nil:
 			return err
 		default:
-			field.Value = VInt64(value)
+			field.Value = VInt64(value) //nolint:gosec // disable G115
 		}
 		*x = field
 	}
@@ -10665,7 +10665,7 @@ func VDLReadVUnionDepth1_Float32(dec vdl.Decoder, x *VUnionDepth1_Float32) error
 		case err != nil:
 			return err
 		default:
-			field.Value = float32(value)
+			field.Value = float32(value) //nolint:gosec // disable G115
 		}
 		*x = field
 	}
@@ -10745,7 +10745,7 @@ func VDLReadVUnionDepth1_VFloat32(dec vdl.Decoder, x *VUnionDepth1_VFloat32) err
 		case err != nil:
 			return err
 		default:
-			field.Value = VFloat32(value)
+			field.Value = VFloat32(value) //nolint:gosec // disable G115
 		}
 		*x = field
 	}
@@ -10905,7 +10905,7 @@ func VDLReadVUnionDepth1_VFloat64(dec vdl.Decoder, x *VUnionDepth1_VFloat64) err
 		case err != nil:
 			return err
 		default:
-			field.Value = VFloat64(value)
+			field.Value = VFloat64(value) //nolint:gosec // disable G115
 		}
 		*x = field
 	}
@@ -11428,12 +11428,12 @@ func vdlReadAnonMap2(dec vdl.Decoder, x *map[byte]byte) error {
 			case err != nil:
 				return err
 			default:
-				elem = byte(value)
+				elem = byte(value) //nolint:gosec // disable G115
 			}
 			if tmpMap == nil {
 				tmpMap = make(map[byte]byte)
 			}
-			tmpMap[byte(key)] = elem
+			tmpMap[byte(key)] = elem //nolint:gosec // disable G115
 		}
 	}
 }
@@ -11785,7 +11785,7 @@ func vdlReadAnonList3(dec vdl.Decoder, x *[]VString) error {
 		case done:
 			return dec.FinishValue()
 		default:
-			*x = append(*x, VString(elem))
+			*x = append(*x, VString(elem)) //nolint:gosec // disable G115
 		}
 	}
 }
@@ -11884,7 +11884,7 @@ func vdlReadAnonSet4(dec vdl.Decoder, x *map[VBool]struct{}) error {
 			if tmpMap == nil {
 				tmpMap = make(map[VBool]struct{})
 			}
-			tmpMap[VBool(key)] = struct{}{}
+			tmpMap[VBool(key)] = struct{}{} //nolint:gosec // disable G115
 		}
 	}
 }
@@ -12932,7 +12932,7 @@ func vdlReadAnonList5(dec vdl.Decoder, x *[]int16) error {
 		case done:
 			return dec.FinishValue()
 		default:
-			*x = append(*x, int16(elem))
+			*x = append(*x, int16(elem)) //nolint:gosec // disable G115
 		}
 	}
 }
@@ -12982,12 +12982,12 @@ func vdlReadAnonMap7(dec vdl.Decoder, x *map[uint32]uint32) error {
 			case err != nil:
 				return err
 			default:
-				elem = uint32(value)
+				elem = uint32(value) //nolint:gosec // disable G115
 			}
 			if tmpMap == nil {
 				tmpMap = make(map[uint32]uint32)
 			}
-			tmpMap[uint32(key)] = elem
+			tmpMap[uint32(key)] = elem //nolint:gosec // disable G115
 		}
 	}
 }
@@ -14535,12 +14535,12 @@ func vdlReadAnonMap8(dec vdl.Decoder, x *map[VBool]VBool) error {
 			case err != nil:
 				return err
 			default:
-				elem = VBool(value)
+				elem = VBool(value) //nolint:gosec // disable G115
 			}
 			if tmpMap == nil {
 				tmpMap = make(map[VBool]VBool)
 			}
-			tmpMap[VBool(key)] = elem
+			tmpMap[VBool(key)] = elem //nolint:gosec // disable G115
 		}
 	}
 }
@@ -19182,7 +19182,7 @@ func (x *VWireBoolNBool) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 	case err != nil:
 		return err
 	default:
-		*x = VWireBoolNBool(value)
+		*x = VWireBoolNBool(value) //nolint:gosec // disable G115
 	}
 	return nil
 }
@@ -19210,7 +19210,7 @@ func (x *VWireBoolNString) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 	case err != nil:
 		return err
 	default:
-		*x = VWireBoolNString(value)
+		*x = VWireBoolNString(value) //nolint:gosec // disable G115
 	}
 	return nil
 }
@@ -19238,7 +19238,7 @@ func (x *VWireBoolNStruct) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 	case err != nil:
 		return err
 	default:
-		*x = VWireBoolNStruct(value)
+		*x = VWireBoolNStruct(value) //nolint:gosec // disable G115
 	}
 	return nil
 }
@@ -19266,7 +19266,7 @@ func (x *VWireIntNInt) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 	case err != nil:
 		return err
 	default:
-		*x = VWireIntNInt(value)
+		*x = VWireIntNInt(value) //nolint:gosec // disable G115
 	}
 	return nil
 }
@@ -19294,7 +19294,7 @@ func (x *VWireIntNString) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 	case err != nil:
 		return err
 	default:
-		*x = VWireIntNString(value)
+		*x = VWireIntNString(value) //nolint:gosec // disable G115
 	}
 	return nil
 }
@@ -19322,7 +19322,7 @@ func (x *VWireIntNStruct) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 	case err != nil:
 		return err
 	default:
-		*x = VWireIntNStruct(value)
+		*x = VWireIntNStruct(value) //nolint:gosec // disable G115
 	}
 	return nil
 }
@@ -19350,7 +19350,7 @@ func (x *VWireStringNString) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 	case err != nil:
 		return err
 	default:
-		*x = VWireStringNString(value)
+		*x = VWireStringNString(value) //nolint:gosec // disable G115
 	}
 	return nil
 }
@@ -19378,7 +19378,7 @@ func (x *VWireStringNStruct) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 	case err != nil:
 		return err
 	default:
-		*x = VWireStringNStruct(value)
+		*x = VWireStringNStruct(value) //nolint:gosec // disable G115
 	}
 	return nil
 }
@@ -93378,7 +93378,7 @@ var (
 
 // ErrorfNone calls ErrNone.Errorf with the supplied arguments.
 func ErrorfNone(ctx *context.T, format string) error {
-	return ErrNone.Errorf(ctx, format)
+	return ErrNone.Errorf(ctx, format) //nolint:govet  // non-constant format string
 }
 
 // MessageNone calls ErrNone.Message with the supplied arguments.
@@ -93404,7 +93404,7 @@ func ParamsErrNone(argumentError error) (verrorComponent string, verrorOperation
 
 // ErrorfOne calls ErrOne.Errorf with the supplied arguments.
 func ErrorfOne(ctx *context.T, format string, i int64) error {
-	return ErrOne.Errorf(ctx, format, i)
+	return ErrOne.Errorf(ctx, format, i) //nolint:govet  // non-constant format string
 }
 
 // MessageOne calls ErrOne.Message with the supplied arguments.
@@ -93443,7 +93443,7 @@ func ParamsErrOne(argumentError error) (verrorComponent string, verrorOperation 
 
 // ErrorfTwo calls ErrTwo.Errorf with the supplied arguments.
 func ErrorfTwo(ctx *context.T, format string, a string, err error) error {
-	return ErrTwo.Errorf(ctx, format, a, err)
+	return ErrTwo.Errorf(ctx, format, a, err) //nolint:govet  // non-constant format string
 }
 
 // MessageTwo calls ErrTwo.Message with the supplied arguments.
@@ -93490,7 +93490,7 @@ func ParamsErrTwo(argumentError error) (verrorComponent string, verrorOperation 
 
 // ErrorfThree calls ErrThree.Errorf with the supplied arguments.
 func ErrorfThree(ctx *context.T, format string, a string, b int64, c float32) error {
-	return ErrThree.Errorf(ctx, format, a, b, c)
+	return ErrThree.Errorf(ctx, format, a, b, c) //nolint:govet  // non-constant format string
 }
 
 // MessageThree calls ErrThree.Message with the supplied arguments.

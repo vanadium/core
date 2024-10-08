@@ -452,11 +452,11 @@ func (d *decoder81) NextField() (int, error) { //nolint:gocyclo
 		switch index, err := binaryDecodeUint(d.buf); {
 		case err != nil:
 			return -1, err
-		case index >= uint64(top.Type.NumField()):
+		case index >= uint64(top.Type.NumField()): //nolint:gosec // disable G115
 			return -1, fmt.Errorf("vom: NextField: union field index out of range: %v >= %v", index, top.Type.NumField())
 		default:
 			// Set LenHint=Index+1 so that we'll know we're done next time around.
-			field = int(index)
+			field = int(index) //nolint:gosec // disable G115
 			top.Index = field
 			top.LenHint = field + 1
 		}
@@ -474,10 +474,10 @@ func (d *decoder81) NextField() (int, error) { //nolint:gocyclo
 		switch index, err := binaryDecodeUint(d.buf); {
 		case err != nil:
 			return -1, err
-		case index >= uint64(top.Type.NumField()):
+		case index >= uint64(top.Type.NumField()): //nolint:gosec // disable G115
 			return -1, fmt.Errorf("vom: NextField: struct field index out of range: %v >= %v", index, top.Type.NumField())
 		default:
-			field = int(index)
+			field = int(index) //nolint:gosec // disable G115
 			top.Index = field
 		}
 	}
@@ -562,10 +562,10 @@ func (d *decoder81) binaryDecodeEnum(tt *vdl.Type) (string, error) {
 	switch {
 	case err != nil:
 		return "", err
-	case index >= uint64(tt.NumEnumLabel()):
+	case index >= uint64(tt.NumEnumLabel()): //nolint:gosec // disable G115
 		return "", fmt.Errorf("vom: enum index %d out of range, %v", index, tt)
 	}
-	return tt.EnumLabel(int(index)), nil
+	return tt.EnumLabel(int(index)), nil //nolint:gosec // disable G115
 }
 
 func (d *decoder81) binaryDecodeByte() (byte, error) {
@@ -586,7 +586,7 @@ func (d *decoder81) DecodeUint(bitlen int) (uint64, error) {
 	if tt == nil {
 		return 0, errEmptyDecoderStack
 	}
-	return d.decodeUint(tt, uint(bitlen))
+	return d.decodeUint(tt, uint(bitlen)) //nolint:gosec // disable G115
 }
 
 func (d *decoder81) decodeUint(tt *vdl.Type, ubitlen uint) (uint64, error) {
@@ -636,7 +636,7 @@ func (d *decoder81) DecodeInt(bitlen int) (int64, error) {
 	if tt == nil {
 		return 0, errEmptyDecoderStack
 	}
-	return d.decodeInt(tt, uint(bitlen))
+	return d.decodeInt(tt, uint(bitlen)) //nolint:gosec // disable G115
 }
 
 func (d *decoder81) decodeInt(tt *vdl.Type, ubitlen uint) (int64, error) { //nolint:gocyclo
@@ -658,7 +658,7 @@ func (d *decoder81) decodeInt(tt *vdl.Type, ubitlen uint) (int64, error) { //nol
 		if err != nil {
 			return 0, err
 		}
-		ix := int64(x)
+		ix := int64(x) //nolint:gosec // disable G115
 		// The shift uses 65 since the topmost bit is the sign bit.  I.e. 32 bit
 		// numbers should be shifted by 33 rather than 32.
 		if shift := 65 - ubitlen; ix < 0 || x != (x<<shift)>>shift {
@@ -693,7 +693,7 @@ func (d *decoder81) DecodeFloat(bitlen int) (float64, error) {
 	if tt == nil {
 		return 0, errEmptyDecoderStack
 	}
-	return d.decodeFloat(tt, uint(bitlen))
+	return d.decodeFloat(tt, uint(bitlen)) //nolint:gosec // disable G115
 }
 
 func (d *decoder81) decodeFloat(tt *vdl.Type, ubitlen uint) (float64, error) { //nolint:gocyclo

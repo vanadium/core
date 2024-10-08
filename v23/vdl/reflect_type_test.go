@@ -307,9 +307,9 @@ func allTests() []rtTest {
 	// Add all types we can generate via reflect.
 	for _, test := range rtKeyTests {
 		if test.t.CanBeOptional() {
-			tests = append(tests, rtTest{reflect.PtrTo(test.rt), OptionalType(test.t)})
+			tests = append(tests, rtTest{reflect.PointerTo(test.rt), OptionalType(test.t)})
 		} else {
-			tests = append(tests, rtTest{reflect.PtrTo(test.rt), test.t})
+			tests = append(tests, rtTest{reflect.PointerTo(test.rt), test.t})
 		}
 		tests = append(tests, rtTest{reflect.SliceOf(test.rt), ListType(test.t)})
 		tests = append(tests, rtTest{reflect.MapOf(test.rt, test.rt), MapType(test.t, test.t)})
@@ -320,9 +320,9 @@ func allTests() []rtTest {
 			continue
 		}
 		if test.t.CanBeOptional() {
-			tests = append(tests, rtTest{reflect.PtrTo(test.rt), OptionalType(test.t)})
+			tests = append(tests, rtTest{reflect.PointerTo(test.rt), OptionalType(test.t)})
 		} else {
-			tests = append(tests, rtTest{reflect.PtrTo(test.rt), test.t})
+			tests = append(tests, rtTest{reflect.PointerTo(test.rt), test.t})
 		}
 		tests = append(tests, rtTest{reflect.SliceOf(test.rt), ListType(test.t)})
 		for _, key := range rtKeyTests {
@@ -385,14 +385,14 @@ func rtErrorTestsAll() []rtErrorTest {
 	// Add some types we can generate via reflect
 	for _, test := range tests {
 		if test.rt != nil {
-			tests = append(tests, rtErrorTest{reflect.PtrTo(test.rt), test.errstr})
+			tests = append(tests, rtErrorTest{reflect.PointerTo(test.rt), test.errstr})
 			tests = append(tests, rtErrorTest{reflect.SliceOf(test.rt), test.errstr})
 		}
 	}
 	// Now generate types from everything we have so far, for more complicated subtypes.
 	for _, test := range tests {
 		if test.rt != nil {
-			tests = append(tests, rtErrorTest{reflect.PtrTo(reflect.PtrTo(test.rt)), test.errstr})
+			tests = append(tests, rtErrorTest{reflect.PointerTo(reflect.PointerTo(test.rt)), test.errstr})
 			tests = append(tests, rtErrorTest{reflect.SliceOf(reflect.SliceOf(test.rt)), test.errstr})
 		}
 	}

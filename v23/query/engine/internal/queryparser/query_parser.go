@@ -1445,7 +1445,7 @@ func ConvertValueToAnOperand(value *vdl.Value, off int64) (*Operand, error) {
 		op.Int = value.Int()
 	case vdl.Byte, vdl.Uint16, vdl.Uint32, vdl.Uint64:
 		op.Type = TypInt
-		op.Int = int64(value.Uint())
+		op.Int = int64(value.Uint()) //nolint:gosec // disable G115
 	case vdl.Float32, vdl.Float64:
 		op.Type = TypFloat
 		op.Float = value.Float()

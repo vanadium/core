@@ -32,8 +32,8 @@ func VDLRequestFromHTTPRequest(req *go_http.Request) v23_http.Request {
 		Method:           req.Method,
 		Url:              url,
 		Proto:            req.Proto,
-		ProtoMajor:       int16(req.ProtoMajor),
-		ProtoMinor:       int16(req.ProtoMinor),
+		ProtoMajor:       int16(req.ProtoMajor), //nolint:gosec // disable G115
+		ProtoMinor:       int16(req.ProtoMinor), //nolint:gosec // disable G115
 		Header:           req.Header,
 		Body:             bodyBuf.Bytes(),
 		ContentLength:    req.ContentLength,

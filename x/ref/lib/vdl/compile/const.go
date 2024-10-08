@@ -372,7 +372,7 @@ func evalListIndex(base *vdl.Value, indexExpr parse.ConstExpr, file *File, env *
 	if index == nil {
 		return nil
 	}
-	ix := int(index.Uint())
+	ix := int(index.Uint()) //nolint:gosec // disable G115
 	if ix >= base.Len() {
 		env.Errorf(file, indexExpr.Pos(), "index %d out of range", ix)
 		return nil
@@ -449,7 +449,7 @@ func evalListLit(t *vdl.Type, lit *parse.ConstCompositeLit, file *File, env *Env
 			if key == nil {
 				return nil
 			}
-			index = int(key.Uint())
+			index = int(key.Uint()) //nolint:gosec // disable G115
 		}
 		// Make sure the index hasn't been assigned already, and adjust the list
 		// length as necessary.

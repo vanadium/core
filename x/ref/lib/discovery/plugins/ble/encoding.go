@@ -206,7 +206,7 @@ func decodeAdInfo(encoded []byte) (*idiscovery.AdInfo, error) {
 		}
 	}
 
-	adinfo.EncryptionAlgorithm = idiscovery.EncryptionAlgorithm(readInt())
+	adinfo.EncryptionAlgorithm = idiscovery.EncryptionAlgorithm(readInt()) //nolint:gosec // disable G115
 	if adinfo.EncryptionAlgorithm != idiscovery.NoEncryption {
 		n := readInt()
 		adinfo.EncryptionKeys = make([]idiscovery.EncryptionKey, n)

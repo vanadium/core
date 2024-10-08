@@ -436,7 +436,7 @@ var (
 
 // ErrorfInternal calls ErrInternal.Errorf with the supplied arguments.
 func ErrorfInternal(ctx *context.T, format string, err error) error {
-	return ErrInternal.Errorf(ctx, format, err)
+	return ErrInternal.Errorf(ctx, format, err) //nolint:govet  // non-constant format string
 }
 
 // MessageInternal calls ErrInternal.Message with the supplied arguments.
@@ -475,7 +475,7 @@ func ParamsErrInternal(argumentError error) (verrorComponent string, verrorOpera
 
 // ErrorfNoParams calls ErrNoParams.Errorf with the supplied arguments.
 func ErrorfNoParams(ctx *context.T, format string, pattern security.BlessingPattern) error {
-	return ErrNoParams.Errorf(ctx, format, pattern)
+	return ErrNoParams.Errorf(ctx, format, pattern) //nolint:govet  // non-constant format string
 }
 
 // MessageNoParams calls ErrNoParams.Message with the supplied arguments.
@@ -514,7 +514,7 @@ func ParamsErrNoParams(argumentError error) (verrorComponent string, verrorOpera
 
 // ErrorfPrivateKeyNotFound calls ErrPrivateKeyNotFound.Errorf with the supplied arguments.
 func ErrorfPrivateKeyNotFound(ctx *context.T, format string) error {
-	return ErrPrivateKeyNotFound.Errorf(ctx, format)
+	return ErrPrivateKeyNotFound.Errorf(ctx, format) //nolint:govet  // non-constant format string
 }
 
 // MessagePrivateKeyNotFound calls ErrPrivateKeyNotFound.Message with the supplied arguments.
@@ -540,7 +540,7 @@ func ParamsErrPrivateKeyNotFound(argumentError error) (verrorComponent string, v
 
 // ErrorfInvalidPrivateKey calls ErrInvalidPrivateKey.Errorf with the supplied arguments.
 func ErrorfInvalidPrivateKey(ctx *context.T, format string, err error) error {
-	return ErrInvalidPrivateKey.Errorf(ctx, format, err)
+	return ErrInvalidPrivateKey.Errorf(ctx, format, err) //nolint:govet  // non-constant format string
 }
 
 // MessageInvalidPrivateKey calls ErrInvalidPrivateKey.Message with the supplied arguments.

@@ -93,7 +93,7 @@ func (x *EncryptionAlgorithm) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 	case err != nil:
 		return err
 	default:
-		*x = EncryptionAlgorithm(value)
+		*x = EncryptionAlgorithm(value) //nolint:gosec // disable G115
 	}
 	return nil
 }
@@ -148,7 +148,7 @@ func (x *AdStatus) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 	case err != nil:
 		return err
 	default:
-		*x = AdStatus(value)
+		*x = AdStatus(value) //nolint:gosec // disable G115
 	}
 	return nil
 }
@@ -364,7 +364,7 @@ func (x *AdInfo) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 			case err != nil:
 				return err
 			default:
-				x.EncryptionAlgorithm = EncryptionAlgorithm(value)
+				x.EncryptionAlgorithm = EncryptionAlgorithm(value) //nolint:gosec // disable G115
 			}
 		case 2:
 			if err := vdlReadAnonList1(dec, &x.EncryptionKeys); err != nil {
@@ -391,7 +391,7 @@ func (x *AdInfo) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 			case err != nil:
 				return err
 			default:
-				x.Status = AdStatus(value)
+				x.Status = AdStatus(value) //nolint:gosec // disable G115
 			}
 		case 7:
 			switch value, err := dec.ReadValueBool(); {
@@ -477,7 +477,7 @@ var (
 
 // ErrorfAdvertisementNotFound calls ErrAdvertisementNotFound.Errorf with the supplied arguments.
 func ErrorfAdvertisementNotFound(ctx *context.T, format string, id discovery.AdId) error {
-	return ErrAdvertisementNotFound.Errorf(ctx, format, id)
+	return ErrAdvertisementNotFound.Errorf(ctx, format, id) //nolint:govet  // non-constant format string
 }
 
 // MessageAdvertisementNotFound calls ErrAdvertisementNotFound.Message with the supplied arguments.
@@ -516,7 +516,7 @@ func ParamsErrAdvertisementNotFound(argumentError error) (verrorComponent string
 
 // ErrorfAlreadyBeingAdvertised calls ErrAlreadyBeingAdvertised.Errorf with the supplied arguments.
 func ErrorfAlreadyBeingAdvertised(ctx *context.T, format string, id discovery.AdId) error {
-	return ErrAlreadyBeingAdvertised.Errorf(ctx, format, id)
+	return ErrAlreadyBeingAdvertised.Errorf(ctx, format, id) //nolint:govet  // non-constant format string
 }
 
 // MessageAlreadyBeingAdvertised calls ErrAlreadyBeingAdvertised.Message with the supplied arguments.
@@ -555,7 +555,7 @@ func ParamsErrAlreadyBeingAdvertised(argumentError error) (verrorComponent strin
 
 // ErrorfBadAdvertisement calls ErrBadAdvertisement.Errorf with the supplied arguments.
 func ErrorfBadAdvertisement(ctx *context.T, format string, err error) error {
-	return ErrBadAdvertisement.Errorf(ctx, format, err)
+	return ErrBadAdvertisement.Errorf(ctx, format, err) //nolint:govet  // non-constant format string
 }
 
 // MessageBadAdvertisement calls ErrBadAdvertisement.Message with the supplied arguments.
@@ -594,7 +594,7 @@ func ParamsErrBadAdvertisement(argumentError error) (verrorComponent string, ver
 
 // ErrorfBadQuery calls ErrBadQuery.Errorf with the supplied arguments.
 func ErrorfBadQuery(ctx *context.T, format string, err error) error {
-	return ErrBadQuery.Errorf(ctx, format, err)
+	return ErrBadQuery.Errorf(ctx, format, err) //nolint:govet  // non-constant format string
 }
 
 // MessageBadQuery calls ErrBadQuery.Message with the supplied arguments.
@@ -633,7 +633,7 @@ func ParamsErrBadQuery(argumentError error) (verrorComponent string, verrorOpera
 
 // ErrorfDiscoveryClosed calls ErrDiscoveryClosed.Errorf with the supplied arguments.
 func ErrorfDiscoveryClosed(ctx *context.T, format string) error {
-	return ErrDiscoveryClosed.Errorf(ctx, format)
+	return ErrDiscoveryClosed.Errorf(ctx, format) //nolint:govet  // non-constant format string
 }
 
 // MessageDiscoveryClosed calls ErrDiscoveryClosed.Message with the supplied arguments.
@@ -659,7 +659,7 @@ func ParamsErrDiscoveryClosed(argumentError error) (verrorComponent string, verr
 
 // ErrorfNoDiscoveryPlugin calls ErrNoDiscoveryPlugin.Errorf with the supplied arguments.
 func ErrorfNoDiscoveryPlugin(ctx *context.T, format string) error {
-	return ErrNoDiscoveryPlugin.Errorf(ctx, format)
+	return ErrNoDiscoveryPlugin.Errorf(ctx, format) //nolint:govet  // non-constant format string
 }
 
 // MessageNoDiscoveryPlugin calls ErrNoDiscoveryPlugin.Message with the supplied arguments.
@@ -685,7 +685,7 @@ func ParamsErrNoDiscoveryPlugin(argumentError error) (verrorComponent string, ve
 
 // ErrorfTooManyPlugins calls ErrTooManyPlugins.Errorf with the supplied arguments.
 func ErrorfTooManyPlugins(ctx *context.T, format string, actual int32, limit int32) error {
-	return ErrTooManyPlugins.Errorf(ctx, format, actual, limit)
+	return ErrTooManyPlugins.Errorf(ctx, format, actual, limit) //nolint:govet  // non-constant format string
 }
 
 // MessageTooManyPlugins calls ErrTooManyPlugins.Message with the supplied arguments.

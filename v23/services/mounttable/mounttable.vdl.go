@@ -66,7 +66,7 @@ func (x *Tag) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 	case err != nil:
 		return err
 	default:
-		*x = Tag(value)
+		*x = Tag(value) //nolint:gosec // disable G115
 	}
 	return nil
 }

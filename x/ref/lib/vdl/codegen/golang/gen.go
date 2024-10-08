@@ -680,7 +680,7 @@ var (
 {{$message := print (firstRuneToExport "Message" $edef.Exported) (firstRuneToUpper  $edef.Name)}}
 // {{$errorf}} calls {{$errName}}.Errorf with the supplied arguments.
 func {{$errorf}}(ctx {{(print "*" ($data.Pkg "v.io/v23/context") "T")}}, format string,  {{argNameTypes "" "" "" "" $data $edef.Params}}) error {
-	return {{$errName}}.Errorf({{argNames "" "" "ctx" "format" "" $edef.Params}})
+	return {{$errName}}.Errorf({{argNames "" "" "ctx" "format" "" $edef.Params}}) //nolint:govet  // non-constant format string
 }
 
 // {{$message}} calls {{$errName}}.Message with the supplied arguments.

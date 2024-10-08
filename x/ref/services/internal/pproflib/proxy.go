@@ -130,7 +130,7 @@ func (p *proxy) profile(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/octet-stream")
 	c := pprof.PProfClient(p.name)
 	ctx, _ := vtrace.WithNewTrace(p.ctx, "proxy.profile", nil)
-	prof, err := c.CpuProfile(ctx, int32(sec))
+	prof, err := c.CpuProfile(ctx, int32(sec)) //nolint:gosec // disable G115
 	if err != nil {
 		replyUnavailable(w, err)
 		return

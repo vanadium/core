@@ -636,7 +636,7 @@ func TestNamedTypes(t *testing.T) { //nolint:gocyclo
 		var x *Type
 		typ := test.t
 		create := func() { x = NamedType(name, typ) }
-		ExpectPanic(t, create, errstr, name)
+		ExpectPanic(t, create, errstr, name) //nolint:govet // non-constant format string
 		if x == nil {
 			continue
 		}

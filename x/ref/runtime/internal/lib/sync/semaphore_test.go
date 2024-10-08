@@ -183,7 +183,7 @@ func BenchmarkInc(b *testing.B) {
 func BenchmarkDec(b *testing.B) {
 	s := NewSemaphore()
 	cancel := make(chan struct{})
-	s.IncN(uint(b.N))
+	s.IncN(uint(b.N)) //nolint:gosec // disable G115
 	for i := 0; i < b.N; i++ {
 		if err := s.Dec(cancel); err != nil {
 			b.Fatal(err)
@@ -213,7 +213,7 @@ func BenchmarkTryDec_TryAgain(b *testing.B) {
 
 func BenchmarkTryDec_Success(b *testing.B) {
 	s := NewSemaphore()
-	s.IncN(uint(b.N))
+	s.IncN(uint(b.N)) //nolint:gosec // disable G115
 	for i := 0; i < b.N; i++ {
 		if err := s.TryDecN(1); err != nil {
 			b.Fatalf("TryDecN failed with %v in iteration %d", err, i)

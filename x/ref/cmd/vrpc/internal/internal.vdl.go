@@ -97,14 +97,14 @@ func (x *Struct) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 			case err != nil:
 				return err
 			default:
-				x.X = int32(value)
+				x.X = int32(value) //nolint:gosec // disable G115
 			}
 		case 1:
 			switch value, err := dec.ReadValueInt(32); {
 			case err != nil:
 				return err
 			default:
-				x.Y = int32(value)
+				x.Y = int32(value) //nolint:gosec // disable G115
 			}
 		}
 	}
@@ -147,7 +147,7 @@ func (x *Array2Int) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 		case done:
 			return fmt.Errorf("short array, got len %d < 2 %T)", index, *x)
 		default:
-			x[index] = int32(elem)
+			x[index] = int32(elem) //nolint:gosec // disable G115
 		}
 	}
 	switch done, err := dec.NextEntry(); {

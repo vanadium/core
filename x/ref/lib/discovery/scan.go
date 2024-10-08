@@ -40,7 +40,8 @@ func (d *idiscovery) scan(ctx *context.T, session sessionID, query string) (<-ch
 		d.removeTask(ctx)
 	})
 	for idx, plugin := range d.plugins {
-		p := uint(idx) // https://golang.org/doc/faq#closures_and_goroutines
+		// https://golang.org/doc/faq#closures_and_goroutines
+		p := uint(idx) //nolint:gosec // disable G115
 		callback := func(ad *AdInfo) {
 			select {
 			case scanCh <- scanChanElem{p, ad}:

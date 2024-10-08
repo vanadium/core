@@ -311,10 +311,10 @@ func (g *EntryGenerator) makeValue(tt *vdl.Type, label string, mode GenMode) *vd
 	// random source with a hash of the unique type string, gen mode and iteration
 	// counter i.
 	g.hasher.Reset()
-	g.hasher.Write([]byte(tt.Unique()))   //nolint:errcheck
-	g.hasher.Write([]byte(label))         //nolint:errcheck
-	g.hasher.Write([]byte(mode.String())) //nolint:errcheck
-	g.valueGen.RandSeed(g.randSeed + int64(g.hasher.Sum64()))
+	g.hasher.Write([]byte(tt.Unique()))                       //nolint:errcheck
+	g.hasher.Write([]byte(label))                             //nolint:errcheck
+	g.hasher.Write([]byte(mode.String()))                     //nolint:errcheck
+	g.valueGen.RandSeed(g.randSeed + int64(g.hasher.Sum64())) //nolint:gosec // disable G115
 	return g.valueGen.Gen(tt, mode)
 }
 
@@ -322,10 +322,10 @@ func (g *EntryGenerator) perm(n int, tt *vdl.Type, label string, mode sourceMode
 	// Similar to makeValue, we'd like to ensure that our choice of random
 	// candidate permutations don't change our test values spuriously.
 	g.hasher.Reset()
-	g.hasher.Write([]byte(tt.Unique()))   //nolint:errcheck
-	g.hasher.Write([]byte(label))         //nolint:errcheck
-	g.hasher.Write([]byte(mode.String())) //nolint:errcheck
-	g.rng.Seed(g.randSeed + int64(g.hasher.Sum64()))
+	g.hasher.Write([]byte(tt.Unique()))              //nolint:errcheck
+	g.hasher.Write([]byte(label))                    //nolint:errcheck
+	g.hasher.Write([]byte(mode.String()))            //nolint:errcheck
+	g.rng.Seed(g.randSeed + int64(g.hasher.Sum64())) //nolint:gosec // disable G115
 	return g.rng.Perm(n)
 }
 
