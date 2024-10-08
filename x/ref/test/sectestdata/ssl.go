@@ -36,25 +36,27 @@ const (
 func VanadiumSSLData() (map[string]crypto.PrivateKey, map[string]*x509.Certificate, x509.VerifyOptions) {
 	keys := map[string]crypto.PrivateKey{}
 	certs := map[string]*x509.Certificate{}
+	var intermediates [][]byte
 	for _, typ := range SupportedKeyAlgos {
 		host := typ.String()
 		k, err := loadPrivateKey(fileContents(vanadiumSSLKeys, host+".vanadium.io.key"))
 		if err != nil {
 			panic(err)
 		}
-		c, _, err := loadCerts(fileContents(vanadiumSSLCerts, host+".vanadium.io.crt"))
+		c, intermediate, err := loadCerts(fileContents(vanadiumSSLCerts, host+".vanadium.io.crt"))
 		if err != nil {
 			panic(err)
 		}
 		keys[host] = k
 		certs[host] = c[0]
+		intermediates = append(intermediates, intermediate...)
 	}
 	var cert *x509.Certificate
 	for _, c := range certs {
 		cert = c
 		break
 	}
-	opts, err := loadCA(cert, nil, [][]byte{vanadiumSSLCA})
+	opts, err := loadCA(cert, intermediates, [][]byte{vanadiumSSLCA})
 	if err != nil {
 		panic(err)
 	}
@@ -63,11 +65,11 @@ func VanadiumSSLData() (map[string]crypto.PrivateKey, map[string]*x509.Certifica
 
 func X509VerifyOptions(typ keys.CryptoAlgo) x509.VerifyOptions {
 	host := typ.String()
-	cert, pem, err := loadCerts(fileContents(vanadiumSSLCerts, host+".vanadium.io.crt"))
+	cert, intermediates, err := loadCerts(fileContents(vanadiumSSLCerts, host+".vanadium.io.crt"))
 	if err != nil {
 		panic(err)
 	}
-	opts, err := loadCA(cert[0], pem, [][]byte{vanadiumSSLCA})
+	opts, err := loadCA(cert[0], intermediates, [][]byte{vanadiumSSLCA})
 	if err != nil {
 		panic(err)
 	}
