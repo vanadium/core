@@ -1,4 +1,4 @@
-// Copyright 2018 The Vanadium Authors. All rights reserved.
+// Copyright 2024 The Vanadium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
@@ -26,6 +26,8 @@ The vrpc flags are:
 	  if true, output a JSON representation of the response
 	-s=false
 	  if true, perform a shallow resolve
+	-timeout=1m0s
+	  time to wait for response to succeed before failing with a timeout error
 
 The global flags are:
 
@@ -122,6 +124,8 @@ The vrpc signature flags are:
 	  if true, output a JSON representation of the response
 	-s=false
 	  if true, perform a shallow resolve
+	-timeout=1m0s
+	  time to wait for response to succeed before failing with a timeout error
 
 # Vrpc call - Call a method of a Vanadium server
 
@@ -160,6 +164,8 @@ The vrpc call flags are:
 	  if true, output a JSON representation of the response
 	-s=false
 	  if true, perform a shallow resolve
+	-timeout=1m0s
+	  time to wait for response to succeed before failing with a timeout error
 
 # Vrpc identify - Reveal blessings presented by a Vanadium server
 
@@ -184,6 +190,8 @@ The vrpc identify flags are:
 	  if true, output a JSON representation of the response
 	-s=false
 	  if true, perform a shallow resolve
+	-timeout=1m0s
+	  time to wait for response to succeed before failing with a timeout error
 
 # Vrpc help - Display help for commands or topics
 
