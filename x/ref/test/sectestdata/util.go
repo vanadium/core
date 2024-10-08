@@ -54,9 +54,11 @@ func loadPrivateKey(data []byte) (crypto.PrivateKey, error) {
 	return nil, fmt.Errorf("failed to load private key")
 }
 
-func loadCerts(data []byte) ([]*x509.Certificate, error) {
+func loadCerts(data []byte) ([]*x509.Certificate, [][]byte, error) {
 	certs := []*x509.Certificate{}
+	pemBytes := make([][]byte, 0)
 	rest := data
+	prev := data
 	for {
 		var block *pem.Block
 		block, rest = pem.Decode(rest)
@@ -64,40 +66,46 @@ func loadCerts(data []byte) ([]*x509.Certificate, error) {
 			break
 		}
 		if block.Type != "CERTIFICATE" {
-			panic(fmt.Sprintf("wrong PEM type, expected CERTIFICATE: %v", block.Type))
+			return nil, nil, fmt.Errorf("wrong PEM type, expected CERTIFICATE: %v", block.Type)
 		}
 		cert, err := x509.ParseCertificate(block.Bytes)
 		if err != nil {
-			panic(err)
+			return nil, nil, fmt.Errorf("failed to parse cert: %v", err)
 		}
 		certs = append(certs, cert)
+		pemBytes = append(pemBytes, prev[:len(prev)-len(rest)])
+		prev = rest
 	}
 
 	if len(certs) == 0 {
-		return nil, fmt.Errorf("no public certs")
+		return nil, nil, fmt.Errorf("no public certs")
 	}
-	return certs, nil
+	return certs, pemBytes, nil
 }
 
-func loadCA(cert *x509.Certificate, data []byte) (x509.VerifyOptions, error) {
-	block, _ := pem.Decode(data)
-	if block.Type != "CERTIFICATE" {
-		return x509.VerifyOptions{}, fmt.Errorf("wrong PEM type, expected CERTIFICATE: %v", block.Type)
-	}
-	rootCert, err := x509.ParseCertificate(block.Bytes)
-	if err != nil {
-		return x509.VerifyOptions{}, err
-	}
+func loadCA(cert *x509.Certificate, intermediates [][]byte, roots [][]byte) (x509.VerifyOptions, error) {
 	certPool, err := x509.SystemCertPool()
 	if err != nil {
 		return x509.VerifyOptions{}, err
 	}
-	certPool.AddCert(rootCert)
 	opts := x509.VerifyOptions{
 		Roots: certPool,
 	}
 	if cert != nil {
 		opts.CurrentTime = cert.NotBefore.Add(48 * time.Hour)
+	}
+	for _, root := range roots {
+		if !certPool.AppendCertsFromPEM(root) {
+			return x509.VerifyOptions{}, fmt.Errorf("failed to add root cert")
+		}
+	}
+	if len(intermediates) > 1 {
+		opts.Intermediates = x509.NewCertPool()
+		for _, intermediate := range intermediates[1:] {
+			if !opts.Intermediates.AppendCertsFromPEM(intermediate) {
+				return x509.VerifyOptions{}, fmt.Errorf("failed to add intermediate cert: %s", intermediate)
+			}
+		}
 	}
 	return opts, nil
 }
