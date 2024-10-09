@@ -55,7 +55,7 @@ func encrypt(ctx *context.T, adinfo *AdInfo, patterns []security.BlessingPattern
 	encrypted := make([]string, len(adinfo.Ad.Addresses))
 	for i, addr := range adinfo.Ad.Addresses {
 		var n [24]byte
-		binary.LittleEndian.PutUint64(n[:], uint64(i))
+		binary.LittleEndian.PutUint64(n[:], uint64(i)) //nolint:gosec // disable G115
 		encrypted[i] = string(secretbox.Seal(nil, []byte(addr), &n, &sharedKey))
 	}
 	adinfo.Ad.Addresses = encrypted
@@ -101,7 +101,7 @@ func decrypt(ctx *context.T, adinfo *AdInfo) error {
 	decrypted := make([]string, len(adinfo.Ad.Addresses))
 	for i, encrypted := range adinfo.Ad.Addresses {
 		var n [24]byte
-		binary.LittleEndian.PutUint64(n[:], uint64(i))
+		binary.LittleEndian.PutUint64(n[:], uint64(i)) //nolint:gosec // disable G115
 		addr, ok := secretbox.Open(nil, []byte(encrypted), &n, sharedKey)
 		if !ok {
 			return errors.New("decryption error")

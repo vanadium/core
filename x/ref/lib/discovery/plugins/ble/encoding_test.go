@@ -54,7 +54,7 @@ func TestEncode(t *testing.T) { //nolint:gocyclo
 				}
 			}
 
-			adinfo.EncryptionAlgorithm = idiscovery.EncryptionAlgorithm(rand.Intn(3))
+			adinfo.EncryptionAlgorithm = idiscovery.EncryptionAlgorithm(rand.Intn(3)) //nolint:gosec // disable G115
 			if adinfo.EncryptionAlgorithm != idiscovery.NoEncryption {
 				adinfo.EncryptionKeys = make([]idiscovery.EncryptionKey, rand.Intn(3)+1)
 				for i := range adinfo.EncryptionKeys {

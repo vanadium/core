@@ -145,7 +145,7 @@ func stringOrEnumLabel(vv *vdl.Value) string {
 }
 
 func mimicUint(tt *vdl.Type, base *vdl.Value) *vdl.Value {
-	bitlen := uint(tt.Kind().BitLen())
+	bitlen := uint(tt.Kind().BitLen()) //nolint:gosec // disable G115
 	var x uint64
 	switch base.Kind() {
 	case vdl.Byte, vdl.Uint16, vdl.Uint32, vdl.Uint64:
@@ -170,12 +170,12 @@ func mimicUint(tt *vdl.Type, base *vdl.Value) *vdl.Value {
 }
 
 func mimicInt(tt *vdl.Type, base *vdl.Value) *vdl.Value {
-	bitlen := uint(tt.Kind().BitLen())
+	bitlen := uint(tt.Kind().BitLen()) //nolint:gosec // disable G115
 	var x int64
 	switch base.Kind() {
 	case vdl.Byte, vdl.Uint16, vdl.Uint32, vdl.Uint64:
 		ux := base.Uint()
-		x = int64(ux)
+		x = int64(ux) //nolint:gosec // disable G115
 		// The shift uses 65 since the topmost bit is the sign bit.  E.g. 32 bit
 		// numbers should be shifted by 33 rather than 32.
 		if shift := 65 - bitlen; x < 0 || ux != (ux<<shift)>>shift {
@@ -197,7 +197,7 @@ func mimicInt(tt *vdl.Type, base *vdl.Value) *vdl.Value {
 }
 
 func mimicFloat(tt *vdl.Type, base *vdl.Value) *vdl.Value { //nolint:gocyclo
-	bitlen := uint(tt.Kind().BitLen())
+	bitlen := uint(tt.Kind().BitLen()) //nolint:gosec // disable G115
 	var x float64
 	switch base.Kind() {
 	case vdl.Byte, vdl.Uint16, vdl.Uint32, vdl.Uint64:
@@ -246,7 +246,7 @@ func mimicFloat(tt *vdl.Type, base *vdl.Value) *vdl.Value { //nolint:gocyclo
 			bits := math.Float64bits(x)
 			offsetExp := bits >> 52 & ((1 << 11) - 1)
 			frac := bits & ((1 << 52) - 1)
-			switch exp := int(offsetExp) - 1023; {
+			switch exp := int(offsetExp) - 1023; { //nolint:gosec // disable G115
 			case offsetExp == 0 && frac > 0:
 				// Float64 subnormals can't be represented by float32.
 				return nil

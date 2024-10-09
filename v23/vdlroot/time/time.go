@@ -57,7 +57,7 @@ func TimeToNative(wire Time, native *time.Time) error {
 //nolint:revive // API change required.
 func TimeFromNative(wire *Time, native time.Time) error {
 	wire.Seconds = native.Unix() + unixEpoch
-	wire.Nanos = int32(native.Nanosecond())
+	wire.Nanos = int32(native.Nanosecond()) //nolint:gosec // disable G115
 	*wire = wire.Normalize()
 	return nil
 }
@@ -98,7 +98,7 @@ func DurationToNative(wire Duration, native *time.Duration) error {
 // durations.
 func DurationFromNative(wire *Duration, native time.Duration) error {
 	wire.Seconds = int64(native / nanosPerSecond)
-	wire.Nanos = int32(native % nanosPerSecond)
+	wire.Nanos = int32(native % nanosPerSecond) //nolint:gosec // disable G115
 	return nil
 }
 

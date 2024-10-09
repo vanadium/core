@@ -3314,7 +3314,7 @@ func TestExecErrors(t *testing.T) {
 		_, _, err := qe.Exec(test.query)
 		// Test both that the IDs compare and the text compares (since the offset needs to match).
 		if !errors.Is(err, test.err) || err.Error() != test.err.Error() {
-			t.Logf(verror.DebugString(err))
+			t.Logf("%s", verror.DebugString(err))
 			t.Errorf("query: %s; got %v, want %v", test.query, err, test.err)
 		}
 	}

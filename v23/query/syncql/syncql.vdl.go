@@ -81,7 +81,7 @@ var (
 
 // ErrorfBadFieldInWhere calls ErrBadFieldInWhere.Errorf with the supplied arguments.
 func ErrorfBadFieldInWhere(ctx *context.T, format string, off int64) error {
-	return ErrBadFieldInWhere.Errorf(ctx, format, off)
+	return ErrBadFieldInWhere.Errorf(ctx, format, off) //nolint:govet  // non-constant format string
 }
 
 // MessageBadFieldInWhere calls ErrBadFieldInWhere.Message with the supplied arguments.
@@ -120,7 +120,7 @@ func ParamsErrBadFieldInWhere(argumentError error) (verrorComponent string, verr
 
 // ErrorfBoolInvalidExpression calls ErrBoolInvalidExpression.Errorf with the supplied arguments.
 func ErrorfBoolInvalidExpression(ctx *context.T, format string, off int64) error {
-	return ErrBoolInvalidExpression.Errorf(ctx, format, off)
+	return ErrBoolInvalidExpression.Errorf(ctx, format, off) //nolint:govet  // non-constant format string
 }
 
 // MessageBoolInvalidExpression calls ErrBoolInvalidExpression.Message with the supplied arguments.
@@ -159,7 +159,7 @@ func ParamsErrBoolInvalidExpression(argumentError error) (verrorComponent string
 
 // ErrorfCheckOfUnknownStatementType calls ErrCheckOfUnknownStatementType.Errorf with the supplied arguments.
 func ErrorfCheckOfUnknownStatementType(ctx *context.T, format string, off int64) error {
-	return ErrCheckOfUnknownStatementType.Errorf(ctx, format, off)
+	return ErrCheckOfUnknownStatementType.Errorf(ctx, format, off) //nolint:govet  // non-constant format string
 }
 
 // MessageCheckOfUnknownStatementType calls ErrCheckOfUnknownStatementType.Message with the supplied arguments.
@@ -198,7 +198,7 @@ func ParamsErrCheckOfUnknownStatementType(argumentError error) (verrorComponent 
 
 // ErrorfCouldNotConvert calls ErrCouldNotConvert.Errorf with the supplied arguments.
 func ErrorfCouldNotConvert(ctx *context.T, format string, off int64, from string, to string) error {
-	return ErrCouldNotConvert.Errorf(ctx, format, off, from, to)
+	return ErrCouldNotConvert.Errorf(ctx, format, off, from, to) //nolint:govet  // non-constant format string
 }
 
 // MessageCouldNotConvert calls ErrCouldNotConvert.Message with the supplied arguments.
@@ -253,7 +253,7 @@ func ParamsErrCouldNotConvert(argumentError error) (verrorComponent string, verr
 
 // ErrorfDotNotationDisallowedForKey calls ErrDotNotationDisallowedForKey.Errorf with the supplied arguments.
 func ErrorfDotNotationDisallowedForKey(ctx *context.T, format string, off int64) error {
-	return ErrDotNotationDisallowedForKey.Errorf(ctx, format, off)
+	return ErrDotNotationDisallowedForKey.Errorf(ctx, format, off) //nolint:govet  // non-constant format string
 }
 
 // MessageDotNotationDisallowedForKey calls ErrDotNotationDisallowedForKey.Message with the supplied arguments.
@@ -292,7 +292,7 @@ func ParamsErrDotNotationDisallowedForKey(argumentError error) (verrorComponent 
 
 // ErrorfExecOfUnknownStatementType calls ErrExecOfUnknownStatementType.Errorf with the supplied arguments.
 func ErrorfExecOfUnknownStatementType(ctx *context.T, format string, off int64, statementType string) error {
-	return ErrExecOfUnknownStatementType.Errorf(ctx, format, off, statementType)
+	return ErrExecOfUnknownStatementType.Errorf(ctx, format, off, statementType) //nolint:govet  // non-constant format string
 }
 
 // MessageExecOfUnknownStatementType calls ErrExecOfUnknownStatementType.Message with the supplied arguments.
@@ -339,7 +339,7 @@ func ParamsErrExecOfUnknownStatementType(argumentError error) (verrorComponent s
 
 // ErrorfExpected calls ErrExpected.Errorf with the supplied arguments.
 func ErrorfExpected(ctx *context.T, format string, off int64, expected string) error {
-	return ErrExpected.Errorf(ctx, format, off, expected)
+	return ErrExpected.Errorf(ctx, format, off, expected) //nolint:govet  // non-constant format string
 }
 
 // MessageExpected calls ErrExpected.Message with the supplied arguments.
@@ -386,7 +386,7 @@ func ParamsErrExpected(argumentError error) (verrorComponent string, verrorOpera
 
 // ErrorfExpectedFrom calls ErrExpectedFrom.Errorf with the supplied arguments.
 func ErrorfExpectedFrom(ctx *context.T, format string, off int64, found string) error {
-	return ErrExpectedFrom.Errorf(ctx, format, off, found)
+	return ErrExpectedFrom.Errorf(ctx, format, off, found) //nolint:govet  // non-constant format string
 }
 
 // MessageExpectedFrom calls ErrExpectedFrom.Message with the supplied arguments.
@@ -433,7 +433,7 @@ func ParamsErrExpectedFrom(argumentError error) (verrorComponent string, verrorO
 
 // ErrorfExpectedIdentifier calls ErrExpectedIdentifier.Errorf with the supplied arguments.
 func ErrorfExpectedIdentifier(ctx *context.T, format string, off int64, found string) error {
-	return ErrExpectedIdentifier.Errorf(ctx, format, off, found)
+	return ErrExpectedIdentifier.Errorf(ctx, format, off, found) //nolint:govet  // non-constant format string
 }
 
 // MessageExpectedIdentifier calls ErrExpectedIdentifier.Message with the supplied arguments.
@@ -480,7 +480,7 @@ func ParamsErrExpectedIdentifier(argumentError error) (verrorComponent string, v
 
 // ErrorfExpectedOperand calls ErrExpectedOperand.Errorf with the supplied arguments.
 func ErrorfExpectedOperand(ctx *context.T, format string, off int64, found string) error {
-	return ErrExpectedOperand.Errorf(ctx, format, off, found)
+	return ErrExpectedOperand.Errorf(ctx, format, off, found) //nolint:govet  // non-constant format string
 }
 
 // MessageExpectedOperand calls ErrExpectedOperand.Message with the supplied arguments.
@@ -527,7 +527,7 @@ func ParamsErrExpectedOperand(argumentError error) (verrorComponent string, verr
 
 // ErrorfExpectedOperator calls ErrExpectedOperator.Errorf with the supplied arguments.
 func ErrorfExpectedOperator(ctx *context.T, format string, off int64, found string) error {
-	return ErrExpectedOperator.Errorf(ctx, format, off, found)
+	return ErrExpectedOperator.Errorf(ctx, format, off, found) //nolint:govet  // non-constant format string
 }
 
 // MessageExpectedOperator calls ErrExpectedOperator.Message with the supplied arguments.
@@ -574,7 +574,7 @@ func ParamsErrExpectedOperator(argumentError error) (verrorComponent string, ver
 
 // ErrorfFunctionArgCount calls ErrFunctionArgCount.Errorf with the supplied arguments.
 func ErrorfFunctionArgCount(ctx *context.T, format string, off int64, name string, expected int64, found int64) error {
-	return ErrFunctionArgCount.Errorf(ctx, format, off, name, expected, found)
+	return ErrFunctionArgCount.Errorf(ctx, format, off, name, expected, found) //nolint:govet  // non-constant format string
 }
 
 // MessageFunctionArgCount calls ErrFunctionArgCount.Message with the supplied arguments.
@@ -637,7 +637,7 @@ func ParamsErrFunctionArgCount(argumentError error) (verrorComponent string, ver
 
 // ErrorfFunctionAtLeastArgCount calls ErrFunctionAtLeastArgCount.Errorf with the supplied arguments.
 func ErrorfFunctionAtLeastArgCount(ctx *context.T, format string, off int64, name string, expected int64, found int64) error {
-	return ErrFunctionAtLeastArgCount.Errorf(ctx, format, off, name, expected, found)
+	return ErrFunctionAtLeastArgCount.Errorf(ctx, format, off, name, expected, found) //nolint:govet  // non-constant format string
 }
 
 // MessageFunctionAtLeastArgCount calls ErrFunctionAtLeastArgCount.Message with the supplied arguments.
@@ -700,7 +700,7 @@ func ParamsErrFunctionAtLeastArgCount(argumentError error) (verrorComponent stri
 
 // ErrorfFunctionTypeInvalidArg calls ErrFunctionTypeInvalidArg.Errorf with the supplied arguments.
 func ErrorfFunctionTypeInvalidArg(ctx *context.T, format string, off int64) error {
-	return ErrFunctionTypeInvalidArg.Errorf(ctx, format, off)
+	return ErrFunctionTypeInvalidArg.Errorf(ctx, format, off) //nolint:govet  // non-constant format string
 }
 
 // MessageFunctionTypeInvalidArg calls ErrFunctionTypeInvalidArg.Message with the supplied arguments.
@@ -739,7 +739,7 @@ func ParamsErrFunctionTypeInvalidArg(argumentError error) (verrorComponent strin
 
 // ErrorfFunctionLenInvalidArg calls ErrFunctionLenInvalidArg.Errorf with the supplied arguments.
 func ErrorfFunctionLenInvalidArg(ctx *context.T, format string, off int64) error {
-	return ErrFunctionLenInvalidArg.Errorf(ctx, format, off)
+	return ErrFunctionLenInvalidArg.Errorf(ctx, format, off) //nolint:govet  // non-constant format string
 }
 
 // MessageFunctionLenInvalidArg calls ErrFunctionLenInvalidArg.Message with the supplied arguments.
@@ -778,7 +778,7 @@ func ParamsErrFunctionLenInvalidArg(argumentError error) (verrorComponent string
 
 // ErrorfFunctionArgBad calls ErrFunctionArgBad.Errorf with the supplied arguments.
 func ErrorfFunctionArgBad(ctx *context.T, format string, off int64, funcName string, argName string) error {
-	return ErrFunctionArgBad.Errorf(ctx, format, off, funcName, argName)
+	return ErrFunctionArgBad.Errorf(ctx, format, off, funcName, argName) //nolint:govet  // non-constant format string
 }
 
 // MessageFunctionArgBad calls ErrFunctionArgBad.Message with the supplied arguments.
@@ -833,7 +833,7 @@ func ParamsErrFunctionArgBad(argumentError error) (verrorComponent string, verro
 
 // ErrorfFunctionNotFound calls ErrFunctionNotFound.Errorf with the supplied arguments.
 func ErrorfFunctionNotFound(ctx *context.T, format string, off int64, name string) error {
-	return ErrFunctionNotFound.Errorf(ctx, format, off, name)
+	return ErrFunctionNotFound.Errorf(ctx, format, off, name) //nolint:govet  // non-constant format string
 }
 
 // MessageFunctionNotFound calls ErrFunctionNotFound.Message with the supplied arguments.
@@ -880,7 +880,7 @@ func ParamsErrFunctionNotFound(argumentError error) (verrorComponent string, ver
 
 // ErrorfArgMustBeField calls ErrArgMustBeField.Errorf with the supplied arguments.
 func ErrorfArgMustBeField(ctx *context.T, format string, off int64) error {
-	return ErrArgMustBeField.Errorf(ctx, format, off)
+	return ErrArgMustBeField.Errorf(ctx, format, off) //nolint:govet  // non-constant format string
 }
 
 // MessageArgMustBeField calls ErrArgMustBeField.Message with the supplied arguments.
@@ -919,7 +919,7 @@ func ParamsErrArgMustBeField(argumentError error) (verrorComponent string, verro
 
 // ErrorfBigIntConversionError calls ErrBigIntConversionError.Errorf with the supplied arguments.
 func ErrorfBigIntConversionError(ctx *context.T, format string, off int64, err error) error {
-	return ErrBigIntConversionError.Errorf(ctx, format, off, err)
+	return ErrBigIntConversionError.Errorf(ctx, format, off, err) //nolint:govet  // non-constant format string
 }
 
 // MessageBigIntConversionError calls ErrBigIntConversionError.Message with the supplied arguments.
@@ -966,7 +966,7 @@ func ParamsErrBigIntConversionError(argumentError error) (verrorComponent string
 
 // ErrorfBigRatConversionError calls ErrBigRatConversionError.Errorf with the supplied arguments.
 func ErrorfBigRatConversionError(ctx *context.T, format string, off int64, err error) error {
-	return ErrBigRatConversionError.Errorf(ctx, format, off, err)
+	return ErrBigRatConversionError.Errorf(ctx, format, off, err) //nolint:govet  // non-constant format string
 }
 
 // MessageBigRatConversionError calls ErrBigRatConversionError.Message with the supplied arguments.
@@ -1013,7 +1013,7 @@ func ParamsErrBigRatConversionError(argumentError error) (verrorComponent string
 
 // ErrorfBoolConversionError calls ErrBoolConversionError.Errorf with the supplied arguments.
 func ErrorfBoolConversionError(ctx *context.T, format string, off int64, err error) error {
-	return ErrBoolConversionError.Errorf(ctx, format, off, err)
+	return ErrBoolConversionError.Errorf(ctx, format, off, err) //nolint:govet  // non-constant format string
 }
 
 // MessageBoolConversionError calls ErrBoolConversionError.Message with the supplied arguments.
@@ -1060,7 +1060,7 @@ func ParamsErrBoolConversionError(argumentError error) (verrorComponent string, 
 
 // ErrorfComplexConversionError calls ErrComplexConversionError.Errorf with the supplied arguments.
 func ErrorfComplexConversionError(ctx *context.T, format string, off int64, err error) error {
-	return ErrComplexConversionError.Errorf(ctx, format, off, err)
+	return ErrComplexConversionError.Errorf(ctx, format, off, err) //nolint:govet  // non-constant format string
 }
 
 // MessageComplexConversionError calls ErrComplexConversionError.Message with the supplied arguments.
@@ -1107,7 +1107,7 @@ func ParamsErrComplexConversionError(argumentError error) (verrorComponent strin
 
 // ErrorfUintConversionError calls ErrUintConversionError.Errorf with the supplied arguments.
 func ErrorfUintConversionError(ctx *context.T, format string, off int64, err error) error {
-	return ErrUintConversionError.Errorf(ctx, format, off, err)
+	return ErrUintConversionError.Errorf(ctx, format, off, err) //nolint:govet  // non-constant format string
 }
 
 // MessageUintConversionError calls ErrUintConversionError.Message with the supplied arguments.
@@ -1154,7 +1154,7 @@ func ParamsErrUintConversionError(argumentError error) (verrorComponent string, 
 
 // ErrorfTimeConversionError calls ErrTimeConversionError.Errorf with the supplied arguments.
 func ErrorfTimeConversionError(ctx *context.T, format string, off int64, err error) error {
-	return ErrTimeConversionError.Errorf(ctx, format, off, err)
+	return ErrTimeConversionError.Errorf(ctx, format, off, err) //nolint:govet  // non-constant format string
 }
 
 // MessageTimeConversionError calls ErrTimeConversionError.Message with the supplied arguments.
@@ -1201,7 +1201,7 @@ func ParamsErrTimeConversionError(argumentError error) (verrorComponent string, 
 
 // ErrorfLocationConversionError calls ErrLocationConversionError.Errorf with the supplied arguments.
 func ErrorfLocationConversionError(ctx *context.T, format string, off int64, err error) error {
-	return ErrLocationConversionError.Errorf(ctx, format, off, err)
+	return ErrLocationConversionError.Errorf(ctx, format, off, err) //nolint:govet  // non-constant format string
 }
 
 // MessageLocationConversionError calls ErrLocationConversionError.Message with the supplied arguments.
@@ -1248,7 +1248,7 @@ func ParamsErrLocationConversionError(argumentError error) (verrorComponent stri
 
 // ErrorfStringConversionError calls ErrStringConversionError.Errorf with the supplied arguments.
 func ErrorfStringConversionError(ctx *context.T, format string, off int64, err error) error {
-	return ErrStringConversionError.Errorf(ctx, format, off, err)
+	return ErrStringConversionError.Errorf(ctx, format, off, err) //nolint:govet  // non-constant format string
 }
 
 // MessageStringConversionError calls ErrStringConversionError.Message with the supplied arguments.
@@ -1295,7 +1295,7 @@ func ParamsErrStringConversionError(argumentError error) (verrorComponent string
 
 // ErrorfFloatConversionError calls ErrFloatConversionError.Errorf with the supplied arguments.
 func ErrorfFloatConversionError(ctx *context.T, format string, off int64, err error) error {
-	return ErrFloatConversionError.Errorf(ctx, format, off, err)
+	return ErrFloatConversionError.Errorf(ctx, format, off, err) //nolint:govet  // non-constant format string
 }
 
 // MessageFloatConversionError calls ErrFloatConversionError.Message with the supplied arguments.
@@ -1342,7 +1342,7 @@ func ParamsErrFloatConversionError(argumentError error) (verrorComponent string,
 
 // ErrorfIntConversionError calls ErrIntConversionError.Errorf with the supplied arguments.
 func ErrorfIntConversionError(ctx *context.T, format string, off int64, err error) error {
-	return ErrIntConversionError.Errorf(ctx, format, off, err)
+	return ErrIntConversionError.Errorf(ctx, format, off, err) //nolint:govet  // non-constant format string
 }
 
 // MessageIntConversionError calls ErrIntConversionError.Message with the supplied arguments.
@@ -1389,7 +1389,7 @@ func ParamsErrIntConversionError(argumentError error) (verrorComponent string, v
 
 // ErrorfIsIsNotRequireLhsValue calls ErrIsIsNotRequireLhsValue.Errorf with the supplied arguments.
 func ErrorfIsIsNotRequireLhsValue(ctx *context.T, format string, off int64) error {
-	return ErrIsIsNotRequireLhsValue.Errorf(ctx, format, off)
+	return ErrIsIsNotRequireLhsValue.Errorf(ctx, format, off) //nolint:govet  // non-constant format string
 }
 
 // MessageIsIsNotRequireLhsValue calls ErrIsIsNotRequireLhsValue.Message with the supplied arguments.
@@ -1428,7 +1428,7 @@ func ParamsErrIsIsNotRequireLhsValue(argumentError error) (verrorComponent strin
 
 // ErrorfIsIsNotRequireRhsNil calls ErrIsIsNotRequireRhsNil.Errorf with the supplied arguments.
 func ErrorfIsIsNotRequireRhsNil(ctx *context.T, format string, off int64) error {
-	return ErrIsIsNotRequireRhsNil.Errorf(ctx, format, off)
+	return ErrIsIsNotRequireRhsNil.Errorf(ctx, format, off) //nolint:govet  // non-constant format string
 }
 
 // MessageIsIsNotRequireRhsNil calls ErrIsIsNotRequireRhsNil.Message with the supplied arguments.
@@ -1467,7 +1467,7 @@ func ParamsErrIsIsNotRequireRhsNil(argumentError error) (verrorComponent string,
 
 // ErrorfInvalidLikePattern calls ErrInvalidLikePattern.Errorf with the supplied arguments.
 func ErrorfInvalidLikePattern(ctx *context.T, format string, off int64, err error) error {
-	return ErrInvalidLikePattern.Errorf(ctx, format, off, err)
+	return ErrInvalidLikePattern.Errorf(ctx, format, off, err) //nolint:govet  // non-constant format string
 }
 
 // MessageInvalidLikePattern calls ErrInvalidLikePattern.Message with the supplied arguments.
@@ -1514,7 +1514,7 @@ func ParamsErrInvalidLikePattern(argumentError error) (verrorComponent string, v
 
 // ErrorfInvalidSelectField calls ErrInvalidSelectField.Errorf with the supplied arguments.
 func ErrorfInvalidSelectField(ctx *context.T, format string, off int64) error {
-	return ErrInvalidSelectField.Errorf(ctx, format, off)
+	return ErrInvalidSelectField.Errorf(ctx, format, off) //nolint:govet  // non-constant format string
 }
 
 // MessageInvalidSelectField calls ErrInvalidSelectField.Message with the supplied arguments.
@@ -1553,7 +1553,7 @@ func ParamsErrInvalidSelectField(argumentError error) (verrorComponent string, v
 
 // ErrorfKeyExpressionLiteral calls ErrKeyExpressionLiteral.Errorf with the supplied arguments.
 func ErrorfKeyExpressionLiteral(ctx *context.T, format string, off int64) error {
-	return ErrKeyExpressionLiteral.Errorf(ctx, format, off)
+	return ErrKeyExpressionLiteral.Errorf(ctx, format, off) //nolint:govet  // non-constant format string
 }
 
 // MessageKeyExpressionLiteral calls ErrKeyExpressionLiteral.Message with the supplied arguments.
@@ -1592,7 +1592,7 @@ func ParamsErrKeyExpressionLiteral(argumentError error) (verrorComponent string,
 
 // ErrorfKeyValueStreamError calls ErrKeyValueStreamError.Errorf with the supplied arguments.
 func ErrorfKeyValueStreamError(ctx *context.T, format string, off int64, err error) error {
-	return ErrKeyValueStreamError.Errorf(ctx, format, off, err)
+	return ErrKeyValueStreamError.Errorf(ctx, format, off, err) //nolint:govet  // non-constant format string
 }
 
 // MessageKeyValueStreamError calls ErrKeyValueStreamError.Message with the supplied arguments.
@@ -1639,7 +1639,7 @@ func ParamsErrKeyValueStreamError(argumentError error) (verrorComponent string, 
 
 // ErrorfLikeExpressionsRequireRhsString calls ErrLikeExpressionsRequireRhsString.Errorf with the supplied arguments.
 func ErrorfLikeExpressionsRequireRhsString(ctx *context.T, format string, off int64) error {
-	return ErrLikeExpressionsRequireRhsString.Errorf(ctx, format, off)
+	return ErrLikeExpressionsRequireRhsString.Errorf(ctx, format, off) //nolint:govet  // non-constant format string
 }
 
 // MessageLikeExpressionsRequireRhsString calls ErrLikeExpressionsRequireRhsString.Message with the supplied arguments.
@@ -1678,7 +1678,7 @@ func ParamsErrLikeExpressionsRequireRhsString(argumentError error) (verrorCompon
 
 // ErrorfLimitMustBeGt0 calls ErrLimitMustBeGt0.Errorf with the supplied arguments.
 func ErrorfLimitMustBeGt0(ctx *context.T, format string, off int64) error {
-	return ErrLimitMustBeGt0.Errorf(ctx, format, off)
+	return ErrLimitMustBeGt0.Errorf(ctx, format, off) //nolint:govet  // non-constant format string
 }
 
 // MessageLimitMustBeGt0 calls ErrLimitMustBeGt0.Message with the supplied arguments.
@@ -1717,7 +1717,7 @@ func ParamsErrLimitMustBeGt0(argumentError error) (verrorComponent string, verro
 
 // ErrorfMaxStatementLenExceeded calls ErrMaxStatementLenExceeded.Errorf with the supplied arguments.
 func ErrorfMaxStatementLenExceeded(ctx *context.T, format string, off int64, max int64, found int64) error {
-	return ErrMaxStatementLenExceeded.Errorf(ctx, format, off, max, found)
+	return ErrMaxStatementLenExceeded.Errorf(ctx, format, off, max, found) //nolint:govet  // non-constant format string
 }
 
 // MessageMaxStatementLenExceeded calls ErrMaxStatementLenExceeded.Message with the supplied arguments.
@@ -1772,7 +1772,7 @@ func ParamsErrMaxStatementLenExceeded(argumentError error) (verrorComponent stri
 
 // ErrorfNoStatementFound calls ErrNoStatementFound.Errorf with the supplied arguments.
 func ErrorfNoStatementFound(ctx *context.T, format string, off int64) error {
-	return ErrNoStatementFound.Errorf(ctx, format, off)
+	return ErrNoStatementFound.Errorf(ctx, format, off) //nolint:govet  // non-constant format string
 }
 
 // MessageNoStatementFound calls ErrNoStatementFound.Message with the supplied arguments.
@@ -1811,7 +1811,7 @@ func ParamsErrNoStatementFound(argumentError error) (verrorComponent string, ver
 
 // ErrorfOffsetMustBeGe0 calls ErrOffsetMustBeGe0.Errorf with the supplied arguments.
 func ErrorfOffsetMustBeGe0(ctx *context.T, format string, off int64) error {
-	return ErrOffsetMustBeGe0.Errorf(ctx, format, off)
+	return ErrOffsetMustBeGe0.Errorf(ctx, format, off) //nolint:govet  // non-constant format string
 }
 
 // MessageOffsetMustBeGe0 calls ErrOffsetMustBeGe0.Message with the supplied arguments.
@@ -1850,7 +1850,7 @@ func ParamsErrOffsetMustBeGe0(argumentError error) (verrorComponent string, verr
 
 // ErrorfScanError calls ErrScanError.Errorf with the supplied arguments.
 func ErrorfScanError(ctx *context.T, format string, off int64, err error) error {
-	return ErrScanError.Errorf(ctx, format, off, err)
+	return ErrScanError.Errorf(ctx, format, off, err) //nolint:govet  // non-constant format string
 }
 
 // MessageScanError calls ErrScanError.Message with the supplied arguments.
@@ -1897,7 +1897,7 @@ func ParamsErrScanError(argumentError error) (verrorComponent string, verrorOper
 
 // ErrorfTableCantAccess calls ErrTableCantAccess.Errorf with the supplied arguments.
 func ErrorfTableCantAccess(ctx *context.T, format string, off int64, table string, err error) error {
-	return ErrTableCantAccess.Errorf(ctx, format, off, table, err)
+	return ErrTableCantAccess.Errorf(ctx, format, off, table, err) //nolint:govet  // non-constant format string
 }
 
 // MessageTableCantAccess calls ErrTableCantAccess.Message with the supplied arguments.
@@ -1952,7 +1952,7 @@ func ParamsErrTableCantAccess(argumentError error) (verrorComponent string, verr
 
 // ErrorfUnexpected calls ErrUnexpected.Errorf with the supplied arguments.
 func ErrorfUnexpected(ctx *context.T, format string, off int64, found string) error {
-	return ErrUnexpected.Errorf(ctx, format, off, found)
+	return ErrUnexpected.Errorf(ctx, format, off, found) //nolint:govet  // non-constant format string
 }
 
 // MessageUnexpected calls ErrUnexpected.Message with the supplied arguments.
@@ -1999,7 +1999,7 @@ func ParamsErrUnexpected(argumentError error) (verrorComponent string, verrorOpe
 
 // ErrorfUnexpectedEndOfStatement calls ErrUnexpectedEndOfStatement.Errorf with the supplied arguments.
 func ErrorfUnexpectedEndOfStatement(ctx *context.T, format string, off int64) error {
-	return ErrUnexpectedEndOfStatement.Errorf(ctx, format, off)
+	return ErrUnexpectedEndOfStatement.Errorf(ctx, format, off) //nolint:govet  // non-constant format string
 }
 
 // MessageUnexpectedEndOfStatement calls ErrUnexpectedEndOfStatement.Message with the supplied arguments.
@@ -2038,7 +2038,7 @@ func ParamsErrUnexpectedEndOfStatement(argumentError error) (verrorComponent str
 
 // ErrorfUnknownIdentifier calls ErrUnknownIdentifier.Errorf with the supplied arguments.
 func ErrorfUnknownIdentifier(ctx *context.T, format string, off int64, found string) error {
-	return ErrUnknownIdentifier.Errorf(ctx, format, off, found)
+	return ErrUnknownIdentifier.Errorf(ctx, format, off, found) //nolint:govet  // non-constant format string
 }
 
 // MessageUnknownIdentifier calls ErrUnknownIdentifier.Message with the supplied arguments.
@@ -2085,7 +2085,7 @@ func ParamsErrUnknownIdentifier(argumentError error) (verrorComponent string, ve
 
 // ErrorfInvalidEscapeChar calls ErrInvalidEscapeChar.Errorf with the supplied arguments.
 func ErrorfInvalidEscapeChar(ctx *context.T, format string, off int64, escChar string) error {
-	return ErrInvalidEscapeChar.Errorf(ctx, format, off, escChar)
+	return ErrInvalidEscapeChar.Errorf(ctx, format, off, escChar) //nolint:govet  // non-constant format string
 }
 
 // MessageInvalidEscapeChar calls ErrInvalidEscapeChar.Message with the supplied arguments.
@@ -2132,7 +2132,7 @@ func ParamsErrInvalidEscapeChar(argumentError error) (verrorComponent string, ve
 
 // ErrorfDidYouMeanLowercaseK calls ErrDidYouMeanLowercaseK.Errorf with the supplied arguments.
 func ErrorfDidYouMeanLowercaseK(ctx *context.T, format string, off int64) error {
-	return ErrDidYouMeanLowercaseK.Errorf(ctx, format, off)
+	return ErrDidYouMeanLowercaseK.Errorf(ctx, format, off) //nolint:govet  // non-constant format string
 }
 
 // MessageDidYouMeanLowercaseK calls ErrDidYouMeanLowercaseK.Message with the supplied arguments.
@@ -2171,7 +2171,7 @@ func ParamsErrDidYouMeanLowercaseK(argumentError error) (verrorComponent string,
 
 // ErrorfDidYouMeanLowercaseV calls ErrDidYouMeanLowercaseV.Errorf with the supplied arguments.
 func ErrorfDidYouMeanLowercaseV(ctx *context.T, format string, off int64) error {
-	return ErrDidYouMeanLowercaseV.Errorf(ctx, format, off)
+	return ErrDidYouMeanLowercaseV.Errorf(ctx, format, off) //nolint:govet  // non-constant format string
 }
 
 // MessageDidYouMeanLowercaseV calls ErrDidYouMeanLowercaseV.Message with the supplied arguments.
@@ -2210,7 +2210,7 @@ func ParamsErrDidYouMeanLowercaseV(argumentError error) (verrorComponent string,
 
 // ErrorfDidYouMeanFunction calls ErrDidYouMeanFunction.Errorf with the supplied arguments.
 func ErrorfDidYouMeanFunction(ctx *context.T, format string, off int64, correctName string) error {
-	return ErrDidYouMeanFunction.Errorf(ctx, format, off, correctName)
+	return ErrDidYouMeanFunction.Errorf(ctx, format, off, correctName) //nolint:govet  // non-constant format string
 }
 
 // MessageDidYouMeanFunction calls ErrDidYouMeanFunction.Message with the supplied arguments.
@@ -2257,7 +2257,7 @@ func ParamsErrDidYouMeanFunction(argumentError error) (verrorComponent string, v
 
 // ErrorfNotEnoughParamValuesSpecified calls ErrNotEnoughParamValuesSpecified.Errorf with the supplied arguments.
 func ErrorfNotEnoughParamValuesSpecified(ctx *context.T, format string, off int64) error {
-	return ErrNotEnoughParamValuesSpecified.Errorf(ctx, format, off)
+	return ErrNotEnoughParamValuesSpecified.Errorf(ctx, format, off) //nolint:govet  // non-constant format string
 }
 
 // MessageNotEnoughParamValuesSpecified calls ErrNotEnoughParamValuesSpecified.Message with the supplied arguments.
@@ -2296,7 +2296,7 @@ func ParamsErrNotEnoughParamValuesSpecified(argumentError error) (verrorComponen
 
 // ErrorfTooManyParamValuesSpecified calls ErrTooManyParamValuesSpecified.Errorf with the supplied arguments.
 func ErrorfTooManyParamValuesSpecified(ctx *context.T, format string, off int64) error {
-	return ErrTooManyParamValuesSpecified.Errorf(ctx, format, off)
+	return ErrTooManyParamValuesSpecified.Errorf(ctx, format, off) //nolint:govet  // non-constant format string
 }
 
 // MessageTooManyParamValuesSpecified calls ErrTooManyParamValuesSpecified.Message with the supplied arguments.
@@ -2335,7 +2335,7 @@ func ParamsErrTooManyParamValuesSpecified(argumentError error) (verrorComponent 
 
 // ErrorfPreparedStatementNotFound calls ErrPreparedStatementNotFound.Errorf with the supplied arguments.
 func ErrorfPreparedStatementNotFound(ctx *context.T, format string) error {
-	return ErrPreparedStatementNotFound.Errorf(ctx, format)
+	return ErrPreparedStatementNotFound.Errorf(ctx, format) //nolint:govet  // non-constant format string
 }
 
 // MessagePreparedStatementNotFound calls ErrPreparedStatementNotFound.Message with the supplied arguments.
@@ -2361,7 +2361,7 @@ func ParamsErrPreparedStatementNotFound(argumentError error) (verrorComponent st
 
 // ErrorfIndexKindNotSupported calls ErrIndexKindNotSupported.Errorf with the supplied arguments.
 func ErrorfIndexKindNotSupported(ctx *context.T, format string, off int64, kind string, fieldName string, table string) error {
-	return ErrIndexKindNotSupported.Errorf(ctx, format, off, kind, fieldName, table)
+	return ErrIndexKindNotSupported.Errorf(ctx, format, off, kind, fieldName, table) //nolint:govet  // non-constant format string
 }
 
 // MessageIndexKindNotSupported calls ErrIndexKindNotSupported.Message with the supplied arguments.
@@ -2424,7 +2424,7 @@ func ParamsErrIndexKindNotSupported(argumentError error) (verrorComponent string
 
 // ErrorfInvalidIndexField calls ErrInvalidIndexField.Errorf with the supplied arguments.
 func ErrorfInvalidIndexField(ctx *context.T, format string, off int64, fieldName string, table string) error {
-	return ErrInvalidIndexField.Errorf(ctx, format, off, fieldName, table)
+	return ErrInvalidIndexField.Errorf(ctx, format, off, fieldName, table) //nolint:govet  // non-constant format string
 }
 
 // MessageInvalidIndexField calls ErrInvalidIndexField.Message with the supplied arguments.
@@ -2479,7 +2479,7 @@ func ParamsErrInvalidIndexField(argumentError error) (verrorComponent string, ve
 
 // ErrorfNotWritable calls ErrNotWritable.Errorf with the supplied arguments.
 func ErrorfNotWritable(ctx *context.T, format string, table string) error {
-	return ErrNotWritable.Errorf(ctx, format, table)
+	return ErrNotWritable.Errorf(ctx, format, table) //nolint:govet  // non-constant format string
 }
 
 // MessageNotWritable calls ErrNotWritable.Message with the supplied arguments.
@@ -2518,7 +2518,7 @@ func ParamsErrNotWritable(argumentError error) (verrorComponent string, verrorOp
 
 // ErrorfOperationNotSupported calls ErrOperationNotSupported.Errorf with the supplied arguments.
 func ErrorfOperationNotSupported(ctx *context.T, format string, operation string) error {
-	return ErrOperationNotSupported.Errorf(ctx, format, operation)
+	return ErrOperationNotSupported.Errorf(ctx, format, operation) //nolint:govet  // non-constant format string
 }
 
 // MessageOperationNotSupported calls ErrOperationNotSupported.Message with the supplied arguments.

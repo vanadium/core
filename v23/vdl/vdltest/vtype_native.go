@@ -96,7 +96,7 @@ func VWireIntNIntToNative(wire VWireIntNInt, native *VNativeWireIntNInt) error {
 	return nil
 }
 func VWireIntNIntFromNative(wire *VWireIntNInt, native VNativeWireIntNInt) error {
-	*wire = VWireIntNInt(native)
+	*wire = VWireIntNInt(native) //nolint:gosec // disable G115
 	return nil
 }
 func VWireIntNStringToNative(wire VWireIntNString, native *VNativeWireIntNString) error {

@@ -103,7 +103,7 @@ func TestNewAuthorizerOrDie(t *testing.T) {
 		c := sh.FuncCmd(permFromFlag)
 		c.Args = append(c.Args, fp...)
 		if stdout := c.Stdout(); stdout != "" {
-			t.Errorf(stdout)
+			t.Errorf("%s", stdout)
 		}
 	}
 }

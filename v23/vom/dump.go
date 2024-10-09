@@ -431,7 +431,7 @@ func (d *dumpWorker) decodeValueType() (*vdl.Type, error) { //nolint:gocyclo
 			if version := Version(d.buf.PeekAvailableByte()); version == Version81 {
 				d.version = version
 				d.buf.SkipAvailable(1)
-				d.writeAtom(DumpKindVersion, PrimitivePByte{byte(version)}, version.String())
+				d.writeAtom(DumpKindVersion, PrimitivePByte{byte(version)}, "%s", version.String())
 				d.writeStatus(nil, true)
 			}
 		}
@@ -498,7 +498,7 @@ func (d *dumpWorker) decodeValueMsg(tt *vdl.Type) error { //nolint:gocyclo
 		if err != nil {
 			return err
 		}
-		d.writeAtom(DumpKindTypeIdsLen, PrimitivePUint{uint64(tidsLen)}, "")
+		d.writeAtom(DumpKindTypeIdsLen, PrimitivePUint{uint64(tidsLen)}, "") //nolint:gosec // disable G115
 		d.status.RefTypes = make([]*vdl.Type, tidsLen)
 		for i := range d.status.RefTypes {
 			d.prepareAtom("waiting for type id")
@@ -518,7 +518,7 @@ func (d *dumpWorker) decodeValueMsg(tt *vdl.Type) error { //nolint:gocyclo
 			if err != nil {
 				return err
 			}
-			d.writeAtom(DumpKindAnyLensLen, PrimitivePUint{uint64(anyLensLen)}, "")
+			d.writeAtom(DumpKindAnyLensLen, PrimitivePUint{uint64(anyLensLen)}, "") //nolint:gosec // disable G115
 			d.status.RefAnyLens = make([]uint64, anyLensLen)
 			for i := 0; i < anyLensLen; i++ {
 				d.prepareAtom("waiting for any len")
@@ -537,7 +537,7 @@ func (d *dumpWorker) decodeValueMsg(tt *vdl.Type) error { //nolint:gocyclo
 		if err != nil {
 			return err
 		}
-		d.writeAtom(DumpKindMsgLen, PrimitivePUint{uint64(msgLen)}, "")
+		d.writeAtom(DumpKindMsgLen, PrimitivePUint{uint64(msgLen)}, "") //nolint:gosec // disable G115
 		d.status.MsgLen = msgLen
 		d.status.MsgN = 0 // Make MsgN match up with MsgLen when successful.
 		d.buf.SetLimit(msgLen)
@@ -576,7 +576,7 @@ func (d *dumpWorker) decodeValue(tt *vdl.Type) error { //nolint:gocyclo
 		if err != nil {
 			return err
 		}
-		d.writeAtom(DumpKindByteLen, PrimitivePUint{uint64(len)}, "bytes len")
+		d.writeAtom(DumpKindByteLen, PrimitivePUint{uint64(len)}, "bytes len") //nolint:gosec // disable G115
 		d.prepareAtom("waiting for bytes data")
 		data := make([]byte, len)
 		if err := d.buf.ReadIntoBuf(data); err != nil {
@@ -641,7 +641,7 @@ func (d *dumpWorker) decodeValue(tt *vdl.Type) error { //nolint:gocyclo
 		if err != nil {
 			return err
 		}
-		d.writeAtom(DumpKindByteLen, PrimitivePUint{uint64(len)}, "string len")
+		d.writeAtom(DumpKindByteLen, PrimitivePUint{uint64(len)}, "string len") //nolint:gosec // disable G115
 		d.prepareAtom("waiting for string data")
 		data := make([]byte, len)
 		if err := d.buf.ReadIntoBuf(data); err != nil {
@@ -655,11 +655,11 @@ func (d *dumpWorker) decodeValue(tt *vdl.Type) error { //nolint:gocyclo
 		if err != nil {
 			return err
 		}
-		if index >= uint64(tt.NumEnumLabel()) {
+		if index >= uint64(tt.NumEnumLabel()) { //nolint:gosec // disable G115
 			d.writeAtom(DumpKindIndex, PrimitivePUint{index}, "out of range for %v", tt)
 			return fmt.Errorf("vom: Dump: enum field index out of range: %v >= %v", index, tt.NumField())
 		}
-		label := tt.EnumLabel(int(index))
+		label := tt.EnumLabel(int(index)) //nolint:gosec // disable G115
 		d.writeAtom(DumpKindIndex, PrimitivePUint{index}, "%v.%v", tt.Name(), label)
 		return nil
 	case vdl.TypeObject:
@@ -690,7 +690,7 @@ func (d *dumpWorker) decodeValue(tt *vdl.Type) error { //nolint:gocyclo
 		if err != nil {
 			return err
 		}
-		d.writeAtom(DumpKindValueLen, PrimitivePUint{uint64(len)}, "list len")
+		d.writeAtom(DumpKindValueLen, PrimitivePUint{uint64(len)}, "list len") //nolint:gosec // disable G115
 		for ix := 0; ix < len; ix++ {
 			if err := d.decodeValue(tt.Elem()); err != nil {
 				return err
@@ -703,7 +703,7 @@ func (d *dumpWorker) decodeValue(tt *vdl.Type) error { //nolint:gocyclo
 		if err != nil {
 			return err
 		}
-		d.writeAtom(DumpKindValueLen, PrimitivePUint{uint64(len)}, "set len")
+		d.writeAtom(DumpKindValueLen, PrimitivePUint{uint64(len)}, "set len") //nolint:gosec // disable G115
 		for ix := 0; ix < len; ix++ {
 			if err := d.decodeValue(tt.Key()); err != nil {
 				return err
@@ -716,7 +716,7 @@ func (d *dumpWorker) decodeValue(tt *vdl.Type) error { //nolint:gocyclo
 		if err != nil {
 			return err
 		}
-		d.writeAtom(DumpKindValueLen, PrimitivePUint{uint64(len)}, "map len")
+		d.writeAtom(DumpKindValueLen, PrimitivePUint{uint64(len)}, "map len") //nolint:gosec // disable G115
 		for ix := 0; ix < len; ix++ {
 			if err := d.decodeValue(tt.Key()); err != nil {
 				return err
@@ -741,11 +741,11 @@ func (d *dumpWorker) decodeValue(tt *vdl.Type) error { //nolint:gocyclo
 			switch {
 			case err != nil:
 				return err
-			case index >= uint64(tt.NumField()):
+			case index >= uint64(tt.NumField()): //nolint:gosec // disable G115
 				d.writeAtom(DumpKindIndex, PrimitivePUint{index}, "out of range for %v", tt)
 				return fmt.Errorf("vom: Dump: struct field index out of range: %v >= %v", index, tt.NumField())
 			}
-			ttfield := tt.Field(int(index))
+			ttfield := tt.Field(int(index)) //nolint:gosec // disable G115
 			d.writeAtom(DumpKindIndex, PrimitivePUint{index}, "%v.%v", tt.Name(), ttfield.Name)
 			if err := d.decodeValue(ttfield.Type); err != nil {
 				return err
@@ -757,11 +757,11 @@ func (d *dumpWorker) decodeValue(tt *vdl.Type) error { //nolint:gocyclo
 		switch {
 		case err != nil:
 			return err
-		case index >= uint64(tt.NumField()):
+		case index >= uint64(tt.NumField()): //nolint:gosec // disable G115
 			d.writeAtom(DumpKindIndex, PrimitivePUint{index}, "out of range for %v", tt)
 			return fmt.Errorf("vom: Dump: union field index out of range: %v >= %v", index, tt.NumField())
 		}
-		ttfield := tt.Field(int(index))
+		ttfield := tt.Field(int(index)) //nolint:gosec // disable G115
 		if tt == wireTypeType {
 			// Pretty-print for wire type definition messages.
 			d.writeAtom(DumpKindWireTypeIndex, PrimitivePUint{index}, "%v", ttfield.Type.Name())

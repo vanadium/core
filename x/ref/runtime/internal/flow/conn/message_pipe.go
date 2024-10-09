@@ -84,7 +84,7 @@ func (p *messagePipe) disableEncryptionOnEncapsulatedFlow() {
 }
 
 func (p *messagePipe) setMTU(mtu, bytesBuffered uint64) {
-	p.mtu = int(mtu)
+	p.mtu = int(mtu) //nolint:gosec // disable G115
 	p.counterSizeEstimate = bytesPerFlowID + binaryEncodeUintSize(bytesBuffered)
 }
 

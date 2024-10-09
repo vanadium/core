@@ -141,7 +141,7 @@ func (prc *perfReflectCacheT) cacheImplementsBuiltinInterface(rt reflect.Type, m
 	}
 	result := false
 	if mask >= rtIsZeroerPtrToBitMask { // first PtrTo type.
-		result = reflect.PtrTo(rt).Implements(target)
+		result = reflect.PointerTo(rt).Implements(target)
 	} else {
 		result = rt.Implements(target)
 	}

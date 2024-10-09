@@ -36,7 +36,7 @@ var (
 
 // ErrorfGlobMaxRecursionReached calls ErrGlobMaxRecursionReached.Errorf with the supplied arguments.
 func ErrorfGlobMaxRecursionReached(ctx *context.T, format string) error {
-	return ErrGlobMaxRecursionReached.Errorf(ctx, format)
+	return ErrGlobMaxRecursionReached.Errorf(ctx, format) //nolint:govet  // non-constant format string
 }
 
 // MessageGlobMaxRecursionReached calls ErrGlobMaxRecursionReached.Message with the supplied arguments.
@@ -62,7 +62,7 @@ func ParamsErrGlobMaxRecursionReached(argumentError error) (verrorComponent stri
 
 // ErrorfGlobMatchesOmitted calls ErrGlobMatchesOmitted.Errorf with the supplied arguments.
 func ErrorfGlobMatchesOmitted(ctx *context.T, format string) error {
-	return ErrGlobMatchesOmitted.Errorf(ctx, format)
+	return ErrGlobMatchesOmitted.Errorf(ctx, format) //nolint:govet  // non-constant format string
 }
 
 // MessageGlobMatchesOmitted calls ErrGlobMatchesOmitted.Message with the supplied arguments.
@@ -88,7 +88,7 @@ func ParamsErrGlobMatchesOmitted(argumentError error) (verrorComponent string, v
 
 // ErrorfGlobNotImplemented calls ErrGlobNotImplemented.Errorf with the supplied arguments.
 func ErrorfGlobNotImplemented(ctx *context.T, format string) error {
-	return ErrGlobNotImplemented.Errorf(ctx, format)
+	return ErrGlobNotImplemented.Errorf(ctx, format) //nolint:govet  // non-constant format string
 }
 
 // MessageGlobNotImplemented calls ErrGlobNotImplemented.Message with the supplied arguments.

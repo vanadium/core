@@ -28,11 +28,10 @@ func TestNewID(t *testing.T) {
 		if !bytes.Equal(firstRandomValue, id[:14]) {
 			atLeastOneDiffersFromFirst = true
 		}
-
 		if id[14]&0x80 != 0x80 {
 			t.Errorf("Expected high bit to be 1, but containing byte was: %x", id[14])
 		}
-		if binary.BigEndian.Uint16(id[14:])&0x7fff != uint16(i)&0x7fff {
+		if binary.BigEndian.Uint16(id[14:])&0x7fff != uint16(i&0x7fff) { //nolint:gosec // disable G115
 			t.Errorf("Counts don't match. Got: %d, Expected: %d", binary.BigEndian.Uint16(id[14:])&0x7fff, i&0x7fff)
 		}
 	}

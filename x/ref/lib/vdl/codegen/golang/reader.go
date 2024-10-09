@@ -265,7 +265,7 @@ func (g *genRead) bodyScalar(tt *vdl.Type, arg namedArg) string {
 		//   default:
 		//     *x = Foo(value)
 		//   }
-		valueCast = typeGoWire(g.goData, tt) + "(value)"
+		valueCast = typeGoWire(g.goData, tt) + "(value) //nolint:gosec // disable G115"
 	}
 	s := fmt.Sprintf(`
 	switch value, err := dec.ReadValue%[1]s(%[2]s); {
@@ -351,7 +351,7 @@ func (g *genRead) bodyArray(tt *vdl.Type, arg namedArg) string {
 		s += g.setEnum(elemArg.Name, elem)
 	default:
 		if tt.Elem() != exact {
-			elem = typeGoWire(g.goData, tt.Elem()) + "(" + elem + ")"
+			elem = typeGoWire(g.goData, tt.Elem()) + "(" + elem + ") //nolint:gosec // disable G115"
 		}
 		s += fmt.Sprintf(`
 			%[1]s = %[2]s`, elemArg.Name, elem)
@@ -383,6 +383,7 @@ func (g *genRead) bodyList(tt *vdl.Type, arg namedArg) string {
 		case done:
 			return dec.FinishValue()
 		default:`
+	nolint := ""
 	switch {
 	case exact == nil:
 		elemArg := typedArg(elem, tt.Elem())
@@ -395,11 +396,12 @@ func (g *genRead) bodyList(tt *vdl.Type, arg namedArg) string {
 		elem = "enum"
 	case tt.Elem() != exact:
 		elem = typeGoWire(g.goData, tt.Elem()) + "(" + elem + ")"
+		nolint = " //nolint:gosec // disable G115"
 	}
 	return s + fmt.Sprintf(`
-			%[1]s = append(%[1]s, %[2]s)
+			%[1]s = append(%[1]s, %[2]s)%s
 		}
-	}`, arg.Ref(), elem)
+	}`, arg.Ref(), elem, nolint)
 }
 
 func (g *genRead) bodySetMap(tt *vdl.Type, arg namedArg) string {
@@ -418,6 +420,7 @@ func (g *genRead) bodySetMap(tt *vdl.Type, arg namedArg) string {
 			%[1]s = tmpMap
 			return dec.FinishValue()
 		default:`, arg.Ref())
+	nolint := ""
 	switch {
 	case exact == nil:
 		keyArg := typedArg(key, tt.Key())
@@ -430,6 +433,7 @@ func (g *genRead) bodySetMap(tt *vdl.Type, arg namedArg) string {
 		key = "keyEnum"
 	case tt.Key() != exact:
 		key = typeGoWire(g.goData, tt.Key()) + "(" + key + ")"
+		nolint = " //nolint:gosec // disable G115"
 	}
 	elem := "struct{}{}"
 	if tt.Kind() == vdl.Map {
@@ -443,9 +447,9 @@ func (g *genRead) bodySetMap(tt *vdl.Type, arg namedArg) string {
 			if tmpMap == nil {
 				tmpMap = make(%[1]s)
 			}
-			tmpMap[%[2]s] = %[3]s
+			tmpMap[%[2]s] = %[3]s %[4]s
 		}
-	}`, typeGoWire(g.goData, tt), key, elem)
+	}`, typeGoWire(g.goData, tt), key, elem, nolint)
 }
 
 func (g *genRead) bodyStruct(tt *vdl.Type, arg namedArg) string {

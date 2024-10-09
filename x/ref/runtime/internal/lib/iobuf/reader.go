@@ -41,7 +41,7 @@ func (r *Reader) fill(bytes uint) error {
 	// new iobuf.
 	if uint(len(r.iobuf.Contents))-r.base < bytes {
 		iobuf := r.pool.alloc(bytes)
-		r.bound = uint(copy(iobuf.Contents, r.iobuf.Contents[r.base:r.bound]))
+		r.bound = uint(copy(iobuf.Contents, r.iobuf.Contents[r.base:r.bound])) //nolint:gosec // disable G115
 		r.base = 0
 		r.iobuf.release()
 		r.iobuf = iobuf
@@ -53,7 +53,7 @@ func (r *Reader) fill(bytes uint) error {
 		if amount == 0 && err != nil {
 			return err
 		}
-		r.bound += uint(amount)
+		r.bound += uint(amount) //nolint:gosec // disable G115
 	}
 	return nil
 }
@@ -61,7 +61,7 @@ func (r *Reader) fill(bytes uint) error {
 // Read returns the next <n> bytes of input as a Slice.  Returns an error if the
 // read was short, even if some input was read.
 func (r *Reader) Read(n int) (*Slice, error) {
-	bytes := uint(n)
+	bytes := uint(n) //nolint:gosec // disable G115
 	if err := r.fill(bytes); err != nil {
 		return nil, err
 	}

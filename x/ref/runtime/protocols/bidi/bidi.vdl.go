@@ -28,7 +28,7 @@ var (
 
 // ErrorfCannotListenOnBidi calls ErrCannotListenOnBidi.Errorf with the supplied arguments.
 func ErrorfCannotListenOnBidi(ctx *context.T, format string) error {
-	return ErrCannotListenOnBidi.Errorf(ctx, format)
+	return ErrCannotListenOnBidi.Errorf(ctx, format) //nolint:govet  // non-constant format string
 }
 
 // MessageCannotListenOnBidi calls ErrCannotListenOnBidi.Message with the supplied arguments.
@@ -54,7 +54,7 @@ func ParamsErrCannotListenOnBidi(argumentError error) (verrorComponent string, v
 
 // ErrorfBidiRoutingIdNotCached calls ErrBidiRoutingIdNotCached.Errorf with the supplied arguments.
 func ErrorfBidiRoutingIdNotCached(ctx *context.T, format string) error {
-	return ErrBidiRoutingIdNotCached.Errorf(ctx, format)
+	return ErrBidiRoutingIdNotCached.Errorf(ctx, format) //nolint:govet  // non-constant format string
 }
 
 // MessageBidiRoutingIdNotCached calls ErrBidiRoutingIdNotCached.Message with the supplied arguments.

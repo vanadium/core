@@ -1069,7 +1069,7 @@ func BuildConfigValue(fileName string, src io.Reader, imports []string, env *com
 	rv := reflect.ValueOf(value)
 	tt, err := vdl.TypeFromReflect(rv.Type())
 	if err != nil {
-		env.Errors.Errorf(err.Error())
+		env.Errors.Errorf("%s", err.Error())
 		return
 	}
 	if tt.Kind() == vdl.Optional {

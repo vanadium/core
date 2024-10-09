@@ -253,11 +253,11 @@ func (m Setup) ReadDirect(ctx *context.T, orig []byte) (Setup, error) {
 	if v, data, valid = readVarUint64(data); !valid {
 		return Setup{}, NewErrInvalidMsg(ctx, SetupType, uint64(len(orig)), 0, nil)
 	}
-	m.Versions.Min = version.RPCVersion(v)
+	m.Versions.Min = version.RPCVersion(v) //nolint:gosec // disable G115
 	if v, data, valid = readVarUint64(data); !valid {
 		return Setup{}, NewErrInvalidMsg(ctx, SetupType, uint64(len(orig)), 1, nil)
 	}
-	m.Versions.Max = version.RPCVersion(v)
+	m.Versions.Max = version.RPCVersion(v) //nolint:gosec // disable G115
 	for field := uint64(2); len(data) > 0; field++ {
 		var (
 			payload []byte
@@ -687,11 +687,11 @@ func (m ProxyResponse) Read(ctx *context.T, orig []byte) (Message, error) {
 	m.Endpoints = make([]naming.Endpoint, 0, len(data))
 	for i := 0; len(data) > 0; i++ {
 		if epBytes, data, valid = readLenBytes(data); !valid {
-			return ProxyResponse{}, NewErrInvalidMsg(ctx, ProxyResponseType, uint64(len(orig)), uint64(i), nil)
+			return ProxyResponse{}, NewErrInvalidMsg(ctx, ProxyResponseType, uint64(len(orig)), uint64(i), nil) //nolint:gosec // disable G115
 		}
 		ep, err := naming.ParseEndpoint(string(epBytes))
 		if err != nil {
-			return ProxyResponse{}, NewErrInvalidMsg(ctx, ProxyResponseType, uint64(len(orig)), uint64(i), err)
+			return ProxyResponse{}, NewErrInvalidMsg(ctx, ProxyResponseType, uint64(len(orig)), uint64(i), err) //nolint:gosec // disable G115
 		}
 		m.Endpoints = append(m.Endpoints, ep)
 	}
@@ -879,7 +879,7 @@ func writeVarUint64(u uint64, buf []byte) []byte {
 			byte((u&0xff0000)>>16),
 			byte((u&0xff00)>>8),
 			byte(u&0xff))
-	case u <= 0xffffffffffffffff:
+	case u <= 0xffffffffffffffff: //nolint:staticcheck // disable SA4003
 		// Note that using a default statement is significantly slower.
 		return append(buf, 0xff-7,
 			byte((u&0xff00000000000000)>>56),

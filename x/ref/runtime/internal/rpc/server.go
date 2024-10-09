@@ -852,7 +852,7 @@ func (fs *flowServer) processRequest() (*context.T, []interface{}, error) {
 	ctx = fs.flow.SetDeadlineContext(ctx, req.Deadline.Time)
 
 	if err := fs.readGrantedBlessings(ctx, req); err != nil {
-		fs.drainDecoderArgs(int(req.NumPosArgs)) //nolint:errcheck
+		fs.drainDecoderArgs(int(req.NumPosArgs)) //nolint:errcheck,gosec // disable G115
 
 		tr.LazyPrintf("%s\n", err)
 		tr.SetError()
@@ -861,7 +861,7 @@ func (fs *flowServer) processRequest() (*context.T, []interface{}, error) {
 	// Lookup the invoker.
 	invoker, auth, err := fs.lookup(ctx, fs.suffix, fs.method)
 	if err != nil {
-		fs.drainDecoderArgs(int(req.NumPosArgs)) //nolint:errcheck
+		fs.drainDecoderArgs(int(req.NumPosArgs)) //nolint:errcheck,gosec // disable G115
 		tr.LazyPrintf("%s\n", err)
 		tr.SetError()
 		return ctx, nil, err
@@ -873,7 +873,7 @@ func (fs *flowServer) processRequest() (*context.T, []interface{}, error) {
 	strippedMethod := naming.StripReserved(fs.method)
 
 	// Prepare invoker and decode args.
-	numArgs := int(req.NumPosArgs)
+	numArgs := int(req.NumPosArgs) //nolint:gosec // disable G115
 	argptrs, tags, err := invoker.Prepare(ctx, strippedMethod, numArgs)
 	fs.tags = tags
 	if err != nil {
@@ -893,7 +893,7 @@ func (fs *flowServer) processRequest() (*context.T, []interface{}, error) {
 			tr.LazyPrintf("%s\n", err)
 			tr.SetError()
 
-			return ctx, nil, errBadInputArg.Errorf(ctx, "method %v.%v has bad arg #%v: %v", fs.suffix, fs.method, uint64(ix), err)
+			return ctx, nil, errBadInputArg.Errorf(ctx, "method %v.%v has bad arg #%v: %v", fs.suffix, fs.method, uint64(ix), err) //nolint:gosec // disable G115
 		}
 	}
 

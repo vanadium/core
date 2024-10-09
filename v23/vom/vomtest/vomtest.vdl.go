@@ -145,7 +145,7 @@ func (x *vdlEntry) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 			case err != nil:
 				return err
 			default:
-				x.Version = vom.Version(value)
+				x.Version = vom.Version(value) //nolint:gosec // disable G115
 			}
 		case 4:
 			switch value, err := dec.ReadValueString(); {

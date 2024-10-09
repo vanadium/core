@@ -215,7 +215,7 @@ func (d *decoder81) NextEntryValueUint(bitlen int) (done bool, value uint64, err
 			value = uint64(d.buf.ReadAvailableByte())
 		}
 	default: // must convert
-		value, err = d.decodeUint(ttNext, uint(bitlen))
+		value, err = d.decodeUint(ttNext, uint(bitlen)) //nolint:gosec // disable G115
 	}
 	return false, value, err
 }
@@ -264,7 +264,7 @@ func (d *decoder81) NextEntryValueInt(bitlen int) (done bool, value int64, err e
 	case flag <= nextEntryData(bitlen):
 		value, err = binaryDecodeInt(d.buf)
 	default: // must convert
-		value, err = d.decodeInt(ttNext, uint(bitlen))
+		value, err = d.decodeInt(ttNext, uint(bitlen)) //nolint:gosec // disable G115
 	}
 	return false, value, err
 }
@@ -313,7 +313,7 @@ func (d *decoder81) NextEntryValueFloat(bitlen int) (done bool, value float64, e
 	case flag <= nextEntryData(bitlen):
 		value, err = binaryDecodeFloat(d.buf)
 	default: // must convert
-		value, err = d.decodeFloat(ttNext, uint(bitlen))
+		value, err = d.decodeFloat(ttNext, uint(bitlen)) //nolint:gosec // disable G115
 	}
 	return false, value, err
 }

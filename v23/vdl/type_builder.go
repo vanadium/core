@@ -62,7 +62,7 @@ var ErrorType = OptionalType(NamedType("v.io/v23/vdl.WireError", StructType(
 // The ErrorType above must be kept in-sync with WireError.
 
 func primitiveType(k Kind) *Type {
-	return &Type{kind: k, unique: k.String(), containsKind: (1 << uint(k))}
+	return &Type{kind: k, unique: k.String(), containsKind: (1 << uint(k))} //nolint:gosec // disable G115
 }
 
 // TypeOrPending only allows *Type or Pending values; other values cause a

@@ -8,7 +8,6 @@ import (
 	"errors"
 	"fmt"
 	"math"
-	"reflect"
 	"unsafe"
 
 	"v.io/v23/vdl"
@@ -339,9 +338,9 @@ func binaryDecodeLenOrArrayLen(buf *decbuf, t *vdl.Type) (int, error) {
 func binaryEncodeInt(buf *encbuf, v int64) {
 	var uvalue uint64
 	if v < 0 {
-		uvalue = uint64(^v<<1) | 1
+		uvalue = uint64(^v<<1) | 1 //nolint:gosec // disable G115
 	} else {
-		uvalue = uint64(v << 1)
+		uvalue = uint64(v << 1) //nolint:gosec // disable G115
 	}
 	binaryEncodeUint(buf, uvalue)
 }
@@ -376,9 +375,9 @@ func binaryDecodeInt(buf *decbuf) (int64, error) {
 		uvalue = uvalue<<8 | uint64(b)
 	}
 	if uvalue&1 == 1 {
-		return ^int64(uvalue >> 1), nil
+		return ^int64(uvalue >> 1), nil //nolint:gosec // disable G115
 	}
-	return int64(uvalue >> 1), nil
+	return int64(uvalue >> 1), nil //nolint:gosec // disable G115
 }
 
 func binaryPeekInt(buf *decbuf) (int64, int, error) {
@@ -412,9 +411,9 @@ func binaryPeekInt(buf *decbuf) (int64, int, error) {
 		uvalue = uvalue<<8 | uint64(b)
 	}
 	if uvalue&1 == 1 {
-		return ^int64(uvalue >> 1), byteLen, nil
+		return ^int64(uvalue >> 1), byteLen, nil //nolint:gosec // disable G115
 	}
-	return int64(uvalue >> 1), byteLen, nil
+	return int64(uvalue >> 1), byteLen, nil //nolint:gosec // disable G115
 }
 
 // Floating point numbers are encoded as byte-reversed ieee754.
@@ -466,9 +465,7 @@ func binaryDecodeString(buf *decbuf) (s string, err error) {
 	}
 	// Go makes an extra copy if we simply perform the conversion string(data), so
 	// we use unsafe to transfer the contents from data into s without a copy.
-	p := (*reflect.StringHeader)(unsafe.Pointer(&s))
-	p.Data = uintptr(unsafe.Pointer(&data[0]))
-	p.Len = len
+	s = unsafe.String(&data[0], len)
 	return
 }
 
@@ -560,9 +557,9 @@ func binaryEncodeUintEnd(buf []byte, v uint64) int {
 func binaryEncodeIntEnd(buf []byte, v int64) int {
 	var uvalue uint64
 	if v < 0 {
-		uvalue = uint64(^v<<1) | 1
+		uvalue = uint64(^v<<1) | 1 //nolint:gosec // disable G115
 	} else {
-		uvalue = uint64(v << 1)
+		uvalue = uint64(v << 1) //nolint:gosec // disable G115
 	}
 	return binaryEncodeUintEnd(buf, uvalue)
 }

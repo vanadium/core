@@ -302,7 +302,7 @@ func describeEnum(enumReflect, rt reflect.Type, ri *reflectInfo) error { //nolin
 		return fmt.Errorf("enum type %q must have method String() string", rt)
 	}
 	_, nonptr := rt.MethodByName("Set")
-	if a, ok := reflect.PtrTo(rt).MethodByName("Set"); !ok || nonptr ||
+	if a, ok := reflect.PointerTo(rt).MethodByName("Set"); !ok || nonptr ||
 		a.Type.NumIn() != 2 || a.Type.In(1) != rtString ||
 		a.Type.NumOut() != 1 || a.Type.Out(0) != rtError {
 		return fmt.Errorf("enum type %q must have pointer method Set(string) error", rt)
@@ -395,13 +395,13 @@ func typeToReflectOptional(t *Type) reflect.Type {
 	// e.g. wire=*WireError, native=error.
 	if elem := t.Elem(); elem.Name() != "" {
 		if ri := reflectInfoFromName(elem.Name()); ri != nil {
-			if ni := nativeInfoFromWire(reflect.PtrTo(ri.Type)); ni != nil {
+			if ni := nativeInfoFromWire(reflect.PointerTo(ri.Type)); ni != nil {
 				return ni.NativeType
 			}
 		}
 	}
 	if elem := TypeToReflect(t.Elem()); elem != nil {
-		return reflect.PtrTo(elem)
+		return reflect.PointerTo(elem)
 	}
 	return nil
 }

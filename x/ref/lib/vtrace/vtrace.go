@@ -126,7 +126,7 @@ func (s *span) Request(ctx *context.T) vtrace.Request {
 		TraceId:         s.trace,
 		RequestMetadata: s.requestMetadata,
 		Flags:           s.store.Flags(s.trace),
-		LogLevel:        int32(GetVTraceLevel(ctx)),
+		LogLevel:        int32(GetVTraceLevel(ctx)), //nolint:gosec // disable G115
 	}
 }
 

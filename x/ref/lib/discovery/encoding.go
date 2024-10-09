@@ -41,14 +41,14 @@ func (e *EncodingBuffer) Read(p []byte) error {
 // WriteInt appends an integer to the buffer.
 func (e *EncodingBuffer) WriteInt(x int) {
 	var p [binary.MaxVarintLen64]byte
-	n := binary.PutUvarint(p[:], uint64(x))
+	n := binary.PutUvarint(p[:], uint64(x)) //nolint:gosec // disable G115
 	e.buf.Write(p[0:n])
 }
 
 // ReadInt reads an integer from the buffer.
 func (e *EncodingBuffer) ReadInt() (int, error) {
 	x, err := binary.ReadUvarint(e.buf)
-	return int(x), err
+	return int(x), err //nolint:gosec // disable G115
 }
 
 // WriteBytes appends a byte slice to the buffer with its length.
@@ -197,7 +197,7 @@ func UnpackEncryptionKeys(data []byte) (EncryptionAlgorithm, []EncryptionKey, er
 		}
 		keys = append(keys, EncryptionKey(key))
 	}
-	return EncryptionAlgorithm(algo), keys, nil
+	return EncryptionAlgorithm(algo), keys, nil //nolint:gosec // disable G115
 }
 
 // EncodeCiphertext encodes the cipher text into a byte slice.
@@ -239,7 +239,7 @@ func DecodeWireCiphertext(data []byte) (*bcrypter.WireCiphertext, error) {
 // EncodeTimestamp encodes the timestamp into a 8-byte byte slice.
 func EncodeTimestamp(ts int64) []byte {
 	buf := make([]byte, 8)
-	binary.LittleEndian.PutUint64(buf, uint64(ts))
+	binary.LittleEndian.PutUint64(buf, uint64(ts)) //nolint:gosec // disable G115
 	return buf
 }
 
@@ -248,5 +248,5 @@ func DecodeTimestamp(data []byte) (int64, error) {
 	if len(data) != 8 {
 		return 0, errors.New("invalid length")
 	}
-	return int64(binary.LittleEndian.Uint64(data)), nil
+	return int64(binary.LittleEndian.Uint64(data)), nil //nolint:gosec // disable G115
 }

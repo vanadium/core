@@ -454,14 +454,14 @@ func (x *Request) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 			case err != nil:
 				return err
 			default:
-				x.ProtoMajor = int16(value)
+				x.ProtoMajor = int16(value) //nolint:gosec // disable G115
 			}
 		case 4:
 			switch value, err := dec.ReadValueInt(16); {
 			case err != nil:
 				return err
 			default:
-				x.ProtoMinor = int16(value)
+				x.ProtoMinor = int16(value) //nolint:gosec // disable G115
 			}
 		case 5:
 			if err := vdlReadAnonMap1(dec, &x.Header); err != nil {

@@ -269,7 +269,7 @@ func (td *TypeDecoder) finishBaseType(wt wireType, p vdl.PendingType, builder *v
 		if err != nil {
 			return err
 		}
-		p.(vdl.PendingArray).AssignElem(elemType).AssignLen(int(wt.Value.Len))
+		p.(vdl.PendingArray).AssignElem(elemType).AssignLen(int(wt.Value.Len)) //nolint:gosec // disable G115
 	case wireTypeListT:
 		elemType, err := td.lookupOrMakeType(wt.Value.Elem, builder, pending)
 		if err != nil {

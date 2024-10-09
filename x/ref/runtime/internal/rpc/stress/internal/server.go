@@ -33,7 +33,7 @@ func (s *impl) Sum(_ *context.T, _ rpc.ServerCall, arg stress.SumArg) ([]byte, e
 	if err != nil {
 		return nil, err
 	}
-	s.addSumStats(false, uint64(lenSumArg(&arg)), uint64(len(sum)))
+	s.addSumStats(false, uint64(lenSumArg(&arg)), uint64(len(sum))) //nolint:gosec // disable G115
 	return sum, nil
 }
 
@@ -47,8 +47,8 @@ func (s *impl) SumStream(_ *context.T, call stress.StressSumStreamServerCall) er
 		if err != nil {
 			return err
 		}
-		sStream.Send(sum) //nolint:errcheck
-		bytesRecv += uint64(lenSumArg(&arg))
+		sStream.Send(sum)                    //nolint:errcheck
+		bytesRecv += uint64(lenSumArg(&arg)) //nolint:gosec // disable G115
 		bytesSent += uint64(len(sum))
 	}
 	if err := rStream.Err(); err != nil {

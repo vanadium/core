@@ -82,7 +82,7 @@ var (
 
 // ErrorfUnknown calls ErrUnknown.Errorf with the supplied arguments.
 func ErrorfUnknown(ctx *context.T, format string) error {
-	return ErrUnknown.Errorf(ctx, format)
+	return ErrUnknown.Errorf(ctx, format) //nolint:govet  // non-constant format string
 }
 
 // MessageUnknown calls ErrUnknown.Message with the supplied arguments.
@@ -108,7 +108,7 @@ func ParamsErrUnknown(argumentError error) (verrorComponent string, verrorOperat
 
 // ErrorfInternal calls ErrInternal.Errorf with the supplied arguments.
 func ErrorfInternal(ctx *context.T, format string) error {
-	return ErrInternal.Errorf(ctx, format)
+	return ErrInternal.Errorf(ctx, format) //nolint:govet  // non-constant format string
 }
 
 // MessageInternal calls ErrInternal.Message with the supplied arguments.
@@ -134,7 +134,7 @@ func ParamsErrInternal(argumentError error) (verrorComponent string, verrorOpera
 
 // ErrorfNotImplemented calls ErrNotImplemented.Errorf with the supplied arguments.
 func ErrorfNotImplemented(ctx *context.T, format string) error {
-	return ErrNotImplemented.Errorf(ctx, format)
+	return ErrNotImplemented.Errorf(ctx, format) //nolint:govet  // non-constant format string
 }
 
 // MessageNotImplemented calls ErrNotImplemented.Message with the supplied arguments.
@@ -160,7 +160,7 @@ func ParamsErrNotImplemented(argumentError error) (verrorComponent string, verro
 
 // ErrorfEndOfFile calls ErrEndOfFile.Errorf with the supplied arguments.
 func ErrorfEndOfFile(ctx *context.T, format string) error {
-	return ErrEndOfFile.Errorf(ctx, format)
+	return ErrEndOfFile.Errorf(ctx, format) //nolint:govet  // non-constant format string
 }
 
 // MessageEndOfFile calls ErrEndOfFile.Message with the supplied arguments.
@@ -186,7 +186,7 @@ func ParamsErrEndOfFile(argumentError error) (verrorComponent string, verrorOper
 
 // ErrorfBadArg calls ErrBadArg.Errorf with the supplied arguments.
 func ErrorfBadArg(ctx *context.T, format string) error {
-	return ErrBadArg.Errorf(ctx, format)
+	return ErrBadArg.Errorf(ctx, format) //nolint:govet  // non-constant format string
 }
 
 // MessageBadArg calls ErrBadArg.Message with the supplied arguments.
@@ -212,7 +212,7 @@ func ParamsErrBadArg(argumentError error) (verrorComponent string, verrorOperati
 
 // ErrorfBadState calls ErrBadState.Errorf with the supplied arguments.
 func ErrorfBadState(ctx *context.T, format string) error {
-	return ErrBadState.Errorf(ctx, format)
+	return ErrBadState.Errorf(ctx, format) //nolint:govet  // non-constant format string
 }
 
 // MessageBadState calls ErrBadState.Message with the supplied arguments.
@@ -238,7 +238,7 @@ func ParamsErrBadState(argumentError error) (verrorComponent string, verrorOpera
 
 // ErrorfBadVersion calls ErrBadVersion.Errorf with the supplied arguments.
 func ErrorfBadVersion(ctx *context.T, format string) error {
-	return ErrBadVersion.Errorf(ctx, format)
+	return ErrBadVersion.Errorf(ctx, format) //nolint:govet  // non-constant format string
 }
 
 // MessageBadVersion calls ErrBadVersion.Message with the supplied arguments.
@@ -264,7 +264,7 @@ func ParamsErrBadVersion(argumentError error) (verrorComponent string, verrorOpe
 
 // ErrorfExist calls ErrExist.Errorf with the supplied arguments.
 func ErrorfExist(ctx *context.T, format string) error {
-	return ErrExist.Errorf(ctx, format)
+	return ErrExist.Errorf(ctx, format) //nolint:govet  // non-constant format string
 }
 
 // MessageExist calls ErrExist.Message with the supplied arguments.
@@ -290,7 +290,7 @@ func ParamsErrExist(argumentError error) (verrorComponent string, verrorOperatio
 
 // ErrorfNoExist calls ErrNoExist.Errorf with the supplied arguments.
 func ErrorfNoExist(ctx *context.T, format string) error {
-	return ErrNoExist.Errorf(ctx, format)
+	return ErrNoExist.Errorf(ctx, format) //nolint:govet  // non-constant format string
 }
 
 // MessageNoExist calls ErrNoExist.Message with the supplied arguments.
@@ -316,7 +316,7 @@ func ParamsErrNoExist(argumentError error) (verrorComponent string, verrorOperat
 
 // ErrorfUnknownMethod calls ErrUnknownMethod.Errorf with the supplied arguments.
 func ErrorfUnknownMethod(ctx *context.T, format string) error {
-	return ErrUnknownMethod.Errorf(ctx, format)
+	return ErrUnknownMethod.Errorf(ctx, format) //nolint:govet  // non-constant format string
 }
 
 // MessageUnknownMethod calls ErrUnknownMethod.Message with the supplied arguments.
@@ -342,7 +342,7 @@ func ParamsErrUnknownMethod(argumentError error) (verrorComponent string, verror
 
 // ErrorfUnknownSuffix calls ErrUnknownSuffix.Errorf with the supplied arguments.
 func ErrorfUnknownSuffix(ctx *context.T, format string) error {
-	return ErrUnknownSuffix.Errorf(ctx, format)
+	return ErrUnknownSuffix.Errorf(ctx, format) //nolint:govet  // non-constant format string
 }
 
 // MessageUnknownSuffix calls ErrUnknownSuffix.Message with the supplied arguments.
@@ -368,7 +368,7 @@ func ParamsErrUnknownSuffix(argumentError error) (verrorComponent string, verror
 
 // ErrorfNoExistOrNoAccess calls ErrNoExistOrNoAccess.Errorf with the supplied arguments.
 func ErrorfNoExistOrNoAccess(ctx *context.T, format string) error {
-	return ErrNoExistOrNoAccess.Errorf(ctx, format)
+	return ErrNoExistOrNoAccess.Errorf(ctx, format) //nolint:govet  // non-constant format string
 }
 
 // MessageNoExistOrNoAccess calls ErrNoExistOrNoAccess.Message with the supplied arguments.
@@ -394,7 +394,7 @@ func ParamsErrNoExistOrNoAccess(argumentError error) (verrorComponent string, ve
 
 // ErrorfNoServers calls ErrNoServers.Errorf with the supplied arguments.
 func ErrorfNoServers(ctx *context.T, format string) error {
-	return ErrNoServers.Errorf(ctx, format)
+	return ErrNoServers.Errorf(ctx, format) //nolint:govet  // non-constant format string
 }
 
 // MessageNoServers calls ErrNoServers.Message with the supplied arguments.
@@ -420,7 +420,7 @@ func ParamsErrNoServers(argumentError error) (verrorComponent string, verrorOper
 
 // ErrorfNoAccess calls ErrNoAccess.Errorf with the supplied arguments.
 func ErrorfNoAccess(ctx *context.T, format string) error {
-	return ErrNoAccess.Errorf(ctx, format)
+	return ErrNoAccess.Errorf(ctx, format) //nolint:govet  // non-constant format string
 }
 
 // MessageNoAccess calls ErrNoAccess.Message with the supplied arguments.
@@ -446,7 +446,7 @@ func ParamsErrNoAccess(argumentError error) (verrorComponent string, verrorOpera
 
 // ErrorfNotTrusted calls ErrNotTrusted.Errorf with the supplied arguments.
 func ErrorfNotTrusted(ctx *context.T, format string) error {
-	return ErrNotTrusted.Errorf(ctx, format)
+	return ErrNotTrusted.Errorf(ctx, format) //nolint:govet  // non-constant format string
 }
 
 // MessageNotTrusted calls ErrNotTrusted.Message with the supplied arguments.
@@ -472,7 +472,7 @@ func ParamsErrNotTrusted(argumentError error) (verrorComponent string, verrorOpe
 
 // ErrorfAborted calls ErrAborted.Errorf with the supplied arguments.
 func ErrorfAborted(ctx *context.T, format string) error {
-	return ErrAborted.Errorf(ctx, format)
+	return ErrAborted.Errorf(ctx, format) //nolint:govet  // non-constant format string
 }
 
 // MessageAborted calls ErrAborted.Message with the supplied arguments.
@@ -498,7 +498,7 @@ func ParamsErrAborted(argumentError error) (verrorComponent string, verrorOperat
 
 // ErrorfBadProtocol calls ErrBadProtocol.Errorf with the supplied arguments.
 func ErrorfBadProtocol(ctx *context.T, format string) error {
-	return ErrBadProtocol.Errorf(ctx, format)
+	return ErrBadProtocol.Errorf(ctx, format) //nolint:govet  // non-constant format string
 }
 
 // MessageBadProtocol calls ErrBadProtocol.Message with the supplied arguments.
@@ -524,7 +524,7 @@ func ParamsErrBadProtocol(argumentError error) (verrorComponent string, verrorOp
 
 // ErrorfCanceled calls ErrCanceled.Errorf with the supplied arguments.
 func ErrorfCanceled(ctx *context.T, format string) error {
-	return ErrCanceled.Errorf(ctx, format)
+	return ErrCanceled.Errorf(ctx, format) //nolint:govet  // non-constant format string
 }
 
 // MessageCanceled calls ErrCanceled.Message with the supplied arguments.
@@ -550,7 +550,7 @@ func ParamsErrCanceled(argumentError error) (verrorComponent string, verrorOpera
 
 // ErrorfTimeout calls ErrTimeout.Errorf with the supplied arguments.
 func ErrorfTimeout(ctx *context.T, format string) error {
-	return ErrTimeout.Errorf(ctx, format)
+	return ErrTimeout.Errorf(ctx, format) //nolint:govet  // non-constant format string
 }
 
 // MessageTimeout calls ErrTimeout.Message with the supplied arguments.

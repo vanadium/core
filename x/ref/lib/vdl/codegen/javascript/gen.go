@@ -94,7 +94,8 @@ func formatInt64BigInt(v int64) string {
 	} else if v < 0 {
 		sign = -1
 	}
-	binary.BigEndian.PutUint64(buffer, uint64(v*sign)) // Adjust value by sign.
+	// Adjust value by sign.
+	binary.BigEndian.PutUint64(buffer, uint64(v*sign)) //nolint:gosec // disable G115
 
 	return fmt.Sprintf("new vdl.BigInt(%d, %s)", sign, formatByteBuffer(buffer))
 }

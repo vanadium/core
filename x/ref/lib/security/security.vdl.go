@@ -136,7 +136,7 @@ func vdlReadAnonList1(dec vdl.Decoder, x *[]security.BlessingPattern) error {
 		case done:
 			return dec.FinishValue()
 		default:
-			*x = append(*x, security.BlessingPattern(elem))
+			*x = append(*x, security.BlessingPattern(elem)) //nolint:gosec // disable G115
 		}
 	}
 }
@@ -489,7 +489,7 @@ func (x *blessingStoreState) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 			case err != nil:
 				return err
 			default:
-				x.CacheKeyFormat = uint32(value)
+				x.CacheKeyFormat = uint32(value) //nolint:gosec // disable G115
 			}
 		}
 	}
@@ -522,7 +522,7 @@ func vdlReadAnonMap2(dec vdl.Decoder, x *map[security.BlessingPattern]security.B
 			if tmpMap == nil {
 				tmpMap = make(map[security.BlessingPattern]security.Blessings)
 			}
-			tmpMap[security.BlessingPattern(key)] = elem
+			tmpMap[security.BlessingPattern(key)] = elem //nolint:gosec // disable G115
 		}
 	}
 }

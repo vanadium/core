@@ -62,7 +62,7 @@ func (x *MountFlag) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 	case err != nil:
 		return err
 	default:
-		*x = MountFlag(value)
+		*x = MountFlag(value) //nolint:gosec // disable G115
 	}
 	return nil
 }

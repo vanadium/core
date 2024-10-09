@@ -27,7 +27,7 @@ var (
 
 // ErrorfLargerThan3ByteUInt calls ErrLargerThan3ByteUInt.Errorf with the supplied arguments.
 func ErrorfLargerThan3ByteUInt(ctx *context.T, format string) error {
-	return ErrLargerThan3ByteUInt.Errorf(ctx, format)
+	return ErrLargerThan3ByteUInt.Errorf(ctx, format) //nolint:govet  // non-constant format string
 }
 
 // MessageLargerThan3ByteUInt calls ErrLargerThan3ByteUInt.Message with the supplied arguments.

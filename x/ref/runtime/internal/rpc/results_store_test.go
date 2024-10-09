@@ -16,7 +16,7 @@ func randomKeys() []uint64 {
 	n := (testutil.RandomIntn(256*10) / 10) + 256
 	k := make([]uint64, n)
 	for i := 0; i < n; i++ {
-		k[i] = uint64(testutil.RandomInt63())
+		k[i] = uint64(testutil.RandomInt63()) //nolint:gosec // disable G115
 	}
 	return k
 }

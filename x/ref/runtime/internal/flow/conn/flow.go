@@ -108,7 +108,7 @@ func (c *Conn) newFlowLocked(
 }
 
 func (f *flw) sendRelease(ctx *context.T, n int) {
-	f.conn.sendRelease(ctx, &f.flowControl, uint64(n))
+	f.conn.sendRelease(ctx, &f.flowControl, uint64(n)) //nolint:gosec // disable G115
 }
 
 // disableEncrytion should not be called concurrently with Write* methods.

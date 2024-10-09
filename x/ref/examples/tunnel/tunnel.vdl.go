@@ -105,14 +105,14 @@ func (x *WindowSize) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 			case err != nil:
 				return err
 			default:
-				x.Rows = uint16(value)
+				x.Rows = uint16(value) //nolint:gosec // disable G115
 			}
 		case 1:
 			switch value, err := dec.ReadValueUint(16); {
 			case err != nil:
 				return err
 			default:
-				x.Cols = uint16(value)
+				x.Cols = uint16(value) //nolint:gosec // disable G115
 			}
 		}
 	}

@@ -28,7 +28,7 @@ var (
 
 // ErrorfIllegalEscapeChar calls ErrIllegalEscapeChar.Errorf with the supplied arguments.
 func ErrorfIllegalEscapeChar(ctx *context.T, format string) error {
-	return ErrIllegalEscapeChar.Errorf(ctx, format)
+	return ErrIllegalEscapeChar.Errorf(ctx, format) //nolint:govet  // non-constant format string
 }
 
 // MessageIllegalEscapeChar calls ErrIllegalEscapeChar.Message with the supplied arguments.
@@ -54,7 +54,7 @@ func ParamsErrIllegalEscapeChar(argumentError error) (verrorComponent string, ve
 
 // ErrorfInvalidEscape calls ErrInvalidEscape.Errorf with the supplied arguments.
 func ErrorfInvalidEscape(ctx *context.T, format string, escaped string) error {
-	return ErrInvalidEscape.Errorf(ctx, format, escaped)
+	return ErrInvalidEscape.Errorf(ctx, format, escaped) //nolint:govet  // non-constant format string
 }
 
 // MessageInvalidEscape calls ErrInvalidEscape.Message with the supplied arguments.

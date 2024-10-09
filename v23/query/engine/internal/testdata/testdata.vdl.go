@@ -375,7 +375,7 @@ func (x *RatingsArray) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 		case done:
 			return fmt.Errorf("short array, got len %d < 4 %T)", index, *x)
 		default:
-			x[index] = int16(elem)
+			x[index] = int16(elem) //nolint:gosec // disable G115
 		}
 	}
 	switch done, err := dec.NextEntry(); {
@@ -453,7 +453,7 @@ func (x *EquifaxCreditReport) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 			case err != nil:
 				return err
 			default:
-				x.Rating = byte(value)
+				x.Rating = byte(value) //nolint:gosec // disable G115
 			}
 		case 1:
 			if err := x.FourScoreRatings.VDLRead(dec); err != nil {
@@ -782,7 +782,7 @@ func (x *TransUnionCreditReport) VDLRead(dec vdl.Decoder) error { //nolint:gocyc
 			case err != nil:
 				return err
 			default:
-				x.Rating = int16(value)
+				x.Rating = int16(value) //nolint:gosec // disable G115
 			}
 		case 1:
 			if err := vdlReadAnonMap2(dec, &x.PreviousRatings); err != nil {
@@ -813,7 +813,7 @@ func vdlReadAnonMap2(dec vdl.Decoder, x *map[string]int16) error {
 			case err != nil:
 				return err
 			default:
-				elem = int16(value)
+				elem = int16(value) //nolint:gosec // disable G115
 			}
 			if tmpMap == nil {
 				tmpMap = make(map[string]int16)
@@ -1503,21 +1503,21 @@ func (x *Numbers) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 			case err != nil:
 				return err
 			default:
-				x.B = byte(value)
+				x.B = byte(value) //nolint:gosec // disable G115
 			}
 		case 1:
 			switch value, err := dec.ReadValueUint(16); {
 			case err != nil:
 				return err
 			default:
-				x.Ui16 = uint16(value)
+				x.Ui16 = uint16(value) //nolint:gosec // disable G115
 			}
 		case 2:
 			switch value, err := dec.ReadValueUint(32); {
 			case err != nil:
 				return err
 			default:
-				x.Ui32 = uint32(value)
+				x.Ui32 = uint32(value) //nolint:gosec // disable G115
 			}
 		case 3:
 			switch value, err := dec.ReadValueUint(64); {
@@ -1531,14 +1531,14 @@ func (x *Numbers) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 			case err != nil:
 				return err
 			default:
-				x.I16 = int16(value)
+				x.I16 = int16(value) //nolint:gosec // disable G115
 			}
 		case 5:
 			switch value, err := dec.ReadValueInt(32); {
 			case err != nil:
 				return err
 			default:
-				x.I32 = int32(value)
+				x.I32 = int32(value) //nolint:gosec // disable G115
 			}
 		case 6:
 			switch value, err := dec.ReadValueInt(64); {
@@ -1552,7 +1552,7 @@ func (x *Numbers) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 			case err != nil:
 				return err
 			default:
-				x.F32 = float32(value)
+				x.F32 = float32(value) //nolint:gosec // disable G115
 			}
 		case 8:
 			switch value, err := dec.ReadValueFloat(64); {
@@ -1969,7 +1969,7 @@ func (x *K) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 			case err != nil:
 				return err
 			default:
-				x.A = byte(value)
+				x.A = byte(value) //nolint:gosec // disable G115
 			}
 		case 1:
 			switch value, err := dec.ReadValueString(); {
@@ -2052,7 +2052,7 @@ func (x *V) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 			case err != nil:
 				return err
 			default:
-				x.B = float32(value)
+				x.B = float32(value) //nolint:gosec // disable G115
 			}
 		}
 	}
@@ -2295,7 +2295,7 @@ func vdlReadAnonMap5(dec vdl.Decoder, x *map[int16][]map[string]struct{}) error 
 			if tmpMap == nil {
 				tmpMap = make(map[int16][]map[string]struct{})
 			}
-			tmpMap[int16(key)] = elem
+			tmpMap[int16(key)] = elem //nolint:gosec // disable G115
 		}
 	}
 }
@@ -3029,7 +3029,7 @@ func vdlReadAnonMap9(dec vdl.Decoder, x *map[byte]string) error {
 			if tmpMap == nil {
 				tmpMap = make(map[byte]string)
 			}
-			tmpMap[byte(key)] = elem
+			tmpMap[byte(key)] = elem //nolint:gosec // disable G115
 		}
 	}
 }
@@ -3060,7 +3060,7 @@ func vdlReadAnonMap10(dec vdl.Decoder, x *map[uint16]string) error {
 			if tmpMap == nil {
 				tmpMap = make(map[uint16]string)
 			}
-			tmpMap[uint16(key)] = elem
+			tmpMap[uint16(key)] = elem //nolint:gosec // disable G115
 		}
 	}
 }
@@ -3091,7 +3091,7 @@ func vdlReadAnonMap11(dec vdl.Decoder, x *map[uint32]string) error {
 			if tmpMap == nil {
 				tmpMap = make(map[uint32]string)
 			}
-			tmpMap[uint32(key)] = elem
+			tmpMap[uint32(key)] = elem //nolint:gosec // disable G115
 		}
 	}
 }
@@ -3153,7 +3153,7 @@ func vdlReadAnonMap13(dec vdl.Decoder, x *map[int16]string) error {
 			if tmpMap == nil {
 				tmpMap = make(map[int16]string)
 			}
-			tmpMap[int16(key)] = elem
+			tmpMap[int16(key)] = elem //nolint:gosec // disable G115
 		}
 	}
 }
@@ -3184,7 +3184,7 @@ func vdlReadAnonMap14(dec vdl.Decoder, x *map[int32]string) error {
 			if tmpMap == nil {
 				tmpMap = make(map[int32]string)
 			}
-			tmpMap[int32(key)] = elem
+			tmpMap[int32(key)] = elem //nolint:gosec // disable G115
 		}
 	}
 }
@@ -3246,7 +3246,7 @@ func vdlReadAnonMap16(dec vdl.Decoder, x *map[float32]string) error {
 			if tmpMap == nil {
 				tmpMap = make(map[float32]string)
 			}
-			tmpMap[float32(key)] = elem
+			tmpMap[float32(key)] = elem //nolint:gosec // disable G115
 		}
 	}
 }
@@ -3870,7 +3870,7 @@ func vdlReadAnonSet22(dec vdl.Decoder, x *map[byte]struct{}) error {
 			if tmpMap == nil {
 				tmpMap = make(map[byte]struct{})
 			}
-			tmpMap[byte(key)] = struct{}{}
+			tmpMap[byte(key)] = struct{}{} //nolint:gosec // disable G115
 		}
 	}
 }
@@ -3894,7 +3894,7 @@ func vdlReadAnonSet23(dec vdl.Decoder, x *map[uint16]struct{}) error {
 			if tmpMap == nil {
 				tmpMap = make(map[uint16]struct{})
 			}
-			tmpMap[uint16(key)] = struct{}{}
+			tmpMap[uint16(key)] = struct{}{} //nolint:gosec // disable G115
 		}
 	}
 }
@@ -3918,7 +3918,7 @@ func vdlReadAnonSet24(dec vdl.Decoder, x *map[uint32]struct{}) error {
 			if tmpMap == nil {
 				tmpMap = make(map[uint32]struct{})
 			}
-			tmpMap[uint32(key)] = struct{}{}
+			tmpMap[uint32(key)] = struct{}{} //nolint:gosec // disable G115
 		}
 	}
 }
@@ -3966,7 +3966,7 @@ func vdlReadAnonSet26(dec vdl.Decoder, x *map[int16]struct{}) error {
 			if tmpMap == nil {
 				tmpMap = make(map[int16]struct{})
 			}
-			tmpMap[int16(key)] = struct{}{}
+			tmpMap[int16(key)] = struct{}{} //nolint:gosec // disable G115
 		}
 	}
 }
@@ -3990,7 +3990,7 @@ func vdlReadAnonSet27(dec vdl.Decoder, x *map[int32]struct{}) error {
 			if tmpMap == nil {
 				tmpMap = make(map[int32]struct{})
 			}
-			tmpMap[int32(key)] = struct{}{}
+			tmpMap[int32(key)] = struct{}{} //nolint:gosec // disable G115
 		}
 	}
 }
@@ -4038,7 +4038,7 @@ func vdlReadAnonSet29(dec vdl.Decoder, x *map[float32]struct{}) error {
 			if tmpMap == nil {
 				tmpMap = make(map[float32]struct{})
 			}
-			tmpMap[float32(key)] = struct{}{}
+			tmpMap[float32(key)] = struct{}{} //nolint:gosec // disable G115
 		}
 	}
 }

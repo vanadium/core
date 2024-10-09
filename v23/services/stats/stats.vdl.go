@@ -35,7 +35,7 @@ var (
 
 // ErrorfNoValue calls ErrNoValue.Errorf with the supplied arguments.
 func ErrorfNoValue(ctx *context.T, format string, suffix string) error {
-	return ErrNoValue.Errorf(ctx, format, suffix)
+	return ErrNoValue.Errorf(ctx, format, suffix) //nolint:govet  // non-constant format string
 }
 
 // MessageNoValue calls ErrNoValue.Message with the supplied arguments.

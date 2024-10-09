@@ -183,10 +183,10 @@ func (d *decoder81) ReadValueUint(bitlen int) (value uint64, err error) {
 			if kind.BitLen() <= bitlen {
 				value, err = binaryDecodeUint(d.buf)
 			} else {
-				value, err = d.decodeUint(tt, uint(bitlen))
+				value, err = d.decodeUint(tt, uint(bitlen)) //nolint:gosec // disable G115
 			}
 		case vdl.Int8, vdl.Int16, vdl.Int32, vdl.Int64, vdl.Float32, vdl.Float64:
-			value, err = d.decodeUint(tt, uint(bitlen))
+			value, err = d.decodeUint(tt, uint(bitlen)) //nolint:gosec // disable G115
 		case vdl.Byte:
 			var b byte
 			b, err = d.binaryDecodeByte()
@@ -235,10 +235,10 @@ func (d *decoder81) ReadValueInt(bitlen int) (value int64, err error) {
 			if kind.BitLen() <= bitlen {
 				value, err = binaryDecodeInt(d.buf)
 			} else {
-				value, err = d.decodeInt(tt, uint(bitlen))
+				value, err = d.decodeInt(tt, uint(bitlen)) //nolint:gosec // disable G115
 			}
 		case vdl.Byte, vdl.Uint16, vdl.Uint32, vdl.Uint64, vdl.Float32, vdl.Float64:
-			value, err = d.decodeInt(tt, uint(bitlen))
+			value, err = d.decodeInt(tt, uint(bitlen)) //nolint:gosec // disable G115
 		default:
 			return 0, errIncompatibleDecode(tt, "int"+strconv.Itoa(bitlen))
 		}
@@ -283,10 +283,10 @@ func (d *decoder81) ReadValueFloat(bitlen int) (value float64, err error) {
 			if kind.BitLen() <= bitlen {
 				value, err = binaryDecodeFloat(d.buf)
 			} else {
-				value, err = d.decodeFloat(tt, uint(bitlen))
+				value, err = d.decodeFloat(tt, uint(bitlen)) //nolint:gosec // disable G115
 			}
 		case vdl.Byte, vdl.Uint16, vdl.Uint32, vdl.Uint64, vdl.Int8, vdl.Int16, vdl.Int32, vdl.Int64:
-			value, err = d.decodeFloat(tt, uint(bitlen))
+			value, err = d.decodeFloat(tt, uint(bitlen)) //nolint:gosec // disable G115
 		default:
 			return 0, errIncompatibleDecode(tt, "float"+strconv.Itoa(bitlen))
 		}

@@ -120,7 +120,7 @@ func (e *TypeEncoder) encodeType(tt *vdl.Type, pending []*vdl.Type) (TypeId, err
 		if err != nil {
 			return 0, err
 		}
-		wt = wireTypeArrayT{wireArray{tt.Name(), elm, uint64(tt.Len())}}
+		wt = wireTypeArrayT{wireArray{tt.Name(), elm, uint64(tt.Len())}} //nolint:gosec // disable G115
 	case vdl.List:
 		elm, err := e.encodeType(tt.Elem(), pending)
 		if err != nil {

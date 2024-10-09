@@ -111,7 +111,7 @@ func (rb *RawBytes) newDecoder(r io.Reader, typeDec *decoder81) vdl.Decoder {
 	dec.buf.version = rb.Version
 	dec.refTypes.tids = make([]TypeId, len(rb.RefTypes))
 	for i, refType := range rb.RefTypes {
-		tid := TypeId(i) + WireIdFirstUserType
+		tid := TypeId(i) + WireIdFirstUserType //nolint:gosec // disable G115
 		dec.typeDec.idToType[tid] = refType
 		dec.refTypes.tids[i] = tid
 	}

@@ -43,7 +43,7 @@ func NewBufferingFlow(ctx *context.T, f flow.Flow) *BufferingFlow {
 		mtu:  DefaultMTU,
 	}
 	if m, ok := f.Conn().(MTUer); ok {
-		b.mtu = int(m.MTU())
+		b.mtu = int(m.MTU()) //nolint:gosec // disable G115
 	}
 	b.buf = b.internal[:0]
 	return b

@@ -139,17 +139,17 @@ func flowControlReleasedInvariant(dc, ac *Conn) error {
 	// dial side released
 	totalReleased := 0
 	for _, f := range dc.flows {
-		totalReleased += int(f.flowControl.released)
+		totalReleased += int(f.flowControl.released) //nolint:gosec // disable G115
 		// invariant 3.
 		if f.flowControl.released > f.flowControl.shared.bytesBufferedPerFlow {
 			return fmt.Errorf("invariant 3: dial side flow %v has too many released tokens: %v > %v", f.id, f.flowControl.released, f.flowControl.shared.bytesBufferedPerFlow)
 		}
 	}
-	totalAvail := len(dc.flows) * int(ac.flowControl.bytesBufferedPerFlow)
+	totalAvail := len(dc.flows) * int(ac.flowControl.bytesBufferedPerFlow) //nolint:gosec // disable G115
 
 	// invariant 1.
 	if totalReleased > totalAvail {
-		return fmt.Errorf("invariant 1: total number of released counters exceed the capacity of the server: %v > %v (# flows %v * buffered per flow %v)", totalReleased, totalAvail, len(dc.flows), int(ac.flowControl.bytesBufferedPerFlow))
+		return fmt.Errorf("invariant 1: total number of released counters exceed the capacity of the server: %v > %v (# flows %v * buffered per flow %v)", totalReleased, totalAvail, len(dc.flows), int(ac.flowControl.bytesBufferedPerFlow)) //nolint:gosec // disable G115
 	}
 
 	nToRelease := 0
@@ -159,7 +159,7 @@ func flowControlReleasedInvariant(dc, ac *Conn) error {
 		if r.Tokens > (ac.flowControl.bytesBufferedPerFlow + ac.flowControl.toReleaseBorrowed) {
 			return fmt.Errorf("invariant 4: accept side closed flow %v has too many released tokens: %v > (%v + %v)", r.FlowID, r.Tokens, ac.flowControl.bytesBufferedPerFlow, ac.flowControl.toReleaseBorrowed)
 		}
-		totalToRelease += int(r.Tokens)
+		totalToRelease += int(r.Tokens) //nolint:gosec // disable G115
 		nToRelease++
 	}
 
@@ -168,16 +168,16 @@ func flowControlReleasedInvariant(dc, ac *Conn) error {
 		if f.flowControl.toRelease > (f.flowControl.shared.bytesBufferedPerFlow + ac.flowControl.toReleaseBorrowed) {
 			return fmt.Errorf("invariant 4: accept side flow %v has too many tokens to release: %v > (%v + %v)", f.id, f.flowControl.toRelease, f.flowControl.shared.bytesBufferedPerFlow, ac.flowControl.toReleaseBorrowed)
 		}
-		totalToRelease += int(f.flowControl.toRelease)
+		totalToRelease += int(f.flowControl.toRelease) //nolint:gosec // disable G115
 		nToRelease++
 	}
 
-	totalAvail = nToRelease * int(ac.flowControl.bytesBufferedPerFlow)
-	totalAvail += int(ac.flowControl.toReleaseBorrowed)
+	totalAvail = nToRelease * int(ac.flowControl.bytesBufferedPerFlow) //nolint:gosec // disable G115
+	totalAvail += int(ac.flowControl.toReleaseBorrowed)                //nolint:gosec // disable G115
 
 	// invariant 2.
 	if totalToRelease > totalAvail {
-		return fmt.Errorf("invariant 2: total number of toRelease counters exceed the capacity of the server: %v > %v (# flows %v * buffered per flow %v)", totalToRelease, totalAvail, nToRelease, int(ac.flowControl.bytesBufferedPerFlow))
+		return fmt.Errorf("invariant 2: total number of toRelease counters exceed the capacity of the server: %v > %v (# flows %v * buffered per flow %v)", totalToRelease, totalAvail, nToRelease, int(ac.flowControl.bytesBufferedPerFlow)) //nolint:gosec // disable G115
 	}
 
 	return nil

@@ -62,7 +62,7 @@ func CallSum(ctx *context.T, server string, maxPayloadSize int, stats *stress.Su
 		ctx.Fatalf("Sum returned %v, but expected %v", got, wanted)
 	}
 	stats.SumCount++
-	stats.BytesSent += uint64(lenSumArg(&arg))
+	stats.BytesSent += uint64(lenSumArg(&arg)) //nolint:gosec // disable G115
 	stats.BytesRecv += uint64(len(got))
 }
 
@@ -119,7 +119,7 @@ func CallSumStream(ctx *context.T, server string, maxChunkCnt, maxPayloadSize in
 		if err = sendS.Send(arg); err != nil {
 			ctx.Fatalf("SendStream failed to send: %v", err)
 		}
-		stats.BytesSent += uint64(lenSumArg(&arg))
+		stats.BytesSent += uint64(lenSumArg(&arg)) //nolint:gosec // disable G115
 	}
 	if err = sendS.Close(); err != nil {
 		ctx.Fatalf("SendStream failed to close: %v", err)

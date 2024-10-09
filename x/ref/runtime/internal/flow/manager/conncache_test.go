@@ -588,9 +588,10 @@ func nConnAndFlows(t *testing.T, ctx *context.T, n int) ([]connAndFlow, func()) 
 	cfs := make([]connAndFlow, n)
 	for i := 0; i < n; i++ {
 		cfs[i] = makeConnAndFlow(t, ctx, naming.Endpoint{
-			Protocol:  "local",
-			Address:   strconv.Itoa(i),
-			RoutingID: naming.FixedRoutingID(uint64(i + 1)), // We need to have a nonzero rid for bidi.
+			Protocol: "local",
+			Address:  strconv.Itoa(i),
+			// We need to have a nonzero rid for bidi.
+			RoutingID: naming.FixedRoutingID(uint64(i + 1)), //nolint:gosec // disable G115
 		})
 	}
 	return cfs, func() {

@@ -329,7 +329,7 @@ func TestConcurrentGet(t *testing.T) {
 				if err != nil {
 					continue
 				}
-				atomic.AddUint32(&sum, uint32(item.(int)))
+				atomic.AddUint32(&sum, uint32(item.(int))) //nolint:gosec // disable G115
 				atomic.AddUint32(&count, 1)
 			}
 			logger.Global().VI(1).Infof("Consumer %d done", pid)

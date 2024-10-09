@@ -28,7 +28,7 @@ var (
 
 // ErrorfNoNamespace calls ErrNoNamespace.Errorf with the supplied arguments.
 func ErrorfNoNamespace(ctx *context.T, format string) error {
-	return ErrNoNamespace.Errorf(ctx, format)
+	return ErrNoNamespace.Errorf(ctx, format) //nolint:govet  // non-constant format string
 }
 
 // MessageNoNamespace calls ErrNoNamespace.Message with the supplied arguments.
@@ -54,7 +54,7 @@ func ParamsErrNoNamespace(argumentError error) (verrorComponent string, verrorOp
 
 // ErrorfAdInvalidEncoding calls ErrAdInvalidEncoding.Errorf with the supplied arguments.
 func ErrorfAdInvalidEncoding(ctx *context.T, format string, ad string) error {
-	return ErrAdInvalidEncoding.Errorf(ctx, format, ad)
+	return ErrAdInvalidEncoding.Errorf(ctx, format, ad) //nolint:govet  // non-constant format string
 }
 
 // MessageAdInvalidEncoding calls ErrAdInvalidEncoding.Message with the supplied arguments.

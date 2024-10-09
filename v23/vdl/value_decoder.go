@@ -225,7 +225,7 @@ func (d *valueDecoder) DecodeBool() (bool, error) {
 
 func (d *valueDecoder) DecodeUint(bitlen int) (uint64, error) {
 	const errFmt = "vdl: conversion from %v into uint%d loses precision: %v"
-	topV, ubitlen := d.topValue(), uint(bitlen)
+	topV, ubitlen := d.topValue(), uint(bitlen) //nolint:gosec // disable G115
 	if topV == nil {
 		return 0, errEmptyDecoderStack
 	}
@@ -257,14 +257,14 @@ func (d *valueDecoder) DecodeUint(bitlen int) (uint64, error) {
 
 func (d *valueDecoder) DecodeInt(bitlen int) (int64, error) {
 	const errFmt = "vdl: conversion from %v into int%d loses precision: %v"
-	topV, ubitlen := d.topValue(), uint(bitlen)
+	topV, ubitlen := d.topValue(), uint(bitlen) //nolint:gosec // disable G115
 	if topV == nil {
 		return 0, errEmptyDecoderStack
 	}
 	switch topV.Kind() {
 	case Byte, Uint16, Uint32, Uint64:
 		x := topV.Uint()
-		ix := int64(x)
+		ix := int64(x) //nolint:gosec // disable G115
 		// The shift uses 65 since the topmost bit is the sign bit.  I.e. 32 bit
 		// numbers should be shifted by 33 rather than 32.
 		if shift := 65 - ubitlen; ix < 0 || x != (x<<shift)>>shift {

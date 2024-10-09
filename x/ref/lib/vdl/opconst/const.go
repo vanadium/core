@@ -325,11 +325,11 @@ func EvalUnary(op UnaryOp, x Const) (Const, error) { //nolint:gocyclo
 		not := new(big.Int)
 		switch {
 		case x.repType != nil && x.repType.Kind() == vdl.Byte:
-			not.SetUint64(uint64(^uint8(ix.Uint64())))
+			not.SetUint64(uint64(^uint8(ix.Uint64()))) //nolint:gosec // disable G115
 		case x.repType != nil && x.repType.Kind() == vdl.Uint16:
-			not.SetUint64(uint64(^uint16(ix.Uint64())))
+			not.SetUint64(uint64(^uint16(ix.Uint64()))) //nolint:gosec // disable G115
 		case x.repType != nil && x.repType.Kind() == vdl.Uint32:
-			not.SetUint64(uint64(^uint32(ix.Uint64())))
+			not.SetUint64(uint64(^uint32(ix.Uint64()))) //nolint:gosec // disable G115
 		case x.repType != nil && x.repType.Kind() == vdl.Uint64:
 			not.SetUint64(^ix.Uint64())
 		default:

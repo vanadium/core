@@ -207,7 +207,7 @@ var (
 
 // ErrorfInvalidAddress calls ErrInvalidAddress.Errorf with the supplied arguments.
 func ErrorfInvalidAddress(ctx *context.T, format string, address string) error {
-	return ErrInvalidAddress.Errorf(ctx, format, address)
+	return ErrInvalidAddress.Errorf(ctx, format, address) //nolint:govet  // non-constant format string
 }
 
 // MessageInvalidAddress calls ErrInvalidAddress.Message with the supplied arguments.
@@ -246,7 +246,7 @@ func ParamsErrInvalidAddress(argumentError error) (verrorComponent string, verro
 
 // ErrorfAddressNotReachable calls ErrAddressNotReachable.Errorf with the supplied arguments.
 func ErrorfAddressNotReachable(ctx *context.T, format string, address string) error {
-	return ErrAddressNotReachable.Errorf(ctx, format, address)
+	return ErrAddressNotReachable.Errorf(ctx, format, address) //nolint:govet  // non-constant format string
 }
 
 // MessageAddressNotReachable calls ErrAddressNotReachable.Message with the supplied arguments.
@@ -285,7 +285,7 @@ func ParamsErrAddressNotReachable(argumentError error) (verrorComponent string, 
 
 // ErrorfNoRegisteredProtocol calls ErrNoRegisteredProtocol.Errorf with the supplied arguments.
 func ErrorfNoRegisteredProtocol(ctx *context.T, format string, protocol string) error {
-	return ErrNoRegisteredProtocol.Errorf(ctx, format, protocol)
+	return ErrNoRegisteredProtocol.Errorf(ctx, format, protocol) //nolint:govet  // non-constant format string
 }
 
 // MessageNoRegisteredProtocol calls ErrNoRegisteredProtocol.Message with the supplied arguments.
@@ -324,7 +324,7 @@ func ParamsErrNoRegisteredProtocol(argumentError error) (verrorComponent string,
 
 // ErrorfCantAcceptFromTag calls ErrCantAcceptFromTag.Errorf with the supplied arguments.
 func ErrorfCantAcceptFromTag(ctx *context.T, format string, tag string) error {
-	return ErrCantAcceptFromTag.Errorf(ctx, format, tag)
+	return ErrCantAcceptFromTag.Errorf(ctx, format, tag) //nolint:govet  // non-constant format string
 }
 
 // MessageCantAcceptFromTag calls ErrCantAcceptFromTag.Message with the supplied arguments.

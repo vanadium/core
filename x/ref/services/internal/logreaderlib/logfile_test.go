@@ -163,7 +163,7 @@ func TestReadLogImplWithFollow(t *testing.T) {
 	}
 
 	// Read with follow.
-	stream, err := lf.ReadLog(ctx, 0, int32(len(tests)), true)
+	stream, err := lf.ReadLog(ctx, 0, int32(len(tests)), true) //nolint:gosec // disable G115
 	if err != nil {
 		t.Errorf("ReadLog failed: %v", err)
 	}

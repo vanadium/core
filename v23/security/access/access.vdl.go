@@ -286,7 +286,7 @@ func vdlReadAnonList1(dec vdl.Decoder, x *[]security.BlessingPattern) error {
 		case done:
 			return dec.FinishValue()
 		default:
-			*x = append(*x, security.BlessingPattern(elem))
+			*x = append(*x, security.BlessingPattern(elem)) //nolint:gosec // disable G115
 		}
 	}
 }
@@ -407,7 +407,7 @@ func (x *Tag) VDLRead(dec vdl.Decoder) error { //nolint:gocyclo
 	case err != nil:
 		return err
 	default:
-		*x = Tag(value)
+		*x = Tag(value) //nolint:gosec // disable G115
 	}
 	return nil
 }
@@ -462,7 +462,7 @@ var (
 
 // ErrorfTooBig calls ErrTooBig.Errorf with the supplied arguments.
 func ErrorfTooBig(ctx *context.T, format string) error {
-	return ErrTooBig.Errorf(ctx, format)
+	return ErrTooBig.Errorf(ctx, format) //nolint:govet  // non-constant format string
 }
 
 // MessageTooBig calls ErrTooBig.Message with the supplied arguments.
@@ -488,7 +488,7 @@ func ParamsErrTooBig(argumentError error) (verrorComponent string, verrorOperati
 
 // ErrorfNoPermissions calls ErrNoPermissions.Errorf with the supplied arguments.
 func ErrorfNoPermissions(ctx *context.T, format string, validBlessings []string, rejectedBlessings []security.RejectedBlessing, tag string) error {
-	return ErrNoPermissions.Errorf(ctx, format, validBlessings, rejectedBlessings, tag)
+	return ErrNoPermissions.Errorf(ctx, format, validBlessings, rejectedBlessings, tag) //nolint:govet  // non-constant format string
 }
 
 // MessageNoPermissions calls ErrNoPermissions.Message with the supplied arguments.
@@ -543,7 +543,7 @@ func ParamsErrNoPermissions(argumentError error) (verrorComponent string, verror
 
 // ErrorfAccessListMatch calls ErrAccessListMatch.Errorf with the supplied arguments.
 func ErrorfAccessListMatch(ctx *context.T, format string, validBlessings []string, rejectedBlessings []security.RejectedBlessing) error {
-	return ErrAccessListMatch.Errorf(ctx, format, validBlessings, rejectedBlessings)
+	return ErrAccessListMatch.Errorf(ctx, format, validBlessings, rejectedBlessings) //nolint:govet  // non-constant format string
 }
 
 // MessageAccessListMatch calls ErrAccessListMatch.Message with the supplied arguments.
@@ -590,7 +590,7 @@ func ParamsErrAccessListMatch(argumentError error) (verrorComponent string, verr
 
 // ErrorfUnenforceablePatterns calls ErrUnenforceablePatterns.Errorf with the supplied arguments.
 func ErrorfUnenforceablePatterns(ctx *context.T, format string, rejectedPatterns []security.BlessingPattern) error {
-	return ErrUnenforceablePatterns.Errorf(ctx, format, rejectedPatterns)
+	return ErrUnenforceablePatterns.Errorf(ctx, format, rejectedPatterns) //nolint:govet  // non-constant format string
 }
 
 // MessageUnenforceablePatterns calls ErrUnenforceablePatterns.Message with the supplied arguments.
@@ -629,7 +629,7 @@ func ParamsErrUnenforceablePatterns(argumentError error) (verrorComponent string
 
 // ErrorfInvalidOpenAccessList calls ErrInvalidOpenAccessList.Errorf with the supplied arguments.
 func ErrorfInvalidOpenAccessList(ctx *context.T, format string) error {
-	return ErrInvalidOpenAccessList.Errorf(ctx, format)
+	return ErrInvalidOpenAccessList.Errorf(ctx, format) //nolint:govet  // non-constant format string
 }
 
 // MessageInvalidOpenAccessList calls ErrInvalidOpenAccessList.Message with the supplied arguments.
@@ -655,7 +655,7 @@ func ParamsErrInvalidOpenAccessList(argumentError error) (verrorComponent string
 
 // ErrorfAccessTagCaveatValidation calls ErrAccessTagCaveatValidation.Errorf with the supplied arguments.
 func ErrorfAccessTagCaveatValidation(ctx *context.T, format string, methodTags []string, caveatTags []Tag) error {
-	return ErrAccessTagCaveatValidation.Errorf(ctx, format, methodTags, caveatTags)
+	return ErrAccessTagCaveatValidation.Errorf(ctx, format, methodTags, caveatTags) //nolint:govet  // non-constant format string
 }
 
 // MessageAccessTagCaveatValidation calls ErrAccessTagCaveatValidation.Message with the supplied arguments.
@@ -702,7 +702,7 @@ func ParamsErrAccessTagCaveatValidation(argumentError error) (verrorComponent st
 
 // ErrorfMultipleTags calls ErrMultipleTags.Errorf with the supplied arguments.
 func ErrorfMultipleTags(ctx *context.T, format string, suffix string, method string, tag string) error {
-	return ErrMultipleTags.Errorf(ctx, format, suffix, method, tag)
+	return ErrMultipleTags.Errorf(ctx, format, suffix, method, tag) //nolint:govet  // non-constant format string
 }
 
 // MessageMultipleTags calls ErrMultipleTags.Message with the supplied arguments.
@@ -757,7 +757,7 @@ func ParamsErrMultipleTags(argumentError error) (verrorComponent string, verrorO
 
 // ErrorfNoTags calls ErrNoTags.Errorf with the supplied arguments.
 func ErrorfNoTags(ctx *context.T, format string, suffix string, method string, tag string) error {
-	return ErrNoTags.Errorf(ctx, format, suffix, method, tag)
+	return ErrNoTags.Errorf(ctx, format, suffix, method, tag) //nolint:govet  // non-constant format string
 }
 
 // MessageNoTags calls ErrNoTags.Message with the supplied arguments.
