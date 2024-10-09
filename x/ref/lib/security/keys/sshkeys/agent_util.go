@@ -144,22 +144,29 @@ func parseECDSAKey(key ssh.PublicKey) (*ecdsa.PublicKey, error) {
 	if err := ssh.Unmarshal(key.Marshal(), &sshWire); err != nil {
 		return nil, fmt.Errorf("failed to unmarshal key type: %v: %v", key.Type(), err)
 	}
-	pk := new(ecdsa.PublicKey)
 	switch sshWire.ID {
 	case "nistp256":
-		pk.Curve = elliptic.P256()
+		return &ecdsa.PublicKey{
+			Curve: elliptic.P256(),
+			X:     big.NewInt(0).SetBytes(sshWire.Key[1:33]),
+			Y:     big.NewInt(0).SetBytes(sshWire.Key[33:]),
+		}, nil
 	case "nistp384":
-		pk.Curve = elliptic.P384()
+		return &ecdsa.PublicKey{
+			Curve: elliptic.P384(),
+			X:     big.NewInt(0).SetBytes(sshWire.Key[1:49]),
+			Y:     big.NewInt(0).SetBytes(sshWire.Key[49:]),
+		}, nil
 	case "nistp521":
-		pk.Curve = elliptic.P521()
+		return &ecdsa.PublicKey{
+			Curve: elliptic.P521(),
+			X:     big.NewInt(0).SetBytes(sshWire.Key[1:67]),
+			Y:     big.NewInt(0).SetBytes(sshWire.Key[67:]),
+		}, nil
 	default:
 		return nil, fmt.Errorf("uncrecognised ecdsa curve: %v", sshWire.ID)
 	}
-	pk.X, pk.Y = elliptic.Unmarshal(pk.Curve, sshWire.Key) //nolint:staticcheck // deprecation of elliptic.Unmarshal
-	if pk.X == nil || pk.Y == nil {
-		return nil, fmt.Errorf("invalid curve point")
-	}
-	return pk, nil
+
 }
 
 // parseED25519Key creates an ed25519.PublicKey from an ssh ED25519 key.
